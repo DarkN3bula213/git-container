@@ -1,18 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import dayjs from 'dayjs';
 import * as path from 'path';
 import * as winston from 'winston';
 import colors from 'colors';
-import * as fs from 'fs';
+import { config } from '../config';
 
 // Define custom colors for log levels
 colors.setTheme({
-  info: 'green',
+  info: 'black',
   warn: 'yellow',
   error: 'red',
   debug: 'blue',
   // Define custom styles for timestamp and message backgrounds
   timestampBg: 'bgCyan', // This is an approximation; adjust as needed
-  infoMessage: 'bgGreen',
+  infoMessage: 'green',
   warnMessage: 'bgYellow',
   errorMessage: 'bgRed',
   debugMessage: 'bgBlue',
@@ -23,11 +25,14 @@ const customTimestampFormat = winston.format((info, opts) => {
   return info;
 })();
 const customPrintf = winston.format.printf((info) => {
-  const timestamp = colors.bgCyan(info.timestamp); // Apply background color to timestamp
-  const level = (colors as any)[info.level](info.level.toUpperCase()); // Keep level color unchanged
+  const timestamp = colors.grey(info.timestamp); // Apply background color to timestamp
+  const level = (colors as any)[info.level](
+    colors.white(info.level.toUpperCase()),
+  ); // Keep level color unchanged
+  // const level = (colors as any)[info.level](info.level.toUpperCase()); // Keep level color unchanged
   const messageColor = (colors as any)[`${info.level}Message`]; // Select message color based on log level
   const message = messageColor ? messageColor(info.message) : info.message; // Apply message color or fallback
-  return `${timestamp} ${level}: ${message}`;
+  return `${timestamp} [${level}]: ${message}`;
 });
 export class Logger {
   public static DEFAULT_SCOPE = 'app';
@@ -35,19 +40,20 @@ export class Logger {
   private static logger = winston.createLogger({
     level: 'debug',
     format: winston.format.combine(
-      winston.format.colorize(),
       customTimestampFormat,
-      winston.format.printf((info) => {
-        const colorize =
-          (colors as any)[info.level] || ((text: string) => text); // Fallback function if no color defined
-        return `${info.timestamp} ${colorize(`[${info.level}]:`)} ${colorize(info.message)}`;
-      }),
+      winston.format.errors({ stack: true }),
+      customPrintf,
     ),
     transports: [
       new winston.transports.Console(),
       new winston.transports.File({
-        filename: `${process.env.LOG_DIR || '.'}/error.log`, // Use LOG_DIR environment variable or default to project root
+        filename: `${config.log.directory}/error.log`, 
         level: 'error',
+        format: winston.format.combine(
+          customTimestampFormat,
+          winston.format.errors({ stack: true }),
+          winston.format.prettyPrint(),
+        ),
       }),
     ],
   });
