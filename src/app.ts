@@ -1,8 +1,8 @@
 import express, { Application } from 'express';
-import { errorHandler } from './lib/handlers/errorHandler';
+import middleware from './middleware/common';
 
 const app: Application = express();
 
-app.use(errorHandler);
+middleware(app);
 
 export { app };
