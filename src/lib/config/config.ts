@@ -49,6 +49,7 @@ export const config = {
     user: getOsEnv('REDIS_USER'),
     pass: getOsEnv('REDIS_PASS'),
     port: getOsEnv('REDIS_PORT'),
+    uri: getOsEnv('REDIS_URI_DEV'),
   },
   // postgres: {
   //   url: getOsEnv('POSTGRES_URL'),

@@ -16,22 +16,37 @@ colors.setTheme({
   timestampBg: 'bgCyan', // This is an approximation; adjust as needed
   infoMessage: 'green',
   warnMessage: 'bgYellow',
-  errorMessage: 'bgRed',
+  errorMessage: 'magenta',
   debugMessage: 'bgBlue',
 });
 
+const levelColors: levelColorMap = {
+  info: 'green',
+  warn: 'yellow',
+  error: 'red',
+  debug: 'blue',
+};
+
+type levelColorMap = {
+  [key: string]: string;
+};
 const customTimestampFormat = winston.format((info, opts) => {
-  info.timestamp = dayjs().format('DD-MM HH:mm:ss'); // Customize the format as needed
+  info.timestamp = dayjs().format('| [+] | MM-DD HH:mm');
   return info;
 })();
 const customPrintf = winston.format.printf((info) => {
-  const timestamp = colors.grey(info.timestamp); // Apply background color to timestamp
-  const level = (colors as any)[info.level](
-    colors.white(info.level.toUpperCase()),
-  ); // Keep level color unchanged
-  // const level = (colors as any)[info.level](info.level.toUpperCase()); // Keep level color unchanged
-  const messageColor = (colors as any)[`${info.level}Message`]; // Select message color based on log level
-  const message = messageColor ? messageColor(info.message) : info.message; // Apply message color or fallback
+  const timestamp = colors.grey(info.timestamp);
+
+  // const level = (colors as any)[info.level](
+  //   colors.white(info.level.toUpperCase()),
+  // );
+  // Safely access the color using the log level, with a fallback to 'white'
+  const levelColor = levelColors[info.level] || 'white';
+
+  const level = (colors as any)[levelColor]( info.level.toUpperCase() );
+
+  const messageColor = (colors as any)[`${info.level}Message`];
+  const message = messageColor ? messageColor(info.message) : info.message;
   return `${timestamp} [${level}]: ${message}`;
 });
 export class Logger {
@@ -47,7 +62,7 @@ export class Logger {
     transports: [
       new winston.transports.Console(),
       new winston.transports.File({
-        filename: `${config.log.directory}/error.log`, 
+        filename: `${config.log.directory}/error.log`,
         level: 'error',
         format: winston.format.combine(
           customTimestampFormat,

@@ -5,11 +5,7 @@ const logger = new Logger(__filename);
 
 const URI = `mongodb://${config.mongo.host}:${config.mongo.port}/${config.mongo.database}`;
 
-const dbURI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@${
-  config.mongo.host
-}:${config.mongo.port}/${config.mongo.database}`;
-
-
+const dbURI = `mongodb://devuser:devpassword@localhost:27017/`;
 
 logger.debug(dbURI);
 function setRunValidators(this: any) {
@@ -24,7 +20,7 @@ export const connect = async () => {
     socketTimeoutMS: 45000,
   };
   try {
-    const client = await mongoose.connect(URI);
+    const client = await mongoose.connect(dbURI);
     logger.info(`Database connected: ${client.connection.name}`);
 
     client.set('strictQuery', true);
@@ -64,7 +60,5 @@ export const connect = async () => {
   } catch (err: any) {
     logger.error(err.message);
   }
-   return mongoose.connection
+  return mongoose.connection;
 };
-
- 
