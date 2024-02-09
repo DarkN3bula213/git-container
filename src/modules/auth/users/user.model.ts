@@ -8,9 +8,10 @@ import {
   FilterQuery,
 } from 'mongoose';
 import bcrypt from 'bcrypt';
-
+import { generateUniqueId } from './utils';
 export interface User extends Document {
   name: string;
+  customId: string;
   father_name: string;
   gender: 'male' | 'female';
   country: string;
@@ -31,16 +32,23 @@ interface UserMethods {
 }
 
 interface UserModel extends Model<User, {}, UserMethods> {
+  customId: { type: Number; unique: true };
   findUserByEmail(email: string): Promise<User | null>;
   findUserById(id: string): Promise<User | null>;
   createUser(userDetails: Partial<User>): Promise<User>;
+  login(email: string, password: string): Promise<User | null>;
+  insertManyWithId(docs: User[]): Promise<User[]>;
 }
 
-const schema = new Schema<User>(
+export const schema = new Schema<User>(
   {
+    customId: {
+      type: String,
+      unique: true,
+    },
     name: {
       type: String,
-      required: true,
+      required: true, //[+]
     },
     father_name: {
       type: String,
@@ -49,7 +57,7 @@ const schema = new Schema<User>(
     gender: {
       type: String,
       enum: ['male', 'female'],
-     default: 'male',
+      default: 'male',
     },
     country: {
       type: String,
@@ -73,12 +81,12 @@ const schema = new Schema<User>(
     },
     email: {
       type: String,
-      required: true,
+      required: true, //[+]
       unique: true,
     },
     password: {
       type: String,
-      required: true,
+      required: true, //[+]
     },
     phone: {
       type: String,
@@ -98,10 +106,28 @@ const schema = new Schema<User>(
   {
     timestamps: true,
     versionKey: false,
+    statics: {
+      async insertManyWithId(docs: User[]) {
+        const documentsWithIds = await Promise.all(
+          docs.map(async (doc) => {
+            doc.customId = await generateUniqueId();
+            return doc;
+          }),
+        );
+        // Use the original insertMany function on `this` which refers to the model
+        return await this.insertMany(documentsWithIds);
+      },
+    },
   },
 );
 
 type compoarePassword = (password: string) => Promise<boolean>;
+
+schema.methods.isDuplicateEmail = async function (email: string) {
+  const user = await UserModel.findOne({ email });
+  if (!user) return false;
+  return true;
+};
 
 function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10);
@@ -117,6 +143,9 @@ schema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = await hashPassword(this.password);
   }
+  if (this.isNew) {
+    this.customId = await generateUniqueId();
+  }
   next();
 });
 
@@ -124,6 +153,19 @@ schema.statics.createUser = function (userDetails) {
   return this.create(userDetails);
 };
 
+schema.statics.findUserByEmail = async function (email) {
+  const user = await this.findOne({ email });
+  if (!user) return null;
+  return user;
+};
+
+schema.statics.login = async function (email, password) {
+  const user = await this.findOne({ email });
+  if (!user) return null;
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) return null;
+  return user;
+};
 
 export const UserModel: UserModel = model<User, UserModel>('User', schema);
 
@@ -140,3 +182,6 @@ export const changePassword = async (password: string) => {};
 export const updateUser = async () => {};
 
 export const deleteUser = async () => {};
+
+// Adding custom static method to the schema
+ 

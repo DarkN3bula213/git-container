@@ -60,11 +60,16 @@ export const insertMany = async (data: Partial<Student[]>) => {
   return student;
 };
 
-
-const uniqueRegNoGenerator=async()=>{
- const format ='xx-xx-xxxx-x'
- const first= Date.now().toString().slice(0,4)
- const second= Math.floor(Math.random()*10000).toString().slice(0,2)
- const third= Math.floor(Math.random()*10000).toString().slice(0,2)
- const fourth= Math.floor(Math.random()*10000).toString().slice(0,2)
-}
+const uniqueRegNoGenerator = async () => {
+  const format = 'xx-xx-xxxx-x';
+  const first = Date.now().toString().slice(0, 4);
+  const second = Math.floor(Math.random() * 10000)
+    .toString()
+    .slice(0, 2);
+  const third = Math.floor(Math.random() * 10000)
+    .toString()
+    .slice(0, 2);
+  const fourth = Math.floor(Math.random() * 10000)
+    .toString()
+    .slice(0, 2);
+};

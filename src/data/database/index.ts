@@ -3,11 +3,11 @@ import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
-const URI = `mongodb://${config.mongo.host}:${config.mongo.port}/${config.mongo.database}`;
+const URI = `mongodb://${config.mongo.user}:${config.mongo.pass}/${config.mongo.host}:${config.mongo.port}/${config.mongo.database}`;
 
 const dbURI = `mongodb://devuser:devpassword@localhost:27017/`;
 
-logger.debug(dbURI);
+logger.debug(URI);
 function setRunValidators(this: any) {
   this.setOptions({ runValidators: true });
 }
@@ -20,45 +20,29 @@ export const connect = async () => {
     socketTimeoutMS: 45000,
   };
   try {
-    const client = await mongoose.connect(dbURI);
-    logger.info(`Database connected: ${client.connection.name}`);
-
-    client.set('strictQuery', true);
-
-    // Create the database connection
-    client
-      .plugin((schema: any) => {
-        schema.pre('findOneAndUpdate', setRunValidators);
-        schema.pre('updateMany', setRunValidators);
-        schema.pre('updateOne', setRunValidators);
-        schema.pre('update', setRunValidators);
-      })
-      .connect(dbURI, options)
-      .then(() => {
-        logger.info('Mongoose connection done');
-      })
-      .catch((e) => {
-        logger.info('Mongoose connection error');
-        logger.error(e);
-      });
-
-    // CONNECTION EVENTS
-    // When successfully connected
-    client.connection.on('connected', () => {
-      logger.debug('Mongoose default connection open to ' + dbURI);
-    });
-
-    // If the connection throws an error
-    client.connection.on('error', (err) => {
+    // Correctly pass options to the connect method
+    await mongoose.connect(dbURI, options);
+    logger.info(`Database connected: ${mongoose.connection.name}`);
+    mongoose.connection.on('error', (err) => {
       logger.error('Mongoose default connection error: ' + err);
     });
-
-    // When the connection is disconnected
-    client.connection.on('disconnected', () => {
+    mongoose.connection.on('disconnected', () => {
       logger.info('Mongoose default connection disconnected');
     });
   } catch (err: any) {
-    logger.error(err.message);
+    logger.error('Database connection error: ' + err.message);
+    throw err; // Rethrow to handle outside
   }
-  return mongoose.connection;
 };
+
+class dBclient {
+  async connect(): Promise<void> {
+    await connect();
+  }
+
+  async disconnect(): Promise<void> {
+    await mongoose.connection.close();
+  }
+}
+
+export const db = new dBclient();

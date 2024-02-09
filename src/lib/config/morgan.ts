@@ -1,7 +1,6 @@
-import morgan from 'morgan'
-import colors from 'colors'
-import dayjs from 'dayjs'
- 
+import morgan from 'morgan';
+import colors from 'colors';
+import dayjs from 'dayjs';
 
 // Define a custom token for checking the presence of auth headers
 morgan.token('auth', (req) => {
@@ -10,7 +9,6 @@ morgan.token('auth', (req) => {
 
 // Custom token for colored HTTP methods
 morgan.token('colored-method', (req) => {
-
   const method = req.method || 'GET';
   switch (method) {
     case 'GET':
@@ -37,4 +35,4 @@ morgan.format('myFormat', (tokens, req, res) => {
   return `${timestamp} [${method}]: ${url} - ${authStatus} - Status: ${status} - ${responseTime} ms`;
 });
 
-export const morganMiddleware = morgan('myFormat')
+export const morganMiddleware = morgan('myFormat');

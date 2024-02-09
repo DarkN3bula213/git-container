@@ -38,7 +38,6 @@ export type Student = Document & {
   genRegNo(): Promise<string>;
 };
 
-
 type Payments = {
   paymentId: ObjectId;
   payID: string;

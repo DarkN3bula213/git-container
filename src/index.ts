@@ -1,39 +1,49 @@
 import http from 'http';
 import { app } from './app';
-import { gracefulShutdown } from './lib/handlers/gracefulShutdown';
+
 import { Logger } from '@/lib/logger';
 import { config } from '@/lib/config';
-import  {RedisCache} from './data/cache';
-import { connect } from './data/database';
- 
+import { RedisCache } from './data/cache';
+import { db } from './data/database';
+import { signals } from './lib/constants';
+
+
 const logger = new Logger(__filename);
 const server = http.createServer(app);
-
 const cache = new RedisCache(config.redis.uri);
-
-cache.connect().then(() => {
-  logger.info('Cache connected');
-}).catch((e) => {
-  logger.error('Failed to establish Redis cache connection:', e);
-});
-
-
-
 const PORT = config.app.port;
-try {
-  server.listen(PORT, () => {
-    logger.info(`Server instance instantiated and listening on port ${PORT}.`);
-    connect().catch((e) => logger.error(e));
-  });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-} catch (error: any) {
-  logger.error(`Error occurred while trying to start server: ${error.message}`);
-}
 
+const startServer = async () => {
+  console.log('Starting server...');
+  try {
+    await db.connect();
+    await cache.connect();
 
-// Handle graceful shutdown
-process.on('SIGINT', async () => {
-  await cache.disconnect();
-  gracefulShutdown(server);
-  process.exit();
-});
+    server.listen(PORT, () => {
+      logger.info(
+        `Server instance instantiated and listening on port ${PORT}.`,
+      );
+    });
+  } catch (error: any) {
+    logger.error(
+      `Error occurred while trying to start server: ${error.message}`,
+    );
+  }
+};
+
+startServer();
+
+ 
+
+ signals.forEach((signal) => {
+   process.on(signal,async () => {
+     logger.debug(`Received ${signal}. Shutting down gracefully...`);
+     server.close(() => {
+       logger.debug('Server closed. Exiting process now.');
+       process.exit(0);
+     });
+     await cache.disconnect().then(()=>logger.debug('Cache disconnected'))
+     await db.disconnect().then(()=>logger.debug('Database disconnected'))
+
+   });
+ });

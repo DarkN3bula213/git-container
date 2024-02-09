@@ -1,7 +1,10 @@
 import { Request, Router, Response } from 'express';
-import users from '../modules/auth/users/user.routes'
+import users from '../modules/auth/users/user.routes';
+import { requireLogin } from '@/middleware/requireLogin';
 
 const router = Router();
+
+router.use(requireLogin)
 router.get('/', health);
 
 router.use('/users', users);

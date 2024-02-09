@@ -28,7 +28,6 @@ const Logger = new log(__filename);
 
 import { RedisClientType } from 'redis';
 
-
 class RedisCache {
   private client: RedisClientType;
   private connectAttempts = 0;

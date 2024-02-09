@@ -17,7 +17,7 @@ colors.setTheme({
   infoMessage: 'green',
   warnMessage: 'bgYellow',
   errorMessage: 'magenta',
-  debugMessage: 'bgBlue',
+  debugMessage: 'magenta',
 });
 
 const levelColors: levelColorMap = {
@@ -43,7 +43,7 @@ const customPrintf = winston.format.printf((info) => {
   // Safely access the color using the log level, with a fallback to 'white'
   const levelColor = levelColors[info.level] || 'white';
 
-  const level = (colors as any)[levelColor]( info.level.toUpperCase() );
+  const level = (colors as any)[levelColor](info.level.toUpperCase());
 
   const messageColor = (colors as any)[`${info.level}Message`];
   const message = messageColor ? messageColor(info.message) : info.message;
