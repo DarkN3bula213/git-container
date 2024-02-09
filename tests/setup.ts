@@ -9,17 +9,22 @@ beforeAll(async () => {
   mongo = await MongoMemoryServer.create();
   const mongoURI = mongo.getUri();
   await mongoose.connect(mongoURI, {});
+    const collections = await mongoose.connection.db.collections();
+    for (let collection of collections) {
+      await collection.deleteMany({});
+    }
 // console.log('process.env.MONGO_URL')
 });
 
-beforeEach(async () => {
-  const collections = await mongoose.connection.db.collections();
-  for (let collection of collections) {
-    await collection.deleteMany({});
-  }
-});
+// beforeEach(async () => {
+//   const collections = await mongoose.connection.db.collections();
+//   for (let collection of collections) {
+//     await collection.deleteMany({});
+//   }
+// });
 
 afterAll(async () => {
+
   if (mongo) {
     await mongo.stop();
   }

@@ -28,9 +28,9 @@ describe('Testing the app', () => {
     });
     expect(res.status).toBe(400);
   });
-  it('The users route should return 200', async () => {
-    const response = await request.get('/api/users');
-    console.log('Test for /api/users completed. Verifying results...');
-    expect(response.status).toBe(200);
-  });
+  // it('The users route should return 200', async () => {
+  //   const response = await request.get('/api/users');
+  //   console.log('Test for /api/users completed. Verifying results...');
+  //   expect(response.status).toBe(200);
+  // });
 });

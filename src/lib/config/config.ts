@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-import { getOsEnv, normalizePort, getOsEnvOptional, toNumber } from './utils';
+import { getOsEnv, normalizePort, getOsEnvOptional, toNumber,getDecodedOsEnv } from './utils';
 
 dotenv.config({
   path: path.join(
@@ -51,6 +51,17 @@ export const config = {
     port: getOsEnv('REDIS_PORT'),
     uri: getOsEnv('REDIS_URI_DEV'),
   },
+  tokens:{
+    jwtSecret: getOsEnv('JWT_SECRET'),
+    access:{
+      private: getDecodedOsEnv('ACCESS_PRIVATE'),
+      public: getDecodedOsEnv('ACCESS_PUBLIC'),
+    },
+    refresh:{
+      private: getDecodedOsEnv('REFRESH_PRIVATE'),
+      public: getDecodedOsEnv('REFRESH_PUBLIC'),
+    }
+  }
   // postgres: {
   //   url: getOsEnv('POSTGRES_URL'),
   //   options: {

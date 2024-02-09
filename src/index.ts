@@ -8,6 +8,7 @@ import { db } from './data/database';
 import { signals } from './lib/constants';
 
 
+
 const logger = new Logger(__filename);
 const server = http.createServer(app);
 const cache = new RedisCache(config.redis.uri);

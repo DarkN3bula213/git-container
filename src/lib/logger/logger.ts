@@ -21,7 +21,7 @@ colors.setTheme({
 });
 
 const levelColors: levelColorMap = {
-  info: 'green',
+  info: 'yellow',
   warn: 'yellow',
   error: 'red',
   debug: 'blue',

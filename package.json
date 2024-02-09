@@ -15,7 +15,7 @@
     "watch-ts": "tsc -w",
     "exec": "concurrently \"pnpx tsc --watch\" \"ts-node src/index.ts\"",
     "build": "pnpm clear && tsc && tsc-alias",
-    "scripts":"ts-node src/scripts",
+    "scripts": "ts-node src/scripts",
     "dev": "nodemon -e ts,js --exec ts-node -r tsconfig-paths/register ./src/index.ts"
   },
   "jest": {
@@ -36,6 +36,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.6",
     "@types/cors": "^2.8.17",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/morgan": "^1.9.9",
     "@types/passport": "^1.0.16",
     "bcrypt": "^5.1.1",

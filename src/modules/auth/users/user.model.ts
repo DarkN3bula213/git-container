@@ -169,8 +169,10 @@ schema.statics.login = async function (email, password) {
 
 export const UserModel: UserModel = model<User, UserModel>('User', schema);
 
-export const findUserByEmail = async (email: FilterQuery<string>) => {
-  return UserModel.findOne(email);
+export const findUserByEmail = async (email: string) => {
+  return UserModel.find({
+    email,
+  });
 };
 
 export const findUserById = async (id: Types.ObjectId) => {
