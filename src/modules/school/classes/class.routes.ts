@@ -2,8 +2,9 @@ import { Router } from 'express';
 import * as controller from './class.controller';
 import * as schema from './class.schema';
 import { validate } from '@/lib/handlers/validate';
-const router = Router();
 
+const router = Router();
+console.log('here');
 router
   .route('/')
   .get(controller.findClasses)

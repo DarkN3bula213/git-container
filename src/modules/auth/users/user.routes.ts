@@ -10,9 +10,7 @@ router
   .get(controller.getUsers)
   .post(validate(schema.register), controller.register);
 
-router
-  .route('/createMany')
-  .post( controller.insertMany);
+router.route('/createMany').post(controller.insertMany);
 
 router
   .route('/:id')

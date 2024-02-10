@@ -1,7 +1,6 @@
 import { IDTrackerModel, IIDTracker } from './idTracker.model';
 import dayjs from 'dayjs';
 
-
 export const generateUniqueId = async (): Promise<string> => {
   const today = dayjs().format('YYMMDD');
   const update = {
@@ -41,7 +40,6 @@ export const generateUniqueId = async (): Promise<string> => {
     );
     sequenceStr = '00'; // Reset sequence string for ID
   }
-
 
   return `${today}-${finalCheckDigit}-${sequenceStr}`;
 };

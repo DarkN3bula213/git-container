@@ -15,18 +15,22 @@ export const isAuthenticated = (
   res.redirect('/login');
 };
 
-export const allowUser =async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !req.roles) {
-      Logger.warn('User not authenticated');
-      return next();
-    } else if ((req.user as User).role == req.roles) {
-      Logger.info(JSON.stringify(req.user));
-      return next();
-    }
+export const allowUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (!req.user || !req.roles) {
+    Logger.warn('User not authenticated');
+    return next();
+  } else if ((req.user as User).role == req.roles) {
+    Logger.info(JSON.stringify(req.user));
+    return next();
+  }
 
-    Logger.error('User not allowed');
-    next();
-  };
+  Logger.error('User not allowed');
+  next();
+};
 
 const router = Router();
 

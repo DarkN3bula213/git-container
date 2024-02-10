@@ -19,8 +19,8 @@ export const connect = async () => {
     connectTimeoutMS: 60000,
     socketTimeoutMS: 45000,
   };
+  let retry = 0;
   try {
-    // Correctly pass options to the connect method
     await mongoose.connect(dbURI, options);
     logger.info(`Database connected: ${mongoose.connection.name}`);
     mongoose.connection.on('error', (err) => {
@@ -29,9 +29,19 @@ export const connect = async () => {
     mongoose.connection.on('disconnected', () => {
       logger.info('Mongoose default connection disconnected');
     });
+
+    mongoose.connection.on('reconnected', () => {
+      logger.info('Mongoose default connection reconnected');
+    });
   } catch (err: any) {
+    if (retry > 10) {
+      logger.error('Database connection error: ' + err.message);
+      throw err;
+    }
+    retry += 1;
+    setTimeout(connect, 10000);
     logger.error('Database connection error: ' + err.message);
-    throw err; // Rethrow to handle outside
+    throw err;
   }
 };
 

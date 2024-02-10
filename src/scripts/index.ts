@@ -1,5 +1,5 @@
-import { seed } from "./seedApiKey";
-import { generateUsers } from "./userGen";
+import { seed } from './seedApiKey';
+import { generateUsers } from './userGen';
 
 // generateUsers()
-seed()
+seed();

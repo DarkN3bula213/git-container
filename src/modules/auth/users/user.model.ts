@@ -175,8 +175,10 @@ export const findUserByEmail = async (email: string) => {
   });
 };
 
-export const findUserById = async (id: Types.ObjectId) => {
-  return UserModel.findById(id);
+export const findUserById = async (id: string) => {
+  return UserModel.findOne({
+    _id: id,
+  });
 };
 
 export const changePassword = async (password: string) => {};
@@ -186,4 +188,3 @@ export const updateUser = async () => {};
 export const deleteUser = async () => {};
 
 // Adding custom static method to the schema
- 

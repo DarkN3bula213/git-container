@@ -41,19 +41,17 @@ export const deleteUser = asyncHandler(async (req, res) => {
 });
 
 export const register = asyncHandler(async (req, res) => {
-
   const check = await UserModel.findUserByEmail(req.body.email);
   if (check) {
     throw new BadRequestError('User with this email already exists');
   }
   const user = await UserModel.createUser(req.body);
- 
+
   res.status(200).json({
     success: true,
     data: user,
   });
 });
-
 
 export const login = asyncHandler(async (req, res) => {
   const user = await UserModel.login(req.body.email, req.body.password);
@@ -64,8 +62,7 @@ export const login = asyncHandler(async (req, res) => {
     success: true,
     data: user,
   });
-})
-
+});
 
 export const insertMany = asyncHandler(async (req, res) => {
   const users = await UserModel.insertManyWithId(req.body);
@@ -73,4 +70,4 @@ export const insertMany = asyncHandler(async (req, res) => {
     success: true,
     data: users,
   });
-})
+});

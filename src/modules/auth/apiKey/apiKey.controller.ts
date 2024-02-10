@@ -8,22 +8,22 @@ import { Logger } from '@/lib/logger';
 
 const logger = new Logger(__filename);
 
-import express,{ Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 export const useApiKey = (req: Request, res: Response, next: NextFunction) => {
   asyncHandler(async (req, res, next) => {
     const key = req.headers[Header.API_KEY]?.toString();
     if (!key) {
       logger.info('Api key is missing');
       // throw new ForbiddenError();
-   return   next();
+      return next();
     }
 
     logger.info('Api key is present');
 
-    const apiKey = await findByKey(key??'');
+    const apiKey = await findByKey(key ?? '');
     if (!apiKey) {
       logger.info('Api key is invalid');
-   return  next();
+      return next();
     }
 
     req.apiKey = apiKey;
@@ -39,8 +39,6 @@ declare global {
   }
 }
 
-
-
 const router = express.Router();
 
 export default router.use(
@@ -48,15 +46,17 @@ export default router.use(
   asyncHandler(async (req, res, next) => {
     const key = req.headers[Header.API_KEY]?.toString();
     if (!key) {
-      logger.info('Api key is missing'); 
-      throw new ForbiddenError();}
+      logger.info('Api key is missing');
+      throw new ForbiddenError();
+    }
 
-    const apiKey =await  ApiKeyModel.findOne({ key: key, status: true })
+    const apiKey = await ApiKeyModel.findOne({ key: key, status: true })
       .lean()
       .exec();
     if (!apiKey) {
       logger.info('Api key is invalid');
-      throw new ForbiddenError();}
+      throw new ForbiddenError();
+    }
     req.apiKey = apiKey;
     return next();
   }),

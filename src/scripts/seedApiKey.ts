@@ -1,8 +1,7 @@
 import { db } from '@/data/database';
 import { Logger } from '@/lib/logger';
 import { ApiKeyModel } from '@/modules/auth/apiKey/apiKey.model';
-const logger = new Logger(__filename)
- 
+const logger = new Logger(__filename);
 
 export async function seed() {
   const response = await ApiKeyModel.create({

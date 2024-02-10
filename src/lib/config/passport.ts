@@ -2,15 +2,14 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 
 // Import your user service or model here
-import { User, UserModel } from '../../modules/auth/users/user.model'; 
-
+import { User, UserModel } from '../../modules/auth/users/user.model';
 
 passport.use(
   new LocalStrategy(
     { usernameField: 'email' },
     async (email, password, done) => {
       try {
-        const user  = await UserModel.login(email, password);
+        const user = await UserModel.login(email, password);
         if (!user) {
           // No user found, or password did not match
           return done(null, false, { message: 'Incorrect email or password.' });
@@ -24,6 +23,5 @@ passport.use(
     },
   ),
 );
-
 
 export default passport;

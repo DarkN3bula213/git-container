@@ -8,7 +8,8 @@ import { User } from '@/modules/auth/users/user.model';
 const Logger = new log(__filename);
 
 interface TokenPayload {
- user:User
+  user: User;
+  session?: string;
 }
 interface TokenVerificationResult {
   valid: boolean;

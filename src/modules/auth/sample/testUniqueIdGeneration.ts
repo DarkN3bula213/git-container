@@ -1,12 +1,11 @@
-import mongoose from "mongoose";
-import { generateUniqueId } from "./utils";
-import { IDTrackerModel } from "./idTracker.model";
-import { Logger } from "@/lib/logger";
- const logger = new Logger(__filename)
+import mongoose from 'mongoose';
+import { generateUniqueId } from './utils';
+import { IDTrackerModel } from './idTracker.model';
+import { Logger } from '@/lib/logger';
+const logger = new Logger(__filename);
 // MongoDB connection string
 const dbURI = 'your_mongodb_connection_uri';
 
- 
 async function testGenerateUniqueId(n: number) {
   for (let i = 0; i < n; i++) {
     const uniqueId = await generateUniqueId();
@@ -27,10 +26,5 @@ export async function runTests() {
 
   // Cleanup: Optionally, clear the IDTracker collection or reset the state if necessary for repeated tests
 
-
   // Close the MongoDB connection
-
 }
-
-
- 

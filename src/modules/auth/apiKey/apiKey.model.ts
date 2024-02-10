@@ -83,7 +83,7 @@ export const ApiKeyModel = model<ApiKey>(
 );
 
 async function findByKey(key: string): Promise<ApiKey | null> {
-  return await  ApiKeyModel.findOne({ key: key, status: true }).lean().exec();
+  return await ApiKeyModel.findOne({ key: key, status: true }).lean().exec();
 }
 
-export { findByKey }
+export { findByKey };
