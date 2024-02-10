@@ -25,21 +25,25 @@ export const login = asyncHandler(async (req, res, next) => {
           return res.send(err);
         }
 
-        const userPayload = {
-          userId: user._id,
-          role: user.role,
-        };
-        logger.info(JSON.stringify(userPayload));
-        const access = signToken(userPayload, 'access', {
+        const authenticatedUser: AuthenticatedUser =   {user: user}
+
+
+        logger.info(JSON.stringify(user));
+        const access = signToken({user}, 'access', {
           expiresIn: -1, // Adjust token expiration as needed
         });
-        const refresh = signToken(userPayload, 'refresh', {
+        const refresh = signToken({user}, 'refresh', {
           expiresIn: '7d', // Adjust token expiration as needed
         });
         KeystoreModel.createKeystore(user, access, refresh);
-
-        return res.json({ user: userPayload, access, refresh });
+req.user = authenticatedUser.user
+        return res.json({ user: user, access, refresh });
       });
     },
   )(req, res);
 });
+
+type AuthenticatedUser = {
+  user: User;
+ 
+};

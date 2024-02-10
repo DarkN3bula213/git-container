@@ -10,30 +10,34 @@ describe('Testing the initial setup for the app', () => {
   });
 });
 
-const request = supertest(app);
+let request = supertest(app);
  
-  beforeAll(() => {
-
-  });
+addAuthHeaders(request);
 describe('Testing the app', () => {
-
-
+//   beforeEach(() => {
+//     mockFindApiKey.mockClear();
+//   });
   it('Check if app is correctly setup', () => {
     expect(app).toBeDefined();
   });
 
+  it('Should Throw an error if api key is not provided', async () => {
+    const response = await request.get('/api').timeout(1000);
+    expect(response.status).toBe(401);
+  });
+
   it('Should return a status code of 200', () => {
-    return addAuthHeaders(request.get('/api')) 
+    return request.get('/api').expect(200);
   });
 
   it('The health check should return 200', async () => {
-    const response = await addAuthHeaders(request.get('/api'));
+    const response = await request.get('/api').timeout(1000);
     expect(response.status).toBe(200);
   });
 
-  it('It should throw a validation error', async () => {
-    const res = await addAuthHeaders(request.post('/api')).send({});
-    expect(res.status).toBe(400);
-  });
- 
+ it('Should throw an error if api key is not valid', async() => {
+    mockFindApiKey.mockResolvedValueOnce(null);
+    const response = await request.get('/api') 
+    expect(response.status).toBe(401);
+ });
 });

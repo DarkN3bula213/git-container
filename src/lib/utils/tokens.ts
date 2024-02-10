@@ -3,12 +3,12 @@ import fs from 'fs';
 
 import { Logger as log } from '../logger/logger';
 import { config } from '../config';
+import { User } from '@/modules/auth/users/user.model';
 
 const Logger = new log(__filename);
 
 interface TokenPayload {
-  userId: string; 
-  role: string;
+ user:User
 }
 interface TokenVerificationResult {
   valid: boolean;

@@ -1,6 +1,6 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-import { verifyToken } from '@/lib/utils/tokens';
+import { signToken, verifyToken } from '@/lib/utils/tokens';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 const logger = new Logger(__filename);
@@ -15,43 +15,55 @@ export const requireLogin = (
 
   const accessToken = req.headers['x-access-token'];
   const refreshToken = req.headers['x-refresh-token'];
-
-  if (!accessToken && !refreshToken) {
-    logger.info('No token provided');
-    // return res.sendStatus(401);
+  if (!accessToken) {
+    logger.warn('No access token found');
     return next();
   }
-  if (accessToken) {
-    try {
-      const token = accessToken.toString();
-      const { decoded } = verifyToken(token, 'access');
-      logger.debug(`User ${JSON.stringify(decoded)} logged in successfully`);
-
-      return next();
-    } catch (e: any) {
-      logger.error(e);
-
-      if (e.message === 'Token expired' && refreshToken) {
-        try {
-          const token = refreshToken?.toString();
-          const { decoded } = verifyToken(token, 'refresh');
-          logger.debug(
-            `User ${JSON.stringify(decoded)} logged n successfully`,
-          );
-        } catch (e: any) {
-          logger.error(e);
-        }
-      }
-
-      return next();
-    }
-  } else {
-    // jwt.verify(token, config.tokens.jwtSecret, (err: any, user: any) => {
-    //   if (err) return res.sendStatus(403);
-    //   logger.debug(`User ${user.email} logged in successfully`);
-    //   req.user = user;
-    //   next();
-    // });
-    next();
+  const { decoded, valid, expired } = verifyToken(
+    accessToken.toString(),
+    'access',
+  );
+  if (decoded) {
+    req.user = decoded;
+    logger.info(`User: ${JSON.stringify(decoded)}`);
+    return next();
   }
+  const refDecoded =
+    expired && refreshToken && verifyToken(refreshToken.toString(), 'refresh');
+
+  if (!refDecoded) {
+    logger.warn('No refresh token found');
+    return next();
+  }
+
+  const { decoded: decodedRefresh } = refDecoded;
+
+  if (!decodedRefresh) {
+    logger.warn('No refresh token found');
+    return next();
+  }
+
+  const { valid: validRefresh, expired: expiredRefresh } = verifyToken(
+    refreshToken.toString(),
+    'refresh',
+  );
+
+  if (!validRefresh || expiredRefresh) {
+    logger.warn('Invalid refresh token');
+    return next();
+  }
+
+  const { user } = decodedRefresh;
+  logger.info(`User: ${JSON.stringify(user)}`);
+
+  const newAccessToken = signToken({user}, 'access');
+  const newRefreshToken = signToken({user}, 'refresh');
+
+  req.user = decodedRefresh;
+  if (!valid || expired) {
+    logger.warn('Invalid access token');
+    return next();
+  }
+
+  return next();
 };
