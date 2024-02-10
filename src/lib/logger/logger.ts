@@ -30,17 +30,14 @@ const levelColors: levelColorMap = {
 type levelColorMap = {
   [key: string]: string;
 };
+
+const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm'));
 const customTimestampFormat = winston.format((info, opts) => {
   info.timestamp = dayjs().format('| [+] | MM-DD HH:mm');
   return info;
 })();
 const customPrintf = winston.format.printf((info) => {
-  const timestamp = colors.grey(info.timestamp);
-
-  // const level = (colors as any)[info.level](
-  //   colors.white(info.level.toUpperCase()),
-  // );
-  // Safely access the color using the log level, with a fallback to 'white'
+  const timestamp = colors.grey(info.timestamp); 
   const levelColor = levelColors[info.level] || 'white';
 
   const level = (colors as any)[levelColor](info.level.toUpperCase());
@@ -89,32 +86,48 @@ export class Logger {
   constructor(scope?: string) {
     this.scope = Logger.parsePathToScope(scope ? scope : Logger.DEFAULT_SCOPE);
   }
-
-  public debug(message: string, ...args: any[]): void {
+  public debug(message: string | object, ...args: any[]): void {
     this.log('debug', message, args);
   }
 
-  public info(message: string, ...args: any[]): void {
+  public info(message: string | object, ...args: any[]): void {
     this.log('info', message, args);
   }
 
-  public warn(message: string, ...args: any[]): void {
+  public warn(message: string | object, ...args: any[]): void {
     this.log('warn', message, args);
   }
 
-  public error(message: string, ...args: any[]): void {
+  public error(message: string | object, ...args: any[]): void {
     this.log('error', message, args);
   }
-
-  private log(level: string, message: string, args: any[]): void {
-    Logger.logger.log({
-      level,
-      message: `[${this.scope}] ${message}`,
-      extra: args,
-    });
-  }
-
-  private formatScope(): string {
-    return `[${this.scope}]`;
+  private log(level: string, message: string | object, args: any[]): void {
+    if (typeof message === 'object') {
+      // Start with the scope line
+      let formattedMessage = `${this.scope} \n`;
+     if (!config.isProduction) {
+      const lines = Object.entries(message).map(([key, value]) => {
+        // Apply a color to the key. For example, using blue for keys
+        const coloredKey = colors.cyan(key);
+        return `${timestamp} ${colors.cyan(`:-----:`)} ${coloredKey}: ${value}`;
+      });
+      formattedMessage += lines.join('\n');
+     } else {
+       // Production logging: simpler and without colors
+       // Optionally, consider using JSON.stringify for structured logging
+       const messageString = JSON.stringify(message);
+       formattedMessage += `| + | ${messageString}`;
+     }
+    
+      Logger.logger.log(level, formattedMessage);
+    } else {
+      // Handle regular logging
+      const formattedMessage = `[${this.scope}] ${message}`;
+      Logger.logger.log({
+        level,
+        message: formattedMessage,
+        extra: args.length ? args : undefined,
+      });
+    }
   }
 }

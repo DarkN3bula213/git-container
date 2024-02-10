@@ -4,11 +4,12 @@ import * as schema from './class.schema';
 import { validate } from '@/lib/handlers/validate';
 
 const router = Router();
-console.log('here');
+
 router
   .route('/')
   .get(controller.findClasses)
-  .post(validate(schema.singleClass), controller.addClass);
+  .post(validate(schema.singleClass), controller.addClass)
+  .delete(controller.deleteAll);
 
 router
   .route('/:id')
@@ -16,6 +17,10 @@ router
   .put(validate(schema.singleClass), controller.updateClass)
   .delete(controller.deleteClass);
 
-router.post('/createMany', validate(schema.multiClass), controller.insertMany);
+router.get('/name/:name', controller.findClassByName);
 
-export default (): Router => router;
+router.put('/fee/:name', validate(schema.fee), controller.updateClassFee);
+
+router.post('/seed', validate(schema.multiClass), controller.insertMany);
+
+export default  router;

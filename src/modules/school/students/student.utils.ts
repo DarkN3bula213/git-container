@@ -1,5 +1,8 @@
-import { IDTrackerModel, IIDTracker } from '../ID Tracker/idTracker.model';
+
+import { IDTrackerModel, IIDTracker } from '@/modules/auth/ID Tracker/idTracker.model';
 import dayjs from 'dayjs';
+import StudentModel from './student.model';
+import { ClassModel } from '../classes/class.model';
 
 export const generateUniqueId = async (): Promise<string> => {
   const today = dayjs().format('YYMMDD');
@@ -43,3 +46,30 @@ export const generateUniqueId = async (): Promise<string> => {
 
   return `${today}-${finalCheckDigit}-${sequenceStr}`;
 };
+
+
+
+export async function updateStudentClassIds() {
+  const students = await StudentModel.find({}).exec();
+  let count = 0;
+
+  console.log(students);
+  for (let student of students) {
+    const classDoc = await ClassModel.findOne({
+      className: student.classId,
+    }).exec();
+    if (classDoc) {
+      student.classId = classDoc._id.toString();
+      student.className = classDoc.className;
+      await student.save();
+      count++;
+
+      console.log('found', Date.now());
+    } else {
+      console.log(
+        `No class found with name ${student.classId} for student ${student._id}`,
+      );
+    }
+  }
+  console.log(`"All student classIds updated successfully" ${count}`);
+}

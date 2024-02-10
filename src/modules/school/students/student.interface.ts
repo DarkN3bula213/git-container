@@ -1,4 +1,5 @@
 import { Document, ObjectId } from 'mongoose';
+import { IClass } from '../classes/class.model';
 
 export type Student = Document & {
   //[+] Personal Information
@@ -19,14 +20,14 @@ export type Student = Document & {
 
   //[+] School Information
   registration_no: string;
-  classId: ObjectId;
-  className: string;
-  section: string;
+  classId:IClass['_id'] ;
+  className: IClass['className'];
+  section: IClass['section'][number];
+  tuition_fee: IClass['fee'];
   feeType: string;
 
   //[+] Financial Information
   admission_fee: number;
-  tuition_fee: number;
   session: string;
   admission_date: Date;
   status: {

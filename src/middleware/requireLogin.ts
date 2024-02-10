@@ -1,28 +1,19 @@
 import { config } from '@/lib/config';
+import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
-import { signToken, verifyToken } from '@/lib/utils/tokens';
-import { reIssueAccessToken } from '@/modules/auth/session/session.utils';
+import { reIssueAccessToken, verifyToken } from '@/lib/utils/tokens';
+
 import { Request, Response, NextFunction } from 'express';
 
-
-
 const logger = new Logger(__filename);
-
 
 /**
  * A middleware function to require login for protected routes.
  *
- * [+] The auth head may be removed in refactoring
+ * TODO: The auth head may be removed in refactoring
  */
-export const requireLogin = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  // Extract the token from the request's authorization header
-  // const authHeader = req.headers['authorization'];
-  // const token = authHeader && authHeader.split(' ')[1];
 
+export const requireLogin = asyncHandler(async (req, res, next) => {
   const accessToken = req.headers['x-access-token'];
   const refreshToken: string = req.headers['x-refresh-token'] as string;
 
@@ -30,31 +21,46 @@ export const requireLogin = async (
     logger.warn('No access token found');
     return next();
   }
+
   const { decoded, valid, expired } = verifyToken(
     accessToken.toString(),
     'access',
   );
 
-  // if (!valid) {
-  //   logger.warn('Access token invalid');
-  //   return next();
-  // }
   if (decoded) {
     req.user = decoded;
-    logger.info(`User: ${JSON.stringify(decoded)}`);
+    logger.info(`User authenticated: ${JSON.stringify(decoded)}`);
     return next();
   }
-  if (!valid && refreshToken) {
+
+  // If token is expired and a refresh token exists, attempt to issue a new access token.
+  if (expired && refreshToken) {
     const newAccessToken = await reIssueAccessToken({ refreshToken });
 
-    if (newAccessToken) {
-      res.setHeader('x-access-token', newAccessToken);
+    if (!newAccessToken) {
+      logger.debug(
+        'Failed to re-issue access token with the provided refresh token.',
+      );
+      return next();
     }
 
+    res.setHeader('x-access-token', newAccessToken);
     const result = verifyToken(newAccessToken as string, 'access');
-    const user = result.decoded?.user;
-    req.user = user;
-    logger.info(`User: ${JSON.stringify(result.decoded)}`);
+    if (result.decoded) {
+      req.user = result.decoded.user;
+      logger.info(
+        `New access token issued and user authenticated: ${JSON.stringify(result.decoded)}`,
+      );
+    }
     return next();
-  } 
-};
+  }
+
+  if (!valid) {
+    logger.warn('Invalid access token, unable to authenticate.');
+  } else if (expired) {
+    logger.warn('Access token expired, please refresh token.');
+  }
+
+  return next();
+});
+

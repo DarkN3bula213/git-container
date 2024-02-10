@@ -1,6 +1,7 @@
 import { app } from '../src/app';
 import supertest from 'supertest';
 import { addAuthHeaders, mockFindApiKey } from './mocks';
+import ApiKey from '../src/modules/auth/apiKey/apiKey.model';
 describe('Testing the initial setup for the app', () => {
   it('Check if package json is correctly setup for test', () => {
     function sum(a: number, b: number) {
@@ -11,29 +12,48 @@ describe('Testing the initial setup for the app', () => {
 });
 
 const request = supertest(app);
+
+// const requestWithHeader =(method: string, path: string) => {
+
+//   return addAuthHeaders(request[method](path));
+// }
  
   beforeAll(() => {
 
+    mockFindApiKey.mockImplementation(async (key: string) => {
+      if (key == 'GCMUDiuY5a7WvyUNt9n3QztToSHzK7Uj')
+        return {
+          key: 'GCMUDiuY5a7WvyUNt9n3QztToSHzK7Uj',
+          permissions: ['GENERAL'],
+        } as ApiKey;
+      else return null;
+    });
+
   });
+
+  const baseUrl = '/api';
 describe('Testing the app', () => {
 
 
   it('Check if app is correctly setup', () => {
     expect(app).toBeDefined();
   });
-
-  it('Should return a status code of 200', () => {
-    return addAuthHeaders(request.get('/api')) 
-  });
-
-  it('The health check should return 200', async () => {
-    const response = await addAuthHeaders(request.get('/api'));
-    expect(response.status).toBe(200);
-  });
-
-  it('It should throw a validation error', async () => {
-    const res = await addAuthHeaders(request.post('/api')).send({});
-    expect(res.status).toBe(400);
-  });
  
+it('Should fail a request on with valid api key',async () => {
+
+  return await request
+    .get(baseUrl)
+    .expect(400)
+   
+});
+
+it('Should pass the request with valid api key',async () => {
+
+ 
+  return await request
+    .get(baseUrl)
+    .set('x-api-key', 'GCMUDiuY5a7WvyUNt9n3QztToSHzK7Uj')
+    .expect(200)
+});
+
 });

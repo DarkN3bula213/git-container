@@ -117,6 +117,15 @@ export const schema = new Schema<User>(
         // Use the original insertMany function on `this` which refers to the model
         return await this.insertMany(documentsWithIds);
       },
+
+      async findUserById(id: string) {
+        return await this.findOne({ _id: id });
+      },
+
+      async findUserByEmail(email: string) {
+        return await this.findOne({ email });
+      },
+      
     },
   },
 );
@@ -176,15 +185,7 @@ export const findUserByEmail = async (email: string) => {
 };
 
 export const findUserById = async (id: string) => {
-  return UserModel.findOne({
-    _id: id,
-  });
+  const user = await UserModel.findById(id).select('-password').lean();
+  return user;
 };
-
-export const changePassword = async (password: string) => {};
-
-export const updateUser = async () => {};
-
-export const deleteUser = async () => {};
-
-// Adding custom static method to the schema
+  

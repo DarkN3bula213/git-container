@@ -24,7 +24,11 @@ export const allowUser = async (
     Logger.warn('User not authenticated');
     return next();
   } else if ((req.user as User).role == req.roles) {
-    Logger.info(JSON.stringify(req.user));
+    Logger.info({
+      user:'Authenticated',
+      requireRole:`${req.roles}`,
+      userRole:`${(req.user as User).role}`
+    });
     return next();
   }
 

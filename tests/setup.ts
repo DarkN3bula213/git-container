@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import dotenv from 'dotenv';
 import { expect, jest, test,beforeAll } from '@jest/globals';
+import { mockFindApiKey } from './mocks';
+import ApiKey from '../src/modules/auth/apiKey/apiKey.model';
 dotenv.config({ path: './tests/.env.test' });
 
 let mongo: any;
@@ -13,7 +15,8 @@ beforeAll(async () => {
     for (let collection of collections) {
       await collection.deleteMany({});
     }
-// console.log('process.env.MONGO_URL')
+ 
+
 });
 
 // beforeEach(async () => {

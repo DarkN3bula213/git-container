@@ -49,7 +49,10 @@ export default router.use(
       logger.info('Api key is missing');
       throw new ForbiddenError();
     }
-
+    
+// logger.debug({
+//   key:key
+// })
     const apiKey = await ApiKeyModel.findOne({ key: key, status: true })
       .lean()
       .exec();

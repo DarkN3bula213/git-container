@@ -43,3 +43,5 @@ signals.forEach((signal) => {
     await db.disconnect().then(() => logger.debug('Database disconnected'));
   });
 });
+
+ 
