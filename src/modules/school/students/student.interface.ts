@@ -36,7 +36,6 @@ export type Student = Document & {
     remarks: string[];
   };
   paymentHistory: Payments[];
-  genRegNo(): Promise<string>;
 };
 
 type Payments = {

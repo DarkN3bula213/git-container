@@ -11,10 +11,9 @@ import bcrypt from 'bcrypt';
 import { generateUniqueId } from './utils';
 export interface User extends Document {
   name: string;
-  customId: string;
+  username: string;
   father_name: string;
   gender: 'male' | 'female';
-  country: string;
   cnic: string;
   cnic_issued_date: Date;
   cnic_expiry_date: Date;
@@ -42,9 +41,10 @@ interface UserModel extends Model<User, {}, UserMethods> {
 
 export const schema = new Schema<User>(
   {
-    customId: {
+    username: {
       type: String,
       unique: true,
+      required: true, //[+]
     },
     name: {
       type: String,
@@ -58,26 +58,24 @@ export const schema = new Schema<User>(
       type: String,
       enum: ['male', 'female'],
       default: 'male',
+      required: true, //[+]
     },
-    country: {
-      type: String,
-      required: false,
-    },
+
     cnic: {
       type: String,
-      required: false,
+      required: true, //[+]
     },
     cnic_issued_date: {
       type: Date,
-      required: false,
+      required: true, //[+]
     },
     cnic_expiry_date: {
       type: Date,
-      required: false,
+      required: true, //[+]
     },
     dob: {
       type: Date,
-      required: false,
+      required: true, //[+]
     },
     email: {
       type: String,
@@ -108,14 +106,14 @@ export const schema = new Schema<User>(
     versionKey: false,
     statics: {
       async insertManyWithId(docs: User[]) {
-        const documentsWithIds = await Promise.all(
-          docs.map(async (doc) => {
-            doc.customId = await generateUniqueId();
-            return doc;
-          }),
-        );
-        // Use the original insertMany function on `this` which refers to the model
-        return await this.insertMany(documentsWithIds);
+        // const documentsWithIds = await Promise.all(
+        //   docs.map(async (doc) => {
+        //     doc.customId = await generateUniqueId();
+        //     return doc;
+        //   }),
+        // );
+        // // Use the original insertMany function on `this` which refers to the model
+        // return await this.insertMany(documentsWithIds);
       },
 
       async findUserById(id: string) {
@@ -125,7 +123,6 @@ export const schema = new Schema<User>(
       async findUserByEmail(email: string) {
         return await this.findOne({ email });
       },
-      
     },
   },
 );
@@ -152,9 +149,9 @@ schema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = await hashPassword(this.password);
   }
-  if (this.isNew) {
-    this.customId = await generateUniqueId();
-  }
+  // if (this.isNew) {
+  //   this.customId = await generateUniqueId();
+  // }
   next();
 });
 

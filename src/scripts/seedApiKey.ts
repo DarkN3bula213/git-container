@@ -13,6 +13,6 @@ export async function seed() {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  logger.info(JSON.stringify(response));
+  // logger.info(JSON.stringify(response));
   return response;
 }

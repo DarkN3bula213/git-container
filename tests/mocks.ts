@@ -1,30 +1,42 @@
 import { app } from "../src/app";
-import  ApiKey, { findByKey }   from "../src/modules/auth/apiKey/apiKey.model";
+import  ApiKey, { ApiKeyModel, findByKey }   from "../src/modules/auth/apiKey/apiKey.model";
 
-export const API_KEY = 'GCMUDiuY5a7WvyUNt9n3QztToSHzK7Uj';
-export const ACCESS_TOKEN = 'xyz';
+  
 
-export const mockFindApiKey = jest.fn(async (key: string) => {
-  if (key == API_KEY)
-    return {
-      key: API_KEY,
-      permissions: ['GENERAL'],
-    } as ApiKey;
-  else return null;
-});
-jest.mock('../src/modules/auth/apiKey/apiKey.model', () => ({
-  findByKey: mockFindApiKey,
-}));
+ export const createMockApiKey = async () => {
+   const apiKey = await ApiKeyModel.create({
+     key: 'testapikey123',
+     version: 1,
+     permissions: ['GENERAL'],
+     comments: [],
+     status: true,
+     createdAt: new Date(),
+     updatedAt: new Date(),
+   });
+   return apiKey.key;
+ };
 
-export const addAuthHeaders = (request: any, accessToken = ACCESS_TOKEN) =>
-  request
-    .set('Content-Type', 'application/json')
-    .set('x-api-key', API_KEY)
-    .timeout(2000);
+ export const cleanUpMockApiKeys = async () => {
+   await ApiKeyModel.deleteMany({});
+ };
 
 
-    export const addHeaders = (request: any) =>
-  request
-    .set('Content-Type', 'application/json')
-    .set('x-api-key', API_KEY)
-    .timeout(2000);
+ /**
+  * import { createMockApiKey, cleanUpMockApiKeys } from './globalMocks';
+  * 
+  *   describe('useApiKey Middleware', () => {
+  *   let validApiKey: string;
+  * 
+  *   beforeAll(async () => {
+  *     validApiKey = await createMockApiKey();
+  *   });
+  * 
+  *   afterAll(async () => {
+  *     await cleanUpMockApiKeys();
+  *   });
+  * 
+  *   // Your test cases...
+  * 
+  * });
+
+  */

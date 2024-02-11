@@ -1,0 +1,26 @@
+[
+  {
+    "username": "fazal22",
+    "email": "fazal@admin.hps.com",
+    "name": "Khawaja Fazal Ur Rehman",
+    "father_name": "Khawaja Abdul Rasheed Rathore",
+    "gender": "male",
+    "cnic": "34603-6721888-7",
+    "dob": "1974-11-22",
+    "cnic_issued_date": "2021-03-02",
+    "cnic_expiry_date": "2031-03-02",
+    "password": "temp1234"
+  },
+  {
+    "username": "imran51",
+    "email": "imran@admin.hps.com",
+    "name": "Imran Shehzad",
+    "father_name": "Abdul Rasheed",
+    "gender": "male",
+    "cnic": "34603-2154152-7",
+    "dob": "1976-05-01",
+    "cnic_issued_date": "2016-11-11",
+    "cnic_expiry_date": "2026-11-11",
+    "password": "temp1234"
+  }
+]

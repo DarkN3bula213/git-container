@@ -8,7 +8,7 @@
     "serve": "pnpm build && node dist/index.js",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "test": "jest",
+    "test": "jest --verbose --runInBand",
     "test:watch": "pnpm jest --watch",
     "clear": "rm -rf dist",
     "build-ts": "tsc",

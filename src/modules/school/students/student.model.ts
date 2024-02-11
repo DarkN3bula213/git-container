@@ -12,7 +12,9 @@ interface IStudentStaticMethods {
 }
 
 // Combine the model with static methods for the full interface
-interface IStudentModel extends Model<Student>, IStudentStaticMethods {}
+interface IStudentModel extends Model<Student>, IStudentStaticMethods {
+  getClassIdByName(className: string): Promise<Types.ObjectId>;
+}
 
 
 const studentSchema = new Schema<Student>(
@@ -49,7 +51,7 @@ const studentSchema = new Schema<Student>(
         payID: String,
       },
     ],
-    genRegNo: Function,
+
   },
   {
     timestamps: true,
@@ -60,6 +62,7 @@ const studentSchema = new Schema<Student>(
 );
 
 studentSchema.pre('save', async function (next) {
+
   if (this.isNew) {
     this.registration_no = await generateUniqueId();
 

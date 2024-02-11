@@ -1,9 +1,12 @@
 import { ValidationSource, validate } from '@/lib/handlers/validate';
 
-import schema, { Header } from './apiKey.schema';
+import schema, { Header } from '../modules/auth/apiKey/apiKey.schema';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { ForbiddenError } from '@/lib/api';
-import ApiKey, { ApiKeyModel, findByKey } from './apiKey.model';
+import ApiKey, {
+  ApiKeyModel,
+  findByKey,
+} from '../modules/auth/apiKey/apiKey.model';
 import { Logger } from '@/lib/logger';
 
 const logger = new Logger(__filename);
@@ -49,15 +52,13 @@ export default router.use(
       logger.info('Api key is missing');
       throw new ForbiddenError();
     }
-    
-// logger.debug({
-//   key:key
-// })
+ 
     const apiKey = await ApiKeyModel.findOne({ key: key, status: true })
       .lean()
       .exec();
+
     if (!apiKey) {
-      logger.info('Api key is invalid');
+ 
       throw new ForbiddenError();
     }
     req.apiKey = apiKey;

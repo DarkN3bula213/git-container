@@ -9,3 +9,49 @@
 
 
 # Students
+
+
+import { createClient, RedisClientType } from 'redis';
+import { Logger } from './Logger'; // Adjust the import path as necessary
+
+class RedisCache {
+  private static instance: RedisCache;
+  private client: RedisClientType;
+  private connectAttempts = 0;
+
+  private constructor(private url: string) {
+    this.client = createClient({ url: this.url });
+    this.setupEventListeners();
+  }
+
+  public static getInstance(url: string): RedisCache {
+    if (!RedisCache.instance) {
+      RedisCache.instance = new RedisCache(url);
+    }
+    return RedisCache.instance;
+  }
+
+  private setupEventListeners(): void {
+    // Event listeners as you defined them
+  }
+
+  public async connect(): Promise<void> {
+    // Your connect method as defined
+  }
+
+  private async handleReconnect(): Promise<void> {
+    // Your handleReconnect method as defined
+  }
+
+  private calculateExponentialBackoff(attempts: number): number {
+    // Your calculateExponentialBackoff method as defined
+  }
+
+  public async disconnect(): Promise<void> {
+    // Your disconnect method as defined
+  }
+
+  public getClient(): RedisClientType {
+    return this.client;
+  }
+}

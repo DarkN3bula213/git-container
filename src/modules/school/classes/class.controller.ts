@@ -1,10 +1,12 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { ClassModel } from './class.model';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
+// import { getCachedClasses } from './class.cache';
 
 
 export const findClasses = asyncHandler(async (req, res) => {
   const data = await ClassModel.find().lean().exec();
+  // const data = getCachedClasses();
   new SuccessResponse('Classes', data).send(res);
 });
 export const addClass = asyncHandler(async (req, res) => {
