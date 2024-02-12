@@ -1,20 +1,27 @@
 import passport from 'passport';
-import passportLocal from 'passport-local';
+import { Strategy as LocalStrategy } from 'passport-local';
 
-export const stratgy = new passportLocal.Strategy(
-  {
-    usernameField: 'email',
-    passwordField: 'password',
-  },
-  (email, password, done) => {
-    done(null, {});
-  },
+// Import your user service or model here
+import { User, UserModel } from '../../modules/auth/users/user.model';
+
+passport.use(
+  new LocalStrategy(
+    { usernameField: 'email' },
+    async (email, password, done) => {
+      try {
+        const user = await UserModel.login(email, password);
+        if (!user) {
+          // No user found, or password did not match
+          return done(null, false, { message: 'Incorrect email or password.' });
+        }
+        // Successful authentication
+        return done(null, user); // Pass the user object to done
+      } catch (error) {
+        // An error occurred during the authentication process
+        return done(error);
+      }
+    },
+  ),
 );
-export const passportConfig = () => {
-  passport.serializeUser((user, done) => {
-    done(null, user);
-  });
-  passport.deserializeUser((user, done) => {
-    done(null);
-  });
-};
+
+export default passport;

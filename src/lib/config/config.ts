@@ -1,6 +1,12 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-import { getOsEnv, normalizePort, getOsEnvOptional, toNumber } from './utils';
+import {
+  getOsEnv,
+  normalizePort,
+  getOsEnvOptional,
+  toNumber,
+  getDecodedOsEnv,
+} from './utils';
 
 dotenv.config({
   path: path.join(
@@ -13,14 +19,10 @@ export const config = {
   node: process.env.NODE_ENV || 'development',
   isProduction: process.env.NODE_ENV === 'production',
   isTest: process.env.NODE_ENV === 'test',
+  isDocker: process.env.NODE_ENV === 'docker',
   isDevelopment: process.env.NODE_ENV === 'development',
   app: {
-    // name: getOsEnv("APP_NAME"),
-    // host: getOsEnv("APP_HOST"),
-    // schema: getOsEnv("APP_SCHEMA"),
-    // routePrefix: getOsEnv("APP_ROUTE_PREFIX"),
     port: normalizePort(process.env.PORT || getOsEnv('PORT')),
-    // banner: toBool(getOsEnv("APP_BANNER")),
   },
   cors: {
     credentials: true,
@@ -50,6 +52,19 @@ export const config = {
     pass: getOsEnv('REDIS_PASS'),
     port: getOsEnv('REDIS_PORT'),
     uri: getOsEnv('REDIS_URI_DEV'),
+  },
+  tokens: {
+    jwtSecret: getOsEnv('JWT_SECRET'),
+    access: {
+      private: getDecodedOsEnv('ACCESS_PRIVATE'),
+      public: getDecodedOsEnv('ACCESS_PUBLIC'),
+      ttl: getOsEnv('ACCESS_TTL'),
+    },
+    refresh: {
+      private: getDecodedOsEnv('REFRESH_PRIVATE'),
+      public: getDecodedOsEnv('REFRESH_PUBLIC'),
+      ttl: getOsEnv('REFRESH_TTL'),
+    },
   },
   // postgres: {
   //   url: getOsEnv('POSTGRES_URL'),

@@ -7,6 +7,7 @@ import {
   NotFoundResponse,
   BadRequestResponse,
   ForbiddenResponse,
+  DuplicateKeyResponse
 } from './ApiResponse';
 import { config } from '../config';
 
@@ -21,6 +22,7 @@ export enum ErrorType {
   NO_DATA = 'NoDataError',
   BAD_REQUEST = 'BadRequestError',
   FORBIDDEN = 'ForbiddenError',
+  DUPLICATE_KEY = 'MongoError',
 }
 
 export abstract class ApiError extends Error {
@@ -49,6 +51,10 @@ export abstract class ApiError extends Error {
         return new BadRequestResponse(err.message).send(res);
       case ErrorType.FORBIDDEN:
         return new ForbiddenResponse(err.message).send(res);
+      case ErrorType.DUPLICATE_KEY:
+        return new DuplicateKeyResponse(err.message).send(res);
+
+
       default: {
         let message = err.message;
         // Do not send failure message in production as it may send sensitive data
@@ -116,5 +122,11 @@ export class NoDataError extends ApiError {
 export class AccessTokenError extends ApiError {
   constructor(message = 'Invalid access token') {
     super(ErrorType.ACCESS_TOKEN, message);
+  }
+}
+
+export class DuplicateKeyError extends ApiError {
+  constructor(message = 'Duplicate key error') {
+    super(ErrorType.DUPLICATE_KEY, message);
   }
 }

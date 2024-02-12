@@ -9,12 +9,12 @@ import {
 } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { generateUniqueId } from './utils';
+import { Logger } from '@/lib/logger';
 export interface User extends Document {
   name: string;
-  customId: string;
+  username: string;
   father_name: string;
   gender: 'male' | 'female';
-  country: string;
   cnic: string;
   cnic_issued_date: Date;
   cnic_expiry_date: Date;
@@ -26,7 +26,7 @@ export interface User extends Document {
   role: 'master' | 'admin' | 'teacher';
   status: 'active' | 'inactive';
 }
-
+const logger = new Logger(__filename);
 interface UserMethods {
   comparePassword: compoarePassword;
 }
@@ -42,9 +42,10 @@ interface UserModel extends Model<User, {}, UserMethods> {
 
 export const schema = new Schema<User>(
   {
-    customId: {
+    username: {
       type: String,
       unique: true,
+      required: true, //[+]
     },
     name: {
       type: String,
@@ -58,26 +59,24 @@ export const schema = new Schema<User>(
       type: String,
       enum: ['male', 'female'],
       default: 'male',
+      required: true, //[+]
     },
-    country: {
-      type: String,
-      required: false,
-    },
+
     cnic: {
       type: String,
-      required: false,
+      required: true, //[+]
     },
     cnic_issued_date: {
       type: Date,
-      required: false,
+      required: true, //[+]
     },
     cnic_expiry_date: {
       type: Date,
-      required: false,
+      required: true, //[+]
     },
     dob: {
       type: Date,
-      required: false,
+      required: true, //[+]
     },
     email: {
       type: String,
@@ -108,14 +107,22 @@ export const schema = new Schema<User>(
     versionKey: false,
     statics: {
       async insertManyWithId(docs: User[]) {
-        const documentsWithIds = await Promise.all(
-          docs.map(async (doc) => {
-            doc.customId = await generateUniqueId();
-            return doc;
-          }),
-        );
-        // Use the original insertMany function on `this` which refers to the model
-        return await this.insertMany(documentsWithIds);
+        // const documentsWithIds = await Promise.all(
+        //   docs.map(async (doc) => {
+        //     doc.customId = await generateUniqueId();
+        //     return doc;
+        //   }),
+        // );
+        // // Use the original insertMany function on `this` which refers to the model
+        // return await this.insertMany(documentsWithIds);
+      },
+
+      async findUserById(id: string) {
+        return await this.findOne({ _id: id });
+      },
+
+      async findUserByEmail(email: string) {
+        return await this.findOne({ email });
       },
     },
   },
@@ -143,9 +150,9 @@ schema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = await hashPassword(this.password);
   }
-  if (this.isNew) {
-    this.customId = await generateUniqueId();
-  }
+  // if (this.isNew) {
+  //   this.customId = await generateUniqueId();
+  // }
   next();
 });
 
@@ -161,6 +168,8 @@ schema.statics.findUserByEmail = async function (email) {
 
 schema.statics.login = async function (email, password) {
   const user = await this.findOne({ email });
+
+
   if (!user) return null;
   const isMatch = await user.comparePassword(password);
   if (!isMatch) return null;
@@ -169,19 +178,14 @@ schema.statics.login = async function (email, password) {
 
 export const UserModel: UserModel = model<User, UserModel>('User', schema);
 
-export const findUserByEmail = async (email: FilterQuery<string>) => {
-  return UserModel.findOne(email);
+export const findUserByEmail = async (email: string) => {
+  return UserModel.find({
+    email,
+  });
 };
 
-export const findUserById = async (id: Types.ObjectId) => {
-  return UserModel.findById(id);
+export const findUserById = async (id: string) => {
+  const user = await UserModel.findById(id).select('-password').lean();
+  return user;
 };
-
-export const changePassword = async (password: string) => {};
-
-export const updateUser = async () => {};
-
-export const deleteUser = async () => {};
-
-// Adding custom static method to the schema
- 
+  

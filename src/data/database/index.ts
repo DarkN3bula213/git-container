@@ -3,11 +3,24 @@ import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
-const URI = `mongodb://${config.mongo.user}:${config.mongo.pass}/${config.mongo.host}:${config.mongo.port}/${config.mongo.database}`;
+const URI = `mongodb://${config.mongo.user}:${config.mongo.pass}@${config.mongo.host}:${config.mongo.port}/`;
 
 const dbURI = `mongodb://devuser:devpassword@localhost:27017/`;
 
-logger.debug(URI);
+let conStr = '';
+
+if (config.isDocker) {
+  conStr = 'mongodb://devuser:devpassword@mongo:27017/';
+} else {
+  conStr = URI;
+}
+
+logger.debug({
+  uri: URI,
+  hardcoded: dbURI,
+  connStr: conStr,
+  fromEnv: config.mongo.uri,
+});
 function setRunValidators(this: any) {
   this.setOptions({ runValidators: true });
 }
@@ -19,9 +32,9 @@ export const connect = async () => {
     connectTimeoutMS: 60000,
     socketTimeoutMS: 45000,
   };
+  let retry = 0;
   try {
-    // Correctly pass options to the connect method
-    await mongoose.connect(dbURI, options);
+    await mongoose.connect(conStr, options);
     logger.info(`Database connected: ${mongoose.connection.name}`);
     mongoose.connection.on('error', (err) => {
       logger.error('Mongoose default connection error: ' + err);
@@ -29,9 +42,19 @@ export const connect = async () => {
     mongoose.connection.on('disconnected', () => {
       logger.info('Mongoose default connection disconnected');
     });
+
+    mongoose.connection.on('reconnected', () => {
+      logger.info('Mongoose default connection reconnected');
+    });
   } catch (err: any) {
+    if (retry > 10) {
+      logger.error('Database connection error: ' + err.message);
+      throw err;
+    }
+    retry += 1;
+    setTimeout(connect, 10000);
     logger.error('Database connection error: ' + err.message);
-    throw err; // Rethrow to handle outside
+    throw err;
   }
 };
 
