@@ -4,6 +4,6 @@ import { validate } from '@/lib/handlers/validate';
 import schema from './auth.schema';
 const router = Router();
 
-router.route('/login').post(validate(schema.login), controller.login);
+router.route('/login').post( controller.login);
 
 export default router;

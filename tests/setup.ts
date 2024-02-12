@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import dotenv from 'dotenv';
 import { createMockApiKey } from './mocks';
+import { classes } from './utils';
+import { ClassModel } from '../src/modules/school/classes/class.model';
 dotenv.config({ path: './tests/.env.test' });
 let mongo: any;
 export let validApiKey: string;
@@ -14,7 +16,9 @@ beforeAll(async () => {
     await collection.deleteMany({});
   }
 
-    validApiKey = await createMockApiKey();
+  validApiKey = await createMockApiKey();
+
+   await ClassModel.insertMany(classes);
 });
 
 afterAll(async () => {

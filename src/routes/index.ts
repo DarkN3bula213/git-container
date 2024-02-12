@@ -12,17 +12,17 @@ import { health } from './health';
 const Logger = new log(__filename);
 const router = Router();
 router.use(useApiKey);
-
+ 
 
 router.get('/', health);
 
 
-router.use(attachRoles(Roles.ADMIN), requireLogin, allowUser);
 router.use('/school', schoolRoutes);
 
 router.use('/users', users);
 
 router.use('/auth', auth);
+router.use(attachRoles(Roles.ADMIN), requireLogin, allowUser);
 
 
 

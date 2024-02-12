@@ -19,14 +19,10 @@ export const config = {
   node: process.env.NODE_ENV || 'development',
   isProduction: process.env.NODE_ENV === 'production',
   isTest: process.env.NODE_ENV === 'test',
+  isDocker: process.env.NODE_ENV === 'docker',
   isDevelopment: process.env.NODE_ENV === 'development',
   app: {
-    // name: getOsEnv("APP_NAME"),
-    // host: getOsEnv("APP_HOST"),
-    // schema: getOsEnv("APP_SCHEMA"),
-    // routePrefix: getOsEnv("APP_ROUTE_PREFIX"),
     port: normalizePort(process.env.PORT || getOsEnv('PORT')),
-    // banner: toBool(getOsEnv("APP_BANNER")),
   },
   cors: {
     credentials: true,

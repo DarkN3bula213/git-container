@@ -1,18 +1,30 @@
-version: '3.7'
+version: '3.9'
 
 services:
-  postgres:
-    image: postgres:alpine
+  app:
+    build: .
     environment:
-      POSTGRES_PASSWORD: devpassword # Use secure passwords in production
+      - NODE_ENV=docker
+      - PORT=3000
+    volumes:
+      - ./logs:/usr/src/app/logs #
     ports:
-      - "5432:5432"
+      - '3000:3000'
+    depends_on:
+      - redis
+      - mongo
+    restart: unless-stopped
+    networks:
+      - app-network
 
+ 
   redis:
     image: redis:alpine
     command: redis-server #--requirepass devpassword # Use secure passwords in production
     ports:
-      - "6379:6379"
+      - '6379:6379'
+    networks:
+      - app-network
 
   mongo:
     image: mongo:latest
@@ -21,4 +33,9 @@ services:
       MONGO_INITDB_ROOT_USERNAME: devuser
       MONGO_INITDB_ROOT_PASSWORD: devpassword # Use secure passwords in production
     ports:
-      - "27017:27017"
+      - '27017:27017'
+    networks:
+      - app-network
+
+networks:
+  app-network:

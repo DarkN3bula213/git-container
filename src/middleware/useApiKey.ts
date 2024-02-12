@@ -50,18 +50,23 @@ export default router.use(
     const key = req.headers[Header.API_KEY]?.toString();
     if (!key) {
       logger.info('Api key is missing');
-      throw new ForbiddenError();
+      next();
+      // throw new ForbiddenError();
     }
- 
+
     const apiKey = await ApiKeyModel.findOne({ key: key, status: true })
       .lean()
       .exec();
 
     if (!apiKey) {
- 
-      throw new ForbiddenError();
+      logger.info('Api key is invalid');
+      next();
+      // throw new ForbiddenError();
+    } else {
+      req.apiKey = apiKey;
+
+      logger.info('Api key is valid');
     }
-    req.apiKey = apiKey;
     return next();
   }),
 );

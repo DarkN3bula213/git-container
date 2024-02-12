@@ -9,6 +9,7 @@ import {
 } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { generateUniqueId } from './utils';
+import { Logger } from '@/lib/logger';
 export interface User extends Document {
   name: string;
   username: string;
@@ -25,7 +26,7 @@ export interface User extends Document {
   role: 'master' | 'admin' | 'teacher';
   status: 'active' | 'inactive';
 }
-
+const logger = new Logger(__filename);
 interface UserMethods {
   comparePassword: compoarePassword;
 }
@@ -167,6 +168,8 @@ schema.statics.findUserByEmail = async function (email) {
 
 schema.statics.login = async function (email, password) {
   const user = await this.findOne({ email });
+
+
   if (!user) return null;
   const isMatch = await user.comparePassword(password);
   if (!isMatch) return null;

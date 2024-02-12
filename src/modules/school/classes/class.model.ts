@@ -38,7 +38,7 @@ const schema = new Schema<IClass>(
     fee: {
       type: Schema.Types.Number,
       required: true,
-      unique: true,
+
     },
   },
   {

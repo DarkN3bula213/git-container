@@ -15,7 +15,7 @@ colors.setTheme({
   // Define custom styles for timestamp and message backgrounds
   timestampBg: 'bgCyan', // This is an approximation; adjust as needed
   infoMessage: 'green',
-  warnMessage: 'bgYellow',
+  warnMessage: 'teal',
   errorMessage: 'magenta',
   debugMessage: 'magenta',
 });

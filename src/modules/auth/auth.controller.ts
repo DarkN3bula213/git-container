@@ -5,7 +5,7 @@ import { signToken } from '@/lib/utils/tokens';
 import jwt from 'jsonwebtoken';
 import { User } from './users/user.model';
 import { Logger } from '@/lib/logger';
-import { KeystoreModel } from './keyStore/keyStore.model';
+import { KeystoreModel, Keystore } from './keyStore/keyStore.model';
 
 const logger = new Logger(__filename);
 export const login = asyncHandler(async (req, res, next) => {
@@ -32,9 +32,10 @@ export const login = asyncHandler(async (req, res, next) => {
           expiresIn: -1, // Adjust token expiration as needed
         });
         const refresh = signToken({ user }, 'refresh', {
-          expiresIn: '7d', // Adjust token expiration as needed
+          expiresIn: '30m', // Adjust token expiration as needed
         });
-        KeystoreModel.createKeystore(user, access, refresh);
+        // KeystoreModel.createKeystore(user, access, refresh);
+      
         req.user = authenticatedUser.user;
         return res.json({ user: user, access, refresh });
       });

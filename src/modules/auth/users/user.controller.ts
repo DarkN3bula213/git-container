@@ -1,7 +1,10 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { UserModel } from './user.model';
 import { BadRequestError } from '@/lib/api';
-
+import { Keystore } from '../keyStore/keyStore.model';
+import { Logger } from '@/lib/logger';
+import { signToken } from '@/lib/utils/tokens';
+const logger = new Logger(__filename);
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await UserModel.find();
   if (!users) return new BadRequestError('No users found');
@@ -47,9 +50,23 @@ export const register = asyncHandler(async (req, res) => {
   }
   const user = await UserModel.createUser(req.body);
 
+  const access = signToken({ user }, 'access', {
+    expiresIn: '5m', // Adjust token expiration as needed
+  })
+
+    const refresh = signToken({ user }, 'refresh', {
+      expiresIn: '30m', // Adjust token expiration as needed
+    })
+    const userDetails = await Keystore.createKeystore(user, access, refresh);
+
+    // logger.debug({
+    //   Keystore: userDetails,
+    // });
+
   res.status(200).json({
     success: true,
     data: user,
+    tokesn: { access, refresh },
   });
 });
 

@@ -55,3 +55,30 @@ class RedisCache {
     return this.client;
   }
 }
+
+
+version: '3.7'
+
+services:
+
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: devpassword # Use secure passwords in production
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:alpine
+    command: redis-server #--requirepass devpassword # Use secure passwords in production
+    ports:
+      - "6379:6379"
+
+  mongo:
+    image: mongo:latest
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: devuser
+      MONGO_INITDB_ROOT_PASSWORD: devpassword # Use secure passwords in production
+    ports:
+      - "27017:27017"

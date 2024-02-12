@@ -5,9 +5,23 @@ import { createClient } from 'redis';
 const Logger = new log(__filename);
 
 const redisURL = `redis://localhost:6379`;
-// const redisURL = `redis://${config.redis.pass}@${config.redis.host}:${config.redis.port}`;
-Logger.debug(redisURL);
-const client = createClient({ url: redisURL });
+const URLFROMCONFIG = `redis://${config.redis.pass}@${config.redis.host}:${config.redis.port}`;
+
+
+let constr =''
+
+if (config.isDocker) {
+  constr = 'redis://redis:6379';
+} else {
+  constr = redisURL;
+}
+Logger.debug({
+   hardcoded: redisURL ,
+   fromEnv: URLFROMCONFIG ,
+   now: constr ,
+  
+});
+const client = createClient({ url: constr });
 
 client.on('connect', () => Logger.info('Cache is connecting'));
 client.on('ready', () => Logger.info('Cache is ready'));

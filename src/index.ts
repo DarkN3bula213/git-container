@@ -3,7 +3,7 @@ import { app } from './app';
 
 import { Logger } from '@/lib/logger';
 import { config } from '@/lib/config';
-import  './data/cache';
+import './data/cache';
 import { db } from './data/database';
 import { signals } from './lib/constants';
 
@@ -11,18 +11,20 @@ const logger = new Logger(__filename);
 const server = http.createServer(app);
 
 const PORT = config.app.port;
-
+logger.debug({
+  'Server port': PORT,
+  'Database name': config.mongo.uri,
+})
 const startServer = async () => {
-
   try {
-    await db.connect();
-    // await cache.connect();
-
-    server.listen(PORT, () => {
-      logger.info(
-        `Server instance instantiated and listening on port ${PORT}.`,
-      );
+    await db.connect().then(() => {
+      server.listen(PORT, () => {
+        logger.info(
+          `Server instance instantiated and listening on port ${PORT}.`,
+        );
+      });
     });
+    // await cache.connect();
   } catch (error: any) {
     logger.error(
       `Error occurred while trying to start server: ${error.message}`,
@@ -30,7 +32,7 @@ const startServer = async () => {
   }
 };
 
-startServer()
+startServer();
 
 signals.forEach((signal) => {
   process.on(signal, async () => {
@@ -43,5 +45,3 @@ signals.forEach((signal) => {
     await db.disconnect().then(() => logger.debug('Database disconnected'));
   });
 });
-
- 

@@ -20,7 +20,9 @@ export const insertMany = asyncHandler(async (req, res) => {
   new SuccessResponse('Classes added successfully', data).send(res);
 });
 export const updateClass = asyncHandler(async (req, res) => {
-  const data = await ClassModel.findByIdAndUpdate(req.params.id, req.body);
+  const data = await ClassModel.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
   new SuccessResponse('Class updated successfully', data).send(res);
 });
 export const deleteClass = asyncHandler(async (req, res) => {

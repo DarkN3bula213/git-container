@@ -8,7 +8,8 @@ const router = Router();
 router
   .route('/')
   .get(controller.getUsers)
-  .post(validate(register), controller.register);
+  .post(validate(register), controller.register)
+  .delete(controller.reset);
 
 router.route('/seed').post(validate(insertMany), controller.insertMany);
 
