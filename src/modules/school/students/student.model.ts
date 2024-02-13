@@ -9,11 +9,13 @@ const Logger = new log(__filename);
 // Define static methods separately
 interface IStudentStaticMethods {
   getClassIdByName(className: string): Promise<Types.ObjectId>;
+
 }
 
 // Combine the model with static methods for the full interface
 interface IStudentModel extends Model<Student>, IStudentStaticMethods {
   getClassIdByName(className: string): Promise<Types.ObjectId>;
+  insertManyWithId(docs: Student[]): Promise<Types.ObjectId[]>
 }
 
 
@@ -31,7 +33,10 @@ const studentSchema = new Schema<Student>(
     father_cnic: String,
     religion: String,
     phone: String,
-    registration_no: String,
+    registration_no: {
+      type: String,
+      unique: true,
+    },
     classId: Types.ObjectId,
     className: String,
     section: String,
@@ -56,7 +61,15 @@ const studentSchema = new Schema<Student>(
   {
     timestamps: true,
     statics: {
-      async insertManyWithId(docs: Student[]) {},
+      async insertManyWithId(docs: Student[]) {
+        const documentsWithIds = await Promise.all(
+          docs.map(async (student) => {
+            student.registration_no = await generateUniqueId();
+            return student;
+          }),
+        );
+        return this.insertMany(documentsWithIds);
+      },
     },
   },
 );

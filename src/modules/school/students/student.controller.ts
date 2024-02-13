@@ -63,7 +63,7 @@ export const sortedByClassName = asyncHandler(async (req, res) => {
 
 export const bulkPost = asyncHandler(async (req, res) => {
   console.time('getStudents');
-  const savedStudent = await Student.insertMany(req.body);
+  const savedStudent = await Student.insertManyWithId(req.body);
 
   new SuccessResponse('Students created successfully', savedStudent).send(res);
   console.timeEnd('getStudents');

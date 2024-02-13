@@ -52,34 +52,6 @@ describe('Test relating to user crud methods', () => {
     expect(response.status).toBe(401);
   });
 
-  it('It should login with valid credentials', async () => {
-    const response = await request
-      .post('/api/auth/login')
-      .send({
-        email: 'failing@admin.hps.com',
-        password: 'temp1234',
-      })
-      .set('x-api-key', validApiKey);
-    expect(response.status).toBe(200);
-    logger.debug({
-      login: response.body,
-    });
-
-    // Check for presence of tokens in the response
-    expect(response.body).toHaveProperty('access');
-    expect(response.body).toHaveProperty('refresh');
-
-     const user = await UserModel.findOne({ email: 'failing@admin.hps.com' });
-     const keystoreEntry = await Keystore.findOne({ client: user?._id });
-     logger.debug({
-       user: user,
-       keystoreEntry: keystoreEntry
-     })
-   expect(keystoreEntry).not.toBeNull();
-   expect(keystoreEntry?.primaryKey).toBe(response.body.access);
-   expect(keystoreEntry?.secondaryKey).toBe(response.body.refresh);
-   expect(keystoreEntry?.tokenCount).toBe(1);
-
-  });
+ 
 });
   

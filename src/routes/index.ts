@@ -11,7 +11,7 @@ import schoolRoutes from '@/modules/school/school.routes';
 import { health } from './health';
 const Logger = new log(__filename);
 const router = Router();
-router.use(useApiKey);
+
  
 
 router.get('/', health);

@@ -6,6 +6,7 @@ import { config } from '@/lib/config';
 import './data/cache';
 import { db } from './data/database';
 import { signals } from './lib/constants';
+import { seedGenerate } from './scripts/seedStudents';
 
 const logger = new Logger(__filename);
 const server = http.createServer(app);
@@ -22,6 +23,7 @@ const startServer = async () => {
         logger.info(
           `Server instance instantiated and listening on port ${PORT}.`,
         );
+        // seedGenerate()
       });
     });
     // await cache.connect();
