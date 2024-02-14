@@ -17,9 +17,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
 
+
     - name: Copy repository to DigitalOcean
       run: |
-        rsync -avz --exclude='.git*' --delete ./ ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_IP }}:/var/www/dropts/temp_deploy/
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude='.git*' --delete ./ ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_IP }}:/path/to/your/application/temp_deploy/
       shell: bash
 
     - name: Check contents on the Droplet
