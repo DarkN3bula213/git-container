@@ -12,10 +12,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+    - name: Add SSH key to known_hosts
+      run: |
+        ssh-keyscan -t rsa ${{ secrets.DIGITALOCEAN_IP }} >> ~/.ssh/known_hosts
 
     - name: Copy repository to DigitalOcean
       run: |
@@ -24,4 +24,4 @@ jobs:
 
     - name: Check contents on the Droplet
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_IP }} "ls -al /var/www/dropts/temp_deploy/"
+        ssh ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_IP }} "ls -al /var/www/dropts/temp_deploy/"
