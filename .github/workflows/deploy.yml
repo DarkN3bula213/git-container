@@ -24,4 +24,4 @@ jobs:
 
     - name: Check contents on the Droplet
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_IP }} "ls -al /path/to/your/application/temp_deploy/"
+        ssh -o StrictHostKeyChecking=no ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_IP }} "ls -al /var/www/dropts/temp_deploy/"
