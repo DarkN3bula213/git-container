@@ -30,9 +30,15 @@ export function signToken(
   });
 
   if (config.isDevelopment) {
-    // Logger.warn(`Token signed with ${key} key`);
-    // Logger.warn(`Token: ${token}`);
-    logger.warn(`Payload: ${JSON.stringify(payload)}`);
+    logger.warn({
+      event: 'SignToken',
+      details: {
+        token,
+        payload,
+        signingKey,
+        options,
+      },
+    });
   }
 
   return token;

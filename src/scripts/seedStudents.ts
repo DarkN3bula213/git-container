@@ -44,7 +44,7 @@ export async function updateStudentClassIds() {
   console.log(`"All student classIds updated successfully" ${count}`);
 }
 
-export const sample = async () => {
+export const seedGenerate = async () => {
   const generateData = () => ({
     name: faker.person.fullName(),
     dob: faker.date.past(),
@@ -57,11 +57,11 @@ export const sample = async () => {
     cast: faker.word.adjective(),
     father_occupation: faker.person.jobType(),
     father_cnic: generateRandomString(13),
-    religion: faker.helpers.arrayElement(['Islam', 'Christianity', 'Hinduism']),
-    classId: faker.helpers.arrayElement(oIds),
-    section: faker.helpers.arrayElement(['A', 'B', 'C', 'D', 'E']),
+    // religion: faker.helpers.arrayElement(['Islam', 'Christianity', 'Hinduism']),
+    // classId: faker.helpers.arrayElement(oIds),
+    // section: faker.helpers.arrayElement(['A', 'B', 'C', 'D', 'E']),
   });
-  const result = Array.from({ length: 100 }, generateData); // Generates an array of unique objects
+  const result = Array.from({ length: 2000 }, generateData); // Generates an array of unique objects
   try {
     await fs.writeFile('./content.json', JSON.stringify(result, null, 2)); // Beautify JSON output
     console.log('Data successfully written to content.json');

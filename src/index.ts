@@ -6,6 +6,7 @@ import { config } from '@/lib/config';
 import './data/cache';
 import { db } from './data/database';
 import { signals } from './lib/constants';
+ 
 
 const logger = new Logger(__filename);
 const server = http.createServer(app);
@@ -24,7 +25,6 @@ const startServer = async () => {
         );
       });
     });
-    // await cache.connect();
   } catch (error: any) {
     logger.error(
       `Error occurred while trying to start server: ${error.message}`,

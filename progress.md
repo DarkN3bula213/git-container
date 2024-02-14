@@ -82,3 +82,167 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: devpassword # Use secure passwords in production
     ports:
       - "27017:27017"
+
+
+      ```ts
+      // Import types from react-hook-form if you're using its validation schema
+import { Allocation, GuardianInfo, PersonalInformation } from '@/types/forms';
+import { RegisterOptions } from 'react-hook-form';
+ 
+interface BaseFormFieldConfig<T> {
+  name: keyof T;
+  label: string;
+  type: 'text' | 'number' | 'select' | 'date' | 'radio' | 'checkbox' ;
+  validation: RegisterOptions;
+  autoComplete?: string;
+}
+interface SelectFormFieldConfig<T> extends BaseFormFieldConfig<T> {
+  type: 'select';
+  options: { label: string; value: string | number }[];
+}
+
+export type FormFieldConfig<T> = BaseFormFieldConfig<T> | SelectFormFieldConfig<T>;
+interface LoginInput {
+  email: string;
+  password: string;
+}
+export const loginFields: FormFieldConfig<LoginInput>[] = [
+  {
+    name: 'email',
+    label: 'Email',
+    type: 'text',
+    validation: { required: 'Email is required' },
+    autoComplete: 'off',
+  },
+  {
+    name: 'password',
+    label: 'Password',
+    type: 'text',
+    validation: { required: 'Password is required' },
+    autoComplete: 'off',
+  },
+
+]
+
+export const requiredFields=()= FormFieldConfig<RequireInfo>[] =>{return[
+  {
+    section:'Personal Information',
+    fields:[
+      name,
+    
+      place_of_birth,
+      dob,
+      gender,
+      address
+
+    ]
+  },
+  {
+    section:'Guardian Information',
+    fields:[
+        father_name,
+      father_cnic,
+      father_occupation,
+      phone
+
+
+    ]
+  },{
+    section:'Contact Information',
+    fields:[address,phone]
+  }
+]}
+
+export const personalFields: FormFieldConfig<PersonalInformation>[] = [
+  {
+    name: 'name',
+    label: 'Name',
+    type: 'text',
+    validation: { required: 'Name is required' },
+    autoComplete: 'off',
+  },
+  {
+    name: 'father_name',
+    label: "Father's Name",
+    type: 'text',
+    validation: { required: "Father's Name is required" },
+    autoComplete: 'off',
+  },
+
+  {
+    name: 'place_of_birth',
+    label: 'Place of Birth',
+    type: 'text',
+    validation: { required: 'Place of Birth is required' },
+    autoComplete: 'off',
+  },
+  {
+    name: 'dob',
+    label: 'Date of Birth',
+    type: 'date',
+    validation: { required: 'Date of Birth is required' },
+    autoComplete: 'off',
+  },
+  {
+    name: 'form_b',
+    label: 'Form B No',
+    type: 'text',
+    validation: { required: 'Form B is required' },
+    autoComplete: 'off',
+  },
+];
+
+export const guardianFields: FormFieldConfig<GuardianInfo>[] = [
+  {
+    name: 'father_cnic',
+    label: "Guardian's CNIC",
+    type: 'text',
+    validation: {
+      required: "Guardian's CNIC is required",
+      minLength: 13,
+      maxLength: 13,
+    },
+    autoComplete: 'off',
+  },
+  {
+    name: 'father_occupation',
+    label: "Guardian's Occupation",
+    type: 'text',
+    validation: { required: "Guardian's Occupation is required" },
+    autoComplete: 'off',
+  },
+  {
+    name: 'cast',
+    label: "Guardian's Cast",
+    type: 'text',
+    validation: { required: 'Cast is required' },
+    autoComplete: 'off',
+  },
+  {
+    name: 'religion',
+    label: 'Religion',
+    type: 'text',
+    validation: { required: "Guardian's Email is required" },
+    autoComplete: 'off',
+  },
+  {
+    name: 'address',
+    label: 'Address',
+    type: 'text',
+    validation: { required: 'Address is required' },
+    autoComplete: 'off',
+  },
+  {
+    name: 'phone',
+    label: 'Phone',
+    type: 'text',
+    validation: { required: 'Phone is required' },
+    autoComplete: 'off',
+  },
+];
+
+export const allocationFields: FormFieldConfig<Allocation>[] = [];
+```
+
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCiZRbdaUKSLn+yXMiP+yl+Qg92DoCnUe8pIAcDy75yFny56QT7DMBKPbEI3PJYn6g1ovDx1zNuyoyItj4sXBtKZCZOjcYtFBgMEfllkZINU0DebIlg/pyTnPSkQqjUZeZYEdXtpUaa6CDbNszklo3pr/7+d6MHm/C7Jxb19AUeCnd5fReTZKytpoIjImLiEUVT6tUON6TOGjlf8cAiz9nTgbME3mWU5Xo4XefXUVYlvcVeJmDkRrBQKyf61I6Km/+YWeusIiO9RSYoH29m6d5+idmP5f0BmA6ivTg5/qioHU5ybt5iD9Bs8MBAQpI5AGTdlNFzC8WecfFLM5M1FG/Q93Z14puGLmAhQSHiuqnx1pBhJM7AoTy58XaMp0Ma3+A27j6rcWxoacYt993XNFwrbov2fipaVIQdxL/VHLfYKNJvUgG6mkW+5Hm89mWgVQG1rSXSgLVSvSu7G8Kuu7cO11YgAOGbU/qxWZcTwdQeKPPZFfpdo2HvBkNwXx862mNKhoospPMkwSVTPOfgqr8gcag3d7rv3Ok3ID7xpMqM9lGTAerVmITSP9vI8YApjbfhZv02okWK8SmA0gwiZKq0kSDjPYoWWWvv1CkQprqjIiPG/qEwzaR/WJHyUD3wrLsHC3kl6NNL6H+d76vxYJyenLHM5IJb1EmeQM3FDbGAcw== gitpod@darkn3bula2-gitcontaine-qsz2q4nvk0n

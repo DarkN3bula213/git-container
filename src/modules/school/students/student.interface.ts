@@ -6,7 +6,7 @@ export type Student = Document & {
   name: string;
   dob: Date;
   place_of_birth: string;
-  form_b: string;
+   b_form: string;
   gender: string;
   father_name: string;
 

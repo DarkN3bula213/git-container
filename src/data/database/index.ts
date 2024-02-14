@@ -3,24 +3,30 @@ import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
-const URI = `mongodb://${config.mongo.user}:${config.mongo.pass}@${config.mongo.host}:${config.mongo.port}/`;
+const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@${config.mongo.host}:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
 
-const dbURI = `mongodb://devuser:devpassword@localhost:27017/`;
+logger.debug({
+  user: config.mongo.user,
+  pass: config.mongo.pass,
+  host: config.mongo.host,
+  port: config.mongo.port,
+  db: config.mongo.database,
+})
 
 let conStr = '';
 
 if (config.isDocker) {
-  conStr = 'mongodb://devuser:devpassword@mongo:27017/';
+  conStr = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@mongo:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
 } else {
   conStr = URI;
 }
 
-logger.debug({
-  uri: URI,
-  hardcoded: dbURI,
-  connStr: conStr,
-  fromEnv: config.mongo.uri,
-});
+// logger.debug({
+//   uri: URI,
+//   hardcoded: dbURI,
+//   connStr: conStr,
+//   fromEnv: config.mongo.uri,
+// });
 function setRunValidators(this: any) {
   this.setOptions({ runValidators: true });
 }

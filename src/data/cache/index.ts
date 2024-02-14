@@ -15,12 +15,12 @@ if (config.isDocker) {
 } else {
   constr = redisURL;
 }
-Logger.debug({
-   hardcoded: redisURL ,
-   fromEnv: URLFROMCONFIG ,
-   now: constr ,
+// Logger.debug({
+//    hardcoded: redisURL ,
+//    fromEnv: URLFROMCONFIG ,
+//    now: constr ,
   
-});
+// });
 const client = createClient({ url: constr });
 
 client.on('connect', () => Logger.info('Cache is connecting'));

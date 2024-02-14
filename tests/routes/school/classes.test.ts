@@ -28,7 +28,7 @@ describe('Test relating to class crud methods', () => {
       .send(classes[0])
       .set('x-api-key', validApiKey)
       .timeout(5000);
-    expect(response2.status).toBe(500);
+    expect(response2.status).toBe(400);
   });
 
   it('Should be able to update class fee', async () => {

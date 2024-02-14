@@ -14,3 +14,6 @@ export function getDynamicKey(key: DynamicKey, suffix: string) {
   const dynamic: DynamicKeyType = `${key}:${suffix}`;
   return dynamic;
 }
+
+export const usersKey = (userId: string) => `users#${userId}`;
+export const roleKey = (userId: string) => `role#${userId}`;

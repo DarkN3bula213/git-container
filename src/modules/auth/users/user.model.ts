@@ -23,8 +23,11 @@ export interface User extends Document {
   password: string;
   phone: string;
   address: string;
-  role: 'master' | 'admin' | 'teacher';
+  roles: 'master' | 'admin' | 'teacher';
   status: 'active' | 'inactive';
+  createdAt: Date;
+  updatedAt: Date;
+
 }
 const logger = new Logger(__filename);
 interface UserMethods {
@@ -95,7 +98,7 @@ export const schema = new Schema<User>(
       type: String,
       required: false,
     },
-    role: {
+    roles: {
       type: String,
       enum: ['master', 'admin', 'teacher'],
       default: 'admin',
@@ -168,8 +171,6 @@ schema.statics.findUserByEmail = async function (email) {
 
 schema.statics.login = async function (email, password) {
   const user = await this.findOne({ email });
-
-
   if (!user) return null;
   const isMatch = await user.comparePassword(password);
   if (!isMatch) return null;
@@ -189,3 +190,10 @@ export const findUserById = async (id: string) => {
   return user;
 };
   
+
+async function updateInfo(user: User): Promise<any> {
+  user.updatedAt = new Date();
+  return UserModel.updateOne({ _id: user._id }, { $set: { ...user } })
+    .lean()
+    .exec();
+}
