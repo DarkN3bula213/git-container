@@ -15,12 +15,12 @@ if (config.isDocker) {
   conStr = URI;
 }
 
-logger.debug({
-  uri: URI,
-  hardcoded: dbURI,
-  connStr: conStr,
-  fromEnv: config.mongo.uri,
-});
+// logger.debug({
+//   uri: URI,
+//   hardcoded: dbURI,
+//   connStr: conStr,
+//   fromEnv: config.mongo.uri,
+// });
 function setRunValidators(this: any) {
   this.setOptions({ runValidators: true });
 }

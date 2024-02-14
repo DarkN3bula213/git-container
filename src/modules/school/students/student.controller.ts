@@ -1,21 +1,27 @@
-import asyncHandler from "@/lib/handlers/asyncHandler";
+import asyncHandler from '@/lib/handlers/asyncHandler';
 
-import Student from "./student.model";
-import { SuccessMsgResponse, SuccessResponse } from "@/lib/api";
-import { updateStudentClassIds } from "./student.utils";
-
+import Student from './student.model';
+import { SuccessMsgResponse, SuccessResponse } from '@/lib/api';
+import { updateStudentClassIds } from './student.utils';
+import { studentService } from './student.service';
 
 /*------------------     ----------------------------------- */
 
 export const createStudent = asyncHandler(async (req, res) => {
   const newStudent = new Student(req.body);
-  const student = await newStudent.save();
+  const student = newStudent.toObject();
   new SuccessResponse('Student created successfully', student).send(res);
 });
 
 /*------------------     ----------------------------------- */
+export const newAdmission = asyncHandler(async (req, res) => {
+  const data = req.body;
+  const register = await studentService.resgisterStudent(data);
+  const student = await register.toObject();
+  new SuccessResponse('Student created successfully', student).send(res);
+});
 
-
+/*------------------     ----------------------------------- */
 export const getStudents = asyncHandler(async (req, res) => {
   const students = await Student.find()
     .select('+name +classId +className +admission_date')
@@ -60,10 +66,9 @@ export const sortedByClassName = asyncHandler(async (req, res) => {
 });
 /*------------------     ----------------------------------- */
 
-
 export const bulkPost = asyncHandler(async (req, res) => {
   console.time('getStudents');
-  const savedStudent = await Student.insertManyWithId(req.body);
+  const savedStudent = await Student.insertMany(req.body);
 
   new SuccessResponse('Students created successfully', savedStudent).send(res);
   console.timeEnd('getStudents');
@@ -79,4 +84,4 @@ export const fixStudentClassIds = asyncHandler(async (req, res) => {
 export const resetCollection = asyncHandler(async (req, res) => {
   await Student.deleteMany();
   new SuccessMsgResponse('Collection reset successfully').send(res);
-})
+});

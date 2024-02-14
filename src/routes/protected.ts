@@ -6,11 +6,15 @@ const Logger = new log(__filename)
 const router = Router()
 
 
-router.get('/',attachRoles(Roles.MASTER), (req, res) => {
+router.get('/',attachRoles(Roles.ADMIN), (req, res) => {
     Logger.debug({
         attached: req.roles
     })   
-    res.send('hello')
+    res.json({
+        data: {
+            roles: req.roles
+        }
+    })
 })
 
 export default router 

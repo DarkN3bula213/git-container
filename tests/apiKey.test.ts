@@ -29,7 +29,18 @@ it('should allow access with a valid API key', async () => {
       .set('x-api-key', invalidApiKey);
 
     expect(response.status).toBe(403);
-    // Add more assertions here if you want to  check the response body
+
   });
 
+});
+
+describe('useApiKey Middleware', () => {
+  it('The request object has the req.roles property', async () => {
+    const response = await request
+      .get('/api/protected')
+      .set('x-api-key', validApiKey);
+    expect(response.status).toBe(200);
+
+    expect(response.body.data).toHaveProperty('roles');
+  });
 });

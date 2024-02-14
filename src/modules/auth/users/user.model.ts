@@ -25,6 +25,9 @@ export interface User extends Document {
   address: string;
   role: 'master' | 'admin' | 'teacher';
   status: 'active' | 'inactive';
+  createdAt: Date;
+  updatedAt: Date;
+
 }
 const logger = new Logger(__filename);
 interface UserMethods {
@@ -189,3 +192,10 @@ export const findUserById = async (id: string) => {
   return user;
 };
   
+
+async function updateInfo(user: User): Promise<any> {
+  user.updatedAt = new Date();
+  return UserModel.updateOne({ _id: user._id }, { $set: { ...user } })
+    .lean()
+    .exec();
+}

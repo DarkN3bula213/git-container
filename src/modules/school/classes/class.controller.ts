@@ -10,6 +10,10 @@ export const findClasses = asyncHandler(async (req, res) => {
   new SuccessResponse('Classes', data).send(res);
 });
 export const addClass = asyncHandler(async (req, res) => {
+  const get = await ClassModel.findOne({ className: req.body.className });
+  if (get) {
+    throw new BadRequestError('Class already exists');
+  }
   const classModel = new ClassModel(req.body);
   const data = await classModel.save();
   new SuccessResponse('Class added successfully', data).send(res);
