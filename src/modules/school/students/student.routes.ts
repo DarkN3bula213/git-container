@@ -10,10 +10,6 @@ import { applyRoutes } from '@/lib/utils/utils';
 
 const router = Router();
 
-// router.route('/').get(controller.getStudents).post(controller.createStudent);
-// router.route('/:id').get(controller.getStudentsById);
-// router.route('/seed').post(controller.bulkPost);
-// router.route('/sortedByClassName').get(controller.sortedByClassName);
 
 
 function getRouteMap(): Route[] {
@@ -34,7 +30,7 @@ function getRouteMap(): Route[] {
             method: 'get',
             handler: controller.getStudentsById,
         },
-        {
+        { 
             path: '/seed',
             method: 'post',
             handler: controller.bulkPost,
@@ -44,6 +40,11 @@ function getRouteMap(): Route[] {
             method: 'get',
             handler: controller.sortedByClassName,
         },
+        {
+            path:'reset',
+            method:'delete',
+            handler:controller.resetCollection
+        }
     ];
 }
 

@@ -23,7 +23,7 @@ export interface User extends Document {
   password: string;
   phone: string;
   address: string;
-  role: 'master' | 'admin' | 'teacher';
+  roles: 'master' | 'admin' | 'teacher';
   status: 'active' | 'inactive';
   createdAt: Date;
   updatedAt: Date;
@@ -98,7 +98,7 @@ export const schema = new Schema<User>(
       type: String,
       required: false,
     },
-    role: {
+    roles: {
       type: String,
       enum: ['master', 'admin', 'teacher'],
       default: 'admin',
@@ -171,8 +171,6 @@ schema.statics.findUserByEmail = async function (email) {
 
 schema.statics.login = async function (email, password) {
   const user = await this.findOne({ email });
-
-
   if (!user) return null;
   const isMatch = await user.comparePassword(password);
   if (!isMatch) return null;
