@@ -3,7 +3,7 @@ name: Deploy to DigitalOcean
 on:
   push:
     branches:
-      - deploy  # Your deployment branch
+      - deployment  # Your deployment branch
 
 jobs:
   deployment:
