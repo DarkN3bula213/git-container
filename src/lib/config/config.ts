@@ -6,6 +6,7 @@ import {
   getOsEnvOptional,
   toNumber,
   getDecodedOsEnv,
+  toBool
 } from './utils';
 
 dotenv.config({
@@ -20,6 +21,7 @@ export const config = {
   isProduction: process.env.NODE_ENV === 'production',
   isTest: process.env.NODE_ENV === 'test',
   isJest: process.env.NODE_ENV === 'jest',
+  disengage: process.env.DISENGAGE || 'false',
   isDocker: process.env.NODE_ENV === 'docker',
   isDevelopment: process.env.NODE_ENV === 'development',
   app: {
@@ -30,6 +32,14 @@ export const config = {
     origin: '*',
     methods: 'GET,POST,PUT,DELETE',
     optionsSuccessStatus: 200,
+  },
+  urlEncoded: {
+    limit: '10mb',
+    extended: true,
+    parameterLimit: 50000,
+  },
+  json:{
+    limit: '10mb'
   },
   log: {
     level: getOsEnvOptional('LOG_LEVEL'),

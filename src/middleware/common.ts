@@ -4,11 +4,12 @@ import router from '../routes';
 import { errorHandler } from '@/lib/handlers/errorHandler';
 import { morganMiddleware as morgan } from '@/lib/config';
 import { NotFoundError } from '@/lib/api';
+import { corsOptions } from '@/lib/config/cors';
 export default (app: Application) => {
   app.use(morgan);
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ limit: '10mb', extended: true, parameterLimit: 50000 }));
-  app.use(cors());
+  app.use(cors(corsOptions));
   app.get('/test', (req, res) => res.send('Test route'));
 
   app.use('/api', router);
