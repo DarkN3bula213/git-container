@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { createMockApiKey } from './mocks';
 import { classes } from './utils';
 import { ClassModel } from '../src/modules/school/classes/class.model';
+import {RoleModel} from '../src/modules/auth/roles/role.model'
 
 dotenv.config({ path: './tests/.env.test' });
 let mongo: any;
@@ -20,6 +21,21 @@ beforeAll(async () => {
   if (classes && classes.length > 0) {
     await ClassModel.insertMany(classes); // Replace with your ClassModel
   }
+
+  await RoleModel.insertMany([
+    {
+      code: 'HPS',
+      status: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      code: 'ADMIN',
+      status: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ]);
 
   validApiKey = await createMockApiKey(); // Use your API key generation logic
 });

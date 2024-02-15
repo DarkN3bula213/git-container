@@ -4,6 +4,7 @@ import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { Keystore } from '../keyStore/keyStore.model';
 import { Logger } from '@/lib/logger';
 import { signToken } from '@/lib/utils/tokens';
+import { Roles } from '@/lib/constants';
 const logger = new Logger(__filename);
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await UserModel.find();
@@ -48,7 +49,11 @@ export const register = asyncHandler(async (req, res) => {
   if (check) {
     throw new BadRequestError('User with this email already exists');
   }
-  const user = await UserModel.createUser(req.body);
+ 
+  const user = await UserModel.createUser(req.body,Roles.HPS);
+  if (!user) {
+    throw new BadRequestError('Something went wrong');
+  }
 
   const access = signToken({ user }, 'access', {
     expiresIn: '5m', 
@@ -60,7 +65,7 @@ export const register = asyncHandler(async (req, res) => {
   const userDetails = await Keystore.createKeystore(user, access, refresh);
 
   // logger.debug({
-  //   Keystore: userDetails,
+  //   Keystore: userDetails, 
   // });
 
   res.status(200).json({

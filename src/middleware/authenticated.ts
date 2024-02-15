@@ -62,29 +62,4 @@ export const authenticate = asyncHandler(async (req, res, next) => {
 
   return next();
 });
-
-export const allowUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  if (!req.user || !req.roles) {
-    logger.warn('User not authenticated');
-    return next();
-  } else if ((req.user as User).roles == req.roles) {
-    logger.info({
-      user: 'Authenticated',
-      requireRole: `${req.roles}`,
-      userRole: `${(req.user as User).roles}`,
-    });
-    return next();
-  }
-
-  logger.error('User not allowed');
-  next();
-};
-
-const router = Router();
-
-router.use(allowUser);
-export default router;
+ 

@@ -8,8 +8,11 @@ import {
   FilterQuery,
 } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { generateUniqueId } from './utils';
+
 import { Logger } from '@/lib/logger';
+import Role, { RoleModel } from '../roles/role.model';
+import { InternalError } from '@/lib/api';
+import { Roles } from '@/lib/constants';
 export interface User extends Document {
   name: string;
   username: string;
@@ -23,11 +26,10 @@ export interface User extends Document {
   password: string;
   phone: string;
   address: string;
-  roles: 'master' | 'admin' | 'teacher';
+  roles: Types.ObjectId[] | Role[] | string[]|string;
   status: 'active' | 'inactive';
   createdAt: Date;
   updatedAt: Date;
-
 }
 const logger = new Logger(__filename);
 interface UserMethods {
@@ -38,7 +40,7 @@ interface UserModel extends Model<User, {}, UserMethods> {
   customId: { type: Number; unique: true };
   findUserByEmail(email: string): Promise<User | null>;
   findUserById(id: string): Promise<User | null>;
-  createUser(userDetails: Partial<User>): Promise<User>;
+  createUser(userDetails: Partial<User>, rolesCode?: string): Promise<User>;
   login(email: string, password: string): Promise<User | null>;
   insertManyWithId(docs: User[]): Promise<User[]>;
 }
@@ -47,7 +49,7 @@ export const schema = new Schema<User>(
   {
     username: {
       type: String,
-      unique: true,
+      // unique: true,
       required: true, //[+]
     },
     name: {
@@ -98,36 +100,17 @@ export const schema = new Schema<User>(
       type: String,
       required: false,
     },
-    roles: {
-      type: String,
-      enum: ['master', 'admin', 'teacher'],
-      default: 'admin',
-    },
+    roles:  [{
+    type: Types.ObjectId,
+    ref: 'Role', // Use the model name as a string here
+    required: false
+  }],
     status: String,
   },
   {
     timestamps: true,
     versionKey: false,
-    statics: {
-      async insertManyWithId(docs: User[]) {
-        // const documentsWithIds = await Promise.all(
-        //   docs.map(async (doc) => {
-        //     doc.customId = await generateUniqueId();
-        //     return doc;
-        //   }),
-        // );
-        // // Use the original insertMany function on `this` which refers to the model
-        // return await this.insertMany(documentsWithIds);
-      },
-
-      async findUserById(id: string) {
-        return await this.findOne({ _id: id });
-      },
-
-      async findUserByEmail(email: string) {
-        return await this.findOne({ email });
-      },
-    },
+ 
   },
 );
 
@@ -159,7 +142,23 @@ schema.pre('save', async function (next) {
   next();
 });
 
-schema.statics.createUser = function (userDetails) {
+schema.statics.createUser = async function (userDetails, roleCode?: string) {
+  if (roleCode) {
+    try {
+      const role = await RoleModel.findOne({ code: roleCode })
+        .select('+code')
+        .lean()
+        .exec();
+      if (!role) throw new InternalError('Role must be defined');
+      const user = {
+        ...userDetails,
+        roles: role._id,
+      };
+      return this.create(user);
+    } catch (err: any) {
+      throw new InternalError(err.message);
+    }
+  }
   return this.create(userDetails);
 };
 
@@ -189,7 +188,6 @@ export const findUserById = async (id: string) => {
   const user = await UserModel.findById(id).select('-password').lean();
   return user;
 };
-  
 
 async function updateInfo(user: User): Promise<any> {
   user.updatedAt = new Date();

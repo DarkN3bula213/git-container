@@ -1,7 +1,7 @@
 import { Roles } from '@/lib/constants';
 import { Types, Schema, Model, Document, model } from 'mongoose';
 
-export default interface Role {
+export default interface Role extends Document {
   _id: Types.ObjectId;
   code: string;
   status?: boolean;
@@ -40,7 +40,7 @@ export const RoleModel = model<Role, Model<Role>>(
   'roles',
 )
 
-export const getRole = async (key:Roles) => {
+export const getUserRoles = async (key:Roles) => {
     const role = await RoleModel.findOne({code:key})
     return role
     
