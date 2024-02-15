@@ -17,7 +17,13 @@
 # ssh command
 
 ```bash 
-scp .env root@159.65.149.28:/var/www/dropts/
+scp .env root@159.65.149.28:/var/www/dropts/ver2/app
 ssh root@159.65.149.28
 cd /var/www/dropts/
+git clone https://github.com/DarkN3bula213/git-container.git
+rm -r app
+mv git-container app
+scp .env root@159.65.149.28:/var/www/dropts/ver2/app
+docker stop $(docker ps -aq) && docker rm $(docker ps -aq)
+docker-compose up
 ```
