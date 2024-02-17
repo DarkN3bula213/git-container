@@ -11,7 +11,7 @@ logger.debug({
   host: config.mongo.host,
   port: config.mongo.port,
   db: config.mongo.database,
-})
+});
 
 let conStr = '';
 

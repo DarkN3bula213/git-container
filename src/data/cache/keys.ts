@@ -1,11 +1,8 @@
- 
 export enum Key {
   roles = 'roles',
 }
 export enum DynamicKey {
-CLASS = 'class',
-
-
+  CLASS = 'class',
 }
 
 export type DynamicKeyType = `${DynamicKey}:${string}`;

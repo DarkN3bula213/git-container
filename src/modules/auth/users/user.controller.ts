@@ -49,23 +49,23 @@ export const register = asyncHandler(async (req, res) => {
   if (check) {
     throw new BadRequestError('User with this email already exists');
   }
- 
-  const user = await UserModel.createUser(req.body,Roles.HPS);
+
+  const user = await UserModel.createUser(req.body, Roles.HPS);
   if (!user) {
     throw new BadRequestError('Something went wrong');
   }
 
   const access = signToken({ user }, 'access', {
-    expiresIn: '5m', 
+    expiresIn: '5m',
   });
 
   const refresh = signToken({ user }, 'refresh', {
-    expiresIn: '30m', 
+    expiresIn: '30m',
   });
   const userDetails = await Keystore.createKeystore(user, access, refresh);
 
   // logger.debug({
-  //   Keystore: userDetails, 
+  //   Keystore: userDetails,
   // });
 
   res.status(200).json({
@@ -85,10 +85,10 @@ export const login = asyncHandler(async (req, res) => {
   delete verified.password;
 
   const access = signToken({ user }, 'access', {
-    expiresIn: -1, 
+    expiresIn: -1,
   });
   const refresh = signToken({ user }, 'refresh', {
-    expiresIn: '1m', 
+    expiresIn: '1m',
   });
   return new SuccessResponse('Login successful', {
     access,
@@ -105,16 +105,14 @@ export const insertMany = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const getCurrentUser = asyncHandler(async (req, res) => {
-
- const user = (req.user as User)
+  const user = req.user as User;
 
   if (!user) {
     throw new BadRequestError('No user found');
   }
   return new SuccessResponse('Logged in user', user).send(res);
-})
+});
 export const reset = asyncHandler(async (req, res) => {
   const user = await UserModel.deleteMany({});
   res.status(200).json({

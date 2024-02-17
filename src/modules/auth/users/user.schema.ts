@@ -18,7 +18,6 @@ export default {
   }),
 };
 
-
 export const register = Joi.object({
   username: Joi.string().required(),
   name: Joi.string().required(),
@@ -30,6 +29,6 @@ export const register = Joi.object({
   dob: Joi.date().required(),
   cnic_issued_date: Joi.date().required(),
   cnic_expiry_date: Joi.date().required(),
-})
+});
 
-export const insertMany = Joi.array().items(register)
+export const insertMany = Joi.array().items(register);

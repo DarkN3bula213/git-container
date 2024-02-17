@@ -23,4 +23,4 @@ router.put('/fee/:name', validate(schema.fee), controller.updateClassFee);
 
 router.post('/seed', validate(schema.multiClass), controller.insertMany);
 
-export default  router;
+export default router;

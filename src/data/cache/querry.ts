@@ -2,9 +2,6 @@ import { config } from '@/lib/config';
 import cache from '.';
 import { DynamicKeyType, Key } from './keys';
 
-
-
-
 export enum TYPES {
   LIST = 'list',
   STRING = 'string',
@@ -13,7 +10,6 @@ export enum TYPES {
   SET = 'set',
 }
 
- 
 export async function setValue(
   key: Key | DynamicKeyType,
   value: string | number,
@@ -138,8 +134,6 @@ export async function getOrderedSetRange<T>(key: Key, start = 0, end = -1) {
   return data;
 }
 
- 
-
 export async function watch(key: Key | DynamicKeyType) {
   return await cache.watch(key);
 }
@@ -152,20 +146,16 @@ export async function expire(expireAt: Date, key: Key | DynamicKeyType) {
   return await cache.pExpireAt(key, expireAt.getTime());
 }
 
- 
 // const client = RedisCache.getInstance(config.redis.uri); // No need to pass URL if already initialized
 // export const cache = client.getClient();
 
- 
 export async function getOrderedSetMemberScore(
   key: Key,
   member: any,
 ): Promise<number | null> {
-
   const type = await cache.type(key);
   if (type !== 'zset') return null;
 
   const score = await cache.zScore(key, member);
   return score;
 }
- 

@@ -12,7 +12,6 @@ import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
 import express, { Request, Response, NextFunction } from 'express';
- 
 
 declare global {
   namespace Express {

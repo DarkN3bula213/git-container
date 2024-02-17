@@ -33,12 +33,9 @@ type GenSeq = {
   unique?: boolean;
 };
 
-export const genSequence = ( options: GenSeq) => {
-
+export const genSequence = (options: GenSeq) => {
   const { length, digits, letters, prefix, start, end, unique } = options;
 
   const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   const numSet = '0123456789';
-
- 
 };

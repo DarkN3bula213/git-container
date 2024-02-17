@@ -15,7 +15,7 @@ const schema = new Schema<Role>({
     required: true,
     trim: true,
     unique: true,
-    enum:Roles
+    enum: Roles,
   },
   status: {
     type: Schema.Types.Boolean,
@@ -33,15 +33,9 @@ const schema = new Schema<Role>({
   },
 });
 
+export const RoleModel = model<Role, Model<Role>>('Role', schema, 'roles');
 
-export const RoleModel = model<Role, Model<Role>>(
-  'Role',
-  schema,
-  'roles',
-)
-
-export const getUserRoles = async (key:Roles) => {
-    const role = await RoleModel.findOne({code:key})
-    return role
-    
-}
+export const getUserRoles = async (key: Roles) => {
+  const role = await RoleModel.findOne({ code: key });
+  return role;
+};

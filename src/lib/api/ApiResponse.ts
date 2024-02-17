@@ -15,7 +15,7 @@ enum ResponseStatus {
   FORBIDDEN = 403,
   NOT_FOUND = 404,
   INTERNAL_ERROR = 500,
-  DUPLICATE_KEY =409
+  DUPLICATE_KEY = 409,
 }
 
 abstract class ApiResponse {
@@ -141,8 +141,6 @@ export class TokenRefreshResponse extends ApiResponse {
     return super.prepare<TokenRefreshResponse>(res, this, headers);
   }
 }
-
-
 
 export class DuplicateKeyResponse extends ApiResponse {
   constructor(message: string) {

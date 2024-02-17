@@ -5,8 +5,6 @@ export interface IClass extends Document {
   section: string[];
   fee: number;
 }
- 
-
 
 const schema = new Schema<IClass>(
   {
@@ -38,7 +36,6 @@ const schema = new Schema<IClass>(
     fee: {
       type: Schema.Types.Number,
       required: true,
-
     },
   },
   {

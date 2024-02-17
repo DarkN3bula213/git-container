@@ -7,7 +7,7 @@ import {
   NotFoundResponse,
   BadRequestResponse,
   ForbiddenResponse,
-  DuplicateKeyResponse
+  DuplicateKeyResponse,
 } from './ApiResponse';
 import { config } from '../config';
 
@@ -53,7 +53,6 @@ export abstract class ApiError extends Error {
         return new ForbiddenResponse(err.message).send(res);
       case ErrorType.DUPLICATE_KEY:
         return new DuplicateKeyResponse(err.message).send(res);
-
 
       default: {
         let message = err.message;

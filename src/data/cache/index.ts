@@ -7,8 +7,7 @@ const Logger = new log(__filename);
 const redisURL = `redis://localhost:6379`;
 const URLFROMCONFIG = `redis://${config.redis.pass}@${config.redis.host}:${config.redis.port}`;
 
-
-let constr =''
+let constr = '';
 
 if (config.isDocker) {
   constr = 'redis://redis:6379';
@@ -19,7 +18,7 @@ if (config.isDocker) {
 //    hardcoded: redisURL ,
 //    fromEnv: URLFROMCONFIG ,
 //    now: constr ,
-  
+
 // });
 const client = createClient({ url: constr });
 
@@ -102,5 +101,3 @@ import { Key } from './keys';
 // }
 
 // export { RedisCache };
-
-

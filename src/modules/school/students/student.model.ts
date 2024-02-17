@@ -37,9 +37,8 @@ const studentSchema = new Schema<Student>(
     },
     place_of_birth: {
       type: String,
-
     },
-     b_form: {
+    b_form: {
       type: String,
       required: [true, 'Form B is required'],
     },
@@ -108,12 +107,12 @@ const studentSchema = new Schema<Student>(
       type: String,
       required: [true, 'Section is required'],
       trim: true,
-maxlength: [1, 'Section must be at least 1 character long'],
+      maxlength: [1, 'Section must be at least 1 character long'],
       enum: ['A', 'B', 'C', 'D', 'E'],
     },
     feeType: {
       type: String,
-default: 'Full',
+      default: 'Full',
       trim: true,
 
       enum: ['Full', 'Half', 'Free'],
@@ -152,11 +151,15 @@ default: 'Full',
       async insertManyWithId(docs: Student[]) {
         const documentsWithIds = await Promise.all(
           docs.map(async (student) => {
-            const classDoc = await ClassModel.findOne({ className: student.className });
+            const classDoc = await ClassModel.findOne({
+              className: student.className,
+            });
             if (!classDoc) {
-              throw new Error(`Invalid class name provided: ${student.className}`);
+              throw new Error(
+                `Invalid class name provided: ${student.className}`,
+              );
             }
-            if(!classDoc.section.includes(student.section)){
+            if (!classDoc.section.includes(student.section)) {
               throw new Error(`Invalid section provided: ${student.section}`);
             }
 
@@ -179,7 +182,7 @@ studentSchema.statics.bulkInsert = async function (students) {
     if (!classDoc) {
       throw new Error(`Invalid class name provided: ${student.className}`);
     }
-    if(!classDoc.section.includes(student.section)){
+    if (!classDoc.section.includes(student.section)) {
       throw new Error(`Invalid section provided: ${student.section}`);
     }
     student.classId = classDoc._id;

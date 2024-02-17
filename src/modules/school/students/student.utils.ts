@@ -1,5 +1,7 @@
-
-import { IDTrackerModel, IIDTracker } from '@/modules/auth/ID Tracker/idTracker.model';
+import {
+  IDTrackerModel,
+  IIDTracker,
+} from '@/modules/auth/ID Tracker/idTracker.model';
 import dayjs from 'dayjs';
 import StudentModel from './student.model';
 import { ClassModel } from '../classes/class.model';
@@ -46,8 +48,6 @@ export const generateUniqueId = async (): Promise<string> => {
 
   return `${today}-${finalCheckDigit}-${sequenceStr}`;
 };
-
-
 
 export async function updateStudentClassIds() {
   const students = await StudentModel.find({}).exec();

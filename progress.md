@@ -27,3 +27,33 @@ scp .env root@159.65.149.28:/var/www/dropts/ver2/app
 docker stop $(docker ps -aq) && docker rm $(docker ps -aq)
 docker-compose up
 ```
+
+const schema = new Schema<Keystore>(
+  {
+    client: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
+  ..,
+  {
+    versionKey: false,
+    statics: {
+      createKeystore: async function (
+       ..
+      ) {
+        const date = new Date();
+        const userDetails = {..
+        };
+        return await this.create(userDetails);
+      },
+      getByKey: async function (key) {
+        return await this.findOne({ primaryKey: key });
+      },
+    },
+  },
+);
+
+schema.index({ client: 1 });
+schema.index({ client: 1, primaryKey: 1, status: 1 });
+schema.index({ client: 1, primaryKey: 1, secondaryKey: 1 });

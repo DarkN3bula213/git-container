@@ -32,7 +32,7 @@ export function authorize(requiredRole: Roles) {
       return next();
       // return res.status(404).send('Required role not found');
     }
-    if (user.roles.toString() !== (role._id.toString())) {
+    if (user.roles.toString() !== role._id.toString()) {
       logger.debug({
         event: 'Insufficient permissions',
         role: role._id,

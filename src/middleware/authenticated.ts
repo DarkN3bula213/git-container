@@ -46,7 +46,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     res.setHeader('x-access-token', newAccessToken);
     const result = verifyToken(newAccessToken, 'access');
     if (result.decoded) {
-      req.user = result.decoded.user; 
+      req.user = result.decoded.user;
       logger.info({
         event: 'TokenReissued',
         user: result.decoded.user.name,
@@ -62,4 +62,3 @@ export const authenticate = asyncHandler(async (req, res, next) => {
 
   return next();
 });
- 

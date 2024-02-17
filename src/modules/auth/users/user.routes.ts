@@ -7,9 +7,6 @@ import { applyRoutes } from '@/lib/utils/utils';
 
 const router = Router();
 
- 
-
-
 function getRouteMap(): Route[] {
   return [
     {
@@ -36,10 +33,10 @@ function getRouteMap(): Route[] {
       handler: controller.login,
     },
     {
-      path:'/currentUser',
+      path: '/currentUser',
       method: 'get',
-      handler: controller.getCurrentUser
-    }
+      handler: controller.getCurrentUser,
+    },
   ];
 }
 

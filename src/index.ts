@@ -6,7 +6,6 @@ import { config } from '@/lib/config';
 import './data/cache';
 import { db } from './data/database';
 import { signals } from './lib/constants';
- 
 
 const logger = new Logger(__filename);
 const server = http.createServer(app);
@@ -15,7 +14,7 @@ const PORT = config.app.port;
 logger.debug({
   'Server port': PORT,
   'Database name': config.mongo.uri,
-})
+});
 const startServer = async () => {
   try {
     await db.connect().then(() => {

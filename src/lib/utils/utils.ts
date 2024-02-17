@@ -1,7 +1,5 @@
-import { Route } from "@/types/routes";
-import { Router } from "express";
-
-
+import { Route } from '@/types/routes';
+import { Router } from 'express';
 
 export function applyRoutes(router: Router, routes: Route[]): void {
   routes.forEach((route) => {

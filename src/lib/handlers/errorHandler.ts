@@ -3,7 +3,7 @@ import { Logger } from '../logger';
 import { ApiError, ErrorType, InternalError } from '../api';
 import { config } from '../config';
 
-const logger = new Logger( __dirname);
+const logger = new Logger(__dirname);
 
 export const errorHandler = (
   err: Error,

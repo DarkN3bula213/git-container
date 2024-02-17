@@ -28,7 +28,6 @@ class Service {
     return classId;
   }
   async resgisterStudent(data: Partial<Student>): Promise<Student> {
-
     const details = await this.getClassIdByName(data.className as string);
     if (!details) {
       throw new BadRequestError('Class not found');
@@ -42,7 +41,7 @@ class Service {
       ...data,
     });
 
-    const student =await newStudent.save();
+    const student = await newStudent.save();
 
     // const { error: outputError } = studentOutputSchema.validate(
     //   newStudent.toObject(),

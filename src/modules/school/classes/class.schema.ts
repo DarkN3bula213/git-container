@@ -7,7 +7,6 @@ export const singleClass = Joi.object({
 });
 export const multiClass = Joi.array().items(singleClass);
 
-
 export const fee = Joi.object({
   fee: Joi.number().required(),
-})
+});

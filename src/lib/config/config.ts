@@ -6,7 +6,7 @@ import {
   getOsEnvOptional,
   toNumber,
   getDecodedOsEnv,
-  toBool
+  toBool,
 } from './utils';
 
 dotenv.config({
@@ -38,8 +38,8 @@ export const config = {
     extended: true,
     parameterLimit: 50000,
   },
-  json:{
-    limit: '10mb'
+  json: {
+    limit: '10mb',
   },
   log: {
     level: getOsEnvOptional('LOG_LEVEL'),

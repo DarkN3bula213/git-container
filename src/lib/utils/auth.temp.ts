@@ -1,8 +1,9 @@
 import { randomBytes, scrypt } from 'crypto';
 
-
-  
-export const comparePasswords = async (password: string, storedPassword: string) => {
+export const comparePasswords = async (
+  password: string,
+  storedPassword: string,
+) => {
   const [hashed, salt] = storedPassword.split('.');
 
   return new Promise((resolve, reject) => {

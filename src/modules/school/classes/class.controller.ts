@@ -3,7 +3,6 @@ import { ClassModel } from './class.model';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 // import { getCachedClasses } from './class.cache';
 
-
 export const findClasses = asyncHandler(async (req, res) => {
   const data = await ClassModel.find().lean().exec();
   // const data = getCachedClasses();
@@ -31,37 +30,38 @@ export const updateClass = asyncHandler(async (req, res) => {
 });
 export const deleteClass = asyncHandler(async (req, res) => {
   const data = await ClassModel.findByIdAndDelete(req.params.id);
-  new SuccessResponse(' Class deleted successfully'  , data).send(res);
+  new SuccessResponse(' Class deleted successfully', data).send(res);
 });
 export const findClassById = asyncHandler(async (req, res) => {
   const data = await ClassModel.findById(req.params.id).lean().exec();
   new SuccessResponse(' Class', data).send(res);
 });
 
-
-
 export const deleteAll = asyncHandler(async (req, res) => {
   const data = await ClassModel.deleteMany();
 
   new SuccessResponse('All classes deleted', data).send(res);
-})
-
+});
 
 export const findClassByName = asyncHandler(async (req, res) => {
-  const data = await ClassModel.find({ className: req.params.name }).lean().exec();
-  if(data.length == 0){
+  const data = await ClassModel.find({ className: req.params.name })
+    .lean()
+    .exec();
+  if (data.length == 0) {
     throw new BadRequestError('Class not found');
   }
   new SuccessResponse(' Class', data).send(res);
-})
+});
 
 export const updateClassFee = asyncHandler(async (req, res) => {
   const data = await ClassModel.find({ className: req.params.name })
     .lean()
     .exec();
-  if(data.length == 0){
+  if (data.length == 0) {
     throw new BadRequestError('Class not found');
   }
-  const result = await ClassModel.findByIdAndUpdate( data[0]._id, req.body, { new: true });
+  const result = await ClassModel.findByIdAndUpdate(data[0]._id, req.body, {
+    new: true,
+  });
   new SuccessResponse('Class updated successfully', result).send(res);
-})
+});

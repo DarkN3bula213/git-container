@@ -45,16 +45,10 @@ export const register = Joi.object({
   section: Joi.string().required(),
   address: Joi.string().required(),
   father_name: Joi.string().required(),
-  
-  father_cnic: Joi.string()
-  .min(13)
-  .max(13)
-  .required(),
-  
-  phone: Joi.string()
-  .min(11)
-  .max(11)
-  .required(),
+
+  father_cnic: Joi.string().min(13).max(13).required(),
+
+  phone: Joi.string().min(11).max(11).required(),
 
   //Optional fields
   place_of_birth: Joi.string().optional(),

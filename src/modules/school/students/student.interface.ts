@@ -6,7 +6,7 @@ export type Student = Document & {
   name: string;
   dob: Date;
   place_of_birth: string;
-   b_form: string;
+  b_form: string;
   gender: string;
   father_name: string;
 
@@ -20,7 +20,7 @@ export type Student = Document & {
 
   //[+] School Information
   registration_no: string;
-  classId:IClass['_id'] ;
+  classId: IClass['_id'];
   className: IClass['className'];
   section: IClass['section'][number];
   tuition_fee: IClass['fee'];

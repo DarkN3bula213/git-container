@@ -135,10 +135,6 @@ const keystoreSchema = new Schema<Keystore>(
           tokenCount: 1, // Initial token creation
         });
       },
-
-      findByPrimaryKey: async function (primaryKey: string) {
-        return await this.findOne({ primaryKey, revoked: false });
-      },
     },
   },
 );
@@ -165,4 +161,3 @@ export const Keystore = model<Keystore, IKeystore>(
   keystoreSchema,
   COLLECTION_NAME,
 ) as KeyStoreStatics;
-

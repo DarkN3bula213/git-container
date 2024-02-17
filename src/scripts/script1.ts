@@ -92,7 +92,10 @@ function createRandomUser(): Partial<Student> {
 export const genStudentSeed = async (number: number) => {
   const result = Array.from({ length: number }, createRandomUser);
   try {
-    await fs.writeFile('./student_content.json', JSON.stringify(result, null, 2)); // Beautify JSON output
+    await fs.writeFile(
+      './student_content.json',
+      JSON.stringify(result, null, 2),
+    ); // Beautify JSON output
     console.log('Data successfully written to content.json');
   } catch (err) {
     console.error('Error writing file:', err);

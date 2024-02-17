@@ -3,8 +3,7 @@ import { getJson, setJson } from '@/data/cache/querry';
 
 import { ClassModel } from './class.model';
 import { Logger } from '@/lib/logger';
-import cache from '@/data/cache'
-
+import cache from '@/data/cache';
 
 function getKeyForPath(path: string) {
   return getDynamicKey(DynamicKey.CLASS, path);
