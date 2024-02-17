@@ -5,6 +5,8 @@ import { Keystore } from '../keyStore/keyStore.model';
 import { Logger } from '@/lib/logger';
 import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
+import { config } from '@/lib/config';
+import { convertToMilliseconds } from '@/lib/utils/fns';
 const logger = new Logger(__filename);
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await UserModel.find();
@@ -88,8 +90,17 @@ export const login = asyncHandler(async (req, res) => {
     expiresIn: -1,
   });
   const refresh = signToken({ user }, 'refresh', {
-    expiresIn: '1m',
+    expiresIn: config.tokens.refresh.ttl,
   });
+
+  res.cookie('refreshToken', refresh, {
+    maxAge: 1000 * 60 * 60 * 2, // 1 year
+    httpOnly: true,
+    path: '/',
+    sameSite: 'none',
+    secure: false,
+  });
+
   return new SuccessResponse('Login successful', {
     access,
     refresh,

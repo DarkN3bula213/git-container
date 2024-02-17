@@ -2,20 +2,31 @@ import { AuthFailureError } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger as l } from '@/lib/logger';
 import { reIssueAccessToken, verifyToken } from '@/lib/utils/tokens';
-import { User } from '@/modules/auth/users/user.model';
-import { Request, Response, NextFunction, Router } from 'express';
-import { loggers } from 'winston';
+
+import { get } from 'lodash';
+
+
 const logger = new l(__filename);
 
 export const authenticate = asyncHandler(async (req, res, next) => {
   const accessToken = req.headers['x-access-token'];
-  const refreshToken: string = req.headers['x-refresh-token'] as string;
+  console.log(req.cookies)
+  const refreshToken = get(req, "cookies.refreshToken");
+
+  const access = req.cookies.access;
+  const refresh = req.cookies.refresh;
+
 
   if (!accessToken) {
     logger.warn('No access token found');
     return res.status(403).json({ message: 'Access token required' });
   }
+  logger.debug({
+    message: 'Access token found',
+   acc:access,
+   ref:refresh
 
+  });
   const { decoded, valid, expired } = verifyToken(
     accessToken.toString(),
     'access',
@@ -32,7 +43,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
 
   // If token is expired and a refresh token exists, attempt to issue a new access token.
   if (expired && refreshToken) {
-    const newAccessToken = await reIssueAccessToken({ refreshToken });
+    const newAccessToken = await reIssueAccessToken({ refreshToken:refreshToken.toString() });
 
     if (!newAccessToken) {
       logger.debug(

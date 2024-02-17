@@ -39,7 +39,7 @@ function getRouteMap(): Route[] {
       handler: controller.sortedByClassName,
     },
     {
-      path: 'reset',
+      path: '/reset',
       method: 'delete',
       handler: controller.resetCollection,
     },

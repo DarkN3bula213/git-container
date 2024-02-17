@@ -1,6 +1,7 @@
 import express, { Application, json, urlencoded } from 'express';
 import middleware from './middleware/common';
-
+import cookieParser from 'cookie-parser'; 
+import session from 'cookie-session'
 import { morganMiddleware as morgan } from './lib/config';
 import { NotFoundError } from './lib/api';
 import { corsOptions } from './lib/config/cors';
@@ -12,9 +13,19 @@ import apiKey from './middleware/useApiKey';
 const app: Application = express();
 
 /*----------------------------------------------------------*/
-app.use(cors(config.cors));
+app.use(cors({
+    origin:'*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+ 
+    credentials: true
+
+}));
 /*----------------------------------------------------------*/
-app.use(apiKey);
+ 
+app.use(cookieParser());
+/*----------------------------------------------------------*/
+app.use(apiKey); 
+/*----------------------------------------------------------*/
 /*----------------------------------------------------------*/
 app.use(morgan);
 /*----------------------------------------------------------*/
