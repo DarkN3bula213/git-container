@@ -11,7 +11,7 @@ const logger = new l(__filename);
 export const authenticate = asyncHandler(async (req, res, next) => {
   const accessToken = req.headers['x-access-token'];
   console.log(req.cookies)
-  const refreshToken = get(req, "cookies.refreshToken");
+  const refreshToken = get(req, "cookies.refreshToken" )||req.headers['x-refresh-token'];
 
   const access = req.cookies.access;
   const refresh = req.cookies.refresh;
@@ -21,12 +21,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     logger.warn('No access token found');
     return res.status(403).json({ message: 'Access token required' });
   }
-  logger.debug({
-    message: 'Access token found',
-   acc:access,
-   ref:refresh
-
-  });
+ 
   const { decoded, valid, expired } = verifyToken(
     accessToken.toString(),
     'access',
@@ -34,10 +29,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
 
   if (decoded) {
     req.user = decoded;
-    logger.info({
-      message: 'User authenticated',
-      user: decoded,
-    });
+ 
     return next();
   }
 
@@ -58,10 +50,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     const result = verifyToken(newAccessToken, 'access');
     if (result.decoded) {
       req.user = result.decoded.user;
-      logger.info({
-        event: 'TokenReissued',
-        user: result.decoded.user.name,
-      });
+ 
       return next();
     }
   }

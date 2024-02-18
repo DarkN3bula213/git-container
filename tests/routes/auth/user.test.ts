@@ -7,7 +7,7 @@ import { incompleteCredentials } from "../../utils";
 const logger = new Logger(__filename);
 
 const request = supertest(app);
-let tokens = { access: '', refresh: '' };
+export const  tokens = { access: '', refresh: '' };
 
 describe('User creation', () => {
   const user = {
@@ -71,3 +71,4 @@ it('Should get authenticated',async () => {
     .set('x-api-key', validApiKey);
   expect(response.status).toBe(200);
 });
+

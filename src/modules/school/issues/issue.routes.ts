@@ -1,11 +1,15 @@
 import * as controller from './issue.controller';
+import  schema from './issue.schema';
+
+
 import { validate } from '@/lib/handlers/validate';
 
-import { Route } from '@/types/routes';
-import { applyRoutes } from '@/lib/utils/utils';
+import {  RouteMap } from '@/types/routes';
+import {  setRouter } from '@/lib/utils/utils';
 import { Router } from 'express';
+import { authenticate } from '@/middleware/authenticated';
 
-const getRoutesMap = (): Route[] => {
+const getRoutesMap = (): RouteMap[] => {
   return [
     {
       path: '/',
@@ -15,6 +19,7 @@ const getRoutesMap = (): Route[] => {
     {
       path: '/',
       method: 'post',
+      validations:[authenticate,validate(schema.createIssue)],
       handler: controller.createIssue,
     },
     {
@@ -40,6 +45,6 @@ const getRoutesMap = (): Route[] => {
   ];
 };
 const router = Router();
-applyRoutes(router, getRoutesMap());
+setRouter(router, getRoutesMap());
 
 export default router;

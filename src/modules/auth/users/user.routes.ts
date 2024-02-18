@@ -2,12 +2,13 @@ import { Router } from 'express';
 import * as controller from './user.controller';
 import { validate } from '@/lib/handlers/validate';
 import schema, { insertMany, register } from './user.schema';
-import { Route } from '@/types/routes';
-import { applyRoutes } from '@/lib/utils/utils';
+import { Route ,RouteMap} from '@/types/routes';
+import { applyRoutes, setRouter } from '@/lib/utils/utils';
+import { authenticate } from '@/middleware/authenticated';
 
 const router = Router();
 
-function getRouteMap(): Route[] {
+function getRouteMap(): RouteMap[] {
   return [
     {
       path: '/',
@@ -17,29 +18,30 @@ function getRouteMap(): Route[] {
     {
       path: '/seed',
       method: 'post',
-      validation: validate(insertMany),
+      validations: [validate(insertMany)],
       handler: controller.insertMany,
     },
     {
       path: '/register',
       method: 'post',
-      validation: validate(register),
+      validations: [validate(register)],
       handler: controller.register,
     },
     {
       path: '/login',
       method: 'post',
-      validation: validate(schema.login),
+      validations: [validate(schema.login)],
       handler: controller.login,
     },
     {
       path: '/currentUser',
       method: 'get',
       handler: controller.getCurrentUser,
+      validations:[authenticate]
     },
   ];
 }
 
-applyRoutes(router, getRouteMap());
+setRouter(router, getRouteMap());
 
 export default router;

@@ -57,3 +57,23 @@ const schema = new Schema<Keystore>(
 schema.index({ client: 1 });
 schema.index({ client: 1, primaryKey: 1, status: 1 });
 schema.index({ client: 1, primaryKey: 1, secondaryKey: 1 });
+
+routes.forEach(route => {
+  router.[route.method](route.path, (req, res, next) => {
+    const executeMiddleware = (middlewares: Middleware[], index: number) => {
+      if (index >= middlewares.length) {
+        if (route.validation) {
+          route.validation(req, res, () => {
+            executeMiddleware(route.postValidationMiddleware || [], 0);
+          });
+        } else {
+          route.handler(req, res, next);
+        }
+      } else {
+        middlewares[index](req, res, () => executeMiddleware(middlewares, index + 1));
+      }
+    };
+
+    executeMiddleware(route.preValidationMiddleware || [], 0);
+  });
+});

@@ -2,12 +2,24 @@ import { Request, Response } from 'express';
 import IssueService from './issue.service';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Types } from 'mongoose';
-import { BadRequestError } from '@/lib/api';
+import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { User } from '@/modules/auth/users/user.model';
+import { Logger } from '@/lib/logger';
+const logger = new Logger(__filename);
 
 export const createIssue = asyncHandler(async (req, res) => {
-  const issue = await IssueService.createIssue(req.body);
-  res.status(201).json(issue);
+  const user = req.user as User;
+  const data = {
+    author: user._id,
+    title: req.body.title,
+    description: req.body.description,
+  };
+  const issue = await IssueService.createIssue(data);
+  logger.debug({
+    event: 'Issue Creation',
+    issue: issue,
+  });
+  return new SuccessResponse('Issue created successfully', issue).send(res);
 });
 
 export const getAllIssues = asyncHandler(async (req, res) => {
