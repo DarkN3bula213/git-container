@@ -10,12 +10,10 @@ const logger = new l(__filename);
 
 export const authenticate = asyncHandler(async (req, res, next) => {
   const accessToken = req.headers['x-access-token'];
-  console.log(req.cookies)
+
   const refreshToken = get(req, "cookies.refreshToken" )||req.headers['x-refresh-token'];
 
-  const access = req.cookies.access;
-  const refresh = req.cookies.refresh;
-
+ 
 
   if (!accessToken) {
     logger.warn('No access token found');

@@ -14,34 +14,41 @@ const getRoutesMap = (): RouteMap[] => {
     {
       path: '/',
       method: 'get',
+      validations: [authenticate],
       handler: controller.getAllIssues,
     },
     {
       path: '/',
       method: 'post',
-      validations:[authenticate,validate(schema.createIssue)],
+      validations: [authenticate, validate(schema.createIssue)],
       handler: controller.createIssue,
     },
     {
-      path: '/:id',
+      path: '/',
+      method: 'delete',
+      handler: controller.resetCollection,
+    },
+    {
+      path: '/:_id',
       method: 'get',
-      handler: controller.getIssueById,
+      validations: [authenticate],
+      handler: controller.getById,
     },
-    {
-      path: '/:id',
-      method: 'put',
-      handler: controller.updateIssue,
-    },
-    {
-      path: '/:id',
-      method: 'delete',
-      handler: controller.deleteIssue,
-    },
-    {
-      path: '/:issueId/index/:replyIndex',
-      method: 'delete',
-      handler: controller.deleteUnreadReply,
-    },
+    // {
+    //   path: '/:id',
+    //   method: 'put',
+    //   handler: controller.updateIssue,
+    // },
+    // {
+    //   path: '/:id',
+    //   method: 'delete',
+    //   handler: controller.deleteIssue,
+    // },
+    // {
+    //   path: '/:issueId/index/:replyIndex',
+    //   method: 'delete',
+    //   handler: controller.deleteUnreadReply,
+    // },
   ];
 };
 const router = Router();
