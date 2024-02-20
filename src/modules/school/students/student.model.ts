@@ -196,9 +196,7 @@ studentSchema.statics.bulkInsert = async function (students) {
 studentSchema.pre('save', async function (next) {
   if (this.isNew) {
     this.registration_no = await generateUniqueId();
-    Logger.debug({
-      number_generated: this.registration_no,
-    });
+ 
   }
   next(); // Call next to pass control to the next middleware
 });

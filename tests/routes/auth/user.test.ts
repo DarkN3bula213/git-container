@@ -3,11 +3,13 @@ import { app } from "../../../src/app";
 import { Logger } from "../../../src/lib/logger";
 import { validApiKey } from "../../setup";
 import { incompleteCredentials } from "../../utils";
-
+import { tokens } from "./authUtils";
+import mongoose from "mongoose";
+import { Request, Response, NextFunction } from 'express';
 const logger = new Logger(__filename);
 
 const request = supertest(app);
-export const  tokens = { access: '', refresh: '' };
+
 
 describe('User creation', () => {
   const user = {
@@ -32,11 +34,7 @@ describe('User creation', () => {
         tokens.access = response.body.tokens.access;
         tokens.refresh = response.body.tokens.refresh;
 
-      logger.debug({
-        response: JSON.stringify(response.body, null, 2),
-        access: tokens.access,
-        refresh: tokens.refresh,
-      })
+     
   });
 });
 it('It should fail login with invalid credentials', async () => {
@@ -58,9 +56,7 @@ it('It should fail login with incomplete credentials', async () => {
     .set('x-api-key', validApiKey);
 
   expect(response.status).toBe(400);
-   logger.debug({
-     response: JSON.stringify(response.body, null, 2),
-   });
+
 });
 
 it('Should get authenticated',async () => {
@@ -69,6 +65,33 @@ it('Should get authenticated',async () => {
     .set('x-access-token', `${tokens.access}`)
     .set('x-refresh-token', `${tokens.refresh}`)
     .set('x-api-key', validApiKey);
+   
   expect(response.status).toBe(200);
 });
 
+it('Should be able to create and issue', async () => {
+  jest.mock('../../../src/middleware/authenticated'); // Replace with your middleware import path
+  const mockAuthenticate = jest.fn();
+  const userId = new mongoose.Types.ObjectId().toString();
+  mockAuthenticate.mockReturnValue(
+    (req: Request, res: Response, next: NextFunction) => {
+      req.user = { _id: userId };
+      
+      next()},
+  ); // Always call next
+
+  const response = await request
+    .post('/api/school/issues')
+    .set('x-access-token', `${tokens.access}`)
+    .set('x-refresh-token', `${tokens.refresh}`)
+    .set('x-api-key', validApiKey)
+    .send({
+      title: 'Test Issue',
+      description: 'Test Description',
+    });
+  //  logger.debug({
+  //    event: 'post Authenticated',
+  //    response: JSON.stringify(response.body, null, 2),
+  //  });
+  expect(response.status).toBe(200);
+}); 

@@ -1,5 +1,5 @@
-import { Middleware, RecursiveRoute, Route, RouteMap,  } from '@/types/routes';
-import { Router ,Request,Response,NextFunction} from 'express';
+import { Middleware, RecursiveRoute, Route, RouteMap } from '@/types/routes';
+import { Router, Request, Response, NextFunction } from 'express';
 import { func } from 'joi';
 
 export function applyRoutes(router: Router, routes: Route[]): void {
@@ -14,43 +14,41 @@ export function applyRoutes(router: Router, routes: Route[]): void {
   });
 }
 
-
-
-export function recursiveRouting(router: Router, routes: RecursiveRoute[]){
-
-routes.forEach(route => {
-  router[route.method](route.path, (req, res, next) => {
-    const executeMiddleware = (middlewares: Middleware[], index: number) => {
-      if (index >= middlewares.length) {
-        if (route.validation) {
-          route.validation(req, res, () => {
-            executeMiddleware(route.postValidationMiddleware || [], 0);
-          });
+export function recursiveRouting(router: Router, routes: RecursiveRoute[]) {
+  routes.forEach((route) => {
+    router[route.method](route.path, (req, res, next) => {
+      const executeMiddleware = (middlewares: Middleware[], index: number) => {
+        if (index >= middlewares.length) {
+          if (route.validation) {
+            route.validation(req, res, () => {
+              executeMiddleware(route.postValidationMiddleware || [], 0);
+            });
+          } else {
+            route.handler(req, res, next);
+          }
         } else {
-          route.handler(req, res, next);
+          middlewares[index](req, res, () =>
+            executeMiddleware(middlewares, index + 1),
+          );
         }
-      } else {
-        middlewares[index](req, res, () => executeMiddleware(middlewares, index + 1));
-      }
-    };
+      };
 
-    executeMiddleware(route.preValidationMiddleware || [], 0);
+      executeMiddleware(route.preValidationMiddleware || [], 0);
+    });
   });
-});
 }
 
-
- 
-function proof():RecursiveRoute[] {
-  return [{
-    path: '/',
-    method: 'get',
-    validation: () => {},
-    postValidationMiddleware:[() => {}],
-    handler: () => {},
-  }]
+function proof(): RecursiveRoute[] {
+  return [
+    {
+      path: '/',
+      method: 'get',
+      validation: () => {},
+      postValidationMiddleware: [() => {}],
+      handler: () => {},
+    },
+  ];
 }
-
 
 export function setRouter(router: Router, routes: RouteMap[]): void {
   routes.forEach((route) => {
@@ -63,4 +61,3 @@ export function setRouter(router: Router, routes: RouteMap[]): void {
     }
   });
 }
-

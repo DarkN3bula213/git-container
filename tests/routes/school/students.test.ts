@@ -12,7 +12,7 @@ describe('Student Related tests', () => {
   it('Students should be called successfully', async () => {
     const response = await request
       .get('/api/school/students')
-      .set('x-api-key', validApiKey);
+      .set('x-api-key', validApiKey).timeout(15000);
     expect(response.status).toBe(200);
   });
 

@@ -7,9 +7,7 @@ interface Route {
   method: Method;
   handler: (req: Request, res: Response, next: NextFunction) => void;
   validation?: (req: Request, res: Response, next: NextFunction) => void;
-
 }
-
 
 type Middleware = (req: Request, res: Response, next: NextFunction) => void;
 

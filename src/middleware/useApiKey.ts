@@ -43,8 +43,6 @@ export default router.use(
       throw new ForbiddenError();
     } else {
       req.apiKey = apiKey;
-
-      logger.info('Api key is valid');
     }
     return next();
   }),

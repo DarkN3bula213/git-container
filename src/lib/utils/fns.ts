@@ -42,4 +42,4 @@ export function convertToMilliseconds(input: string | number): number {
     default:
       throw new Error('Unsupported time unit');
   }
-} 
+}

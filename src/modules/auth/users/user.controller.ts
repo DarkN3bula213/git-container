@@ -7,6 +7,7 @@ import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
 import { config } from '@/lib/config';
 import { convertToMilliseconds } from '@/lib/utils/fns';
+import IssueModel from '@/modules/school/issues/issue.model';
 const logger = new Logger(__filename);
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await UserModel.find();
@@ -100,11 +101,16 @@ export const login = asyncHandler(async (req, res) => {
     sameSite: 'none',
     secure: false,
   });
+  // Fetch a subset of issues not created by the user
+  const issues = await IssueModel.find({ author: { $ne: verified._id } }).limit(
+    10,
+  ); // Example: limit to 10 recent issues not by the user
 
   return new SuccessResponse('Login successful', {
     access,
     refresh,
     user: verified,
+    issues,
   }).send(res);
 });
 

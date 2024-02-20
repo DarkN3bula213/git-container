@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
-import IssueModel, { Issue } from './issue.model';
+import IssueModel, { Issue, Reply } from './issue.model';
+import { BadRequestError } from '@/lib/api';
 
 class IssueService {
   // Create a new issue
@@ -7,6 +8,50 @@ class IssueService {
     const issue = new IssueModel(issueData);
     await issue.save();
     return issue;
+  }
+  static async addReplyToIssue(issueId: string, replyData: Partial<Reply>) {
+    const issue = await IssueModel.findById(issueId);
+    if (!issue) throw new Error('Issue not found');
+
+    issue.replies.push(replyData as Reply);
+    await issue.save();
+    return issue;
+  }
+  static async deleteIssueOrReply(
+    userId: string,
+    issueId: string,
+    replyId?: string,
+  ) {
+    if (replyId) {
+      // Delete a reply if replyId is provided
+      const issue = await IssueModel.findById(issueId);
+      if (!issue) throw new Error('Issue not found');
+      const replyIndex = issue.replies.findIndex(
+        (reply) =>
+          reply._id.toString() === replyId &&
+          reply.author.toString() === userId,
+      );
+      if (replyIndex > -1) {
+        issue.replies.splice(replyIndex, 1);
+        await issue.save();
+        return { message: 'Reply deleted successfully' };
+      }
+      throw new Error(
+        'Reply not found or user not authorized to delete this reply',
+      );
+    } else {
+      // Delete the whole issue if only issueId is provided
+      const deletionResult = await IssueModel.deleteOne({
+        _id: issueId,
+        author: userId,
+      });
+      if (deletionResult.deletedCount === 0) {
+        throw new Error(
+          'Issue not found or user not authorized to delete this issue',
+        );
+      }
+      return { message: 'Issue deleted successfully' };
+    }
   }
 
   // Get a list of all issues
@@ -28,10 +73,7 @@ class IssueService {
   }
 
   // Delete an issue by ID
-  static async deleteIssue(issueId: Types.ObjectId) {
-    await IssueModel.findByIdAndDelete(issueId);
-    return { message: 'Issue deleted successfully' };
-  }
+  
   // Mark an issue as seen
   static async markIssueAsSeen(issueId: Types.ObjectId) {
     const issue = await IssueModel.findByIdAndUpdate(
@@ -67,6 +109,39 @@ class IssueService {
     } else {
       throw new Error('Reply not found');
     }
+  }
+
+  // Method to delete an issue
+  static async deleteIssue(issueId: string, userId: string) {
+    const deletionResult = await IssueModel.deleteOne({
+      _id: issueId,
+      author: userId,
+    });
+    if (deletionResult.deletedCount === 0) {
+      throw new BadRequestError(
+        'Issue not found or user not authorized to delete this issue',
+      );
+    }
+    return { message: 'Issue deleted successfully' };
+  }
+
+  // Method to delete a reply within an issue
+  static async deleteReply(issueId: string, replyId: string, userId: string) {
+    const issue = await IssueModel.findById(issueId);
+    if (!issue) throw new Error('Issue not found');
+
+    const replyIndex = issue.replies.findIndex(
+      (reply) =>
+        reply._id.toString() === replyId && reply.author.toString() === userId,
+    );
+    if (replyIndex > -1) {
+      issue.replies.splice(replyIndex, 1);
+      await issue.save();
+      return { message: 'Reply deleted successfully' };
+    }
+    throw new BadRequestError(
+      'Reply not found or user not authorized to delete this reply',
+    );
   }
 }
 

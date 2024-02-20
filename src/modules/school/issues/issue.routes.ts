@@ -1,11 +1,10 @@
 import * as controller from './issue.controller';
-import  schema from './issue.schema';
+import schema from './issue.schema';
 
+import { ValidationSource, validate } from '@/lib/handlers/validate';
 
-import { validate } from '@/lib/handlers/validate';
-
-import {  RouteMap } from '@/types/routes';
-import {  setRouter } from '@/lib/utils/utils';
+import { RouteMap } from '@/types/routes';
+import { setRouter } from '@/lib/utils/utils';
 import { Router } from 'express';
 import { authenticate } from '@/middleware/authenticated';
 
@@ -19,7 +18,7 @@ const getRoutesMap = (): RouteMap[] => {
     {
       path: '/',
       method: 'post',
-      validations:[authenticate,validate(schema.createIssue)],
+      validations: [authenticate, validate(schema.createIssue)],
       handler: controller.createIssue,
     },
     {
@@ -28,20 +27,44 @@ const getRoutesMap = (): RouteMap[] => {
       handler: controller.getIssueById,
     },
     {
+      path: '/reply',
+      method: 'post',
+      handler: controller.addReply,
+      validations: [authenticate, validate(schema.reply)],
+    },
+    {
       path: '/:id',
       method: 'put',
       handler: controller.updateIssue,
     },
     {
-      path: '/:id',
+      path: '/:issueId',
       method: 'delete',
       handler: controller.deleteIssue,
+      validations: [
+        authenticate,
+        validate(schema.deleteIssue, ValidationSource.PARAM),
+      ],
     },
     {
-      path: '/:issueId/index/:replyIndex',
+      path: '/:issueId/reply/:replyId',
       method: 'delete',
-      handler: controller.deleteUnreadReply,
+      handler: controller.deleteReply,
+      validations: [
+        authenticate,
+        validate(schema.deleteReply, ValidationSource.PARAM),
+      ],
     },
+    // {
+    //   path: '/:id',
+    //   method: 'delete',
+    //   handler: controller.deleteIssue,
+    // },
+    // {
+    //   path: '/:issueId/index/:replyIndex',
+    //   method: 'delete',
+    //   handler: controller.deleteUnreadReply,
+    // },
   ];
 };
 const router = Router();

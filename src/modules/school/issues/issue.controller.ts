@@ -5,6 +5,7 @@ import { Types } from 'mongoose';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { User } from '@/modules/auth/users/user.model';
 import { Logger } from '@/lib/logger';
+import IssueModel from './issue.model';
 const logger = new Logger(__filename);
 
 export const createIssue = asyncHandler(async (req, res) => {
@@ -24,7 +25,7 @@ export const createIssue = asyncHandler(async (req, res) => {
 
 export const getAllIssues = asyncHandler(async (req, res) => {
   const issues = await IssueService.getAllIssues();
-  res.status(200).json(issues);
+  return new SuccessResponse('Issues', issues).send(res);
 });
 
 export const getIssueById = asyncHandler(async (req, res) => {
@@ -52,9 +53,11 @@ export const updateIssue = asyncHandler(async (req, res) => {
   }
 });
 
-export const deleteIssue = asyncHandler(async (req, res) => {
-  await IssueService.deleteIssue(req.params.id as unknown as Types.ObjectId);
-  res.status(204).send();
+export const resetCollection = asyncHandler(async (req, res) => {
+  await IssueModel.deleteMany({});
+  return new SuccessResponse('Issue Collection reset successfully', {}).send(
+    res,
+  );
 });
 
 export const deleteUnreadReply = asyncHandler(async (req, res) => {
@@ -69,4 +72,40 @@ export const deleteUnreadReply = asyncHandler(async (req, res) => {
     userId._id,
   );
   res.status(200).json(result);
+});
+
+export const addReply = asyncHandler(async (req, res) => {
+  const { issueId } = req.body;
+  const user = req.user as User;
+  const replyData = { author: user._id, ...req.body };
+  const issue = await IssueService.addReplyToIssue(issueId, replyData);
+  res.json(issue);
+});
+
+export const removeIssueOrReply = asyncHandler(async (req, res) => {
+  const { issueId, replyIndex } = req.params;
+  const user = req.user as User;
+  const result = await IssueService.deleteIssueOrReply(
+    issueId,
+    replyIndex,
+    user._id,
+  );
+  res.status(200).json(result);
+});
+
+// Assuming asyncHandler is a utility to handle async await with automatic error catching
+export const deleteIssue = asyncHandler(async (req: Request, res: Response) => {
+  const { issueId } = req.params;
+  const user = req.user as User;
+  const userId = user._id; // Make sure req.user is populated with authenticated user's data
+  await IssueService.deleteIssue(issueId, userId);
+  res.json({ message: 'Issue successfully deleted' });
+});
+
+export const deleteReply = asyncHandler(async (req: Request, res: Response) => {
+  const { issueId, replyId } = req.params;
+  const user = req.user as User;
+  const userId = user._id; // Make sure req.user is populated with authenticated user's data
+  await IssueService.deleteReply(issueId, replyId, userId);
+  res.json({ message: 'Reply successfully deleted' });
 });

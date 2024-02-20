@@ -107,10 +107,6 @@ export async function reIssueAccessToken({
   if (decoded && decoded.user) {
     const verifiedUser = await findUserById(decoded.user._id);
     if (!verifiedUser) {
-      logger.debug(`{
-        event: 'UserNotFound',
-        details: User ID: ${decoded.user._id} not found,
-      }`);
       return false;
     }
 
@@ -121,7 +117,7 @@ export async function reIssueAccessToken({
     );
 
     logger.debug({
-      event: 'AccessTokenCreated',
+      event: 'Access Token Created',
       userId: `${verifiedUser._id}`,
       expiresIn: `${config.tokens.access.ttl}`,
     });
