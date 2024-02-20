@@ -95,22 +95,17 @@ export const login = asyncHandler(async (req, res) => {
   });
 
   res.cookie('refreshToken', refresh, {
-    maxAge: 1000 * 60 * 60 * 2, // 1 year
+    maxAge: 1000 * 60 * 60 * 2, // 2 hours
     httpOnly: true,
-    path: '/',
-    sameSite: 'none',
-    secure: false,
+    secure: true,  
+    sameSite: 'none', 
   });
-  // Fetch a subset of issues not created by the user
-  const issues = await IssueModel.find({ author: { $ne: verified._id } }).limit(
-    10,
-  ); // Example: limit to 10 recent issues not by the user
 
+ 
   return new SuccessResponse('Login successful', {
     access,
     refresh,
     user: verified,
-    issues,
   }).send(res);
 });
 

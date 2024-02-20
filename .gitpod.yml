@@ -6,6 +6,6 @@
 
 tasks:
   - init: docker compose up -d && pnpm install && pnpm run build
-    command: pnpm run start
+    command: docker compose up -d && pnpm run start
 
 

@@ -15,10 +15,11 @@ const app: Application = express();
 /*----------------------------------------------------------*/
 app.use(
   cors({
-    origin: '*',
+    origin: 'https://www.hps-sialkot.com', // Replace with your production domain
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-
-    credentials: true,
+    allowedHeaders: 'Content-Type,Authorization,x-api-key,Accept',
+    credentials: true, // Important for cookies to be sent and received
+    optionsSuccessStatus: 204,
   }),
 );
 /*----------------------------------------------------------*/
@@ -27,14 +28,14 @@ app.use(cookieParser());
 /*----------------------------------------------------------*/
 app.use(apiKey);
 /*----------------------------------------------------------*/
-/*----------------------------------------------------------*/
+
 app.use(morgan);
 /*----------------------------------------------------------*/
 app.use(json(config.json));
 /*----------------------------------------------------------*/
 app.use(urlencoded(config.urlEncoded));
 /*----------------------------------------------------------*/
-app.get('/test', (req, res) => res.send('Test route'));
+
 /*----------------------------------------------------------*/
 app.use('/api', router);
 /*----------------------------------------------------------*/

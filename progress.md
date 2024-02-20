@@ -27,6 +27,8 @@ scp .env root@159.65.149.28:/var/www/dropts/ver2/app
 docker stop $(docker ps -aq) && docker rm $(docker ps -aq)
 docker-compose up
 ```
+rsync -av --delete /var/www/dropts/ver3/appOne/src/ /var/www/dropts/ver2/app/src/
+
 
 const schema = new Schema<Keystore>(
   {
