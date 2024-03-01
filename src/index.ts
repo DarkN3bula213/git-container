@@ -3,7 +3,7 @@ import { app } from './app';
 
 import { Logger } from '@/lib/logger';
 import { config } from '@/lib/config';
-import './data/cache';
+// import './data/cache';
 import { db } from './data/database';
 import { signals } from './lib/constants';
 

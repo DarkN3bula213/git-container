@@ -32,10 +32,10 @@ type levelColorMap = {
   [key: string]: string;
 };
 
-const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm'));
+const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
 
 const customTimestampFormat = winston.format((info, opts) => {
-  info.timestamp = dayjs().format('| [+] | MM-DD HH:mm');
+  info.timestamp = dayjs().format('| [+] | MM-DD HH:mm:ss');
 
   return info;
 })();

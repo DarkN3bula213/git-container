@@ -3,7 +3,7 @@ import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
-const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@${config.mongo.host}:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
+const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
 
 logger.debug({
   user: config.mongo.user,
