@@ -27,7 +27,17 @@ export const config = {
   app: {
     port: normalizePort(process.env.PORT || getOsEnv('PORT')),
   },
-  cors: {
+  cors: () => {
+    return {
+      origin: '*',
+      methods: 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
+      allowedHeaders: 'x-access-token, x-refresh-token, Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
+      credentials: true,
+      optionsSuccessStatus: 204,
+    };
+  },
+  corsOptions: {
+    exposedHeaders: ['x-access-token', 'x-refresh-token'],
     credentials: true,
     origin: '*',
     methods: 'GET,POST,PUT,DELETE',
