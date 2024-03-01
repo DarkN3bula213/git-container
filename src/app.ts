@@ -14,6 +14,7 @@ import { RequestLogger } from './lib/logger';
 const app: Application = express();
 
 /*----------------------------------------------------------*/
+
 app.use(cors(options));
 /*----------------------------------------------------------*/
 app.use(cookieParser());

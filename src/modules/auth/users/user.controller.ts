@@ -65,7 +65,7 @@ export const register = asyncHandler(async (req, res) => {
   const refresh = signToken({ user }, 'refresh', {
     expiresIn: '30m',
   });
- 
+
   // logger.debug({
   //   Keystore: userDetails,
   // });
@@ -87,33 +87,25 @@ export const login = asyncHandler(async (req, res) => {
   delete verified.password;
 
   const access = signToken({ user }, 'access', {
-    expiresIn: -1,
+    expiresIn: '10m',
   });
   const refresh = signToken({ user }, 'refresh', {
-    expiresIn: config.tokens.refresh.ttl,
+    expiresIn: '120m',
   });
 
-  // res.cookie('refreshToken', refresh, {
-  //   maxAge: 1000 * 60 * 60 * 2, // 2 hours
-  //   httpOnly: true,
-  //   secure: true,
-  //   sameSite: 'none',
-
-  // });
   res.cookie('accessToken', access, {
-    maxAge: 900000, // 15 mins
+    maxAge: 1000 * 60 * 60 * 2,
     httpOnly: true,
-
     sameSite: 'none',
     secure: true,
   });
 
   res.cookie('refreshToken', refresh, {
-    maxAge: 1000 * 60 * 60 * 24, // 1  day
+    maxAge: 1000 * 60 * 60 * 2,  
     httpOnly: true,
 
     sameSite: 'none',
-    secure: false,
+    secure: true,
   });
 
   return new SuccessResponse('Login successful', {
@@ -149,8 +141,15 @@ export const reset = asyncHandler(async (req, res) => {
 
 export const logout = asyncHandler(async (req, res) => {
   logger.debug('logout');
-  res.clearCookie('accessToken');
-  res.clearCookie('refreshToken');
+  res.cookie('accessToken', '', {
+    domain: 'https://my.domain.com',
+    maxAge: -1,
+  });
+  res.cookie('refreshToken', '', {
+    domain: 'https://my.domain.com',
+    maxAge: -1,
+  });
+
   res.status(200).json({
     success: true,
     message: 'Logged out successfully',
