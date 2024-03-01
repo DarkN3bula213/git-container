@@ -30,52 +30,7 @@ docker-compose up
 rsync -av --delete /var/www/dropts/ver3/appOne/src/ /var/www/dropts/ver2/app/src/
 
 
-const schema = new Schema<Keystore>(
-  {
-    client: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'User',
-    },
-  ..,
-  {
-    versionKey: false,
-    statics: {
-      createKeystore: async function (
-       ..
-      ) {
-        const date = new Date();
-        const userDetails = {..
-        };
-        return await this.create(userDetails);
-      },
-      getByKey: async function (key) {
-        return await this.findOne({ primaryKey: key });
-      },
-    },
-  },
-);
-
-schema.index({ client: 1 });
-schema.index({ client: 1, primaryKey: 1, status: 1 });
-schema.index({ client: 1, primaryKey: 1, secondaryKey: 1 });
-
-routes.forEach(route => {
-  router.[route.method](route.path, (req, res, next) => {
-    const executeMiddleware = (middlewares: Middleware[], index: number) => {
-      if (index >= middlewares.length) {
-        if (route.validation) {
-          route.validation(req, res, () => {
-            executeMiddleware(route.postValidationMiddleware || [], 0);
-          });
-        } else {
-          route.handler(req, res, next);
-        }
-      } else {
-        middlewares[index](req, res, () => executeMiddleware(middlewares, index + 1));
-      }
-    };
-
-    executeMiddleware(route.preValidationMiddleware || [], 0);
-  });
-});
+[+] 
+1. Implement delete student by id route
+2. Implement modify student detail
+3. Clear up authentication

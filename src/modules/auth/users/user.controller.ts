@@ -1,7 +1,7 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { User, UserModel } from './user.model';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
-import { Keystore } from '../keyStore/keyStore.model';
+
 import { Logger } from '@/lib/logger';
 import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
@@ -65,8 +65,7 @@ export const register = asyncHandler(async (req, res) => {
   const refresh = signToken({ user }, 'refresh', {
     expiresIn: '30m',
   });
-  const userDetails = await Keystore.createKeystore(user, access, refresh);
-
+ 
   // logger.debug({
   //   Keystore: userDetails,
   // });
@@ -94,14 +93,29 @@ export const login = asyncHandler(async (req, res) => {
     expiresIn: config.tokens.refresh.ttl,
   });
 
-  res.cookie('refreshToken', refresh, {
-    maxAge: 1000 * 60 * 60 * 2, // 2 hours
+  // res.cookie('refreshToken', refresh, {
+  //   maxAge: 1000 * 60 * 60 * 2, // 2 hours
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: 'none',
+
+  // });
+  res.cookie('accessToken', access, {
+    maxAge: 900000, // 15 mins
     httpOnly: true,
-    secure: true,  
-    sameSite: 'none', 
+
+    sameSite: 'none',
+    secure: true,
   });
 
- 
+  res.cookie('refreshToken', refresh, {
+    maxAge: 1000 * 60 * 60 * 24, // 1  day
+    httpOnly: true,
+
+    sameSite: 'none',
+    secure: false,
+  });
+
   return new SuccessResponse('Login successful', {
     access,
     refresh,
@@ -130,5 +144,15 @@ export const reset = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: user,
+  });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  logger.debug('logout');
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+  res.status(200).json({
+    success: true,
+    message: 'Logged out successfully',
   });
 });

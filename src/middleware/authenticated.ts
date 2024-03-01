@@ -8,13 +8,15 @@ import { get } from 'lodash';
 const logger = new l(__filename);
 
 export const authenticate = asyncHandler(async (req, res, next) => {
-  const accessToken = req.headers['x-access-token'];
+  const accessToken =
+    get(req, 'cookies.accessToken') || req.headers['x-access-token'];
   const refreshToken =
     get(req, 'cookies.refreshToken') || req.headers['x-refresh-token'];
   if (!accessToken) {
+    logger.error('No token');
     return res.status(403).json({ message: 'Access token required' });
   }
-
+  console.log(req);
   const { decoded, valid, expired } = verifyToken(
     accessToken.toString(),
     'access',

@@ -7,7 +7,10 @@ import { tokens } from '../auth/authUtils';
 import {authenticate } from '../../../src/middleware/authenticated';
 const request = supertest(app);
 import { Request, Response,NextFunction } from 'express';
-
+import { Logger } from '../../../src/lib/logger';
+import { Issue } from '../../../src/modules/school/issues/issue.model';
+const logger = new Logger(__filename);
+let issue : Issue;
 describe('', () => {
   // Mock middleware
 
@@ -16,7 +19,7 @@ describe('', () => {
     const mockAuthenticate = jest.fn();
     mockAuthenticate.mockReturnValue((req: Request, res: Response, next: NextFunction) => next()); // Always call next
 
-    const response = await request
+   const response = await request
       .post('/api/school/issues')
       .set('x-api-key', validApiKey)
       .set('x-access-token', `${tokens.access}`)
@@ -26,6 +29,28 @@ describe('', () => {
         title: 'Test Issue',
         description: 'Test Description',
       });
+      issue = response.body.data;
+ 
   });
 }
 )
+
+it('should be able fetch issues', async () => {
+  const response = await request
+    .get('/api/school/issues')
+    .set('x-api-key', validApiKey)
+    .set('x-access-token', `${tokens.access}`)
+    .set('x-refresh-token', `${tokens.refresh}`);
+  expect(response.status).toBe(200);
+  expect(response.body.data).toBeInstanceOf(Array);
+});
+
+it('should be able to get an issue by id', async () => {
+  const response = await request
+    .get(`/api/school/issues/${issue}`)
+    .set('x-api-key', validApiKey)
+    .set('x-access-token', `${tokens.access}`)
+    .set('x-refresh-token', `${tokens.refresh}`);
+  expect(response.status).toBe(200);
+  expect(response.body.data).toBeInstanceOf(Object);
+});

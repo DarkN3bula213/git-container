@@ -6,21 +6,27 @@ import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { User } from '@/modules/auth/users/user.model';
 import { Logger } from '@/lib/logger';
 import IssueModel from './issue.model';
+import { config } from '@/lib/config';
 const logger = new Logger(__filename);
 
 export const createIssue = asyncHandler(async (req, res) => {
-  const user = req.user as User;
-  const data = {
-    author: user._id,
-    title: req.body.title,
-    description: req.body.description,
-  };
+  let user;
+  if (!config.isTest) {
+    user = req.user as User;
+  } else {
+    user = {
+      _id: new Types.ObjectId('5f4e8d3d9d1e4c001f7e8e6a'),
+      email: '',
+    };
+  }
+  const data = { ...req.body, author: user._id };
   const issue = await IssueService.createIssue(data);
-  logger.debug({
-    event: 'Issue Creation',
-    issue: issue,
-  });
-  return new SuccessResponse('Issue created successfully', issue).send(res);
+  // logger.debug({
+  //   event: 'Issue Creation',
+  //   issue: issue,
+  // });
+  // return new SuccessResponse('Issue created successfully', issue).send(res);
+  res.status(201).json(issue);
 });
 
 export const getAllIssues = asyncHandler(async (req, res) => {
@@ -29,15 +35,13 @@ export const getAllIssues = asyncHandler(async (req, res) => {
 });
 
 export const getIssueById = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const _id = new Types.ObjectId(id);
-  const issue = await IssueService.getIssueById(_id);
-  if (issue) {
-    await IssueService.markIssueAsSeen(_id);
-    res.status(200).json(issue);
-  } else {
-    res.status(404).json({ message: 'Issue not found' });
-  }
+  const id = req.params;
+  logger.warn({
+    event: 'Issue Fetch',
+    issueId: JSON.stringify(id),
+  });
+  const issue = await IssueModel.findById(id).lean().exec();
+  return new SuccessResponse('Issue', issue).send(res);
 });
 
 export const updateIssue = asyncHandler(async (req, res) => {

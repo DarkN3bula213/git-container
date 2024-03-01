@@ -5,7 +5,7 @@ export interface Reply {
   author: Types.ObjectId;
   message: string;
   createdAt: Date;
-  isFresh: boolean;  
+  isFresh: boolean;
 }
 
 export interface Issue extends Document {

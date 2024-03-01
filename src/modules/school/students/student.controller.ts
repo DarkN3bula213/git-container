@@ -85,3 +85,14 @@ export const resetCollection = asyncHandler(async (req, res) => {
   await Student.deleteMany();
   new SuccessMsgResponse('Collection reset successfully').send(res);
 });
+
+/*------------------     ----------------------------------- */
+// Patch student
+
+export const patchStudent = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const student = await Student.findByIdAndUpdate(id, req.body, {
+    new: true,
+  }).lean();
+  new SuccessResponse('Student updated successfully', student).send(res);
+});

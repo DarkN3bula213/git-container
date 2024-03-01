@@ -73,7 +73,7 @@ class IssueService {
   }
 
   // Delete an issue by ID
-  
+
   // Mark an issue as seen
   static async markIssueAsSeen(issueId: Types.ObjectId) {
     const issue = await IssueModel.findByIdAndUpdate(

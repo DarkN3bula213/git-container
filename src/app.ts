@@ -4,27 +4,21 @@ import cookieParser from 'cookie-parser';
 import session from 'cookie-session';
 import { morganMiddleware as morgan } from './lib/config';
 import { NotFoundError } from './lib/api';
-import { corsOptions } from './lib/config/cors';
+import { options } from './lib/config/cors';
 import router from './routes';
 import { errorHandler } from './lib/handlers/errorHandler';
 import cors from 'cors';
 import { config } from './lib/config';
 import apiKey from './middleware/useApiKey';
+import { RequestLogger } from './lib/logger';
 const app: Application = express();
 
 /*----------------------------------------------------------*/
-app.use(
-  cors({
-    origin: 'https://www.hps-sialkot.com', // Replace with your production domain
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type,Authorization,x-api-key,Accept',
-    credentials: true, // Important for cookies to be sent and received
-    optionsSuccessStatus: 204,
-  }),
-);
+app.use(cors(options));
 /*----------------------------------------------------------*/
-
 app.use(cookieParser());
+/*----------------------------------------------------------*/
+app.use(RequestLogger);
 /*----------------------------------------------------------*/
 app.use(apiKey);
 /*----------------------------------------------------------*/

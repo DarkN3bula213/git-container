@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import { createMockApiKey } from './mocks';
 import { classes } from './utils';
 import { ClassModel } from '../src/modules/school/classes/class.model';
-import {RoleModel} from '../src/modules/auth/roles/role.model'
+import { RoleModel } from '../src/modules/auth/roles/role.model'
+import { UserModel } from '../src/modules/auth/users/user.model';
 
 dotenv.config({ path: './tests/.env.test' });
 let mongo: any;

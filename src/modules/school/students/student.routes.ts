@@ -29,6 +29,11 @@ function getRouteMap(): Route[] {
       handler: controller.getStudentsById,
     },
     {
+      path: '/:id',
+      method: 'patch',
+      handler: controller.patchStudent,
+    },
+    {
       path: '/seed',
       method: 'post',
       handler: controller.bulkPost,

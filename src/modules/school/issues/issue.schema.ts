@@ -7,18 +7,16 @@ export default {
     description: Joi.string().required(),
     isSeen: Joi.boolean().optional(),
     replies: Joi.array().items(Joi.string()),
-
   }),
-  reply:Joi.object({
-    message:Joi.string().required(),
-    issueId:Joi.string().required()
+  reply: Joi.object({
+    message: Joi.string().required(),
+    issueId: Joi.string().required(),
   }),
-  deleteIssue:Joi.object({
-  issueId: JoiObjectId().required(),
+  deleteIssue: Joi.object({
+    issueId: JoiObjectId().required(),
   }),
-  deleteReply:Joi.object({
-  issueId: JoiObjectId().required(),
-  replyId: JoiObjectId().required(),
+  deleteReply: Joi.object({
+    issueId: JoiObjectId().required(),
+    replyId: JoiObjectId().required(),
   }),
 };
- 

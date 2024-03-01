@@ -1,41 +1,46 @@
-version: '3.9'
+version: '3.9'  # Specifies the version of the Docker Compose file format
 
 services:
-  app:
-    build: .
+  app: 
+    build: .  # Builds the Docker image for the main application from the current directory
     environment:
-      - NODE_ENV=docker
-      - PORT=3000
+      - NODE_ENV=docker  # Sets the environment variable to signal a Docker environment
+      - PORT=3000  # Exposes port 3000 of the container to the host machine
     volumes:
-      - ./logs:/usr/src/app/logs 
-    ports:
-      - '3000:3000'
-    depends_on:
+      - ./logs:/usr/src/app/logs  # Mounts the host's 'logs' directory for application logging
+    ports: 
+      - '3000:3000'  # Maps port 3000 of the container to port 3000 on the host 
+    depends_on:  # Ensures Redis and MongoDB containers start before the 'app' container
       - redis
       - mongo
-    restart: unless-stopped
+    restart: unless-stopped  # Restart policy to keep the container running unless manually stopped
     networks:
-      - app-network
+      - app-network  # Connects the container to the 'app-network'
 
- 
   redis:
-    image: redis:alpine
-    command: redis-server 
-    ports:
-      - '6379:6379'
+    image: redis:alpine  # Uses the lightweight Redis Alpine image
+    command: redis-server  # The default command to start the Redis server
+    volumes:
+      - cache:/data/cache  #  Mounts a volume named 'cache' for Redis data persistence
     networks:
-      - app-network
+      - app-network  # Connects the container to the 'app-network'
 
   mongo:
-    image: mongo:latest
-    command: mongod --auth
+    image: mongo:latest  # Uses the latest Mongo image
+    command: mongod --auth  # Starts the MongoDB server with authentication enabled
     environment:
-      MONGO_INITDB_ROOT_USERNAME: devuser
-      MONGO_INITDB_ROOT_PASSWORD: devpassword  
-    ports:
-      - '27017:27017'
+      MONGO_INITDB_ROOT_USERNAME: devuser 
+      MONGO_INITDB_ROOT_PASSWORD: devpassword 
+      MONGO_INITDB_DATABASE: docker-db  # Sets up database credentials and name
+    volumes:
+        - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro  # Mounts a seed script
+        - dbdata:/data/db  # Mounts a volume named 'dbdata' for MongoDB data persistence
     networks:
-      - app-network
+      - app-network  #  Connects the container to the 'app-network'
 
 networks:
-  app-network:
+  app-network:  # Defines a custom network for communication between containers
+
+volumes:
+  dbdata:   # Named volume for MongoDB data
+  cache:    # Named volume for Redis data

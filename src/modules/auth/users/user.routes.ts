@@ -34,6 +34,11 @@ function getRouteMap(): RouteMap[] {
       handler: controller.login,
     },
     {
+      path: '/logout',
+      method: 'post',
+      handler: controller.logout,
+    },
+    {
       path: '/currentUser',
       method: 'get',
       handler: controller.getCurrentUser,

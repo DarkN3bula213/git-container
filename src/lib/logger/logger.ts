@@ -5,7 +5,8 @@ import * as path from 'path';
 import * as winston from 'winston';
 import colors from 'colors';
 import { config } from '../config';
-
+import fs from 'fs';
+import DailyRotateFile from 'winston-daily-rotate-file';
 // Define custom colors for log levels
 colors.setTheme({
   info: 'black',
@@ -32,20 +33,63 @@ type levelColorMap = {
 };
 
 const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm'));
+
 const customTimestampFormat = winston.format((info, opts) => {
   info.timestamp = dayjs().format('| [+] | MM-DD HH:mm');
+
   return info;
 })();
+
 const customPrintf = winston.format.printf((info) => {
   const timestamp = colors.grey(info.timestamp);
   const levelColor = levelColors[info.level] || 'white';
-
-  const level = (colors as any)[levelColor](info.level.toUpperCase());
-
   const messageColor = (colors as any)[`${info.level}Message`];
+  const level = (colors as any)[levelColor](info.level.toUpperCase());
   const message = messageColor ? messageColor(info.message) : info.message;
+
   return `${timestamp} [${level}]: ${message}`;
 });
+
+/**
+ *
+ *
+ *
+ *
+ *
+ */
+let dir = config.log.directory;
+if (!dir) dir = path.resolve('logs');
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir);
+}
+
+const logLevel = config.isProduction || config.isDocker ? 'error' : 'debug';
+const dailyRotateFile = new DailyRotateFile({
+  level: logLevel,
+  // @ts-ignore
+  filename: dir + '/%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  zippedArchive: true,
+  handleExceptions: true,
+  maxSize: '20m',
+  maxFiles: '14d',
+  format: winston.format.combine(
+    winston.format.errors({ stack: false }), 
+    winston.format.splat(),
+    winston.format.timestamp(),
+    winston.format.prettyPrint(),
+  ),
+});
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
 export class Logger {
   public static DEFAULT_SCOPE = 'app';
 
@@ -56,18 +100,10 @@ export class Logger {
       winston.format.errors({ stack: true }),
       customPrintf,
     ),
-    transports: [
-      new winston.transports.Console(),
-      new winston.transports.File({
-        filename: `${config.log.directory}/error.log`,
-        level: 'error',
-        format: winston.format.combine(
-          customTimestampFormat,
-          winston.format.errors({ stack: true }),
-          winston.format.prettyPrint(),
-        ),
-      }),
-    ],
+  
+    transports: [new winston.transports.Console(), dailyRotateFile],
+    exceptionHandlers: [dailyRotateFile],
+    exitOnError: false,
   });
   private static parsePathToScope(filepath: string): string {
     if (filepath.indexOf(path.sep) >= 0) {
