@@ -14,7 +14,7 @@ export const options: cors.CorsOptions = {
 
   allowedHeaders: headers,
   credentials: true,
-  // methods: methods,
+  methods: methods,
   // preflightContinue: true,
   optionsSuccessStatus:204
 };

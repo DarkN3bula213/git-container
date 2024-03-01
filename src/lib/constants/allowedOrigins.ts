@@ -13,6 +13,7 @@ export const headers = [
   'x-api-key',
   'x-refresh-token',
   'x-access-token',
+  'Acess-Control-Allow-Origin'
 ];
 
-export const methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'];
+export const methods = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'

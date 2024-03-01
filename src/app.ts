@@ -15,13 +15,8 @@ const app: Application = express();
 
 /*----------------------------------------------------------*/
 
-app.use(cors({
-    origin: ['https://hps-sialkot.ddns.net'],
-    methods: 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
-    allowedHeaders: 'x-access-token, x-refresh-token, Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
-    credentials: true,
-    optionsSuccessStatus: 204
-}));
+
+app.use(cors(options));
 /*----------------------------------------------------------*/
 app.use(cookieParser());
 /*----------------------------------------------------------*/
