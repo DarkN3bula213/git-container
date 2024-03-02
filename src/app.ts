@@ -10,22 +10,42 @@ import { errorHandler } from './lib/handlers/errorHandler';
 import cors from 'cors';
 import { config } from './lib/config';
 import apiKey from './middleware/useApiKey';
-import { RequestLogger } from './lib/logger';
+import { Logger, RequestLogger } from './lib/logger';
 
-/*----------------------------------------------------------*/
-
+/*---------------------------------------------------------*/
+const logger = new Logger(__filename)
 const app: Application = express();
 // app.use((req, res, next) => {
 //   console.log(req.headers); // Log all incoming headers
 //   next();
 // });
-
+const allowedOrigins = [
+  'https://hps-admin.com',
+  'https://5173-darkn3bula2-cracachedhp-ttkt14e4rit.ws-us108.gitpod.io',
+];
+app.use((req, res, next) => {
+  try {
+    logger.info({
+      event: 'Request',
+      origin: req.headers.origin,
+    })
+  } catch (error) {
+    next()
+  }
+next()
+})
 app.use(
   cors({
-    origin: [
-      'https://hps-admin.com',
-      'https://5173-darkn3bula2-cracachedhp-ttkt14e4rit.ws-us108.gitpod.io',
-    ],
+    origin: (origin, callback) => {
+      if (origin === undefined || allowedOrigins.includes(origin)) {
+       logger.info({event: 'Cors origin', origin})
+        callback(null, true);
+      } else {
+        logger.info({event: 'Cors origin requiring cb', origin})
+        console.log('Access-Control-Allow-Origin: ', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: [
