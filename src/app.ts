@@ -20,13 +20,25 @@ const app: Application = express();
 //   next();
 // });
 
-app.use(cors({
-    origin: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization', 'x-access-token', 'x-refresh-token', 'X-Api-Key'],
+app.use(
+  cors({
+    origin: [
+      'https://hps-admin.com',
+      'https://5173-darkn3bula2-cracachedhp-ttkt14e4rit.ws-us108.gitpod.io',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    allowedHeaders: [
+      'Content-Type',
+      'x-api-key',
+      'Authorization',
+      'x-access-token',
+      'x-refresh-token',
+      'X-Api-Key',
+    ],
     exposedHeaders: ['Set-Cookie'],
-}));
+  }),
+);
 
 app.use(cookieParser());
 app.use(RequestLogger);
