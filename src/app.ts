@@ -15,12 +15,21 @@ import { RequestLogger } from './lib/logger';
 /*----------------------------------------------------------*/
 
 const app: Application = express();
-app.use((req, res, next) => {
-  console.log(req.headers); // Log all incoming headers
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(req.headers); // Log all incoming headers
+//   next();
+// });
 
-app.use(cors(options));
+app.use(cors({
+    origin: [
+      'https://5173-darkn3bula2-cracachedhp-ttkt14e4rit.ws-us108.gitpod.io',
+      'https://hps-admin.com',
+    ],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization', 'x-access-token', 'x-refresh-token', 'X-Api-Key'],
+    exposedHeaders: ['Set-Cookie'],
+}));
 
 app.use(cookieParser());
 app.use(RequestLogger);
