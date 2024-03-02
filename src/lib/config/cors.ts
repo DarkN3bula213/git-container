@@ -2,19 +2,8 @@ import cors from 'cors';
 import { allowedOrigins, headers, methods } from '../constants/allowedOrigins';
 
 export const options: cors.CorsOptions = {
-  exposedHeaders: ['x-access-token', 'x-refresh-token'],
-
-  origin: (origin, callback) => {
-    if (allowedOrigins.indexOf(origin!) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-
-  allowedHeaders: headers,
-  credentials: true,
-  methods: methods,
-  // preflightContinue: true,
-  optionsSuccessStatus:204
+  origin: 'https://hps-admin.com', // Adjust to your front-end domain
+  credentials: true, // This is important for cookies
+  allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization','x-access-token', 'x-refresh-token'], // Specify allowed headers
+  exposedHeaders: ['Set-Cookie'], // Expose headers if you need the client-side to read the Set-Cookie header
 };

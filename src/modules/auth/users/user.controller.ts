@@ -94,18 +94,19 @@ export const login = asyncHandler(async (req, res) => {
   });
 
   res.cookie('accessToken', access, {
-    maxAge: 1000 * 60 * 60 * 2,
-    httpOnly: true,
-    sameSite: 'none',
-    secure: true,
+    httpOnly: true, // Prevents client-side JS from reading the token
+    secure: true, // Ensures cookie is sent over HTTPS
+    sameSite: 'none', // Important for cross-site access; use 'Strict' or 'Lax' for same-site scenarios
+    domain: '.hps-admin.com', // Adjust the domain to match your site's domain
+    maxAge: 2 * 60 * 60 * 1000, // Example: 24 hours
   });
 
   res.cookie('refreshToken', refresh, {
-    maxAge: 1000 * 60 * 60 * 2,  
-    httpOnly: true,
-
-    sameSite: 'none',
-    secure: true,
+    httpOnly: true, // Prevents client-side JS from reading the token
+    secure: true, // Ensures cookie is sent over HTTPS
+    sameSite: 'none', // Important for cross-site access; use 'Strict' or 'Lax' for same-site scenarios
+    domain: '.hps-admin.com', // Adjust the domain to match your site's domain
+    maxAge: 2 * 60 * 60 * 1000, // Example: 24 hours
   });
 
   return new SuccessResponse('Login successful', {
