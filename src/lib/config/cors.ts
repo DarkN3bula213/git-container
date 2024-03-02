@@ -11,6 +11,7 @@ export const options: cors.CorsOptions = {
     'Authorization',
     'x-access-token',
     'x-refresh-token',
+    'X-Api-Key',
   ], // Specify allowed headers
   exposedHeaders: ['Set-Cookie'], // Expose headers if you need the client-side to read the Set-Cookie header
   optionsSuccessStatus: 200,
