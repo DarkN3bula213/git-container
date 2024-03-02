@@ -36,16 +36,17 @@ next()
 })
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (origin === undefined || allowedOrigins.includes(origin)) {
-       logger.info({event: 'Cors origin', origin})
-        callback(null, true);
-      } else {
-        logger.info({event: 'Cors origin requiring cb', origin})
-        console.log('Access-Control-Allow-Origin: ', origin);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    // origin: (origin, callback) => {
+    //   if (origin === undefined || allowedOrigins.includes(origin)) {
+    //    logger.info({event: 'Cors origin', origin})
+    //     callback(null, true);
+    //   } else {
+    //     logger.info({event: 'Cors origin requiring cb', origin})
+    //     console.log('Access-Control-Allow-Origin: ', origin);
+    //     callback(new Error('Not allowed by CORS'));
+    //   }
+    // },
+    origin:true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: [
