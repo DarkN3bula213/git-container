@@ -18,7 +18,7 @@ export async function getClass(path: string) {
 }
 
 export async function getCachedClasses() {
-  let classes = await cache.keys(getDynamicKey(DynamicKey.CLASS, '*'));
+  const classes = await cache.keys(getDynamicKey(DynamicKey.CLASS, '*'));
 
   logger.debug({
     message: 'Caching classes',

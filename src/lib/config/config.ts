@@ -6,7 +6,6 @@ import {
   getOsEnvOptional,
   toNumber,
   getDecodedOsEnv,
-  toBool,
 } from './utils';
 
 dotenv.config({
@@ -31,7 +30,8 @@ export const config = {
     return {
       origin: '*',
       methods: 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
-      allowedHeaders: 'x-access-token, x-refresh-token, Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
+      allowedHeaders:
+        'x-access-token, x-refresh-token, Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
       credentials: true,
       optionsSuccessStatus: 204,
     };

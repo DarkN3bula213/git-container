@@ -177,7 +177,7 @@ const studentSchema = new Schema<Student>(
 
 // Define a static method on the studentSchema
 studentSchema.statics.bulkInsert = async function (students) {
-  for (let student of students) {
+  for (const student of students) {
     const classDoc = await ClassModel.findOne({ className: student.className });
     if (!classDoc) {
       throw new Error(`Invalid class name provided: ${student.className}`);

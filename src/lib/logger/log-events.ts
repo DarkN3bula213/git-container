@@ -14,7 +14,7 @@ async function logEvents({ message, logFileName }: LogEventProps) {
   const logItem = `${dateTime}\t${randomUUID({
     disableEntropyCache: true,
   })}\t${message}\n`;
- 
+
   try {
     if (!fs.existsSync(path.join(__dirname, '..', 'logs'))) {
       await promises.mkdir(path.join(__dirname, '..', 'logs'));

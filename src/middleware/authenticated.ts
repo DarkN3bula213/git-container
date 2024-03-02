@@ -1,4 +1,3 @@
-import { AuthFailureError } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger as l } from '@/lib/logger';
 import { reIssueAccessToken, verifyToken } from '@/lib/utils/tokens';

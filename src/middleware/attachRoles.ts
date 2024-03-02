@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { Roles } from '@/lib/constants';
 import { Request, Response, NextFunction } from 'express';
 

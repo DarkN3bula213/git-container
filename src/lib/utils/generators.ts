@@ -22,20 +22,3 @@ export const generateAlphaNum = (length: number) => {
   }
   return result;
 };
-
-type GenSeq = {
-  length: number;
-  digits: number;
-  letters: number;
-  prefix?: string;
-  start?: 'num' | 'char';
-  end?: 'num' | 'char';
-  unique?: boolean;
-};
-
-export const genSequence = (options: GenSeq) => {
-  const { length, digits, letters, prefix, start, end, unique } = options;
-
-  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const numSet = '0123456789';
-};

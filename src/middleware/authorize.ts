@@ -1,7 +1,7 @@
 import { Roles } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
-import { RoleModel, getUserRoles } from '@/modules/auth/roles/role.model';
+import { RoleModel } from '@/modules/auth/roles/role.model';
 import { User } from '@/modules/auth/users/user.model';
 
 const logger = new Logger(__filename);

@@ -1,17 +1,15 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { ValidationSource, validate } from '@/lib/handlers/validate';
 
 import schema, { Header } from '../modules/auth/apiKey/apiKey.schema';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { ForbiddenError } from '@/lib/api';
-import ApiKey, {
-  ApiKeyModel,
-  findByKey,
-} from '../modules/auth/apiKey/apiKey.model';
+import ApiKey, { ApiKeyModel } from '../modules/auth/apiKey/apiKey.model';
 import { Logger } from '@/lib/logger';
 
 const logger = new Logger(__filename);
 
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 
 declare global {
   namespace Express {

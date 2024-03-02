@@ -144,7 +144,7 @@ keystoreSchema.statics.findByPrimaryKey = async function (primaryKey: string) {
 
 // export const Keystore = model<Keystore, IKeystore>('Keystore', keystoreSchema);
 
-interface KeyStoreStatics extends Model<Keystore, {}> {
+interface KeyStoreStatics extends Model<Keystore, object> {
   createKeystore: (
     user: User,
     primaryKey: string,

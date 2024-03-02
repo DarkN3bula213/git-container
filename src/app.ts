@@ -1,10 +1,10 @@
 import express, { Application, json, urlencoded } from 'express';
-import middleware from './middleware/common';
+
 import cookieParser from 'cookie-parser';
-import session from 'cookie-session';
+
 import { morganMiddleware as morgan } from './lib/config';
 import { NotFoundError } from './lib/api';
-import { options } from './lib/config/cors';
+
 import router from './routes';
 import { errorHandler } from './lib/handlers/errorHandler';
 import cors from 'cors';
@@ -13,27 +13,27 @@ import apiKey from './middleware/useApiKey';
 import { Logger, RequestLogger } from './lib/logger';
 
 /*---------------------------------------------------------*/
-const logger = new Logger(__filename)
+const logger = new Logger(__filename);
 const app: Application = express();
 // app.use((req, res, next) => {
 //   console.log(req.headers); // Log all incoming headers
 //   next();
 // });
-const allowedOrigins = [
-  'https://hps-admin.com',
-  'https://5173-darkn3bula2-cracachedhp-ttkt14e4rit.ws-us108.gitpod.io',
-];
+// const allowedOrigins = [
+//   'https://hps-admin.com',
+//   'https://5173-darkn3bula2-cracachedhp-ttkt14e4rit.ws-us108.gitpod.io',
+// ];
 app.use((req, res, next) => {
   try {
     logger.info({
       event: 'Request',
       origin: req.headers.origin,
-    })
+    });
   } catch (error) {
-    next()
+    next();
   }
-next()
-})
+  next();
+});
 app.use(
   cors({
     // origin: (origin, callback) => {
@@ -46,7 +46,7 @@ app.use(
     //     callback(new Error('Not allowed by CORS'));
     //   }
     // },
-    origin:true,
+    origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: [

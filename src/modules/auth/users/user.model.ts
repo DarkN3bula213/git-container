@@ -37,7 +37,7 @@ interface UserMethods {
 }
 
 interface UserModel extends Model<User, {}, UserMethods> {
-  customId: { type: Number; unique: true };
+  customId: { type: number; unique: true };
   findUserByEmail(email: string): Promise<User | null>;
   findUserById(id: string): Promise<User | null>;
   createUser(userDetails: Partial<User>, rolesCode?: string): Promise<User>;

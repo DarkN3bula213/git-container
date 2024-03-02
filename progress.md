@@ -34,3 +34,13 @@ rsync -av --delete /var/www/dropts/ver3/appOne/src/ /var/www/dropts/ver2/app/src
 1. Implement delete student by id route
 2. Implement modify student detail
 3. Clear up authentication
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const errorHandler = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  // function body
+}

@@ -5,9 +5,7 @@ import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { Logger } from '@/lib/logger';
 import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
-import { config } from '@/lib/config';
-import { convertToMilliseconds } from '@/lib/utils/fns';
-import IssueModel from '@/modules/school/issues/issue.model';
+
 const logger = new Logger(__filename);
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await UserModel.find();

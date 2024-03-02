@@ -66,7 +66,6 @@ if (!fs.existsSync(dir)) {
 const logLevel = config.isProduction || config.isDocker ? 'error' : 'debug';
 const dailyRotateFile = new DailyRotateFile({
   level: logLevel,
-  // @ts-ignore
   filename: dir + '/%DATE%.log',
   datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
@@ -74,7 +73,7 @@ const dailyRotateFile = new DailyRotateFile({
   maxSize: '20m',
   maxFiles: '14d',
   format: winston.format.combine(
-    winston.format.errors({ stack: false }), 
+    winston.format.errors({ stack: false }),
     winston.format.splat(),
     winston.format.timestamp(),
     winston.format.prettyPrint(),
@@ -100,7 +99,7 @@ export class Logger {
       winston.format.errors({ stack: true }),
       customPrintf,
     ),
-  
+
     transports: [new winston.transports.Console(), dailyRotateFile],
     exceptionHandlers: [dailyRotateFile],
     exitOnError: false,

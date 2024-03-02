@@ -54,7 +54,7 @@ export async function updateStudentClassIds() {
   let count = 0;
 
   console.log(students);
-  for (let student of students) {
+  for (const student of students) {
     const classDoc = await ClassModel.findOne({
       className: student.classId,
     }).exec();

@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '../logger';
 const logger = new Logger(__filename);
