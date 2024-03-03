@@ -5,6 +5,13 @@ import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { Logger } from '@/lib/logger';
 import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
+import { clearAuthCookies } from '@/lib/utils/utils';
+ declare module 'express-session' {
+  interface SessionData {
+    userId: string;
+    // Add any other custom properties here
+  }
+}
 
 const logger = new Logger(__filename);
 export const getUsers = asyncHandler(async (req, res) => {
@@ -91,7 +98,7 @@ export const login = asyncHandler(async (req, res) => {
     expiresIn: '120m',
   });
 
-  res.cookie('accessToken', access, {
+  res.cookie('access', access, {
     httpOnly: true, // Prevents client-side JS from reading the token
     secure: true, // Ensures cookie is sent over HTTPS
     sameSite: 'none', // Important for cross-site access; use 'Strict' or 'Lax' for same-site scenarios
@@ -99,20 +106,25 @@ export const login = asyncHandler(async (req, res) => {
     maxAge: 2 * 60 * 60 * 1000, // Example: 24 hours
   });
 
-  res.cookie('refreshToken', refresh, {
+  res.cookie('refresh', refresh, {
     httpOnly: true, // Prevents client-side JS from reading the token
     secure: true, // Ensures cookie is sent over HTTPS
     sameSite: 'none', // Important for cross-site access; use 'Strict' or 'Lax' for same-site scenarios
     domain: '.hps-admin.com', // Adjust the domain to match your site's domain
     maxAge: 2 * 60 * 60 * 1000, // Example: 24 hours
+  });
+
+  req.session.userId = user?._id;
+
+  logger.debug({
+    user: `${user?._id} logged in`,
   });
 
   return new SuccessResponse('Login successful', {
-    access,
-    refresh,
-    user: verified,
+ user: verified,
   }).send(res);
 });
+
 
 export const insertMany = asyncHandler(async (req, res) => {
   const users = await UserModel.insertMany(req.body);
@@ -140,17 +152,19 @@ export const reset = asyncHandler(async (req, res) => {
 
 export const logout = asyncHandler(async (req, res) => {
   logger.debug('logout');
-  res.cookie('accessToken', '', {
-    domain: 'https://my.domain.com',
-    maxAge: -1,
-  });
-  res.cookie('refreshToken', '', {
-    domain: 'https://my.domain.com',
-    maxAge: -1,
-  });
-
+  clearAuthCookies(res);
   res.status(200).json({
     success: true,
     message: 'Logged out successfully',
   });
 });
+
+
+export const getUserById = asyncHandler(async (req, res) => {
+  const user = await UserModel.findById(req.params._id);
+  if (!user) res.status(400).json({ success: false });
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+})

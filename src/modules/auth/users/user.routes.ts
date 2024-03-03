@@ -44,6 +44,12 @@ function getRouteMap(): RouteMap[] {
       handler: controller.getCurrentUser,
       validations: [authenticate],
     },
+    {
+      path: '/:id', 
+      method: 'get',
+      handler: controller.getUserById,
+      validations: [authenticate],
+    },
   ];
 }
 

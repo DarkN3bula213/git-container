@@ -4,14 +4,7 @@ import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
 const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
-
-logger.debug({
-  user: config.mongo.user,
-  pass: config.mongo.pass,
-  host: config.mongo.host,
-  port: config.mongo.port,
-  db: config.mongo.database,
-});
+ 
 
 let conStr = '';
 
@@ -21,15 +14,7 @@ if (config.isDocker) {
   conStr = URI;
 }
 
-// logger.debug({
-//   uri: URI,
-//   hardcoded: dbURI,
-//   connStr: conStr,
-//   fromEnv: config.mongo.uri,
-// });
-function setRunValidators(this: any) {
-  this.setOptions({ runValidators: true });
-}
+ 
 export const connect = async () => {
   const options = {
     autoIndex: true,

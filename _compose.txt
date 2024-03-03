@@ -1,3 +1,4 @@
+
 version: '3.9'  # Specifies the version of the Docker Compose file format
 
 services:
@@ -19,7 +20,9 @@ services:
 
   redis:
     image: redis:alpine  # Uses the lightweight Redis Alpine image
-    command: redis-server  # The default command to start the Redis server
+    command: redis-server 
+    ports:
+      - '6379:6379'
     volumes:
       - cache:/data/cache  #  Mounts a volume named 'cache' for Redis data persistence
     networks:
@@ -31,7 +34,9 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: devuser 
       MONGO_INITDB_ROOT_PASSWORD: devpassword 
-      MONGO_INITDB_DATABASE: docker-db  # Sets up database credentials and name
+      MONGO_INITDB_DATABASE: docker-db 
+    ports:
+      - '27017:27017'
     volumes:
         - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro  # Mounts a seed script
         - dbdata:/data/db  # Mounts a volume named 'dbdata' for MongoDB data persistence

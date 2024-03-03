@@ -66,6 +66,8 @@ export const config = {
       max: toNumber(getOsEnv('DB_POOL_MAX')),
     },
     uri: `mongodb://${getOsEnv('DB_USER')}:${getOsEnv('DB_PASSWORD')}@${getOsEnv('DB_HOST')}:${getOsEnv('DB_PORT')}/${getOsEnv('DB_NAME')}`,
+    dev: `mongodb://${getOsEnv('DB_USER')}:${getOsEnv('DB_PASSWORD')}@127.0.0.1:${getOsEnv('DB_PORT')}/${getOsEnv('DB_NAME')}?authSource=admin`,
+    docker: `mongodb://${getOsEnv('DB_USER')}:${getOsEnv('DB_PASSWORD')}@mongo:${getOsEnv('DB_PORT')}/${getOsEnv('DB_NAME')}?authSource=admin`,
   },
   redis: {
     host: getOsEnv('REDIS_HOST'),

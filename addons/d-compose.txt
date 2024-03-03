@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    environment:
+      - NODE_ENV=docker
+      - PORT=3000
+    volumes:
+      - ./logs:/usr/src/app/logs
+    depends_on:
+      - redis
+      - mongo
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    command: redis-server
+    volumes:
+      - cache:/data/cache
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: devuser
+      MONGO_INITDB_ROOT_PASSWORD: devpassword
+      MONGO_INITDB_DATABASE: docker-db
+    volumes:
+      - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+      - dbdata:/data/db
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - /etc/letsencrypt/live/api.hps-admin.com/fullchain.pem:/etc/ssl/certs/fullchain.pem
+      - /etc/letsencrypt/live/api.hps-admin.com/privkey.pem:/etc/ssl/private/privkey.pem
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  dbdata:
+  cache:
