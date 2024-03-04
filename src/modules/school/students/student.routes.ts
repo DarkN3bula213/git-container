@@ -48,6 +48,12 @@ function getRouteMap(): Route[] {
       method: 'delete',
       handler: controller.resetCollection,
     },
+
+    {
+      path: '/:id',
+      method: 'delete',
+      handler: controller.removeStudent,
+    },
   ];
 }
 

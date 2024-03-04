@@ -65,5 +65,4 @@ export function setRouter(router: Router, routes: RouteMap[]): void {
 // Utility function to clear cookies
 export const clearAuthCookies = (res: Response) => {
   res.cookie('accessToken', '', { httpOnly: true, secure: true, sameSite: 'none', maxAge: -1, domain: '.hps-admin.com' });
-  res.cookie('refreshToken', '', { httpOnly: true, secure: true, sameSite: 'none', maxAge: -1, domain: '.hps-admin.com' });
 };

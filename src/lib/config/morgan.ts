@@ -1,10 +1,11 @@
 import morgan from 'morgan';
 import colors from 'colors';
 import dayjs from 'dayjs';
+import { Request } from 'express';
 
 // Define a custom token for checking the presence of auth headers
-morgan.token('auth', (req) => {
-  return req.headers.authorization ? 'Auth' : 'No Auth';
+morgan.token('auth', (req:Request) => {
+  return req.cookies.access ? 'Auth' : 'No Auth';
 });
 
 // Custom token for colored HTTP methods

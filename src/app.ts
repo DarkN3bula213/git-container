@@ -8,18 +8,16 @@ import cors from 'cors';
 import { config } from './lib/config';
 import apiKey from './middleware/useApiKey';
 import { Logger, RequestLogger } from './lib/logger';
-import sessionHandler from './lib/handlers/sessionHandler';
-import mongoose from 'mongoose';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import { authentication } from './middleware/authMiddleware';
+import helmet from 'helmet'
+import compression from 'compression'
+import { loginLimiter, options } from './lib/config/rate-limit';
 /*---------------------------------------------------------*/
 const logger = new Logger(__filename);
 const app: Application = express();
-
+ 
 app.use(
   cors({
-    origin:'https://hps-admin.com',
+    origin: config.origin,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: [
@@ -27,7 +25,6 @@ app.use(
       'x-api-key',
       'Authorization',
       'x-access-token',
-      'x-refresh-token',
       'X-Api-Key',
     ],
     exposedHeaders: ['Set-Cookie'],
@@ -40,7 +37,9 @@ app.use(apiKey);
 app.use(morgan);
 app.use(json(config.json));
 app.use(urlencoded(config.urlEncoded));
-
+app.use(loginLimiter);
+// app.use(helmet());
+app.use(compression());
 
 app.use('/api', router);
 app.all('*', (req, res, next) => next(new NotFoundError()));

@@ -8,7 +8,7 @@ import { Roles } from '@/lib/constants';
 import { clearAuthCookies } from '@/lib/utils/utils';
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import { config } from '@/lib/config';
- declare module 'express-session' {
+declare module 'express-session' {
   interface SessionData {
     userId: string;
     // Add any other custom properties here
@@ -64,23 +64,12 @@ export const register = asyncHandler(async (req, res) => {
   if (!user) {
     throw new BadRequestError('Something went wrong');
   }
-
-  const access = signToken({ user }, 'access', {
-    expiresIn: '5m',
-  });
-
-  const refresh = signToken({ user }, 'refresh', {
-    expiresIn: '30m',
-  });
-
-  // logger.debug({
-  //   Keystore: userDetails,
-  // });
-
+  const userObj = user.toObject();
+  delete userObj.password;
+ 
   res.status(200).json({
     success: true,
-    data: user,
-    tokens: { access, refresh },
+    data: userObj,
   });
 });
 
@@ -94,31 +83,23 @@ export const login = asyncHandler(async (req, res) => {
   delete verified.password;
 
   const access = signToken({ user }, 'access', {
-    expiresIn: '10m',
+    expiresIn: '120m',
   });
- 
 
   res.cookie('access', access, {
-    httpOnly: config.isDocker,  
-    secure: true,  
-    sameSite: 'none', 
-    domain: '.hps-admin.com', 
-    maxAge: convertToMilliseconds('2h'),  
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    domain: '.hps-admin.com',
+    maxAge: convertToMilliseconds('2h'),
   });
 
-  // res.cookie('refresh', refresh, {
-  //   httpOnly: true,  
-  //   secure: true,  
-  //   sameSite: 'none', 
-  //   domain: '.hps-admin.com', 
-  //   maxAge: 2 * 60 * 60 * 1000,  
-  // });
  
+
   return new SuccessResponse('Login successful', {
- user: verified,
+    user: verified,
   }).send(res);
 });
-
 
 export const insertMany = asyncHandler(async (req, res) => {
   const users = await UserModel.insertMany(req.body);
@@ -153,7 +134,6 @@ export const logout = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const getUserById = asyncHandler(async (req, res) => {
   const user = await UserModel.findById(req.params._id);
   if (!user) res.status(400).json({ success: false });
@@ -161,8 +141,7 @@ export const getUserById = asyncHandler(async (req, res) => {
     success: true,
     data: user,
   });
-})
-
+});
 
 export const deleteUserById = asyncHandler(async (req, res) => {
   const user = await UserModel.findByIdAndDelete(req.params._id);

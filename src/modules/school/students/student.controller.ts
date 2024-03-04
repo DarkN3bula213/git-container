@@ -96,3 +96,9 @@ export const patchStudent = asyncHandler(async (req, res) => {
   }).lean();
   new SuccessResponse('Student updated successfully', student).send(res);
 });
+/*------------------     ----------------------------------- */
+export const removeStudent = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const student = await Student.findByIdAndDelete(id).lean();
+  new SuccessResponse('Student deleted successfully', student).send(res);
+})

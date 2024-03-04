@@ -43,6 +43,7 @@ export const config = {
     methods: 'GET,POST,PUT,DELETE',
     optionsSuccessStatus: 200,
   },
+  origin: getDecodedOsEnv('ORIGIN_URL'),
   urlEncoded: {
     limit: '10mb',
     extended: true,
