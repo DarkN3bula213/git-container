@@ -5,6 +5,9 @@ import schema, { insertMany, register } from './user.schema';
 import { Route, RouteMap } from '@/types/routes';
 import { applyRoutes, setRouter } from '@/lib/utils/utils';
 import { authenticate } from '@/middleware/authenticated';
+import { authentication } from '@/middleware/authMiddleware';
+import attachRoles from '@/middleware/attachRoles';
+import { Roles } from '@/lib/constants';
 
 const router = Router();
 
@@ -42,14 +45,22 @@ function getRouteMap(): RouteMap[] {
       path: '/currentUser',
       method: 'get',
       handler: controller.getCurrentUser,
-      validations: [authenticate],
+      validations: [authentication],
     },
     {
-      path: '/:id', 
+      path: '/:id',
       method: 'get',
       handler: controller.getUserById,
-      validations: [authenticate],
+      validations: [authentication],
     },
+    
+    {
+      path: '/:id',
+      method: 'delete',
+      handler: controller.getUserById,
+      validations: [attachRoles(Roles.ADMIN),authentication],
+    },
+    
   ];
 }
 

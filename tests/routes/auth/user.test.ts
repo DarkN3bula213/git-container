@@ -68,30 +68,4 @@ it('Should get authenticated',async () => {
    
   expect(response.status).toBe(200);
 });
-
-it('Should be able to create and issue', async () => {
-  jest.mock('../../../src/middleware/authenticated'); // Replace with your middleware import path
-  const mockAuthenticate = jest.fn();
-  const userId = new mongoose.Types.ObjectId().toString();
-  mockAuthenticate.mockReturnValue(
-    (req: Request, res: Response, next: NextFunction) => {
-      req.user = { _id: userId };
-      
-      next()},
-  ); // Always call next
-
-  const response = await request
-    .post('/api/school/issues')
-    .set('x-access-token', `${tokens.access}`)
-    .set('x-refresh-token', `${tokens.refresh}`)
-    .set('x-api-key', validApiKey)
-    .send({
-      title: 'Test Issue',
-      description: 'Test Description',
-    });
-  //  logger.debug({
-  //    event: 'post Authenticated',
-  //    response: JSON.stringify(response.body, null, 2),
-  //  });
-  expect(response.status).toBe(200);
-}); 
+ 

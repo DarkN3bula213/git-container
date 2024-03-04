@@ -1,7 +1,7 @@
 import {
   IDTrackerModel,
   IIDTracker,
-} from '@/modules/auth/ID Tracker/idTracker.model';
+} from '@/modules/school/students/ID Tracker/idTracker.model';
 import dayjs from 'dayjs';
 import StudentModel from './student.model';
 import { ClassModel } from '../classes/class.model';

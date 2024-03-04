@@ -7,15 +7,11 @@ import { get } from 'lodash';
 const logger = new l(__filename);
 
 export const authenticate = asyncHandler(async (req, res, next) => {
-  const accessToken =
-    get(req, 'cookies.accessToken') || req.headers['x-access-token'];
-  const refreshToken =
-    get(req, 'cookies.refreshToken') || req.headers['x-refresh-token'];
+  const accessToken = get(req, 'cookies.accessToken');
+  const refreshToken = get(req, 'cookies.refreshToken');
   if (!accessToken) {
-    logger.error('No token');
     return res.status(403).json({ message: 'Access token required' });
   }
-  console.log(req);
   const { decoded, valid, expired } = verifyToken(
     accessToken.toString(),
     'access',
@@ -25,33 +21,24 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     return next();
   }
 
-  // If token is expired and a refresh token exists, attempt to issue a new access token.
   if (expired && refreshToken) {
     const newAccessToken = await reIssueAccessToken({
       refreshToken: refreshToken.toString(),
     });
 
     if (!newAccessToken) {
-      logger.debug(
-        'Failed to re-issue access token with the provided refresh token.',
-      );
-      return res.status(403).json({
-        message: 'Failed to re-issue access token, invalid refresh token',
-      });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    res.setHeader('x-access-token', newAccessToken);
     const result = verifyToken(newAccessToken, 'access');
     if (result.decoded) {
       req.user = result.decoded.user;
-
       return next();
     }
   }
 
   if (!valid || expired) {
-    logger.warn('Invalid or expired access token, unable to authenticate.');
-    return res.status(403).json({ message: 'Invalid or expired access token' });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   return next();

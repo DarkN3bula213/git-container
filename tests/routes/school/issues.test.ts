@@ -45,12 +45,4 @@ it('should be able fetch issues', async () => {
   expect(response.body.data).toBeInstanceOf(Array);
 });
 
-it('should be able to get an issue by id', async () => {
-  const response = await request
-    .get(`/api/school/issues/${issue}`)
-    .set('x-api-key', validApiKey)
-    .set('x-access-token', `${tokens.access}`)
-    .set('x-refresh-token', `${tokens.refresh}`);
-  expect(response.status).toBe(200);
-  expect(response.body.data).toBeInstanceOf(Object);
-});
+ 

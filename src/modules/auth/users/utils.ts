@@ -1,4 +1,7 @@
-import { IDTrackerModel, IIDTracker } from '../ID Tracker/idTracker.model';
+import {
+  IDTrackerModel,
+  IIDTracker,
+} from '../../school/students/ID Tracker/idTracker.model';
 import dayjs from 'dayjs';
 
 export const generateUniqueId = async (): Promise<string> => {

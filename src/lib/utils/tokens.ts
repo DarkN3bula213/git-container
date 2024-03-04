@@ -94,7 +94,7 @@ export async function reIssueAccessToken({
 
   // Check for validity of the refresh token
   if (!valid) {
-    logger.debug('Refresh token is invalid');
+
     return false;
   }
 
@@ -116,17 +116,12 @@ export async function reIssueAccessToken({
       { expiresIn: config.tokens.access.ttl }, // Adjust the TTL as necessary
     );
 
-    logger.debug({
-      event: 'Access Token Created',
-      userId: `${verifiedUser._id}`,
-      expiresIn: `${config.tokens.access.ttl}`,
-    });
+    if (config.isDevelopment) {
+      logger.warn({
+        token: `Issues to user ${verifiedUser._id}`,
+      });
+    }
     return accessToken;
   }
-
-  // Log for invalid token or missing session within the decoded token
-  if (!decoded || !get(decoded, 'session')) {
-    logger.debug('Invalid token or session missing in refresh token');
-    return false;
-  }
+ 
 }

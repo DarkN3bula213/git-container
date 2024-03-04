@@ -6,6 +6,8 @@ import { Logger } from '@/lib/logger';
 import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
 import { clearAuthCookies } from '@/lib/utils/utils';
+import { convertToMilliseconds } from '@/lib/utils/fns';
+import { config } from '@/lib/config';
  declare module 'express-session' {
   interface SessionData {
     userId: string;
@@ -94,32 +96,24 @@ export const login = asyncHandler(async (req, res) => {
   const access = signToken({ user }, 'access', {
     expiresIn: '10m',
   });
-  const refresh = signToken({ user }, 'refresh', {
-    expiresIn: '120m',
-  });
+ 
 
   res.cookie('access', access, {
-    httpOnly: true, // Prevents client-side JS from reading the token
-    secure: true, // Ensures cookie is sent over HTTPS
-    sameSite: 'none', // Important for cross-site access; use 'Strict' or 'Lax' for same-site scenarios
-    domain: '.hps-admin.com', // Adjust the domain to match your site's domain
-    maxAge: 2 * 60 * 60 * 1000, // Example: 24 hours
+    httpOnly: config.isDocker,  
+    secure: true,  
+    sameSite: 'none', 
+    domain: '.hps-admin.com', 
+    maxAge: convertToMilliseconds('2h'),  
   });
 
-  res.cookie('refresh', refresh, {
-    httpOnly: true, // Prevents client-side JS from reading the token
-    secure: true, // Ensures cookie is sent over HTTPS
-    sameSite: 'none', // Important for cross-site access; use 'Strict' or 'Lax' for same-site scenarios
-    domain: '.hps-admin.com', // Adjust the domain to match your site's domain
-    maxAge: 2 * 60 * 60 * 1000, // Example: 24 hours
-  });
-
-  req.session.userId = user?._id;
-
-  logger.debug({
-    user: `${user?._id} logged in`,
-  });
-
+  // res.cookie('refresh', refresh, {
+  //   httpOnly: true,  
+  //   secure: true,  
+  //   sameSite: 'none', 
+  //   domain: '.hps-admin.com', 
+  //   maxAge: 2 * 60 * 60 * 1000,  
+  // });
+ 
   return new SuccessResponse('Login successful', {
  user: verified,
   }).send(res);
@@ -168,3 +162,13 @@ export const getUserById = asyncHandler(async (req, res) => {
     data: user,
   });
 })
+
+
+export const deleteUserById = asyncHandler(async (req, res) => {
+  const user = await UserModel.findByIdAndDelete(req.params._id);
+  if (!user) res.status(400).json({ success: false });
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
