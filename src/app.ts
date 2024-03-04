@@ -19,8 +19,7 @@ const app: Application = express();
 
 app.use(
   cors({
-    origin:
-      'https://5173-darkn3bula2-cracachedhp-ttkt14e4rit.ws-us108.gitpod.io',
+    origin:'https://hps-admin.com',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: [
