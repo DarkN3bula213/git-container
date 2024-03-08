@@ -15,7 +15,6 @@ jobs:
       - name: Add SSH host key to known_hosts
         run: |
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> $HOME/.ssh/known_hosts
-          chmod 644 $HOME/.ssh/known_hosts
       - name: Copy files to shadow directory
         run: |
           rsync -avz --exclude 'test/' --exclude 'node_modules/' ./src root@24.199.76.209:/var/www/app/git-container_shadow/
