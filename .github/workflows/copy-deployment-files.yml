@@ -1,0 +1,25 @@
+name: Copy Deployment Files to Shadow Folder
+
+on:
+  push:
+    branches:
+      - cidi
+
+jobs:
+  copy-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy files to shadow directory
+        run: |
+          rsync -avz --exclude 'test/' --exclude 'node_modules/' ./src root@24.199.76.209:/var/www/app/git-container_shadow/
+          scp ./docker-compose.yaml root@24.199.76.209:/var/www/app/git-container_shadow/
+          scp ./package.json root@24.199.76.209:/var/www/app/git-container_shadow/
+        shell: bash
