@@ -3,7 +3,7 @@ name: Copy Deployment Files to Shadow Folder
 on:
   push:
     branches:
-      - cidi
+      - deploy
 
 jobs:
   copy-files:
