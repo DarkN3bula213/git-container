@@ -4,7 +4,7 @@ import { validate } from '@/lib/handlers/validate';
 import schema, { insertMany, register } from './user.schema';
 import { Route, RouteMap } from '@/types/routes';
 import { applyRoutes, setRouter } from '@/lib/utils/utils';
-import { authenticate } from '@/middleware/authenticated';
+
 import { authentication } from '@/middleware/authMiddleware';
 import attachRoles from '@/middleware/attachRoles';
 import { Roles } from '@/lib/constants';

@@ -6,7 +6,8 @@ import { ValidationSource, validate } from '@/lib/handlers/validate';
 import { RouteMap } from '@/types/routes';
 import { setRouter } from '@/lib/utils/utils';
 import { Router } from 'express';
-import { authenticate } from '@/middleware/authenticated';
+import { authentication } from '@/middleware/authMiddleware';
+
 
 const getRoutesMap = (): RouteMap[] => {
   return [
@@ -18,7 +19,7 @@ const getRoutesMap = (): RouteMap[] => {
     {
       path: '/',
       method: 'post',
-      validations: [authenticate, validate(schema.createIssue)],
+      validations: [authentication, validate(schema.createIssue)],
       handler: controller.createIssue,
     },
     {
@@ -30,7 +31,7 @@ const getRoutesMap = (): RouteMap[] => {
       path: '/reply',
       method: 'post',
       handler: controller.addReply,
-      validations: [authenticate, validate(schema.reply)],
+      validations: [authentication, validate(schema.reply)],
     },
     {
       path: '/:id',
@@ -42,7 +43,7 @@ const getRoutesMap = (): RouteMap[] => {
       method: 'delete',
       handler: controller.deleteIssue,
       validations: [
-        authenticate,
+        authentication,
         validate(schema.deleteIssue, ValidationSource.PARAM),
       ],
     },
@@ -51,7 +52,7 @@ const getRoutesMap = (): RouteMap[] => {
       method: 'delete',
       handler: controller.deleteReply,
       validations: [
-        authenticate,
+        authentication,
         validate(schema.deleteReply, ValidationSource.PARAM),
       ],
     },

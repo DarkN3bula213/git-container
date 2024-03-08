@@ -9,20 +9,13 @@ services:
     volumes:
       - ./logs:/usr/src/app/logs
     depends_on:
-      # - redis
+
       - mongo
     restart: unless-stopped
     networks:
       - app-network
 
-  # redis:
-  #   image: redis:alpine
-  #   command: redis-server
-  #   volumes:
-  #     - cache:/data/cache
-  #   networks:
-  #     - app-network
-
+ 
   mongo:
     image: mongo:latest
     command: mongod --auth
@@ -30,6 +23,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: devuser
       MONGO_INITDB_ROOT_PASSWORD: devpassword
       MONGO_INITDB_DATABASE: docker-db
+    ports:
+      - '27017:27017'
     volumes:
       - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
       - dbdata:/data/db

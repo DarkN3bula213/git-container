@@ -1,14 +1,15 @@
 import { Roles } from '@/lib/constants';
 import { Logger as log } from '@/lib/logger';
 import attachRoles from '@/middleware/attachRoles';
-import { authenticate } from '@/middleware/authenticated';
+import { authentication } from '@/middleware/authMiddleware';
+
 import { authorize } from '@/middleware/authorize';
 
 import { Router } from 'express';
 const Logger = new log(__filename);
 const router = Router();
 
-router.use(authenticate, authorize(Roles.HPS));
+router.use(authentication, authorize(Roles.HPS));
 
 router.get('/', attachRoles(Roles.ADMIN), (req, res) => {
   Logger.debug({

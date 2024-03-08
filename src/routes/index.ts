@@ -12,14 +12,11 @@ const router = Router();
 
 router.use('/users', users);
 
-if( config.isDocker) {
-    
-    router.use(authentication);
-}
+ 
 router.get('/', health);
 router.use('/files', files);
 router.use('/school', schoolRoutes);
-router.use('/protected', protectedRequest);
+
 
 
 export default router;
