@@ -16,4 +16,4 @@ jobs:
 
       - name: Test SSH Connection
         run: |
-          ssh -o StrictHostKeyChecking=no root@24.199.76.209 "echo 'SSH connection successful'"
+          ssh -vvv -o StrictHostKeyChecking=no root@24.199.76.209 "echo 'SSH connection successful'"
