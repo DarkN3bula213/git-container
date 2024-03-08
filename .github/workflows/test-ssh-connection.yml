@@ -15,4 +15,4 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Test SSH Connection
-      run: ssh -o StrictHostKeyChecking=no root@146.190.1.163 echo "SSH connection successful"
+      run: ssh -o StrictHostKeyChecking=no root@24.199.76.209 echo "SSH connection successful"
