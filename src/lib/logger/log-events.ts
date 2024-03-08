@@ -15,23 +15,20 @@ async function logEvents({ message, logFileName }: LogEventProps) {
     disableEntropyCache: true,
   })}\t${message}\n`;
 
-  try {
-    if (!fs.existsSync(path.join(__dirname, '..', 'logs'))) {
-      await promises.mkdir(path.join(__dirname, '..', 'logs'));
-    }
-    await promises.appendFile(
-      path.join(__dirname, '..', 'logs', logFileName),
-      logItem,
-    );
-  } catch (err) {
-    logger.error({ err });
-  }
+ let dir = config.log.directory;
+ if (!dir) dir = path.resolve('logs');
+ if (!fs.existsSync(dir)) {
+   fs.mkdirSync(dir);
+ } 
+
+  await promises.appendFile(path.join(dir, logFileName), logItem);
 }
 const logger = new Logger(__filename);
-
+ 
 import { Request, Response, NextFunction } from 'express';
+import { config } from '../config';
 
-export function RequestLogger(req: Request, res: Response, next: NextFunction) {
+export async function RequestLogger(req: Request, res: Response, next: NextFunction) {
   logEvents({
     message: `${req.method}\t${req.url}\t${req.headers.origin}`,
     logFileName: 'request.log',

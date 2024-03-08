@@ -26,23 +26,37 @@ export const config = {
   app: {
     port: normalizePort(process.env.PORT || getOsEnv('PORT')),
   },
-  cors: () => {
-    return {
-      origin: '*',
-      methods: 'GET,POST,PUT,DELETE,OPTIONS,PATCH',
-      allowedHeaders:
-        'x-access-token, x-refresh-token, Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
-      credentials: true,
-      optionsSuccessStatus: 204,
-    };
+  cors: (env?: 'dev' | 'prod') => {
+    if (env === 'dev') {
+      return {
+        exposedHeaders: ['Set-Cookie'],
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        credentials: true,
+        origin: 'http://localhost:5173',
+        allowedHeaders: [
+          'Content-Type',
+          'x-api-key',
+          'Authorization',
+          'x-access-token',
+        ],
+        optionsSuccessStatus: 200,
+      };
+    } else {
+      return {
+        origin: getDecodedOsEnv('ORIGIN_URL'),
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        credentials: true,
+        allowedHeaders: [
+          'Content-Type',
+          'x-api-key',
+          'Authorization',
+          'x-access-token',
+        ],
+        optionsSuccessStatus: 200,
+      };
+    }
   },
-  corsOptions: {
-    exposedHeaders: ['x-access-token', 'x-refresh-token'],
-    credentials: true,
-    origin: '*',
-    methods: 'GET,POST,PUT,DELETE',
-    optionsSuccessStatus: 200,
-  },
+
   origin: getDecodedOsEnv('ORIGIN_URL'),
   urlEncoded: {
     limit: '10mb',
@@ -90,11 +104,17 @@ export const config = {
       ttl: getOsEnv('REFRESH_TTL'),
     },
   },
-  // postgres: {
-  //   url: getOsEnv('POSTGRES_URL'),
-  //   options: {
-  //     user: getOsEnv('POSTGRES_USER'),
-  //     pass: getOsEnv('POSTGRES_PASSWORD'),
-  //   },
-  // },
+  cookieOptions: () => {
+    return {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 2 * 60 * 60 * 1000, // 2 hours
+      domain: '.hps-admin.com',
+    };
+  },
+  supabase: {
+    url: getOsEnv('SUPABASE_URL'),
+    key: getOsEnv('SUPABASE_KEY'),
+  },
 };

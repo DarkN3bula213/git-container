@@ -8,29 +8,14 @@ import cors from 'cors';
 import { config } from './lib/config';
 import apiKey from './middleware/useApiKey';
 import { Logger, RequestLogger } from './lib/logger';
-import helmet from 'helmet'
-import compression from 'compression'
+import helmet from 'helmet';
+import compression from 'compression';
 import { loginLimiter, options } from './lib/config/rate-limit';
 /*---------------------------------------------------------*/
 const logger = new Logger(__filename);
 const app: Application = express();
- 
-app.use(
-  cors({
-    origin: config.origin,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-    allowedHeaders: [
-      'Content-Type',
-      'x-api-key',
-      'Authorization',
-      'x-access-token',
-      'X-Api-Key',
-    ],
-    exposedHeaders: ['Set-Cookie'],
-  }),
-);
 
+app.use(cors(config.cors('prod')));
 app.use(cookieParser());
 app.use(RequestLogger);
 app.use(apiKey);

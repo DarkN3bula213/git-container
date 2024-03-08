@@ -157,11 +157,12 @@ export class Logger {
       Logger.logger.log(level, formattedMessage);
     } else {
       // Handle regular logging
-      const formattedMessage = `[${this.scope}] ${message}`;
+      const formattedMessage = `${timestamp} ${message}`;
       Logger.logger.log({
         level,
         message: formattedMessage,
-        extra: args.length ? args : undefined,
+
+
       });
     }
   }
