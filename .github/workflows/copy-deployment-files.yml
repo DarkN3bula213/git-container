@@ -17,7 +17,9 @@ jobs:
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> $HOME/.ssh/known_hosts
       - name: Copy files to shadow directory
         run: |
-          scp ./docker-compose.yaml root@24.199.76.209:/var/www/app/git-container_shadow/
-          scp ./package.json root@24.199.76.209:/var/www/app/git-container_shadow/
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./src root@24.199.76.209:/var/www/app/git-container_shadow/
+          scp -o StrictHostKeyChecking=no ./docker-compose.yaml root@24.199.76.209:/var/www/app/git-container_shadow/
+          scp -o StrictHostKeyChecking=no ./package.json root@24.199.76.209:/var/www/app/git-container_shadow/
+
         shell: bash
       
