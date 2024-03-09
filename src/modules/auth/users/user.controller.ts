@@ -1,21 +1,11 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { User, UserModel } from './user.model';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
-
-import { Logger } from '@/lib/logger';
 import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
 import { clearAuthCookies } from '@/lib/utils/utils';
 import { convertToMilliseconds } from '@/lib/utils/fns';
-import { config } from '@/lib/config';
-declare module 'express-session' {
-  interface SessionData {
-    userId: string;
-    // Add any other custom properties here
-  }
-}
-
-const logger = new Logger(__filename);
+ 
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await UserModel.find();
   if (!users) return new BadRequestError('No users found');
@@ -126,7 +116,7 @@ export const reset = asyncHandler(async (req, res) => {
 });
 
 export const logout = asyncHandler(async (req, res) => {
-  logger.debug('logout');
+ 
   clearAuthCookies(res);
   res.status(200).json({
     success: true,

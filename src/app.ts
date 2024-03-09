@@ -15,18 +15,23 @@ import { loginLimiter, options } from './lib/config/rate-limit';
 const logger = new Logger(__filename);
 const app: Application = express();
 
-app.use(cors({
-        origin: 'https://hps-admin.com',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        credentials: true,
-        allowedHeaders: [
-          'Content-Type',
-          'x-api-key',
-          'Authorization',
-          'x-access-token',
-        ],
-        optionsSuccessStatus: 200,
-      }));
+app.use(
+  cors({
+    origin:
+      'https://hps-admin.com',
+    credentials: true,
+    // preflightContinue: true,
+    optionsSuccessStatus: 204,
+    methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'x-api-key',
+      'Authorization',
+      'x-access-token',
+    ],
+    exposedHeaders: ['Set-Cookie'],
+  }),
+);
 app.use(cookieParser());
 app.use(RequestLogger);
 app.use(apiKey);
@@ -34,7 +39,7 @@ app.use(morgan);
 app.use(json(config.json));
 app.use(urlencoded(config.urlEncoded));
 app.use(loginLimiter);
-// app.use(helmet());
+app.use(helmet());
 app.use(compression());
 
 app.use('/api', router);
