@@ -43,7 +43,7 @@ export const config = {
       };
     } else {
       return {
-        origin: getDecodedOsEnv('ORIGIN_URL'),
+        origin: getOsEnv('ORIGIN_URL'),
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         credentials: true,
         allowedHeaders: [
@@ -57,7 +57,7 @@ export const config = {
     }
   },
 
-  origin: getDecodedOsEnv('ORIGIN_URL'),
+  origin: getOsEnvOptional('ORIGIN_URL'),
   urlEncoded: {
     limit: '10mb',
     extended: true,

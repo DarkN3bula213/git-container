@@ -102,3 +102,4 @@ export const removeStudent = asyncHandler(async (req, res) => {
   const student = await Student.findByIdAndDelete(id).lean();
   new SuccessResponse('Student deleted successfully', student).send(res);
 })
+  

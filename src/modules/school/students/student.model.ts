@@ -268,6 +268,7 @@ const getClassIdByName: IStudentStaticMethods['getClassIdByName'] =
 
 // Attach the static method to the schema
 studentSchema.statics.getClassIdByName = getClassIdByName;
+studentSchema.index({ registration_no: 1 }, { unique: true });
 
 const StudentModel = model<Student, IStudentModel>('Student', studentSchema);
 export default StudentModel;

@@ -44,3 +44,21 @@ const errorHandler = (
 ) => {
   // function body
 }
+
+-------
+
+Behaviours:
+
+Teachers 
+- create single teacher  POST /teachers
+- create multiple teachers
+
+- get teacher by id
+- get all teachers
+- get teacher by cnic
+
+- update teacher by id
+- update teacher by cnic
+
+- delete teacher by id
+- delete all
