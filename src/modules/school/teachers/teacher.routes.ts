@@ -22,7 +22,7 @@ function getRouteMap(): RouteMap[] {
       // ],
       handler: controller.getTeacherById,
     },
-    {
+    { 
       path: '/',
       method: 'get',
       handler: controller.getTeachersSorted, // No specific validations needed for sorting
