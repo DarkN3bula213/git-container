@@ -11,19 +11,24 @@ function getRouteMap(): RouteMap[] {
     {
       path: '/',
       method: 'post',
-    //   validations: [validate(schema.teacherSchema)], // Assuming this is for creating a new teacher
+      //   validations: [validate(schema.teacherSchema)], // Assuming this is for creating a new teacher
       handler: controller.createTeacher,
     },
     {
-      path: '/teachers/:id',
+      path: '/:id',
       method: 'get',
-      validations: [
-        validate(schema.fetchTeacherParamsSchema, ValidationSource.PARAM),
-      ],
+      // validations: [
+      //   validate(schema.fetchTeacherParamsSchema, ValidationSource.PARAM),
+      // ],
       handler: controller.getTeacherById,
     },
     {
-      path: '/teachers/:id',
+      path: '/',
+      method: 'get',
+      handler: controller.getTeachersSorted, // No specific validations needed for sorting
+    },
+    {
+      path: '/:id',
       method: 'put',
       //   validations: [ ],
       handler: controller.updateTeacherById,
@@ -47,12 +52,7 @@ function getRouteMap(): RouteMap[] {
       ],
       handler: controller.deleteTeacherById,
     },
- 
-    {
-      path: '/',
-      method: 'get',
-      handler: controller.getTeachersSorted, // No specific validations needed for sorting
-    },
+
     // Additional routes for fetching by CNIC, updating by CNIC can follow a similar pattern
     // Make sure to define and use appropriate validations schemas for those specific cases
   ];

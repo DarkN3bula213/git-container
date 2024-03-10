@@ -1,5 +1,5 @@
 export const allowedOrigins = [
-  'https://hps-sialkot.ddns.net',
+  'https://hps-admin.com',
   'https://hps-five.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000',
