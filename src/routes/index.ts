@@ -12,6 +12,7 @@ const router = Router();
 
 router.use('/users', users);
 
+router.use(authentication);
  
 router.get('/', health);
 router.use('/files', files);
