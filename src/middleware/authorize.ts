@@ -14,8 +14,7 @@ export function authorize(requiredRole: Roles) {
         event: 'User or user roles not found',
       });
 
-      return next();
-      // return res.status(401).send('Authentication required');
+      return res.status(401).send('Authentication required');
     }
 
     const role = await RoleModel.findOne({
@@ -23,31 +22,25 @@ export function authorize(requiredRole: Roles) {
     });
 
     if (!role) {
-      logger.debug({
-        event: 'Required role not found',
-        role: requiredRole,
-        user: user.roles,
-        result: JSON.stringify(role),
-      });
-      return next();
-      // return res.status(404).send('Required role not found');
+      return res.status(404).send('Required role not found');
     }
-    if (user.roles.toString() !== role._id.toString()) {
-      logger.debug({
-        event: 'Insufficient permissions',
-        role: role._id,
-        user: user.roles,
-        result: JSON.stringify(role),
-      });
-      return next();
-      // return res.status(403).send('Forbidden: Insufficient permissions');
+
+    if (typeof user.roles === 'string') {
+      const roleIds = user.roles.split(',').map((roleId) => roleId.trim());
+      if (roleIds.includes(role._id.toString())) {
+        next();
+      } else {
+        return res.status(403).send('Unauthorized');
+      }
+    } else if (Array.isArray(user.roles)) {
+      const roleIds = user.roles.map((roleId) => roleId.toString());
+      if (roleIds.includes(role._id.toString())) {
+        next();
+      } else {
+        return res.status(403).send('Unauthorized');
+      }
+    } else {
+      return;
     }
-    logger.debug({
-      event: 'Authorized',
-      role: role._id,
-      user: user.roles,
-      result: JSON.stringify(role),
-    });
-    next();
   });
 }
