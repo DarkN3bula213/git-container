@@ -141,3 +141,10 @@ export const deleteUserById = asyncHandler(async (req, res) => {
     data: user,
   });
 });
+
+
+
+
+export const isAdmin = asyncHandler(async (req, res) => {
+  return new SuccessResponse('User is admin', {}).send(res);
+});
