@@ -55,6 +55,7 @@ services:
       - /etc/letsencrypt/live/file.hps-admin.com/privkey.pem:/etc/ssl/private/file_privkey.pem
     depends_on:
       - app
+      - file_server
     networks:
       - app-network
 
