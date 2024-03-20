@@ -1,6 +1,14 @@
 version: '3.9'
 
 services:
+  file_server:
+    image: darkn3bula/dtop-ts:latest 
+    ports:
+      - '5050:5050'   
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network  
   app:
     build: .
     environment:
@@ -31,16 +39,8 @@ services:
     networks:
       - app-network
 
-  file_server:
-    image: darkn3bula/dtop-ts:latest 
-    ports:
-      - '5050:5050'   
-    environment:
-      - NODE_ENV=production
-    networks:
-      - app-network  
 
-
+   
 
   nginx:
     image: nginx:alpine
