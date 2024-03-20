@@ -39,9 +39,6 @@ services:
     networks:
       - app-network
 
-
-   
-
   nginx:
     image: nginx:alpine
     ports:
@@ -58,6 +55,7 @@ services:
       - file_server
     networks:
       - app-network
+
 
 networks:
   app-network:
