@@ -1,6 +1,8 @@
 import { Middleware, RecursiveRoute, Route, RouteMap } from '@/types/routes';
-import { Router, Request, Response, NextFunction } from 'express';
-import { func } from 'joi';
+import { Router, Response } from 'express';
+import { Types } from 'mongoose';
+import { Roles } from '../constants';
+import Role, { RoleModel } from '@/modules/auth/roles/role.model';
 
 export function applyRoutes(router: Router, routes: Route[]): void {
   routes.forEach((route) => {
@@ -65,4 +67,32 @@ export function setRouter(router: Router, routes: RouteMap[]): void {
 // Utility function to clear cookies
 export const clearAuthCookies = (res: Response) => {
   res.cookie('accessToken', '', { httpOnly: true, secure: true, sameSite: 'none', maxAge: -1, domain: '.hps-admin.com' });
+};
+
+
+
+export const normalizeRoles = (
+  roles: Types.ObjectId[] | Role[] | string[] | string,
+): Types.ObjectId[] => {
+  if (Array.isArray(roles)) {
+    return roles.map((role) =>
+      typeof role === 'string' ? new Types.ObjectId(role) : role._id,
+    );
+  } else {
+    return [
+      typeof roles === 'string'
+        ? new Types.ObjectId(roles)
+        : (roles as Role)._id,
+    ];
+  }
+};
+
+export const isAdminRolePresent = async (
+  userRoles: Types.ObjectId[],
+): Promise<boolean> => {
+  const adminRole = await RoleModel.findOne({
+    _id: { $in: userRoles },
+    code: Roles.ADMIN,
+  });
+  return !!adminRole;
 };

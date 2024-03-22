@@ -22,7 +22,6 @@ app.use(
     origin:
       'https://hps-admin.com',
     credentials: true,
-    // preflightContinue: true,
     optionsSuccessStatus: 204,
     methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
     allowedHeaders: [

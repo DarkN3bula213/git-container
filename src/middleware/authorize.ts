@@ -29,6 +29,7 @@ export function authorize(requiredRole: Roles) {
       const roleIds = user.roles.split(',').map((roleId) => roleId.trim());
       if (roleIds.includes(role._id.toString())) {
         next();
+        return
       } else {
         return res.status(403).send('Unauthorized');
       }
@@ -36,6 +37,7 @@ export function authorize(requiredRole: Roles) {
       const roleIds = user.roles.map((roleId) => roleId.toString());
       if (roleIds.includes(role._id.toString())) {
         next();
+        return
       } else {
         return res.status(403).send('Unauthorized');
       }

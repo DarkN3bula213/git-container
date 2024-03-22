@@ -3,7 +3,11 @@ import { User, UserModel } from './user.model';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
-import { clearAuthCookies } from '@/lib/utils/utils';
+import {
+  clearAuthCookies,
+  isAdminRolePresent,
+  normalizeRoles,
+} from '@/lib/utils/utils';
 import { convertToMilliseconds } from '@/lib/utils/fns';
  
 export const getUsers = asyncHandler(async (req, res) => {
@@ -84,10 +88,13 @@ export const login = asyncHandler(async (req, res) => {
     maxAge: convertToMilliseconds('2h'),
   });
 
- 
+    const role = normalizeRoles(user.roles);
+
+   const isAdmin = await isAdminRolePresent(role);
 
   return new SuccessResponse('Login successful', {
     user: verified,
+    isAdmin
   }).send(res);
 });
 
