@@ -3,9 +3,14 @@ import { User, UserModel } from './user.model';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { signToken } from '@/lib/utils/tokens';
 import { Roles } from '@/lib/constants';
-import { clearAuthCookies } from '@/lib/utils/utils';
+import {
+  clearAuthCookies,
+  fetchRoleCodes,
+  isAdminRolePresent,
+  normalizeRoles,
+} from '@/lib/utils/utils';
 import { convertToMilliseconds } from '@/lib/utils/fns';
- 
+
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await UserModel.find();
   if (!users) return new BadRequestError('No users found');
@@ -56,7 +61,7 @@ export const register = asyncHandler(async (req, res) => {
   }
   const userObj = user.toObject();
   delete userObj.password;
- 
+
   res.status(200).json({
     success: true,
     data: userObj,
@@ -84,10 +89,13 @@ export const login = asyncHandler(async (req, res) => {
     maxAge: convertToMilliseconds('2h'),
   });
 
- 
+  const role = normalizeRoles(user.roles);
+
+  const isAdmin = await isAdminRolePresent(role);
 
   return new SuccessResponse('Login successful', {
     user: verified,
+    isAdmin,
   }).send(res);
 });
 
@@ -105,7 +113,19 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
   if (!user) {
     throw new BadRequestError('No user found');
   }
-  return new SuccessResponse('Logged in user', user).send(res);
+  const roles = normalizeRoles(user.roles);
+
+  const roleCodes = await fetchRoleCodes(roles);
+
+  if (!roleCodes) {
+    throw new BadRequestError('No user found');
+  }
+
+  const response = {
+    status: true,
+    roles: roleCodes,
+  };
+  return new SuccessResponse('Logged in user', response).send(res);
 });
 export const reset = asyncHandler(async (req, res) => {
   const user = await UserModel.deleteMany({});
@@ -116,7 +136,6 @@ export const reset = asyncHandler(async (req, res) => {
 });
 
 export const logout = asyncHandler(async (req, res) => {
- 
   clearAuthCookies(res);
   res.status(200).json({
     success: true,
@@ -140,4 +159,8 @@ export const deleteUserById = asyncHandler(async (req, res) => {
     success: true,
     data: user,
   });
+});
+
+export const isAdmin = asyncHandler(async (req, res) => {
+  return new SuccessResponse('User is admin', {}).send(res);
 });
