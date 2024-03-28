@@ -13,10 +13,11 @@ import helmet from 'helmet';
 import compression from 'compression';
 import sanitize from 'express-mongo-sanitize';
 import { loginLimiter, options } from './lib/config/rate-limit';
+import { monitor } from './modules/analytics/analytics';
 /*---------------------------------------------------------*/
 const logger = new Logger(__filename);
 const app: Application = express();
-
+monitor(app);
 app.use(
   cors({
     origin:

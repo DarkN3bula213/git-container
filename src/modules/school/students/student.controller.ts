@@ -5,7 +5,7 @@ import { SuccessMsgResponse, SuccessResponse } from '@/lib/api';
 import { updateStudentClassIds } from './student.utils';
 import { studentService } from './student.service';
 
-/*------------------     ----------------------------------- */
+/*------------------------------------------------------------------- */
 
 export const createStudent = asyncHandler(async (req, res) => {
   const newStudent = new Student(req.body);
