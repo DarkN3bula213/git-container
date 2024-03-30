@@ -1,4 +1,3 @@
- 
 import { Application, NextFunction, Request, Response } from 'express';
 import mongoose, { model, Schema } from 'mongoose';
 import { User } from '../auth/users/user.model';
@@ -48,8 +47,6 @@ export const Analytics = model(
   'analytics',
 );
 
- 
-
 const silentLogs = (req: Request, res: Response, next: NextFunction) => {
   if (req.originalUrl === '/login' || req.method === 'POST') {
     const start = process.hrtime();
@@ -78,4 +75,3 @@ const silentLogs = (req: Request, res: Response, next: NextFunction) => {
 export const monitor = (app: Application) => {
   app.use(silentLogs);
 };
- 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as controller from './user.controller';
 import { validate } from '@/lib/handlers/validate';
 import schema, { insertMany, register } from './user.schema';
-import {  RouteMap } from '@/types/routes';
+import { RouteMap } from '@/types/routes';
 import { setRouter } from '@/lib/utils/utils';
 
 import { authentication } from '@/middleware/authMiddleware';

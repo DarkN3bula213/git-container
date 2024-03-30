@@ -3,9 +3,6 @@ import TeacherModel from './teacher.model';
 import { NotFoundError, SuccessMsgResponse, SuccessResponse } from '@/lib/api';
 import { transformTeacherData } from './teacher.utils';
 
-
-
-
 /*------------------  Create  +2 ----------------------------------- */
 export const createTeacher = asyncHandler(async (req, res) => {
   // Transforming incoming data to match the schema structure
@@ -77,17 +74,13 @@ export const getTeacherById = asyncHandler(async (req, res) => {
   new SuccessResponse('Teacher fetched successfully', teacher).send(res);
 });
 
-
-export const getTeachersSorted = asyncHandler(
-  async (req, res) => {
-    const teachers = await TeacherModel.find({}).sort({ lastName: 1 }).lean(); // Sort by lastName ascending
-    new SuccessResponse(
-      'Teachers fetched and sorted successfully',
-      teachers,
-    ).send(res);
-  },
-);
-
+export const getTeachersSorted = asyncHandler(async (req, res) => {
+  const teachers = await TeacherModel.find({}).sort({ lastName: 1 }).lean(); // Sort by lastName ascending
+  new SuccessResponse(
+    'Teachers fetched and sorted successfully',
+    teachers,
+  ).send(res);
+});
 
 export const getTeacherByCnic = asyncHandler(async (req, res) => {
   const { cnic } = req.params;
@@ -97,7 +90,6 @@ export const getTeacherByCnic = asyncHandler(async (req, res) => {
   }
   new SuccessResponse('Teacher fetched successfully', teacher).send(res);
 });
-
 
 /*------------------  Update  +2  ----------------------------------- */
 export const updateTeacherByCnic = asyncHandler(async (req, res) => {
@@ -126,24 +118,19 @@ export const updateTeacherById = asyncHandler(async (req, res) => {
   new SuccessResponse('Teacher updated successfully', updatedTeacher).send(res);
 });
 
-
-
-
 /*------------------  Delete +2  ----------------------------------- */
 export const resetTeachers = asyncHandler(async (req, res) => {
   await TeacherModel.deleteMany({});
-  new SuccessMsgResponse('All teachers have been deleted successfully').send(res);
+  new SuccessMsgResponse('All teachers have been deleted successfully').send(
+    res,
+  );
 });
 
-export const deleteTeacherById = asyncHandler(
-  async (req, res) => {
-    const { id } = req.params;
-    const deletedTeacher = await TeacherModel.findByIdAndDelete(id);
-    if (!deletedTeacher) {
-      throw new NotFoundError('Teacher not found');
-    }
-    new SuccessResponse('Teacher deleted successfully', deletedTeacher).send(
-      res,
-    );
-  },
-);
+export const deleteTeacherById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const deletedTeacher = await TeacherModel.findByIdAndDelete(id);
+  if (!deletedTeacher) {
+    throw new NotFoundError('Teacher not found');
+  }
+  new SuccessResponse('Teacher deleted successfully', deletedTeacher).send(res);
+});

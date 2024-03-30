@@ -27,42 +27,43 @@ enum ExpenseType {
   PROCUREMENT = 'Procurement',
 }
 
-const schema = new Schema<Expense>({
-  amount: {
-    type: Number,
-    required: true,
+const schema = new Schema<Expense>(
+  {
+    amount: {
+      type: Number,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+    vendor: {
+      type: [String],
+    },
+    expenseType: {
+      type: String,
+      enum: Object.values(ExpenseType),
+      required: true,
+    },
+    receipt: {
+      type: String,
+    },
+    approvedBy: {
+      type: String,
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
-  description: {
-    type: String,
-    required: true,
+  {
+    timestamps: true,
   },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-  vendor: {
-    type: [String],
-  },
-  expenseType: {
-    type: String,
-    enum: Object.values(ExpenseType),
-    required: true,
-  },
-  receipt: {
-    type: String,
-  },
-  approvedBy: {
-    type: String,
-  },
-  createdBy: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-}, {
-  timestamps: true
-});
+);
 
-
-
-export default model<Expense>('Expense', schema, 'expenses')
+export default model<Expense>('Expense', schema, 'expenses');

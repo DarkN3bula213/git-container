@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { Request } from 'express';
 
 // Define a custom token for checking the presence of auth headers
-morgan.token('auth', (req:Request) => {
+morgan.token('auth', (req: Request) => {
   return req.cookies.access ? 'Auth' : 'No Auth';
 });
 

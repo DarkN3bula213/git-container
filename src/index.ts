@@ -10,6 +10,27 @@ const logger = new Logger(__filename);
 const server = http.createServer(app);
 
 const PORT = config.app.port;
+import fs from 'fs-extra';
+import path from 'path';
+
+const createDirectories = async () => {
+  const uploadsDir = path.resolve(__dirname, 'uploads');
+  const documentsPath = path.join(uploadsDir, 'documents');
+  const imagesPath = path.join(uploadsDir, 'images');
+
+  // fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
+  await fs.ensureDir(documentsPath);
+  await fs.ensureDir(imagesPath);
+
+logger.info('Ensured that upload directories exist.');
+};
+
+// Call this function at the start of your application, before starting your server
+createDirectories().then(() => {
+
+startServer();
+
+});
 
 const startServer = async () => {
   try {
@@ -26,8 +47,6 @@ const startServer = async () => {
     );
   }
 };
-
-startServer();
 
 signals.forEach((signal) => {
   process.on(signal, async () => {

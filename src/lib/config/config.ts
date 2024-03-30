@@ -64,7 +64,7 @@ export const config = {
     parameterLimit: 50000,
   },
   json: {
-    limit: '10mb',
+    limit: '25mb',
   },
   log: {
     level: getOsEnvOptional('LOG_LEVEL'),

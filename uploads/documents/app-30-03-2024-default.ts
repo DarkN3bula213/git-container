@@ -19,21 +19,21 @@ import { handleUploads } from './lib/config/multer';
 const logger = new Logger(__filename);
 const app: Application = express();
 monitor(app);
-app.use(
-  cors({
-    origin: 'https://hps-admin.com',
-    credentials: true,
-    optionsSuccessStatus: 204,
-    methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'x-api-key',
-      'Authorization',
-      'x-access-token',
-    ],
-    exposedHeaders: ['Set-Cookie'],
-  }),
-);
+// app.use(
+//   cors({
+//     origin: 'https://hps-admin.com',
+//     credentials: true,
+//     optionsSuccessStatus: 204,
+//     methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
+//     allowedHeaders: [
+//       'Content-Type',
+//       'x-api-key',
+//       'Authorization',
+//       'x-access-token',
+//     ],
+//     exposedHeaders: ['Set-Cookie'],
+//   }),
+// );
 app.use(cookieParser());
 app.use(RequestLogger);
 app.use(apiKey);

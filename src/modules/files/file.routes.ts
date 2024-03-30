@@ -1,10 +1,11 @@
-import { RouteMap } from "@/types/routes";
-import { Router } from "express";
-import * as controller from "./files.controller";
-import { supaUpload } from "@/lib/config/multer";
-import { setRouter } from "@/lib/utils/utils";
+import { RouteMap } from '@/types/routes';
+import { Router } from 'express';
+import * as controller from './files.controller';
+import { supaUpload } from '@/lib/config/multer';
+import { setRouter } from '@/lib/utils/utils';
+import * as multer from './multer.controller'
 
-const router = Router()
+const router = Router();
 // router.post('/upload', upload.single('file'), controller.handleFileUpload);
 
 const getRoutes = (): RouteMap[] => {
@@ -30,6 +31,21 @@ const getRoutes = (): RouteMap[] => {
       path: '/file/:filename',
       method: 'delete',
       handler: controller.deleteFile,
+    },
+    {
+      path: '/multer/upload',
+      method: 'post',
+      handler: multer.uploadFile,
+    },
+    {
+      path: '/multer/download/:folder/:fileName',
+      method: 'get',
+      handler: multer.downloadFile,
+    },
+    {
+      path: '/multer',
+      method: 'get',
+      handler: multer.listFiles,
     },
   ];
 };

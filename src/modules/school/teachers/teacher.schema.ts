@@ -34,14 +34,11 @@ export const teacherSchema = Joi.object({
   appointment: appointmentSchema.required(),
 });
 
-
 export const fetchTeacherParamsSchema = Joi.object({
   cnic: Joi.string()
     .required()
     .regex(/^\d{5}-\d{7}-\d{1}$/),
 });
-
-
 
 export const updateTeacherBodySchema = Joi.object({
   firstName: Joi.string().optional(),
@@ -57,5 +54,3 @@ export const updateTeacherParamsSchema = Joi.object({
     .required()
     .regex(/^\d{5}-\d{7}-\d{1}$/),
 });
-
- 

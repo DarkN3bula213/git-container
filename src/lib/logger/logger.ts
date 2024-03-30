@@ -161,8 +161,6 @@ export class Logger {
       Logger.logger.log({
         level,
         message: formattedMessage,
-
-
       });
     }
   }

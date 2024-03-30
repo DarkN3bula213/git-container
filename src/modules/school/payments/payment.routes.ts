@@ -62,6 +62,5 @@ const getRouteMap = (): RouteMap[] => {
   ];
 };
 
-
 setRouter(router, getRouteMap());
 export default router;

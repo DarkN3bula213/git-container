@@ -94,7 +94,6 @@ export async function reIssueAccessToken({
 
   // Check for validity of the refresh token
   if (!valid) {
-
     return false;
   }
 
@@ -123,5 +122,4 @@ export async function reIssueAccessToken({
     }
     return accessToken;
   }
- 
 }

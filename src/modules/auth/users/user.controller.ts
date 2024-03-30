@@ -128,7 +128,6 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
     username: user.username,
     email: user.email,
     phone: user.phone,
-
   };
   return new SuccessResponse('Logged in user', response).send(res);
 });

@@ -6,7 +6,6 @@ import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { User } from '@/modules/auth/users/user.model';
 import { getPayId } from './payment.utils';
 
-
 /*---1. CREATE PAYMENT ------------------------------------------------------------------- */
 
 export const createPayment = asyncHandler(async (req, res) => {
@@ -39,7 +38,6 @@ export const createPayment = asyncHandler(async (req, res) => {
   );
 });
 
-
 /*---2. GET ALL PAYMENTS----------------------------------------------------------------- */
 export const getPayments = asyncHandler(async (req, res) => {
   await payments.find({}, (err: { message: any }, data: any) => {
@@ -54,7 +52,6 @@ export const getPayments = asyncHandler(async (req, res) => {
   });
 });
 
-
 /*-3. GET PAYMENT BY ID----------------------------------------------------------------- */
 export const getPaymentById = asyncHandler(async (req, res) => {
   await payments.findById(req.params.id, (err: { message: any }, data: any) => {
@@ -68,10 +65,9 @@ export const getPaymentById = asyncHandler(async (req, res) => {
   });
 });
 
-
 /*-4. UPDATE PAYMENT BY ID----------------------------------------------------------------- */
 export const updatePayment = asyncHandler(async (req, res) => {
-const { studentId, amount } = req.body;
+  const { studentId, amount } = req.body;
   await payments.findByIdAndUpdate(
     req.params.id,
     {
@@ -156,7 +152,6 @@ export const getPaymentByPayId = asyncHandler(async (req, res) => {
   );
 });
 
-
 /*---8. DELETE PAYMENT BY ID---------------------------------------------------------------- */
 export const deletPayment = asyncHandler(async (req, res) => {
   await payments.findByIdAndDelete(
@@ -173,8 +168,6 @@ export const deletPayment = asyncHandler(async (req, res) => {
   );
 });
 
-
-
 /*--9. RESET CO----------------------------------------------------------------- */
 export const resetCollection = asyncHandler(async (req, res) => {
   const payment = await payments.deleteMany({});
@@ -182,4 +175,4 @@ export const resetCollection = asyncHandler(async (req, res) => {
     success: true,
     data: payment,
   });
-})
+});

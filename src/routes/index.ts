@@ -1,4 +1,4 @@
-import { Router} from 'express';
+import { Router } from 'express';
 import users from '../modules/auth/users/user.routes';
 import schoolRoutes from '@/modules/school/school.routes';
 import { health } from './health';

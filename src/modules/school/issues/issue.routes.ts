@@ -8,7 +8,6 @@ import { setRouter } from '@/lib/utils/utils';
 import { Router } from 'express';
 import { authentication } from '@/middleware/authMiddleware';
 
-
 const getRoutesMap = (): RouteMap[] => {
   return [
     {

@@ -16,6 +16,7 @@ services:
       - PORT=3000
     volumes:
       - ./logs:/usr/src/app/logs
+      - file_storage:/usr/src/app/uploads
     depends_on:
 
       - mongo
@@ -61,4 +62,5 @@ networks:
   app-network:
 
 volumes:
+  file_storage:
   dbdata:
