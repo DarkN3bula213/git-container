@@ -24,7 +24,7 @@ app.use(
     origin: 'https://hps-admin.com',
     credentials: true,
     optionsSuccessStatus: 204,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'], // Adjusted to an array of strings
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'], 
     allowedHeaders: [
       'Content-Type',
       'x-api-key',
@@ -42,8 +42,7 @@ app.use(json(config.json));
 app.use(sanitize());
 app.use(urlencoded(config.urlEncoded));
 app.use(loginLimiter);
-app.use(he
-  lmet());
+app.use(helmet());
 app.use(compression());
 handleUploads(app)
 app.use('/', rootRouter);
