@@ -3,7 +3,7 @@ import { Router } from 'express';
 import * as controller from './files.controller';
 import { supaUpload } from '@/lib/config/multer';
 import { setRouter } from '@/lib/utils/utils';
-import * as multer from './multer.controller'
+import * as multer from './multer.controller';
 
 const router = Router();
 // router.post('/upload', upload.single('file'), controller.handleFileUpload);

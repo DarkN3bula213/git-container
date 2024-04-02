@@ -15,38 +15,47 @@ import sanitize from 'express-mongo-sanitize';
 import { loginLimiter, options } from './lib/config/rate-limit';
 import { monitor } from './modules/analytics/analytics';
 import { handleUploads } from './lib/config/multer';
+import hpp from 'hpp'
+ 
+ 
 /*---------------------------------------------------------*/
+
+process.on('uncaughtException', (e) => {
+  logger.error(e);
+});
 const logger = new Logger(__filename);
 const app: Application = express();
 monitor(app);
-// app.use(
-//   cors({
-//     origin: 'https://hps-admin.com',
-//     credentials: true,
-//     optionsSuccessStatus: 204,
-//     methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
-//     allowedHeaders: [
-//       'Content-Type',
-//       'x-api-key',
-//       'Authorization',
-//       'x-access-token',
-//     ],
-//     exposedHeaders: ['Set-Cookie'],
-//   }),
-// );
+app.use(
+  cors({
+    origin: 'https://hps-admin.com',
+    credentials: true,
+    optionsSuccessStatus: 204,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'], 
+    allowedHeaders: [
+      'Content-Type',
+      'x-api-key',
+      'Authorization',
+      'x-access-token',
+    ],
+    exposedHeaders: ['Set-Cookie'],
+  }),
+);
 app.use(cookieParser());
 app.use(RequestLogger);
-app.use(apiKey);
 app.use(morgan);
+app.use(hpp());
+app.use(static_(process.cwd() + '/uploads'));
+app.use(apiKey);
+app.use(urlencoded(config.urlEncoded));
 app.use(json(config.json));
 app.use(sanitize());
-app.use(urlencoded(config.urlEncoded));
 app.use(loginLimiter);
 app.use(helmet());
 app.use(compression());
 handleUploads(app)
 app.use('/', rootRouter);
-app.use('/api', router);
+app.use('/api', router); 
 app.all('*', (req, res, next) => next(new NotFoundError()));
 app.use(errorHandler);
 

@@ -1,14 +1,21 @@
-import mongoose, { Document, Schema, Types, model } from 'mongoose';
+import mongoose, {
+  model,
+  Model,
+  Document,
+  Schema,
+  InferSchemaType,
+  Types,
+} from 'mongoose';
 
 export interface Expense extends Document {
   amount: number;
   description: string;
-  createdBy: Types.ObjectId;
-  date: Date;
-  vendor: string | string[];
+  date: Date | null;
+  vendor?: string | string[];
   expenseType: ExpenseType;
-  receipt: string;
-  approvedBy: string;
+  receipt?: string;
+  approvedBy?: string;
+  document?: string;
 }
 
 enum ExpenseType {
@@ -27,43 +34,19 @@ enum ExpenseType {
   PROCUREMENT = 'Procurement',
 }
 
-const schema = new Schema<Expense>(
-  {
-    amount: {
-      type: Number,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    date: {
-      type: Date,
-      default: Date.now,
-    },
-    vendor: {
-      type: [String],
-    },
-    expenseType: {
-      type: String,
-      enum: Object.values(ExpenseType),
-      required: true,
-    },
-    receipt: {
-      type: String,
-    },
-    approvedBy: {
-      type: String,
-    },
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
+const expenseSchema = new Schema<Expense>({
+  amount: { type: Number, required: true },
+  description: { type: String, required: true },
+  date: { type: Date, required: true },
+  vendor: { type: [String] },
+  expenseType: {
+    type: String,
 
-export default model<Expense>('Expense', schema, 'expenses');
+    required: true,
+  },
+  receipt: { type: String },
+  approvedBy: { type: String },
+  document: { type: String },
+});
+
+export const Expenses = model<Expense>('Expense', expenseSchema);

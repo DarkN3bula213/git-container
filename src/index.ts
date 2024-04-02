@@ -14,31 +14,30 @@ import fs from 'fs-extra';
 import path from 'path';
 
 const createDirectories = async () => {
-  const uploadsDir = path.resolve(__dirname, 'uploads');
-  const documentsPath = path.join(uploadsDir, 'documents');
-  const imagesPath = path.join(uploadsDir, 'images');
-
+  const uploadsDir = path.join(__dirname, 'uploads');
+  const imagesDir = path.join(__dirname, '..', 'uploads/images');
+  const documentsDir = path.join(__dirname, '..', 'uploads/documents');
   // fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
-  await fs.ensureDir(documentsPath);
-  await fs.ensureDir(imagesPath);
+  await fs.ensureDir(uploadsDir);
+  await fs.ensureDir(imagesDir);
+  await fs.ensureDir(documentsDir);
 
-logger.info('Ensured that upload directories exist.');
+  logger.info('Ensured that upload directories exist.');
 };
 
 // Call this function at the start of your application, before starting your server
 createDirectories().then(() => {
-
-startServer();
-
+  startServer();
 });
 
 const startServer = async () => {
   try {
     await db.connect().then(() => {
       server.listen(PORT, () => {
-        logger.info(
-          `Server instance instantiated and listening on port ${PORT}.`,
-        );
+        logger.info({
+          server: `Server instance instantiated and listening on port ${PORT}.`,
+          node: process.env.NODE_ENV,
+        });
       });
     });
   } catch (error: any) {

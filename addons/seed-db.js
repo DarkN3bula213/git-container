@@ -42,6 +42,18 @@ if (db.api_keys.countDocuments() === 0) {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+    {
+      code: 'AUX',
+      status: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      code: 'READONLY',
+      status: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
   ]);
     }
    

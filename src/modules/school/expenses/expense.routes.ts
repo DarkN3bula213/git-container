@@ -1,38 +1,65 @@
 import { Router } from 'express';
 import * as controller from './expense.controller';
+
+import schema from './expense.schema';
+import { validate } from '@/lib/handlers/validate';
 import { RouteMap } from '@/types/routes';
 import { setRouter } from '@/lib/utils/utils';
+
 const router = Router();
 
-const getRouteMap = (): RouteMap[] => {
+function getRouteMap(): RouteMap[] {
   return [
-    {
-      path: '/',
-      method: 'post',
-      handler: controller.createExpense,
-    },
     {
       path: '/',
       method: 'get',
       handler: controller.getExpenses,
     },
     {
-      path: '/id/:id',
+      path: '/:id',
       method: 'get',
-      handler: controller.getExpense,
+      handler: controller.getExpenseById,
     },
     {
-      path: '/id/:id',
+      path: '/type/:type',
+      method: 'get',
+      handler: controller.getExpensesByType,
+    },
+    {
+      path: '/date/:date',
+      method: 'get',
+      handler: controller.getExpensesByDate,
+    },
+    {
+      path: '/',
+      method: 'post',
+      // validations: [validate(schema.createExpense)],
+      handler: controller.createExpense,
+    },
+    {
+      path: '/insertMany',
+      method: 'post',
+      validations: [validate(schema.insertMUltipleExpenses)],
+      handler: controller.insertMUltipleExpenses,
+    },
+    {
+      path: '/:id',
       method: 'put',
+      validations: [validate(schema.updateExpense)],
       handler: controller.updateExpense,
     },
     {
-      path: '/id/:id',
+      path: '/:id',
       method: 'delete',
       handler: controller.deleteExpense,
     },
+    {
+      path: '/reset',
+      method: 'delete',
+      handler: controller.resetCollection,
+    },
   ];
-};
+}
 
 setRouter(router, getRouteMap());
 

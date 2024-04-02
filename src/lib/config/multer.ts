@@ -8,12 +8,9 @@ export const supaUpload = multer({
   limits: { fileSize: 1024 * 1024 * 5 }, // Limit to 5MB
 });
 
-
-import   { StorageEngine, diskStorage } from 'multer';
+import { StorageEngine, diskStorage } from 'multer';
 import path from 'path';
 import fs from 'fs';
-
-
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -28,13 +25,10 @@ export const upload = multer({ storage: storage });
 
 import { Application, static as static_ } from 'express';
 import { uploadsDir } from '../constants';
- 
 
 export const handleUploads = (app: Application) => {
   app.use(static_(process.cwd() + '/uploads'));
 };
-
- 
 
 export const multi_upload = multer({
   storage,
@@ -81,7 +75,7 @@ export const singles: StorageEngine = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     // Extract the suffix from the request, e.g., "invoice", "bill", "memo"
-    const suffix = req.body.suffix || 'default'; // Fallback suffix
+    const suffix = req.body.suffix || '-'; // Fallback suffix
     const dateSuffix = new Date()
       .toLocaleDateString('en-GB')
       .replace(/\//g, '-');
@@ -101,5 +95,3 @@ export const fieldsUpload = multer({ storage: singles }).fields([
   { name: 'document', maxCount: 1 },
   { name: 'image', maxCount: 1 },
 ]);
-
-

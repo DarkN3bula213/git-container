@@ -1,20 +1,23 @@
 import { Logger } from '@/lib/logger';
-const logger = new Logger(__filename);
 import rateLimit from 'express-rate-limit';
 
+
+
+const logger = new Logger(__filename);
+
 export const options = {
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true, 
+  legacyHeaders: false,  
   message: 'Too many requests from this IP, please try again after 15 minutes',
 
   headers: true,
 };
 
 export const loginLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 25, // Limit each IP to 5 login requests per `window` per minute
+  windowMs: 60 * 1000,  
+  max: 25,  
   message: {
     message:
       'Too many login attempts from this IP, please try again after a 60 second pause',
@@ -27,6 +30,6 @@ export const loginLimiter = rateLimit({
     });
     res.status(options.statusCode).send(options.message);
   },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
 });
