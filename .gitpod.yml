@@ -16,10 +16,10 @@ tasks:
       command: echo pnpm serve
 
 # Ports to expose on workspace startup
-ports:
-    - port: 4000
-      onOpen: open-preview
-      name: Website
-      description: Website Preview
-      visibility: private
-      protocol: https
+# ports:
+#     - port: 4000
+#       onOpen: open-preview
+#       name: Website
+#       description: Website Preview
+#       visibility: private
+#       protocol: https

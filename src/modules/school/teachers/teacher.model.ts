@@ -1,80 +1,95 @@
-import mongoose, { model, Model, Document, Schema } from 'mongoose';
+import mongoose, {   Document, Schema } from 'mongoose';
 
-/**
- *  {
-        "first_name": "Tehmina",
-        "last_name": "Butt",
-        "gender": "Female",
-        "father_name": "Abdul Wahid",
-        "address": "Khokhar Town Sialkot",
-        "cnic": "34603-5728906-2",
-        "phone": "0335-8722041",
-        "dob": "3/10/1983",
-        "qualification": "M.A Islamiyat",
-        "completion": "2009",
-        "score": "603",
-        "institution": "Punjab Uni",
-        "designation": "Principal",
-        "appointment": "12/10/2004",
-        "appointing_authority": "Madem Malika Saeeda",
-        "salary": "33500"
-    }
- */
-interface Qualification {
-  degree: string;
-  year: string;
-  institution: string;
-  marks?: string;
-}
+import { Logger } from '@/lib/logger';
+const logger = new Logger(__filename);
 
-interface Appointment {
-  designation: string;
-  date: Date;
-  appointed_by: string;
-  salary: number;
-}
-
-// TypeScript interface for Teacher
 interface Teacher extends Document {
   first_name: string;
   last_name: string;
   gender: string;
-  father_name: string;
+  fathers_name: string;
   address: string;
   cnic: string;
   phone: string;
   dob: Date;
-  qualification: Qualification[];
-  appointment: Appointment;
+  qualification: string;
+  yearOfGraduation: string;
+  marksObtained: string;
+  boardOrUniversity: string;
+  designation: string;
+  joining_date: Date;
+  appointed_by: string;
+  package: string;
 }
 
 // Mongoose Schema for the Teacher model
-const teacherSchema = new Schema<Teacher>({
-  first_name: { type: String, required: true },
-  last_name: { type: String, required: true },
-  gender: { type: String, required: true },
-  father_name: { type: String, required: true },
-  address: { type: String, required: true },
-  cnic: { type: String, required: false, unique: true },
-  phone: { type: String, required: true },
-  dob: { type: Date, required: true },
-  qualification: [
-    {
-      degree: { type: String, required: true },
-      year: { type: String, required: true },
-      institution: { type: String, required: true },
-      marks: String,
-    },
-  ],
-  appointment: {
-    designation: { type: String, required: true },
-    date: { type: Date, required: true },
-    appointed_by: { type: String, required: true },
-    salary: { type: Number, required: true },
+
+const schema = new Schema<Teacher>({
+  first_name: {
+    type: String,
+    required: true,
+  },
+  last_name: {
+    type: String,
+    required: true,
+  },
+  gender: {
+    type: String,
+    required: true,
+    enum: ['male', 'female'],
+  },
+  fathers_name: {
+    type: String,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+  cnic: {
+    type: String,
+    unique: true,
+  },
+  phone: {
+    type: String,
+  },
+  dob: {
+    type: Date,
+    required: true,
+  },
+  qualification: {
+    type: String,
+    required: true,
+  },
+  yearOfGraduation: {
+    type: String,
+    required: true,
+  },
+  marksObtained: {
+    type: String,
+  },
+  boardOrUniversity: {
+    type: String,
+    required: true,
+  },
+  designation: {
+    type: String,
+    required: true,
+  },
+  joining_date: {
+    type: Date,
+    required: true,
+  },
+  appointed_by: {
+    type: String,
+    required: true,
+  },
+  package: {
+    type: String,
+    required: true,
   },
 });
 
-// Creating the Mongoose model
-const TeacherModel = mongoose.model<Teacher>('Teacher', teacherSchema);
+const TeacherModel = mongoose.model<Teacher>('Teacher', schema);
 
 export default TeacherModel;
