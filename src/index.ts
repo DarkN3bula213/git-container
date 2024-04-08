@@ -14,6 +14,7 @@ new SocketService(server);
 const PORT = config.app.port;
 import fs from 'fs-extra';
 import path from 'path';
+import { cache } from './data/cache/cache.service';
  
 
 const createDirectories = async () => {
@@ -49,6 +50,7 @@ createDirectories().then(() => {
 const startServer = async () => {
  
   try {
+    await cache.connect();
     await db.connect().then(() => {
       server.listen(PORT, () => {
         logger.info({

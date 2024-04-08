@@ -9,7 +9,7 @@ class CacheClientService {
 
   constructor(private readonly options?: RedisClientOptions) {
     this.client = createClient({
-      url: config.redis.uri,
+      url: process.env.REDIS_URL || 'redis://localhost:6379',
     }); // Create client with merged options
     this.setupEventListeners();
   }
