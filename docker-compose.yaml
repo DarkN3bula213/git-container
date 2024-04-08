@@ -125,9 +125,17 @@ services:
     networks:
       - app-network
 
+  redis:
+    image: redis:alpine
+    command: redis-server
+    volumes:
+      - cache:/data/cache
+    networks:
+      - app-network
 networks:
   app-network:
 
 volumes:
   dbdata:
+  cache:
   uploads_volume:  # Define the named volume for uploads

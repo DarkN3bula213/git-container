@@ -5,9 +5,11 @@ import { config } from '@/lib/config';
 // import './data/cache';
 import { db } from './data/database';
 import { signals } from './lib/constants';
+import SocketService from './sockets';
 
 const logger = new Logger(__filename);
 const server = http.createServer(app);
+new SocketService(server);
 
 const PORT = config.app.port;
 import fs from 'fs-extra';
