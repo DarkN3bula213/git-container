@@ -14,17 +14,31 @@ new SocketService(server);
 const PORT = config.app.port;
 import fs from 'fs-extra';
 import path from 'path';
+import { cache } from './data/cache/cache.service';
 
 const createDirectories = async () => {
-  const uploadsDir = path.join(__dirname, 'uploads');
-  const imagesDir = path.join(__dirname, '..', 'uploads/images');
-  const documentsDir = path.join(__dirname, '..', 'uploads/documents');
-  // fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
-  await fs.ensureDir(uploadsDir);
-  await fs.ensureDir(imagesDir);
-  await fs.ensureDir(documentsDir);
+  try {
+    const uploadsDir = path.join(__dirname, 'uploads');
+    const imagesDir = path.join(__dirname, '..', 'uploads/images');
+    const documentsDir = path.join(__dirname, '..', 'uploads/documents');
+    // fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
+    await fs.ensureDir(uploadsDir);
+    await fs.ensureDir(imagesDir);
+    await fs.ensureDir(documentsDir);
 
-  logger.info('Ensured that upload directories exist.');
+    logger.info('Ensured that upload directories exist.');
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      // Type-guard check
+      logger.error(
+        `Error occurred while trying to start server: ${error.message}`,
+      );
+    } else {
+      logger.error(
+        `An unexpected error occurred while trying to start the server.`,
+      );
+    }
+  }
 };
 
 // Call this function at the start of your application, before starting your server
@@ -33,6 +47,7 @@ createDirectories().then(() => {
 });
 
 const startServer = async () => {
+  await cache.connect();
   try {
     await db.connect().then(() => {
       server.listen(PORT, () => {

@@ -28,6 +28,7 @@ process.on('uncaughtException', (e) => {
 });
 const logger = new Logger(__filename);
 const app: Application = express();
+app.set('trust proxy', 1);
 monitor(app);
 app.use(
   cors({

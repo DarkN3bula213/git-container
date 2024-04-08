@@ -14,22 +14,36 @@ class SocketService {
 
   constructor(httpServer: HttpServer) {
     this.io = new SocketIOServer(httpServer, {
-      cors: corsOptions,
+      cors: {
+        origin: 'https://hps-admin.com',
+        credentials: true,
+        preflightContinue: true,
+        optionsSuccessStatus: 204,
+        methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
+        allowedHeaders: [
+          'Content-Type',
+          'x-api-key',
+          'Authorization',
+          'x-access-token',
+        ],
+        exposedHeaders: ['Set-Cookie'],
+      },
     });
     this.registerEvents();
   }
 
   private registerEvents(): void {
     this.io.on('connection', (socket: Socket) => {
+      logger.info({
+        event:'Socket connection attempt',
+      })
       try {
         const cookies = cookie.parse(socket.handshake.headers.cookie || '');
 
         const authToken = cookies['access'];
 
         if (!authToken) {
-          logger.warn(
-            'No auth token provided in cookies, disconnecting socket.',
-          );
+          
           socket.disconnect();
           return;
         }
