@@ -88,6 +88,7 @@ services:
       - ./logs:/usr/src/app/logs
       - uploads_volume:/usr/src/app/uploads  # Use a named volume for uploads
     depends_on:
+      - redis
       - mongo
     restart: unless-stopped
     networks:
@@ -100,6 +101,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: devuser
       MONGO_INITDB_ROOT_PASSWORD: devpassword
       MONGO_INITDB_DATABASE: docker-db
+    
     ports:
       - '27017:27017'
     volumes:
@@ -127,7 +129,8 @@ services:
 
   redis:
     image: redis:alpine
-    container_name: redis_container
+    container_name: redis
+    command: redis-server --loglevel warning
     ports:
       - '6379:6379'
     volumes:
