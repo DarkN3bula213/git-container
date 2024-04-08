@@ -47,6 +47,16 @@ const getRoutes = (): RouteMap[] => {
       method: 'get',
       handler: multer.listFiles,
     },
+    {
+      path: '/multer/:folder/:fileName',
+      method: 'delete',
+      handler: multer.deleteFile,
+    },
+    {
+      path: '/multer/docs',
+      method: 'post',
+      handler: multer.uploadDocument,
+    },
   ];
 };
 

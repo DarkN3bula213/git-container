@@ -4,7 +4,6 @@ import { Logger } from '@/lib/logger';
 import { normalizeRoles } from '@/lib/utils/utils';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 import { User } from '@/modules/auth/users/user.model';
- 
 
 const logger = new Logger(__filename);
 
@@ -33,6 +32,5 @@ export function authorize(requiredRole: Roles) {
     } else {
       return next();
     }
- 
   });
 }
