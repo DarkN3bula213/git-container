@@ -128,6 +128,8 @@ services:
   redis:
     image: redis:alpine
     command: redis-server
+    ports:
+      - '6379:6379'
     volumes:
       - cache:/data/cache
     networks:
