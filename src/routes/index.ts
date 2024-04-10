@@ -5,6 +5,7 @@ import { health } from './health';
 import { authentication } from '@/middleware/authMiddleware';
 import files from '@/modules/files/file.routes';
 import NotifcationRoutes from '@/modules/notifications/notification.routes';
+import socketRoues from '@/routes/socketRoutes';
 
 /* -----------------------------------------------------------------------------------*/
 const router = Router();
@@ -24,6 +25,8 @@ router.use('/files', files);
 router.use('/school', schoolRoutes);
 /* -----------------------------------------------------------------------------------*/
 router.use('/notifications', NotifcationRoutes);
+/* -----------------------------------------------------------------------------------*/
+router.use('/sessions', socketRoues);
 /* -----------------------------------------------------------------------------------*/
 
 export default router;

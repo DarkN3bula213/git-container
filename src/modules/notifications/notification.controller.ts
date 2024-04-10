@@ -3,11 +3,15 @@ import asyncHandler from '@/lib/handlers/asyncHandler';
 import { NotificationModel } from './notification.model';
 import { User } from '../auth/users/user.model';
 import { NotFoundError } from '@/lib/api';
+import { cache } from '@/data/cache/cache.service';
 
 export const getNotifications = asyncHandler(async (req, res) => {
+  const key = 'notifications';
   const user = req.user as User;
   const userId = user._id;
-  const notifications = await NotificationModel.find().lean();
+  const notifications = await cache.get(key, async () => {
+    return await NotificationModel.find();
+  });
   const notificationsWithSeen = notifications.map((notification) => ({
     ...notification,
     seen: notification.seenBy.includes(userId.toString()),
