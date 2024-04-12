@@ -19,3 +19,4 @@ const UploadSchema: Schema = new Schema({
 const Files = mongoose.model<UploadDocument>('Files', UploadSchema);
 
 export default Files;
+ 
