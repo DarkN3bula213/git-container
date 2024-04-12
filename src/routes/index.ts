@@ -5,7 +5,7 @@ import { health } from './health';
 import { authentication } from '@/middleware/authMiddleware';
 import files from '@/modules/files/file.routes';
 import NotifcationRoutes from '@/modules/notifications/notification.routes';
-import socketRoues from '@/routes/socketRoutes';
+import socketRoues from '@/sockets/session.routes';
 
 /* -----------------------------------------------------------------------------------*/
 const router = Router();
