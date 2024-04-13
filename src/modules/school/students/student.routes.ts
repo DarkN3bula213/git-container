@@ -1,11 +1,8 @@
-import { Router } from 'express';
-
 import * as controller from './student.controller';
-
 import * as schema from './student.schema';
-
 import { validate } from '@/lib/handlers/validate';
 import { Route } from '@/types/routes';
+import { Router } from 'express';
 import { applyRoutes } from '@/lib/utils/utils';
 
 const router = Router();
@@ -16,6 +13,11 @@ function getRouteMap(): Route[] {
       path: '/',
       method: 'get',
       handler: controller.getStudents,
+    },
+    {
+      path: '/class/:classId',
+      method: 'get',
+      handler: controller.getStudentByClass,
     },
     {
       path: '/',

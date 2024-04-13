@@ -35,15 +35,14 @@ class SocketService {
   private registerEvents(): void {
     this.io.on('connection', (socket: Socket) => {
       logger.info({
-        event:'Socket connection attempt',
-      })
+        event: 'Socket connection attempt',
+      });
       try {
         const cookies = cookie.parse(socket.handshake.headers.cookie || '');
 
         const authToken = cookies['access'];
 
         if (!authToken) {
-          
           socket.disconnect();
           return;
         }

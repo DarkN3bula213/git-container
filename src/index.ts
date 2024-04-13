@@ -15,7 +15,6 @@ const PORT = config.app.port;
 import fs from 'fs-extra';
 import path from 'path';
 import { cache } from './data/cache/cache.service';
- 
 
 const createDirectories = async () => {
   try {
@@ -48,7 +47,6 @@ createDirectories().then(() => {
 });
 
 const startServer = async () => {
- 
   try {
     await cache.connect();
     await db.connect().then(() => {
