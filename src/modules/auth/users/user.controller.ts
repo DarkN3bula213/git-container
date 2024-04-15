@@ -170,9 +170,7 @@ export const login = asyncHandler(async (req, res) => {
     },
   };
 
-   logger.debug({
-    thePayloadMotherFucker:`${JSON.stringify(payload)}`
-   })
+ 
   const access = signToken(payload, 'access', {
     expiresIn: '120m',
   });
