@@ -20,8 +20,8 @@ import { loginLimiter, options } from './lib/config/rate-limit';
 import { monitor } from './modules/analytics/analytics';
 import { handleUploads } from './lib/config/multer';
 import hpp from 'hpp';
-import { handleSession } from './lib/handlers/sessionHandler';
-
+import { handleSession,sessionOptions } from './lib/handlers/sessionHandler';
+import session from 'express-session';
 /*---------------------------------------------------------*/
 
 process.on('uncaughtException', (e) => {
@@ -51,13 +51,14 @@ app.use(RequestLogger);
 app.use(morgan);
 app.use(hpp());
 handleUploads(app);
-handleSession(app);
+ 
 app.use(apiKey);
 app.use(urlencoded(config.urlEncoded));
 app.use(json(config.json));
 app.use(sanitize());
 app.use(loginLimiter);
 app.use(helmet());
+app.use(session(sessionOptions));
 app.use(compression());
 app.use('/api', router);
 app.all('*', (req, res, next) => next(new NotFoundError()));

@@ -152,14 +152,12 @@ export const login = asyncHandler(async (req, res) => {
     throw new BadRequestError('Invalid credentials');
   }
   if (user) {
+    
     const sessionData = {
       user: { id: user.id, username: user.username, isPremium: user.isPrime },
     };
-    await cache.saveSession(req.sessionID, sessionData);
-    logger.debug({
-      message: 'User logged in',
-      user: user.toObject(),
-    });
+   const save = await cache.saveSession(req.sessionID, sessionData);
+    
   } else {
     logger.error('User not found');
   }
@@ -171,6 +169,10 @@ export const login = asyncHandler(async (req, res) => {
       isPremium: verified.isPrime || false,
     },
   };
+
+   logger.debug({
+    thePayloadMotherFucker:`${JSON.stringify(payload)}`
+   })
   const access = signToken(payload, 'access', {
     expiresIn: '120m',
   });
