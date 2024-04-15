@@ -6,6 +6,7 @@ export interface Reply {
   message: string;
   createdAt: Date;
   isFresh: boolean;
+  seenBy?: Types.ObjectId[];
 }
 
 export interface Issue extends Document {
@@ -15,6 +16,7 @@ export interface Issue extends Document {
   replies: Reply[];
   author: Types.ObjectId;
   addressedTo?: Types.ObjectId; // Optional, to specify if a message is targeted
+  seenBy?: Types.ObjectId[];
 }
 
 const replySchema = new Schema<Reply>({

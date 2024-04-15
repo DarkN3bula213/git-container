@@ -1,16 +1,34 @@
-import { createClient, RedisClientOptions, RedisClientType } from 'redis';
+// cache.service.ts
 import { Logger } from '@/lib/logger';
-import { config } from '@/lib/config';
 
 const logger = new Logger(__filename);
+
+export interface CacheService {
+  set(key: string, value: any): Promise<void>;
+  get(key: string): Promise<any>;
+  del(key: string): Promise<void>;
+}
+// cache.service.ts
+interface SessionUser {
+  id: string;
+  username: string;
+  isPremium: boolean;
+}
+
+// Define an interface for the session data structure
+interface SessionData {
+  user: SessionUser;
+}
+
+import { createClient, RedisClientType, RedisClientOptions } from 'redis';
 
 class CacheClientService {
   private client: RedisClientType;
 
   constructor(private readonly options?: RedisClientOptions) {
     this.client = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
-    }); // Create client with merged options
+      url: process.env.REDIS_URL,
+    }); // Create client with provided options
     this.setupEventListeners();
   }
 
@@ -19,15 +37,15 @@ class CacheClientService {
     this.client.on('ready', () => logger.info('Cache is ready'));
     this.client.on('end', () => logger.info('Cache disconnected'));
     this.client.on('reconnecting', () => logger.info('Cache is reconnecting'));
-    this.client.on('error', (e) => logger.error('Cache error:', e));
+    this.client.on('error', (e) => logger.error(e));
   }
 
-  async connect(): Promise<void> {
-    await this.client.connect();
+  connect(): void {
+    this.client.connect();
   }
 
-  async disconnect(): Promise<void> {
-    await this.client.disconnect();
+  disconnect(): void {
+    this.client.disconnect();
   }
 
   getClient(): RedisClientType {
@@ -35,21 +53,34 @@ class CacheClientService {
   }
 
   async get<T>(key: string, fetchFunction: () => Promise<T>): Promise<T> {
-    try {
-      const cachedData = await this.client.get(key);
-      if (cachedData) {
-        logger.debug('Data fetched from cache');
-        return JSON.parse(cachedData);
-      }
-
-      logger.debug('Data not in cache - fetching from source');
-      const freshData = await fetchFunction();
-      await this.client.pSetEx(key, 60000, JSON.stringify(freshData)); // Cache with expiration (60 seconds)
-      return freshData;
-    } catch (error) {
-      logger.error('Error in CacheClientService:', error);
-      throw error; // Re-throw to allow for error handling where used
+    const cachedData = await this.client.get(key);
+    if (cachedData) {
+      logger.debug('Data fetched from cache');
+      return JSON.parse(cachedData);
     }
+
+    logger.debug('Data not in cache - fetching from source');
+    const freshData = await fetchFunction();
+    await this.client.setEx(key, 60000, JSON.stringify(freshData)); // Assuming 60 seconds expiration for demonstration
+    return freshData;
+  }
+
+  // Session management methods
+  async saveSession(
+    sessionId: string,
+    sessionData: object,
+    ttl: number = 86400,
+  ): Promise<void> {
+    await this.client.setEx(sessionId, ttl, JSON.stringify(sessionData));
+  }
+
+  async getSession(sessionId: string): Promise<SessionData | null> {
+    const session = await this.client.get(sessionId);
+    return session ? JSON.parse(session) : null;
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    await this.client.del(sessionId);
   }
 }
 

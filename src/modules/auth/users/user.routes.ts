@@ -20,6 +20,12 @@ function getRouteMap(): RouteMap[] {
       handler: controller.getUsers,
     },
     {
+      path: '/check-session',
+      method: 'get',
+
+      handler: controller.checkSession,
+    },
+    {
       path: '/seed',
       method: 'post',
       validations: [validate(insertMany)],
@@ -49,7 +55,7 @@ function getRouteMap(): RouteMap[] {
       validations: [authentication],
     },
     {
-      path: '/:id',
+      path: '/id/:id',
       method: 'get',
       handler: controller.getUserById,
       validations: [authentication],

@@ -22,6 +22,12 @@ const getRoutesMap = (): RouteMap[] => {
       handler: controller.createIssue,
     },
     {
+      path: '/id/:id',
+      method: 'patch',
+
+      handler: controller.getIssueAndUpdateSeenBy,
+    },
+    {
       path: '/:id',
       method: 'get',
       handler: controller.getIssueById,

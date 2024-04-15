@@ -31,7 +31,6 @@ export const getStudentByClass = asyncHandler(async (req, res) => {
     return await Student.find({
       className: classId,
     })
-      .select('+name +classId +className +admission_date')
       .lean()
       .exec();
   });

@@ -11,6 +11,7 @@ const logger = new log(__filename);
 interface TokenPayload {
   user: User;
   session?: string;
+  isPrime?: boolean;
 }
 interface TokenVerificationResult {
   valid: boolean;
