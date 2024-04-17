@@ -38,6 +38,16 @@ function getRouteMap(): RouteMap[] {
       handler: controller.register,
     },
     {
+      path: '/aux',
+      method: 'post',
+      validations: [
+        authentication,
+        validate(schema.temporary),
+        authorize(Roles.ADMIN),
+      ],
+      handler: controller.createTempUser,
+    },
+    {
       path: '/login',
       method: 'post',
       validations: [validate(schema.login)],

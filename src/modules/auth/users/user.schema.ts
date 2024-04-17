@@ -16,6 +16,32 @@ export default {
     email: Joi.string().required(),
     password: Joi.string().required(),
   }),
+  temporary: Joi.object({
+    name: Joi.string().required().messages({
+      'string.base': 'Name must be a string',
+      'string.empty': 'Name cannot be empty',
+    }),
+    username: Joi.string().required().messages({
+      'string.base': 'Username must be a string',
+      'string.empty': 'Username cannot be empty',
+    }),
+    email: Joi.string().required().messages({
+      'string.base': 'Email must be a string',
+      'string.empty': 'Email cannot be empty',
+      'string.email': 'Email must be a valid email',
+    }),
+    isPremium: Joi.boolean().required().default(false).messages({
+      'boolean.base': 'IsPremium must be a boolean',
+      'boolean.empty': 'IsPremium cannot be empty',
+    }),
+    password: Joi.string().required(),
+    father_name: Joi.string().optional(),
+    gender: Joi.string().optional(),
+    cnic: Joi.string().optional(),
+    dob: Joi.date().optional(),
+    cnic_issued_date: Joi.date().optional(),
+    cnic_expiry_date: Joi.date().optional(),
+  }),
 };
 
 export const register = Joi.object({

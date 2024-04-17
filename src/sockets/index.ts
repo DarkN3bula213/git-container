@@ -11,6 +11,7 @@ import UserSessionModel from './session.model';
 
 class SocketService {
   private io: SocketIOServer;
+  private static instance: SocketService;
 
   constructor(httpServer: HttpServer) {
     this.io = new SocketIOServer(httpServer, {
@@ -30,6 +31,12 @@ class SocketService {
       },
     });
     this.registerEvents();
+  }
+  public static getInstance(httpServer?: HttpServer): SocketService {
+    if (!SocketService.instance && httpServer) {
+      SocketService.instance = new SocketService(httpServer);
+    }
+    return SocketService.instance;
   }
 
   private registerEvents(): void {
@@ -57,7 +64,10 @@ class SocketService {
             `User ${verificationResult.decoded?.user.name} connected`,
           );
         }
-
+        socket.on('joinPaymentRoom', (roomId) => {
+          logger.info(`User ${userID} joined payment room ${roomId}`);
+          socket.join(`paymentRoom-${roomId}`);
+        });
         const startTime = new Date();
         const userID = verificationResult.decoded?.user._id;
 
@@ -102,8 +112,30 @@ class SocketService {
       logger.error(`Error saving session for user ${userID}: ${error}`);
     }
   }
+  public notifyPaymentSuccess(jobId: string, result: any) {
+    try {
+      this.io.to(`paymentRoom-${jobId}`).emit('paymentSuccess', {
+        jobId,
+        message: 'Payment processed successfully',
+        data: result,
+      });
+    } catch (error: any) {
+      logger.error(error);
+    }
+  }
 
-  // Additional methods can be added here
+  // Call this method when a payment fails
+  public notifyPaymentFailure(jobId: string, error: any) {
+    try {
+      this.io.to(`paymentRoom-${jobId}`).emit('paymentFailure', {
+        jobId,
+        message: 'Payment processing failed',
+        error,
+      });
+    } catch (error: any) {
+      logger.error(error);
+    }
+  }
 }
 
 export default SocketService;

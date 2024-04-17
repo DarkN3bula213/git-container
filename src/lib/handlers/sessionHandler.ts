@@ -37,4 +37,4 @@ export const sessionOptions: session.SessionOptions = {
     domain: '.hps-admin.com',
     maxAge: convertToMilliseconds('2h'),
   },
-}; 
+};

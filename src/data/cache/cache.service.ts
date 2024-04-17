@@ -1,6 +1,6 @@
 // cache.service.ts
 import { Logger } from '@/lib/logger';
-import RedisStore from 'connect-redis'
+import RedisStore from 'connect-redis';
 const logger = new Logger(__filename);
 
 export interface CacheService {

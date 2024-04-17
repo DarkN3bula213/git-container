@@ -20,7 +20,7 @@ import { loginLimiter, options } from './lib/config/rate-limit';
 import { monitor } from './modules/analytics/analytics';
 import { handleUploads } from './lib/config/multer';
 import hpp from 'hpp';
-import { handleSession,sessionOptions } from './lib/handlers/sessionHandler';
+import { handleSession, sessionOptions } from './lib/handlers/sessionHandler';
 import session from 'express-session';
 /*---------------------------------------------------------*/
 
@@ -51,7 +51,7 @@ app.use(RequestLogger);
 app.use(morgan);
 app.use(hpp());
 handleUploads(app);
- 
+
 app.use(apiKey);
 app.use(urlencoded(config.urlEncoded));
 app.use(json(config.json));

@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import * as controller from './payment.controller';
 import { RouteMap } from '@/types/routes';
-import schema from './payment.schema';
-import { validate } from '@/lib/handlers/validate';
 import attachRoles from '@/middleware/attachRoles';
 import { Roles } from '@/lib/constants';
 import { authorize } from '@/middleware/authorize';
 import { setRouter } from '@/lib/utils/utils';
+import { invalidate } from '@/lib/handlers/cacha.handler';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 
 const router = Router();
 
@@ -15,7 +15,7 @@ const getRouteMap = (): RouteMap[] => {
     {
       path: '/',
       method: 'post',
-      validations: [validate(schema.createPayment)],
+      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
       handler: controller.createPayment,
     },
     {
@@ -34,30 +34,48 @@ const getRouteMap = (): RouteMap[] => {
       handler: controller.getPaymentsByStudentId,
     },
     {
-      path: '/class/:classId',
+      path: '/class/:className',
       method: 'get',
-      handler: controller.getPaymentsByClassId,
+      handler: controller.getStudentPaymentsByClass,
     },
     {
       path: '/payid/:payId',
       method: 'get',
-      handler: controller.getPaymentByPayId,
+      handler: controller.getMonthsPayments,
     },
     {
       path: '/id/:id',
       method: 'delete',
+      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
       handler: controller.deletePayment,
     },
     {
       path: '/id/:id',
       method: 'put',
+      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
       handler: controller.updatePayment,
     },
     {
       path: '/reset',
       method: 'delete',
-      validations: [attachRoles(Roles.ADMIN), authorize(Roles.ADMIN)],
+      validations: [
+        attachRoles(Roles.ADMIN),
+        authorize(Roles.ADMIN),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+      ],
       handler: controller.resetCollection,
+    },
+    {
+      path: '/queue',
+      method: 'post',
+      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      handler: controller.enqueuePaymentCreation,
+    },
+    {
+      path: '/queues',
+      method: 'post',
+      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      handler: controller.enqueueMultiplePayments,
     },
   ];
 };

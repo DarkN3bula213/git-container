@@ -9,7 +9,7 @@ import SocketService from './sockets';
 
 const logger = new Logger(__filename);
 const server = http.createServer(app);
-new SocketService(server);
+const socketService = SocketService.getInstance(server);
 
 const PORT = config.app.port;
 import fs from 'fs-extra';
@@ -48,7 +48,7 @@ createDirectories().then(() => {
 
 const startServer = async () => {
   try {
-    await cache.connect();
+    cache.connect();
     await db.connect().then(() => {
       server.listen(PORT, () => {
         logger.info({
@@ -67,6 +67,7 @@ const startServer = async () => {
 signals.forEach((signal) => {
   process.on(signal, async () => {
     logger.debug(`Received ${signal}. Shutting down gracefully...`);
+    cache.disconnect();
     server.close(() => {
       logger.debug('Server closed. Exiting process now.');
       process.exit(0);
@@ -75,3 +76,5 @@ signals.forEach((signal) => {
     await db.disconnect().then(() => logger.debug('Database disconnected'));
   });
 });
+
+export { socketService };

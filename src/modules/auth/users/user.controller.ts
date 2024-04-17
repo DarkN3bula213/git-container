@@ -12,6 +12,7 @@ import {
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger/logger';
+import { config } from '@/lib/config';
 
 const logger = new Logger(__filename);
 
@@ -100,6 +101,23 @@ export const insertMany = asyncHandler(async (req, res) => {
   });
 });
 
+/*<!-- 3. Create  ---------------------------( createMany )-> */
+export const createTempUser = asyncHandler(async (req, res) => {
+  const check = await UserModel.findUserByEmail(req.body.email);
+  if (check) {
+    throw new BadRequestError('User with this email already exists');
+  }
+
+  const user = await UserModel.createUser(req.body, Roles.AUX);
+  if (!user) {
+    throw new BadRequestError('Something went wrong');
+  }
+  const userObj = user.toObject();
+  delete userObj.password;
+
+  return new SuccessResponse('User created successfully', userObj).send(res);
+});
+
 /*<!-- 1. Update  ---------------------------( updateUser )-> */
 export const updateUser = asyncHandler(async (req, res) => {
   const user = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
@@ -152,12 +170,10 @@ export const login = asyncHandler(async (req, res) => {
     throw new BadRequestError('Invalid credentials');
   }
   if (user) {
-    
     const sessionData = {
       user: { id: user.id, username: user.username, isPremium: user.isPrime },
     };
-   const save = await cache.saveSession(req.sessionID, sessionData);
-    
+    const save = await cache.saveSession(req.sessionID, sessionData);
   } else {
     logger.error('User not found');
   }
@@ -170,16 +186,19 @@ export const login = asyncHandler(async (req, res) => {
     },
   };
 
- 
   const access = signToken(payload, 'access', {
     expiresIn: '120m',
   });
 
   res.cookie('access', access, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    domain: '.hps-admin.com',
+    // secure: true,
+    // sameSite: 'none',
+    // domain: '.hps-admin.com',
+
+    secure: config.isProduction,
+    sameSite: 'strict',
+
     maxAge: convertToMilliseconds('2h'),
   });
 
