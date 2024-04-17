@@ -12,7 +12,6 @@ import {
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger/logger';
-import { config } from '@/lib/config';
 
 const logger = new Logger(__filename);
 
@@ -118,6 +117,7 @@ export const createTempUser = asyncHandler(async (req, res) => {
   return new SuccessResponse('User created successfully', userObj).send(res);
 });
 
+
 /*<!-- 1. Update  ---------------------------( updateUser )-> */
 export const updateUser = asyncHandler(async (req, res) => {
   const user = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
@@ -170,10 +170,12 @@ export const login = asyncHandler(async (req, res) => {
     throw new BadRequestError('Invalid credentials');
   }
   if (user) {
+    
     const sessionData = {
       user: { id: user.id, username: user.username, isPremium: user.isPrime },
     };
-    const save = await cache.saveSession(req.sessionID, sessionData);
+   const save = await cache.saveSession(req.sessionID, sessionData);
+    
   } else {
     logger.error('User not found');
   }
@@ -186,19 +188,16 @@ export const login = asyncHandler(async (req, res) => {
     },
   };
 
+ 
   const access = signToken(payload, 'access', {
     expiresIn: '120m',
   });
 
   res.cookie('access', access, {
     httpOnly: true,
-    // secure: true,
-    // sameSite: 'none',
-    // domain: '.hps-admin.com',
-
-    secure: config.isProduction,
-    sameSite: 'strict',
-
+    secure: true,
+    sameSite: 'none',
+    domain: '.hps-admin.com',
     maxAge: convertToMilliseconds('2h'),
   });
 
