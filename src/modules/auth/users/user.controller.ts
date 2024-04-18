@@ -36,7 +36,7 @@ export const getUser = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 3. Read  ---------------------------( getCurrentUser )-> */
-export const getCurrentUser = asyncHandler(async (req, res) => {
+export const  getCurrentUser = asyncHandler(async (req, res) => {
   const user = req.user as User;
 
   if (!user) {
@@ -50,15 +50,12 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
     throw new BadRequestError('No user found');
   }
 
-  const response = {
-    status: true,
-    roles: roleCodes,
-    name: user.name,
-    username: user.username,
-    email: user.email,
-    phone: user.phone,
-  };
-  return new SuccessResponse('Logged in user', response).send(res);
+   const resp: { status: boolean; roles: string[]; user: User } = {
+     status: true,
+     roles: roleCodes,
+     user: user,
+   };
+   return new SuccessResponse('Logged in user', resp).send(res);
 });
 
 /*<!-- 4. Read  ---------------------------( getUserById )-> */
