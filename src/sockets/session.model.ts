@@ -31,3 +31,18 @@ export const deleteUserSessions = async (userID: string) => {
 export const getSessions = async () => {
   return await UserSessionModel.find();
 };
+
+export const createUserSession = async (
+  userID: string,
+  startTime: Date,
+  endTime: Date,
+  timeSpent: string,
+) => {
+  const session = new UserSessionModel({
+    userID,
+    startTime,
+    endTime,
+    timeSpent,
+  });
+  return await session.save();
+};

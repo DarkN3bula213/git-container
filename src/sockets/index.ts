@@ -1,4 +1,3 @@
-import { corsOptions } from '@/lib/config/cors';
 import { Logger } from '@/lib/logger';
 import { verifyToken } from '@/lib/utils/tokens';
 import cookie from 'cookie';
@@ -7,7 +6,7 @@ const logger = new Logger(__filename);
 
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import UserSessionModel from './session.model';
+import { addSaveSessionJob, removeSaveSessionJob } from './session.queue';
 
 class SocketService {
   private io: SocketIOServer;
@@ -32,11 +31,21 @@ class SocketService {
     });
     this.registerEvents();
   }
+
   public static getInstance(httpServer?: HttpServer): SocketService {
     if (!SocketService.instance && httpServer) {
       SocketService.instance = new SocketService(httpServer);
     }
     return SocketService.instance;
+  }
+  public emit(eventName: string, message: any, roomId?: string): void {
+    if (roomId) {
+      // Emit to a specific room
+      this.io.to(roomId).emit(eventName, message);
+    } else {
+      // Broadcast to all connected sockets
+      this.io.emit(eventName, message);
+    }
   }
 
   private registerEvents(): void {
@@ -44,9 +53,9 @@ class SocketService {
       logger.info({
         event: 'Socket connection attempt',
       });
+
       try {
         const cookies = cookie.parse(socket.handshake.headers.cookie || '');
-
         const authToken = cookies['access'];
 
         if (!authToken) {
@@ -60,58 +69,44 @@ class SocketService {
           socket.disconnect();
           return;
         } else {
+          const userID = verificationResult.decoded?.user._id;
           logger.info(
             `User ${verificationResult.decoded?.user.name} connected`,
           );
-        }
-        socket.on('joinPaymentRoom', (roomId) => {
-          logger.info(`User ${userID} joined payment room ${roomId}`);
-          socket.join(`paymentRoom-${roomId}`);
-        });
-        const startTime = new Date();
-        const userID = verificationResult.decoded?.user._id;
 
-        socket.on('disconnect', () => {
-          const endTime = new Date();
-          const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
+          // Remove existing save session job if reconnecting
+          removeSaveSessionJob(userID);
 
-          // time spent in hrs , mins and seconds
-          const hours = Math.floor(timeSpent / 3600);
-          const minutes = Math.floor((timeSpent % 3600) / 60);
-          const seconds = Math.floor(timeSpent % 60);
-          const time = `${hours}h ${minutes}m ${seconds}s`;
-          logger.info({
-            event: 'User disconnected',
-            userID: userID,
-            timeSpent: `${hours}h ${minutes}m ${seconds}s`,
+          const startTime = new Date();
+
+          socket.on('joinPaymentRoom', (roomId) => {
+            logger.info(`User ${userID} joined payment room ${roomId}`);
+            socket.join(`paymentRoom-${roomId}`);
           });
-          this.saveUserSession(userID, startTime, endTime, time);
-        });
+
+          socket.on('disconnect', () => {
+            const endTime = new Date();
+            const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
+            const hours = Math.floor(timeSpent / 3600);
+            const minutes = Math.floor((timeSpent % 3600) / 60);
+            const seconds = Math.floor(timeSpent % 60);
+            const time = `${hours}h ${minutes}m ${seconds}s`;
+
+            logger.info({
+              event: 'User disconnected',
+              userID: userID,
+              timeSpent: time,
+            });
+
+            addSaveSessionJob(userID, startTime, endTime, time);
+          });
+        }
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);
       }
     });
   }
 
-  private async saveUserSession(
-    userID: string,
-    startTime: Date,
-    endTime: Date,
-    timeSpent: string,
-  ): Promise<void> {
-    try {
-      const session = new UserSessionModel({
-        userID,
-        startTime,
-        endTime,
-        timeSpent,
-      });
-      await session.save();
-      logger.info(`Session saved for user ${userID}`);
-    } catch (error) {
-      logger.error(`Error saving session for user ${userID}: ${error}`);
-    }
-  }
   public notifyPaymentSuccess(jobId: string, result: any) {
     try {
       this.io.to(`paymentRoom-${jobId}`).emit('paymentSuccess', {

@@ -36,7 +36,7 @@ export const getUser = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 3. Read  ---------------------------( getCurrentUser )-> */
-export const  getCurrentUser = asyncHandler(async (req, res) => {
+export const getCurrentUser = asyncHandler(async (req, res) => {
   const user = req.user as User;
 
   if (!user) {
@@ -50,12 +50,12 @@ export const  getCurrentUser = asyncHandler(async (req, res) => {
     throw new BadRequestError('No user found');
   }
 
-   const resp: { status: boolean; roles: string[]; user: User } = {
-     status: true,
-     roles: roleCodes,
-     user: user,
-   };
-   return new SuccessResponse('Logged in user', resp).send(res);
+  const resp: { status: boolean; roles: string[]; user: User } = {
+    status: true,
+    roles: roleCodes,
+    user: user,
+  };
+  return new SuccessResponse('Logged in user', resp).send(res);
 });
 
 /*<!-- 4. Read  ---------------------------( getUserById )-> */
@@ -114,7 +114,6 @@ export const createTempUser = asyncHandler(async (req, res) => {
   return new SuccessResponse('User created successfully', userObj).send(res);
 });
 
-
 /*<!-- 1. Update  ---------------------------( updateUser )-> */
 export const updateUser = asyncHandler(async (req, res) => {
   const user = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
@@ -167,12 +166,10 @@ export const login = asyncHandler(async (req, res) => {
     throw new BadRequestError('Invalid credentials');
   }
   if (user) {
-    
     const sessionData = {
       user: { id: user.id, username: user.username, isPremium: user.isPrime },
     };
-   const save = await cache.saveSession(req.sessionID, sessionData);
-    
+    const save = await cache.saveSession(req.sessionID, sessionData);
   } else {
     logger.error('User not found');
   }
@@ -185,7 +182,6 @@ export const login = asyncHandler(async (req, res) => {
     },
   };
 
- 
   const access = signToken(payload, 'access', {
     expiresIn: '120m',
   });
