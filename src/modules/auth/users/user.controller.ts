@@ -97,7 +97,7 @@ export const insertMany = asyncHandler(async (req, res) => {
   });
 });
 
-/*<!-- 3. Create  ---------------------------( createMany )-> */
+/*<!-- 3. Create  ---------------------------( createTempUser )-> */
 export const createTempUser = asyncHandler(async (req, res) => {
   const check = await UserModel.findUserByEmail(req.body.email);
   if (check) {
@@ -210,21 +210,9 @@ export const login = asyncHandler(async (req, res) => {
  */
 
 export const logout = asyncHandler(async (req, res) => {
-  cache
-    .deleteSession(req.sessionID)
-    .then(() => {
-      req.session.destroy((err) => {
-        if (err) {
-          return res.status(500).send('Failed to logout');
-        }
-        clearAuthCookies(res);
-        res.send('Logout successful');
-      });
-    })
-    .catch((error) => {
-      logger.error('Session deletion failed:', error);
-      res.status(500).send('Internal Server Error');
-    });
+ clearAuthCookies(res)
+
+  return new SuccessResponse('Logout successful', {}).send(res);
 });
 
 export const isAdmin = asyncHandler(async (req, res) => {
