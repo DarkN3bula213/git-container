@@ -3,7 +3,7 @@ name: Docker Flow
 on:
   push:
     branches:
-      - main  # Set this to your deployment branch, if different
+      - cidi  # Set this to your deployment branch, if different
 
 jobs:
   build:
