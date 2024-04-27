@@ -16,4 +16,7 @@ export default {
     createdBy: Joi.string().optional(),
     updatedBy: Joi.string().optional(),
   }),
+  batchPayments: Joi.object().keys({
+    studentIds: Joi.array().items(Joi.string()).required(),
+  }),
 };

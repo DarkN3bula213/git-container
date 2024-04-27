@@ -7,6 +7,8 @@ import { authorize } from '@/middleware/authorize';
 import { setRouter } from '@/lib/utils/utils';
 import { invalidate } from '@/lib/handlers/cacha.handler';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
+import schema from './payment.schema';
+import { validate } from '@/lib/handlers/validate';
 
 const router = Router();
 
@@ -76,6 +78,15 @@ const getRouteMap = (): RouteMap[] => {
       method: 'post',
       validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
       handler: controller.enqueueMultiplePayments,
+    },
+    {
+      path: '/batch',
+      method: 'post',
+      validations: [
+        validate(schema.batchPayments),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+      ],
+      handler: controller.handleBatchPayments,
     },
   ];
 };

@@ -3,7 +3,7 @@ import Bull from 'bull';
 import StudentModel from '../students/student.model';
 import { ClassModel } from '../classes/class.model';
 import paymentModel from './payment.model';
-import { getPayId } from './payment.utils';
+import { batches, checkIfBatchCompleted, getPayId } from './payment.utils';
 import { socketService } from '@/index';
 import { config } from '@/lib/config';
 
@@ -30,15 +30,11 @@ paymentQueue.process(async (job, done) => {
       throw new Error('Student not found');
     }
 
-    logger.info(
-      `Found student, now looking for grade with ID ${student.classId}`,
-    );
     const grade = await ClassModel.findById(student.classId);
     if (!grade) {
       throw new Error('Grade not found');
     }
 
-    logger.info(`Creating payment record for student ID ${studentId}`);
     const paymentRecord = new paymentModel({
       studentId: student._id,
       classId: student.classId,
@@ -64,6 +60,37 @@ paymentQueue.process(async (job, done) => {
     socketService.notifyPaymentFailure(String(job.id), error.message);
     done(error);
   }
+});
+
+paymentQueue.on('completed', (job, result) => {
+  const batchId = String(job.opts.jobId)?.split('-')[0];
+  const batch = batches.get(batchId);
+  if (batch) {
+    batch.completed.push({ jobId: String(job.id), success: true, result });
+    checkIfBatchCompleted(batchId);
+  }
+});
+
+paymentQueue.on('failed', (job, err) => {
+  const batchId = String(job.opts.jobId).split('-')[0];
+  const batch = batches.get(batchId);
+  if (batch) {
+    batch.failed.push({
+      jobId: String(job.id),
+      success: false,
+      error: err.message,
+    });
+    checkIfBatchCompleted(batchId);
+  }
+});
+
+paymentQueue.on('progress', (job, progress) => {
+  console.log(`Job ID: ${job.id} is ${progress}% complete`);
+  logger.debug({
+    event: 'Payment Job Progress',
+    jobId: job.id,
+    progress: progress,
+  });
 });
 
 export default paymentQueue;

@@ -12,6 +12,7 @@ import {
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger/logger';
+import { config } from '@/lib/config';
 
 const logger = new Logger(__filename);
 
@@ -167,7 +168,7 @@ export const login = asyncHandler(async (req, res) => {
   }
   if (user) {
     const sessionData = {
-      user: { id: user.id, username: user.username, isPremium: user.isPrime },
+      user: { id: user._id, username: user.username, isPremium: user.isPrime },
     };
     const save = await cache.saveSession(req.sessionID, sessionData);
   } else {
@@ -187,9 +188,13 @@ export const login = asyncHandler(async (req, res) => {
   });
 
   res.cookie('access', access, {
+    // httpOnly: !config.isDevelopment,
+    // secure: !config.isDevelopment,
+    // sameSite: 'strict',
+    // domain: '.hps-admin.com',
     httpOnly: true,
     secure: true,
-    sameSite: 'none',
+    sameSite: 'strict',
     domain: '.hps-admin.com',
     maxAge: convertToMilliseconds('2h'),
   });
@@ -210,7 +215,7 @@ export const login = asyncHandler(async (req, res) => {
  */
 
 export const logout = asyncHandler(async (req, res) => {
- clearAuthCookies(res)
+  clearAuthCookies(res);
 
   return new SuccessResponse('Logout successful', {}).send(res);
 });

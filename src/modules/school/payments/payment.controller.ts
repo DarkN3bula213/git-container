@@ -4,7 +4,7 @@ import Payments, { IPayment } from './payment.model';
 import StudentModel from '../students/student.model';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { User } from '@/modules/auth/users/user.model';
-import { getPayId } from './payment.utils';
+import { addJobsToQueue, getPayId } from './payment.utils';
 import { ClassModel } from '../classes/class.model';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { cache } from '@/data/cache/cache.service';
@@ -183,6 +183,16 @@ export const enqueueMultiplePayments = asyncHandler(async (req, res) => {
       userId: user._id,
     });
   });
+
+  res.status(202).send('Payment processing for multiple students initiated');
+});
+
+/** -----------------------------( Batch Payments ) */
+
+export const handleBatchPayments = asyncHandler(async (req, res) => {
+  const user = req.user as User;
+  const { studentIds } = req.body;
+  addJobsToQueue(studentIds, user._id, 'paymentQueue');
 
   res.status(202).send('Payment processing for multiple students initiated');
 });
