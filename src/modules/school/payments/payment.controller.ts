@@ -15,6 +15,7 @@ import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
+
 export const createPayment = asyncHandler(async (req, res) => {
   const { studentId } = req.body;
   const user = req.user as User;
@@ -38,6 +39,46 @@ export const createPayment = asyncHandler(async (req, res) => {
 
   await records.save();
   return new SuccessResponse('Payment created successfully', records).send(res);
+});
+
+/*<!-- 2. Create  ---------------------------( Multiple Payments )-> */
+export const createPaymentsBulk = asyncHandler(async (req, res) => {
+  const { studentIds } = req.body;
+
+  const user = req.user as User;
+
+  if (!user) throw new BadRequestError('User not found');
+  const students = await StudentModel.find({ _id: { $in: studentIds } });
+  if (students.length !== studentIds.length)
+    throw new BadRequestError('One or more students not found');
+
+  const classIds = students.map((student) => student.classId);
+  const classes = await ClassModel.find({ _id: { $in: classIds } });
+
+  const classInfoMap = new Map(classes.map((cls) => [cls._id.toString(), cls]));
+
+  const records = students.map((student) => {
+    const grade = classInfoMap.get(student.classId.toString());
+    if (!grade) throw new BadRequestError('Grade not found for a student');
+
+    return {
+      studentId: student._id,
+      classId: student.classId,
+      className: grade.className,
+      section: student.section,
+      amount: grade.fee,
+      paymentDate: new Date(),
+      createdBy: user._id,
+      paymentType: student.feeType,
+      payId: getPayId(),
+    };
+  });
+
+  const insertedPayments = await Payments.insertMany(records);
+  return new SuccessResponse(
+    'Payments created successfully',
+    insertedPayments,
+  ).send(res);
 });
 
 /*<!-- 1. Read  ---------------------------( Get All )-> */
@@ -148,6 +189,17 @@ export const resetCollection = asyncHandler(async (req, res) => {
     success: true,
     data: payment,
   });
+});
+
+/*<!-- 3. Delete  ---------------------------( DeleteMany by ID )-> */
+
+export const deleteManyByID = asyncHandler(async (req, res) => {
+  const { ids } = req.body;
+  const response = await Payments.deleteMany({ _id: { $in: ids } });
+  if (!response) throw new BadRequestError('Payments not found');
+  return new SuccessResponse('Payments deleted successfully', response).send(
+    res,
+  );
 });
 
 /****

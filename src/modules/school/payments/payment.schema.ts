@@ -19,4 +19,10 @@ export default {
   batchPayments: Joi.object().keys({
     studentIds: Joi.array().items(Joi.string()).required(),
   }),
+  createPaymentsBulk: Joi.object().keys({
+    studentIds: Joi.array().items(Joi.string()).required(),
+  }),
+  removeBulk: Joi.object().keys({
+    ids: Joi.array().items(Joi.string()).required(),
+  }),
 };

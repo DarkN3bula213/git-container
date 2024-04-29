@@ -21,6 +21,15 @@ const getRouteMap = (): RouteMap[] => {
       handler: controller.createPayment,
     },
     {
+      path: '/multi-insert',
+      method: 'post',
+      validations: [
+        validate(schema.createPaymentsBulk),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+      ],
+      handler: controller.createPaymentsBulk,
+    },
+    {
       path: '/',
       method: 'get',
       handler: controller.getPayments,
@@ -66,6 +75,15 @@ const getRouteMap = (): RouteMap[] => {
         invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
       ],
       handler: controller.resetCollection,
+    },
+    {
+      path: '/delete',
+      method: 'delete',
+      validations: [
+        validate(schema.removeBulk),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+      ],
+      handler: controller.deleteManyByID,
     },
     {
       path: '/queue',
