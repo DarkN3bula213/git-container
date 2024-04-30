@@ -28,4 +28,4 @@ jobs:
           context: .
           file: ./Dockerfile.production
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/containterTs:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cont-ts:latest
