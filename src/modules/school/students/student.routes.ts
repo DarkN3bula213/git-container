@@ -15,6 +15,11 @@ function getRouteMap(): Route[] {
       handler: controller.getStudents,
     },
     {
+      path: '/payments/:id',
+      method: 'get',
+      handler: controller.studentFeeAggregated,
+    },
+    {
       path: '/class/:classId',
       method: 'get',
       handler: controller.getStudentByClass,

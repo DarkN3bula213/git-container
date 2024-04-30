@@ -104,15 +104,17 @@ export const createTempUser = asyncHandler(async (req, res) => {
   if (check) {
     throw new BadRequestError('User with this email already exists');
   }
-
-  const user = await UserModel.createUser(req.body, Roles.AUX);
-  if (!user) {
-    throw new BadRequestError('Something went wrong');
-  }
-  const userObj = user.toObject();
-  delete userObj.password;
-
-  return new SuccessResponse('User created successfully', userObj).send(res);
+  const { username, email, password, name } = req.body;
+  const user = new UserModel({
+    username: username,
+    email: email,
+    password: password,
+    name: name,
+    temporary: Date.now(),
+    isPrime: false,
+  });
+  await user.save();
+  return new SuccessResponse('User created successfully', user).send(res);
 });
 
 /*<!-- 1. Update  ---------------------------( updateUser )-> */

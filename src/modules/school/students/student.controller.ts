@@ -1,11 +1,27 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 
 import Student from './student.model';
-import { SuccessMsgResponse, SuccessResponse } from '@/lib/api';
+import {
+  BadRequestError,
+  SuccessMsgResponse,
+  SuccessResponse,
+} from '@/lib/api';
 import { updateStudentClassIds } from './student.utils';
 import { studentService } from './student.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { cache } from '@/data/cache/cache.service';
+import { studentDetailsWithPayments } from './student.aggregation';
+
+/**                      *
+ *  Aggregation Methods  *
+ *                     **/
+/*<!-- 1. Aggregation ----------------------------( getStudents )*/
+export const studentFeeAggregated = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const data = await studentDetailsWithPayments(id);
+  if (!data) return new BadRequestError('No students found');
+  new SuccessResponse('Students fetched successfully', data).send(res);
+});
 
 /*<!-- 1. Get ----------------------------( getStudents )*/
 
