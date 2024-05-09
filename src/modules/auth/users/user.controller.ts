@@ -190,14 +190,14 @@ export const login = asyncHandler(async (req, res) => {
   });
 
   res.cookie('access', access, {
-    // httpOnly: !config.isDevelopment,
-    // secure: !config.isDevelopment,
+    httpOnly: !config.isDevelopment,
+    secure: !config.isDevelopment,
+    sameSite: 'strict',
+    // domain: '.hps-admin.com',
+    // httpOnly: true,
+    // secure: true,
     // sameSite: 'strict',
     // domain: '.hps-admin.com',
-    httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
-    domain: '.hps-admin.com',
     maxAge: convertToMilliseconds('2h'),
   });
 

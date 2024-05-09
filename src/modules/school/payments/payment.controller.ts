@@ -9,7 +9,7 @@ import { ClassModel } from '../classes/class.model';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { cache } from '@/data/cache/cache.service';
 import { Student } from '../students/student.interface';
-import { checkPaymentStatus } from './payment.aggreagation';
+import { checkPaymentStatus, schoolAggregation, schoolAggregationBySession } from './payment.aggreagation';
 import paymentQueue from './payment.queue';
 import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
@@ -124,22 +124,7 @@ export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
     cachedPayments,
   ).send(res);
 });
-/*<!-- 4. Read  ---------------------------( Get Students With Payments )-> */
-export const getStudentPaymentsByClass = asyncHandler(async (req, res) => {
-  const { className } = req.params;
-  const payId = getPayId();
 
-  logger.debug({
-    payid: payId,
-    class: className,
-  });
-  const students: Student[] = await checkPaymentStatus(className, payId);
-  logger.debug({
-    students: students,
-  });
-
-  return new SuccessResponse('Student payments', students).send(res);
-});
 /*<!-- 5. Read  ---------------------------( Get Months Payments )-> */
 export const getMonthsPayments = asyncHandler(async (req, res) => {
   const payId = getPayId();
@@ -248,3 +233,47 @@ export const handleBatchPayments = asyncHandler(async (req, res) => {
 
   res.status(202).send('Payment processing for multiple students initiated');
 });
+
+
+/*<!-- 1. Aggregation Functions  ----------------( Get Students With Payments ) */
+export const getStudentPaymentsByClass = asyncHandler(async (req, res) => {
+  const { className } = req.params;
+  const payId = getPayId();
+
+  logger.debug({
+    payid: payId,
+    class: className,
+  });
+  const students: Student[] = await checkPaymentStatus(className, payId);
+  logger.debug({
+    students: students,
+  });
+
+  return new SuccessResponse('Student payments', students).send(res);
+});
+
+ 
+/*<!-- 2. Aggregation Functions  ----------------( School Stats ) */
+export const getSchoolStats = asyncHandler(async (req, res) => {
+  const key = getDynamicKey(DynamicKey.FEE, 'STATCURRENT');
+  const cachedStats = await cache.get(key, async () => { 
+    return await schoolAggregation();
+  })
+  if (!cachedStats) throw new BadRequestError('Stats not found');
+  return new SuccessResponse('Stats fetched successfully', cachedStats).send(
+    res,
+  );
+ })
+
+/*<!-- 3. Aggregation Functions  ----------------( School Stats By Session ) */
+export const getSchoolStatsBySession = asyncHandler(async (req, res) => { 
+  const { payId } = req.params;
+  const key = getDynamicKey(DynamicKey.FEE, payId);
+  const cachedStats = await cache.get(key, async () => {
+    return await schoolAggregationBySession(payId); 
+  });
+  if (!cachedStats) throw new BadRequestError('Stats not found');
+  return new SuccessResponse('Stats fetched successfully', cachedStats).send(
+    res,
+  );
+} )
