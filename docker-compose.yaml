@@ -11,7 +11,7 @@ services:
       - app-network
   
   app:
-    build: .
+    image: darkn3bula/rocknroll:latest
     environment:
       - NODE_ENV=docker
       - PORT=3000
