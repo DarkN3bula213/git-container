@@ -12,6 +12,8 @@ services:
   
   app:
     image: darkn3bula/rocknroll:latest
+    env_file:
+      - .env
     environment:
       - NODE_ENV=docker
       - PORT=3000
