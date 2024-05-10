@@ -6,6 +6,7 @@ import { Roles } from '@/lib/constants';
 import {
   clearAuthCookies,
   fetchRoleCodes,
+  fetchUserPermissions,
   isAdminRolePresent,
   normalizeRoles,
 } from '@/lib/utils/utils';
@@ -238,3 +239,33 @@ export const checkSession = asyncHandler(async (req, res) => {
   }
   return new BadRequestError('Session is inactive');
 });
+
+
+ 
+
+/** ---------------------------( Authentication )->
+ *
+ *---------------------------( Check Login )->
+ */
+
+export const checkLogin = asyncHandler(async (req, res) => {
+  const user = req.user as User
+  if (!user) {
+    throw new BadRequestError('No user found')
+  }
+
+  const roles = normalizeRoles(user.roles)
+
+  const isAdmin = await isAdminRolePresent(roles)
+
+  const roleCodes = await fetchUserPermissions(roles)
+
+  const data = {
+    user: user,
+    roles: [...roleCodes],
+    isAdmin: isAdmin,
+    isLoggedIn: true,
+  }
+
+  return new SuccessResponse('User is logged in', data).send(res)
+ })

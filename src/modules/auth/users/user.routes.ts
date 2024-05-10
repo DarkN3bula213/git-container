@@ -20,6 +20,12 @@ function getRouteMap(): RouteMap[] {
       handler: controller.getUsers,
     },
     {
+      path: '/session',
+      method: 'get',
+      validations: [authentication],
+      handler: controller.checkLogin,
+    },
+    {
       path: '/check-session',
       method: 'get',
 
