@@ -25,7 +25,7 @@ import session from 'express-session';
 /*---------------------------------------------------------*/
 
 process.on('uncaughtException', (e) => {
-  logger.error(e);
+  logger.error(`uncaughtException: ${e}`);
 });
 const logger = new Logger(__filename);
 const app: Application = express();
