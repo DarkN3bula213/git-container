@@ -2,30 +2,30 @@ import express, {
   Application,
   json,
   urlencoded,
-  static as static_,
+ 
 } from 'express';
 import cookieParser from 'cookie-parser';
-import { morganMiddleware as morgan } from './lib/config';
+import { morganMiddleware as morgan ,config,loginLimiter,handleUploads} from './lib/config';
 import { NotFoundError } from './lib/api';
 import router from './routes';
 import { errorHandler } from './lib/handlers/errorHandler';
 import cors from 'cors';
-import { config } from './lib/config';
+ 
 import apiKey from './middleware/useApiKey';
 import { Logger, RequestLogger } from './lib/logger';
 import helmet from 'helmet';
 import compression from 'compression';
 import sanitize from 'express-mongo-sanitize';
-import { loginLimiter, options } from './lib/config/rate-limit';
+ 
 import { monitor } from './modules/analytics/analytics';
-import { handleUploads } from './lib/config/multer';
+ 
 import hpp from 'hpp';
-import { handleSession, sessionOptions } from './lib/handlers/sessionHandler';
+import {  sessionOptions } from './lib/handlers/sessionHandler';
 import session from 'express-session';
 /*---------------------------------------------------------*/
 
 process.on('uncaughtException', (e) => {
-  logger.error(e);
+  logger.error(`uncaughtException: ${e.message}`);
 });
 const logger = new Logger(__filename);
 const app: Application = express();

@@ -30,6 +30,12 @@ const getRouteMap = (): RouteMap[] => {
       handler: controller.createPaymentsBulk,
     },
     {
+      path: '/custom',
+      method: 'post',
+      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      handler: controller.makeCustomPayment,
+    },
+    {
       path: '/',
       method: 'get',
       handler: controller.getPayments,
@@ -48,6 +54,11 @@ const getRouteMap = (): RouteMap[] => {
       path: '/class/:className',
       method: 'get',
       handler: controller.getStudentPaymentsByClass,
+    },
+    {
+      path: '/stats',
+      method: 'get',
+      handler: controller.getStudentsWithPayments,
     },
     {
       path: '/payid/:payId',

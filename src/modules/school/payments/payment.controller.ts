@@ -9,7 +9,7 @@ import { ClassModel } from '../classes/class.model';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { cache } from '@/data/cache/cache.service';
 import { Student } from '../students/student.interface';
-import { checkPaymentStatus } from './payment.aggreagation';
+import { checkPaymentStatus, getStudentHistory, schoolAggregation, studentAggregation } from './payment.aggreagation';
 import paymentQueue from './payment.queue';
 import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
@@ -44,23 +44,23 @@ export const createPayment = asyncHandler(async (req, res) => {
 /*<!-- 2. Create  ---------------------------( Multiple Payments )-> */
 export const createPaymentsBulk = asyncHandler(async (req, res) => {
   const { studentIds } = req.body;
-
+  
   const user = req.user as User;
-
+  
   if (!user) throw new BadRequestError('User not found');
   const students = await StudentModel.find({ _id: { $in: studentIds } });
   if (students.length !== studentIds.length)
     throw new BadRequestError('One or more students not found');
-
+  
   const classIds = students.map((student) => student.classId);
   const classes = await ClassModel.find({ _id: { $in: classIds } });
-
+  
   const classInfoMap = new Map(classes.map((cls) => [cls._id.toString(), cls]));
-
+  
   const records = students.map((student) => {
     const grade = classInfoMap.get(student.classId.toString());
     if (!grade) throw new BadRequestError('Grade not found for a student');
-
+    
     return {
       studentId: student._id,
       classId: student.classId,
@@ -73,13 +73,41 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
       payId: getPayId(),
     };
   });
-
+  
   const insertedPayments = await Payments.insertMany(records);
   return new SuccessResponse(
     'Payments created successfully',
     insertedPayments,
   ).send(res);
 });
+/*<!-- 3. Create  ---------------------------( Make Custom )-> */
+ 
+export const makeCustomPayment = asyncHandler(async (req, res) => {
+
+  const { studentId, payId, paymentType } = req.body
+  
+  const user = req.user  as User
+  if (!user) throw new BadRequestError('User not found')
+  const student = await StudentModel.findById(studentId)
+  if (!student) throw new BadRequestError('Student not found')
+  const grade = await ClassModel.findById(student.classId)
+  if (!grade) throw new BadRequestError('Grade not found')
+
+  const records: IPayment = new Payments({
+    studentId: student._id,
+    classId: student.classId,
+    className: grade.className,
+    section: student.section,
+    amount: student.tuition_fee,
+    paymentDate: Date.now(),
+    createdBy: user._id,
+    paymentType: paymentType,
+    payId: payId,
+  })
+
+  await records.save()
+  return new SuccessResponse('Payment created successfully', records).send(res)
+})
 
 /*<!-- 1. Read  ---------------------------( Get All )-> */
 export const getPayments = asyncHandler(async (req, res) => {
@@ -248,3 +276,35 @@ export const handleBatchPayments = asyncHandler(async (req, res) => {
 
   res.status(202).send('Payment processing for multiple students initiated');
 });
+
+
+/*<!-- 1. Aggregations  ---------------------( Get Students With Payments )-> */
+// export const getStudentPaymentsByClass = asyncHandler(async (req, res) => {
+//   const { className } = req.params
+//   const payId = getPayId()
+
+//   const students: Student[] = await checkPaymentStatus(className, payId)
+
+//   return new SuccessResponse('Student payments', students).send(res)
+// })
+
+/*<!-- 2. Aggregations  ---------------------( Get Students With Payments )-> */
+export const getStudentsWithPayments = asyncHandler(async (req, res) => {
+  const students: Student[] = await studentAggregation()
+  return new SuccessResponse('Students with payments', students).send(res)
+})
+
+/*<!-- 3. Aggregations  ---------------------( Get School Payments )-> */
+export const getSchoolPayments = asyncHandler(async (req, res) => {
+  const key = getDynamicKey(DynamicKey.FEE, 'stats')
+  const school = await schoolAggregation()
+  return new SuccessResponse('School payments', school).send(res)
+})
+
+/*<!-- 4. Aggregations  ---------------------( Get Student History )-> */
+
+export const getStudentPaymentHistory = asyncHandler(async (req, res) => {
+  const { studentId } = req.params
+  const history = await getStudentHistory(studentId)
+  return new SuccessResponse('Student payment history', history).send(res)
+})

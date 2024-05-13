@@ -3,7 +3,7 @@ import session from 'express-session';
 import { cache } from '@/data/cache/cache.service';
 import RedisStore from 'connect-redis';
 import { convertToMilliseconds } from '../utils/fns';
-import { config } from '../config';
+ 
 
 export const handleSession = (app: Application) => {
   app.use(
@@ -16,7 +16,7 @@ export const handleSession = (app: Application) => {
         httpOnly: false,
         secure: false,
         sameSite: 'none',
-        // domain: '.hps-admin.com',
+ 
         maxAge: convertToMilliseconds('2h'),
       },
     }),

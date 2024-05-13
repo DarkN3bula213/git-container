@@ -260,12 +260,19 @@ export const checkLogin = asyncHandler(async (req, res) => {
 
   const roleCodes = await fetchUserPermissions(roles)
 
-  const data = {
+  const data: IDATA = {
     user: user,
     roles: [...roleCodes],
     isAdmin: isAdmin,
     isLoggedIn: true,
-  }
+  };
 
   return new SuccessResponse('User is logged in', data).send(res)
  })
+
+ type IDATA ={
+  user:User,
+  roles:string[]
+  isAdmin:boolean
+  isLoggedIn:boolean
+ }
