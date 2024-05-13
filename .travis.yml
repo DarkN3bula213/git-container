@@ -21,4 +21,4 @@ after_success:
     -H "Authorization: token ${GITHUB_TOKEN}" 
     -H "Accept: application/vnd.github.v3+json" 
     https://api.github.com/repos/DarkN3bula213/git-container/dispatches
-    --data '{"event_type": "deployment_event"}'
+    --data '{"event_type": "trigger-deploy"}'

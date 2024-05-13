@@ -117,4 +117,13 @@ export const config = {
     url: getOsEnv('SUPABASE_URL'),
     key: getOsEnv('SUPABASE_KEY'),
   },
+  mail: {
+    host: getOsEnv('EMAIL_HOST'),
+    port: toNumber(getOsEnv('EMAIL_PORT')),
+   
+    auth: {
+      user: getOsEnv('EMAIL_USER'),
+      pass: getOsEnv('EMAIL_PASS'),
+    },
+  },
 };
