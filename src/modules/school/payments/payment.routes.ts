@@ -5,7 +5,7 @@ import attachRoles from '@/middleware/attachRoles';
 import { Roles } from '@/lib/constants';
 import { authorize } from '@/middleware/authorize';
 import { setRouter } from '@/lib/utils/utils';
-import { invalidate } from '@/lib/handlers/cacha.handler';
+import { invalidate } from '@/lib/handlers/cache.handler';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import schema from './payment.schema';
 import { validate } from '@/lib/handlers/validate';
@@ -17,8 +17,23 @@ const getRouteMap = (): RouteMap[] => {
     {
       path: '/',
       method: 'post',
-      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      validations: [
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
+      ],
       handler: controller.createPayment,
+    },
+    {
+      path: '/stats',
+      method: 'get',
+
+      handler: controller.getSchoolStats,
+    },
+    {
+      path: '/custom',
+      method: 'post',
+      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      handler: controller.makeCustomPayment,
     },
     {
       path: '/multi-insert',
@@ -26,14 +41,9 @@ const getRouteMap = (): RouteMap[] => {
       validations: [
         validate(schema.createPaymentsBulk),
         invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
       ],
       handler: controller.createPaymentsBulk,
-    },
-    {
-      path: '/custom',
-      method: 'post',
-      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
-      handler: controller.makeCustomPayment,
     },
     {
       path: '/',
@@ -46,9 +56,25 @@ const getRouteMap = (): RouteMap[] => {
       handler: controller.getPaymentById,
     },
     {
+      path: '/stats',
+      method: 'get',
+      handler: controller.getPaymentById,
+    },
+    {
+      path: '/stats/id/:id',
+      method: 'get',
+      validations: [validate(schema.payId)],
+      handler: controller.getPaymentById,
+    },
+    {
       path: '/student/:studentId',
       method: 'get',
       handler: controller.getPaymentsByStudentId,
+    },
+    {
+      path: '/history/:studentId',
+      method: 'get',
+      handler: controller.getStudentPaymentHistory,
     },
     {
       path: '/class/:className',
@@ -56,25 +82,26 @@ const getRouteMap = (): RouteMap[] => {
       handler: controller.getStudentPaymentsByClass,
     },
     {
-      path: '/stats',
-      method: 'get',
-      handler: controller.getStudentsWithPayments,
-    },
-    {
-      path: '/payid/:payId',
+      path: '/payId/:payId',
       method: 'get',
       handler: controller.getMonthsPayments,
     },
     {
       path: '/id/:id',
       method: 'delete',
-      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      validations: [
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
+      ],
       handler: controller.deletePayment,
     },
     {
       path: '/id/:id',
       method: 'put',
-      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      validations: [
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
+      ],
       handler: controller.updatePayment,
     },
     {
@@ -84,6 +111,7 @@ const getRouteMap = (): RouteMap[] => {
         attachRoles(Roles.ADMIN),
         authorize(Roles.ADMIN),
         invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
       ],
       handler: controller.resetCollection,
     },
@@ -93,19 +121,26 @@ const getRouteMap = (): RouteMap[] => {
       validations: [
         validate(schema.removeBulk),
         invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
       ],
       handler: controller.deleteManyByID,
     },
     {
       path: '/queue',
       method: 'post',
-      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      validations: [
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
+      ],
       handler: controller.enqueuePaymentCreation,
     },
     {
       path: '/queues',
       method: 'post',
-      validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+      validations: [
+        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
+      ],
       handler: controller.enqueueMultiplePayments,
     },
     {
@@ -114,6 +149,7 @@ const getRouteMap = (): RouteMap[] => {
       validations: [
         validate(schema.batchPayments),
         invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
       ],
       handler: controller.handleBatchPayments,
     },

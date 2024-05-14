@@ -7,7 +7,7 @@ import { Roles } from '@/lib/constants';
 import schema from './notification.schema';
 import { validate } from '@/lib/handlers/validate';
 import attachRoles from '@/middleware/attachRoles';
-import { invalidate } from '@/lib/handlers/cacha.handler';
+import { invalidate } from '@/lib/handlers/cache.handler';
 const router = Router();
 
 const getRouteMap = (): RouteMap[] => {

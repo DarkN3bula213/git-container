@@ -25,4 +25,9 @@ export default {
   removeBulk: Joi.object().keys({
     ids: Joi.array().items(Joi.string()).required(),
   }),
+  payId: Joi.object({
+    payId: Joi.string()
+      .regex(/^\d{2}\d{2}$/)
+      .required(),
+  }),
 };
