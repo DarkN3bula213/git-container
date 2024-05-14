@@ -85,6 +85,37 @@ export const sortedByClassName = asyncHandler(async (req, res) => {
   }).send(res);
 });
 
+/*<!-- 5. Get ----------------------------( Custom Sorting )>*/
+export const customSorting = asyncHandler( async ( req, res ) =>
+{
+  const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
+  // Custom sorting order for class names
+  const classOrder: { [key: string]: number } = {
+    Nursery: 1,
+    Prep: 2,
+    '1st': 3,
+    '2nd': 4,
+    '3rd': 5,
+    '4th': 6,
+    '5th': 7,
+    '6th': 8,
+    '7th': 9,
+    '8th': 10,
+    '9th': 11,
+    '10th': 12,
+  };
+  const students = await cache.get(key, async () => {
+    return await Student.find({});
+  });
+
+  students.sort((a, b) => {
+    const classDiff = classOrder[a.className] - classOrder[b.className];
+    if (classDiff !== 0) return classDiff;
+    return a.section.localeCompare(b.section);
+  });
+  new SuccessResponse('Students fetched successfully', students).send(res);
+});
+
 /*<!-- 1. Post ----------------------------( createStudent )>*/
 
 export const createStudent = asyncHandler(async (req, res) => {

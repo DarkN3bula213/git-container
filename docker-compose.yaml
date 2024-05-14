@@ -42,8 +42,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: devpassword
       MONGO_INITDB_DATABASE: docker-db
     
-    ports:
-      - '27017:27017'
+    # ports:
+    #   - '27017:27017'
     volumes:
       - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
       - dbdata:/data/db
@@ -71,8 +71,8 @@ services:
     image: redis:alpine
     container_name: redis
     command: redis-server --appendonly no
-    ports:
-      - '6379:6379'
+    # ports:
+    #   - '6379:6379'
  
     networks:
       - app-network

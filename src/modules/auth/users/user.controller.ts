@@ -105,7 +105,7 @@ export const createTempUser = asyncHandler(async (req, res) => {
   if (check) {
     throw new BadRequestError('User with this email already exists');
   }
-  const { username, email, password, name } = req.body;
+  const { username, email, password, name,dob } = req.body;
   const user = new UserModel({
     username: username,
     email: email,
@@ -113,6 +113,7 @@ export const createTempUser = asyncHandler(async (req, res) => {
     name: name,
     temporary: Date.now(),
     isPrime: false,
+    dob:dob
   });
   await user.save();
   return new SuccessResponse('User created successfully', user).send(res);
@@ -194,7 +195,7 @@ export const login = asyncHandler(async (req, res) => {
     // httpOnly: !config.isDevelopment,
     // secure: !config.isDevelopment,
     // sameSite: 'strict',
-    // domain: '.hps-admin.com',
+ 
     httpOnly: true,
     secure: true,
     sameSite: 'strict',
