@@ -1,10 +1,10 @@
-import asyncHandler from "@/lib/handlers/asyncHandler";
+import asyncHandler from '@/lib/handlers/asyncHandler';
 
 export const handleFileUpload = asyncHandler(async (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
   }
- 
+
   res.status(200).json({
     success: true,
     message: 'File uploaded successfully',
@@ -15,10 +15,7 @@ export const handleFileUpload = asyncHandler(async (req, res) => {
   });
 });
 
-
-
 import { supabase } from '@/lib/utils/supabase';
-
 
 export const downloadFile = asyncHandler(async (req, res) => {
   const bucketName = 'utility'; // Your actual bucket name
@@ -52,7 +49,7 @@ export const deleteFile = asyncHandler(async (req, res) => {
     .remove([filePath]); // `remove` accepts an array of paths
 
   if (error) throw error;
- 
+
   res.status(200).json({
     success: true,
     message: 'File deleted successfully',
@@ -62,9 +59,8 @@ export const deleteFile = asyncHandler(async (req, res) => {
 // Get available files
 
 export const getFiles = asyncHandler(async (req, res) => {
-   
-  const bucketName = 'utility'; 
-  const directory = 'uploads'; 
+  const bucketName = 'utility';
+  const directory = 'uploads';
 
   const { data, error } = await supabase.storage
     .from(bucketName)

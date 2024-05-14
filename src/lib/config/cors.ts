@@ -15,9 +15,15 @@ export const corsOptions: cors.CorsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization'],
-  exposedHeaders: ['Set-Cookie'],
   credentials: true,
+  // preflightContinue: true,
   optionsSuccessStatus: 204,
+  methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'x-api-key',
+    'Authorization',
+    'x-access-token',
+  ],
+  exposedHeaders: ['Set-Cookie'],
 };

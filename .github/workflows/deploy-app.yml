@@ -1,9 +1,15 @@
 name: Deploy Application
 
 on:
+  repository_dispatch:
+    types: [trigger-deploy]
   push:
     branches:
       - cidi
+  # push:
+  #   branches:
+  #     - main
+  #     # - cidi
 
 jobs:
   deploy:

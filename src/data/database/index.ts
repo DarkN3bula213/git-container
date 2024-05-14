@@ -4,7 +4,6 @@ import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
 const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
- 
 
 let conStr = '';
 
@@ -14,7 +13,6 @@ if (config.isDocker) {
   conStr = URI;
 }
 
- 
 export const connect = async () => {
   const options = {
     autoIndex: true,

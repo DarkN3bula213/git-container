@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import autoIncrement from 'mongoose-sequence'; 
-
+import autoIncrement from 'mongoose-sequence';
 
 interface Token extends Document {
   token: string;

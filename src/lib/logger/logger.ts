@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import dayjs from 'dayjs';
 import * as path from 'path';
 import * as winston from 'winston';
@@ -161,8 +160,6 @@ export class Logger {
       Logger.logger.log({
         level,
         message: formattedMessage,
-
-
       });
     }
   }

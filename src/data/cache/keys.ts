@@ -3,6 +3,8 @@ export enum Key {
 }
 export enum DynamicKey {
   CLASS = 'class',
+  FEE = 'fee',
+  STUDENTS ='students'
 }
 
 export type DynamicKeyType = `${DynamicKey}:${string}`;

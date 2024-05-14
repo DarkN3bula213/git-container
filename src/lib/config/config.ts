@@ -64,7 +64,7 @@ export const config = {
     parameterLimit: 50000,
   },
   json: {
-    limit: '10mb',
+    limit: '25mb',
   },
   log: {
     level: getOsEnvOptional('LOG_LEVEL'),
@@ -116,5 +116,14 @@ export const config = {
   supabase: {
     url: getOsEnv('SUPABASE_URL'),
     key: getOsEnv('SUPABASE_KEY'),
+  },
+  mail: {
+    host: getOsEnv('EMAIL_HOST'),
+    port: toNumber(getOsEnv('EMAIL_PORT')),
+   
+    auth: {
+      user: getOsEnv('EMAIL_USER'),
+      pass: getOsEnv('EMAIL_PASS'),
+    },
   },
 };

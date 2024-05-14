@@ -30,6 +30,8 @@ export interface User extends Document {
   status: 'active' | 'inactive';
   createdAt: Date;
   updatedAt: Date;
+  isPrime: boolean;
+  temporary?: Date;
 }
 const logger = new Logger(__filename);
 interface UserMethods {
@@ -47,14 +49,15 @@ interface UserModel extends Model<User, {}, UserMethods> {
 
 export const schema = new Schema<User>(
   {
+    temporary: { type: Date, required: false },
     username: {
       type: String,
       // unique: true,
-      required: true, //[+]
+      required: true,
     },
     name: {
       type: String,
-      required: true, //[+]
+      required: true,
     },
     father_name: {
       type: String,
@@ -64,33 +67,29 @@ export const schema = new Schema<User>(
       type: String,
       enum: ['male', 'female'],
       default: 'male',
-      required: true, //[+]
     },
 
     cnic: {
       type: String,
-      required: true, //[+]
     },
     cnic_issued_date: {
       type: Date,
-      required: true, //[+]
     },
     cnic_expiry_date: {
       type: Date,
-      required: true, //[+]
     },
     dob: {
       type: Date,
-      required: true, //[+]
+      required: true,
     },
     email: {
       type: String,
-      required: true, //[+]
+      required: true,
       unique: true,
     },
     password: {
       type: String,
-      required: true, //[+]
+      required: true,
     },
     phone: {
       type: String,
@@ -99,6 +98,10 @@ export const schema = new Schema<User>(
     address: {
       type: String,
       required: false,
+    },
+    isPrime: {
+      type: Boolean,
+      default: false,
     },
     roles: [
       {
@@ -196,3 +199,5 @@ async function updateInfo(user: User): Promise<any> {
     .lean()
     .exec();
 }
+
+schema.index({ temporary: 1 }, { expireAfterSeconds: 86400 });

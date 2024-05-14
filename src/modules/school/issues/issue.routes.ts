@@ -8,7 +8,6 @@ import { setRouter } from '@/lib/utils/utils';
 import { Router } from 'express';
 import { authentication } from '@/middleware/authMiddleware';
 
-
 const getRoutesMap = (): RouteMap[] => {
   return [
     {
@@ -21,6 +20,12 @@ const getRoutesMap = (): RouteMap[] => {
       method: 'post',
       validations: [authentication, validate(schema.createIssue)],
       handler: controller.createIssue,
+    },
+    {
+      path: '/id/:id',
+      method: 'patch',
+
+      handler: controller.getIssueAndUpdateSeenBy,
     },
     {
       path: '/:id',

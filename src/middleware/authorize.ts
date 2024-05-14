@@ -1,6 +1,7 @@
 import { Roles } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
+import { normalizeRoles } from '@/lib/utils/utils';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 import { User } from '@/modules/auth/users/user.model';
 
@@ -10,44 +11,26 @@ export function authorize(requiredRole: Roles) {
   return asyncHandler(async (req, res, next) => {
     const user = req.user as User;
     if (!user || !user.roles) {
-      logger.debug({
-        event: 'User or user roles not found',
-      });
-
       return next();
-      // return res.status(401).send('Authentication required');
     }
 
+    const userRoles = normalizeRoles(user.roles);
     const role = await RoleModel.findOne({
       code: requiredRole,
     });
 
     if (!role) {
-      logger.debug({
-        event: 'Required role not found',
-        role: requiredRole,
-        user: user.roles,
-        result: JSON.stringify(role),
-      });
       return next();
-      // return res.status(404).send('Required role not found');
     }
-    if (user.roles.toString() !== role._id.toString()) {
-      logger.debug({
-        event: 'Insufficient permissions',
-        role: role._id,
-        user: user.roles,
-        result: JSON.stringify(role),
-      });
+
+    if (
+      !userRoles
+        .map((roleId) => roleId.toString())
+        .includes(role._id.toString())
+    ) {
+      return res.status(403).send('Forbidden: Insufficient permissions');
+    } else {
       return next();
-      // return res.status(403).send('Forbidden: Insufficient permissions');
     }
-    logger.debug({
-      event: 'Authorized',
-      role: role._id,
-      user: user.roles,
-      result: JSON.stringify(role),
-    });
-    next();
   });
 }

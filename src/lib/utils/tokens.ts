@@ -11,6 +11,7 @@ const logger = new log(__filename);
 interface TokenPayload {
   user: User;
   session?: string;
+  isPrime?: boolean;
 }
 interface TokenVerificationResult {
   valid: boolean;
@@ -94,7 +95,6 @@ export async function reIssueAccessToken({
 
   // Check for validity of the refresh token
   if (!valid) {
-
     return false;
   }
 
@@ -123,5 +123,4 @@ export async function reIssueAccessToken({
     }
     return accessToken;
   }
- 
 }

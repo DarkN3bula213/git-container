@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import IssueService from './issue.service';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { User } from '@/modules/auth/users/user.model';
 import { Logger } from '@/lib/logger';
@@ -113,3 +113,46 @@ export const deleteReply = asyncHandler(async (req: Request, res: Response) => {
   await IssueService.deleteReply(issueId, replyId, userId);
   res.json({ message: 'Reply successfully deleted' });
 });
+
+export const getIssueAndUpdateSeenBy = asyncHandler(
+  async (req: Request, res: Response): Promise<Response> => {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(400).json({ message: 'Issue ID must be provided' });
+    }
+
+    const user = req.user as User;
+    if (!user) {
+      return res.status(401).json({ message: 'User authentication required' });
+    }
+
+    const issue = await IssueModel.findById(id);
+
+    if (!issue) {
+      return res.status(404).json({ message: 'Issue not found' });
+    }
+
+    // Convert userId to a MongoDB ObjectId
+
+    if (!issue.seenBy) {
+      issue.seenBy = [];
+    }
+    let isSeen = false;
+    // Check if the user's _id is already in the seenBy array
+    if (!issue.seenBy.find((id) => id.equals(user._id))) {
+      // Add the user's _id to the seenBy array
+      issue.seenBy.push(user._id);
+      isSeen = true;
+      // Save the updated issue
+      const updatedIssue = await issue.save();
+
+      return res.status(200).json({
+        ...issue.toObject(),
+        isSeen,
+      });
+    } else {
+      // If the user has already seen the issue, just return it
+      return res.status(200).json(issue);
+    }
+  },
+);

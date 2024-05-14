@@ -2,12 +2,13 @@ import { Router } from 'express';
 import * as controller from './user.controller';
 import { validate } from '@/lib/handlers/validate';
 import schema, { insertMany, register } from './user.schema';
-import { Route, RouteMap } from '@/types/routes';
-import { applyRoutes, setRouter } from '@/lib/utils/utils';
+import { RouteMap } from '@/types/routes';
+import { setRouter } from '@/lib/utils/utils';
 
 import { authentication } from '@/middleware/authMiddleware';
 import attachRoles from '@/middleware/attachRoles';
 import { Roles } from '@/lib/constants';
+import { authorize } from '@/middleware/authorize';
 
 const router = Router();
 
@@ -17,6 +18,18 @@ function getRouteMap(): RouteMap[] {
       path: '/',
       method: 'get',
       handler: controller.getUsers,
+    },
+    {
+      path: '/session',
+      method: 'get',
+      validations: [authentication],
+      handler: controller.checkLogin,
+    },
+    {
+      path: '/check-session',
+      method: 'get',
+
+      handler: controller.checkSession,
     },
     {
       path: '/seed',
@@ -29,6 +42,16 @@ function getRouteMap(): RouteMap[] {
       method: 'post',
       validations: [validate(register)],
       handler: controller.register,
+    },
+    {
+      path: '/aux',
+      method: 'post',
+      validations: [
+        authentication,
+        validate(schema.temporary),
+        authorize(Roles.ADMIN),
+      ],
+      handler: controller.createTempUser,
     },
     {
       path: '/login',
@@ -48,19 +71,28 @@ function getRouteMap(): RouteMap[] {
       validations: [authentication],
     },
     {
-      path: '/:id',
+      path: '/id/:id',
       method: 'get',
       handler: controller.getUserById,
       validations: [authentication],
     },
-    
+
     {
       path: '/:id',
       method: 'delete',
       handler: controller.getUserById,
-      validations: [attachRoles(Roles.ADMIN),authentication],
+      validations: [attachRoles(Roles.ADMIN), authentication],
     },
-    
+    {
+      path: '/status',
+      method: 'get',
+      handler: controller.isAdmin,
+      validations: [
+        attachRoles(Roles.ADMIN),
+        authentication,
+        authorize(Roles.ADMIN),
+      ],
+    },
   ];
 }
 
