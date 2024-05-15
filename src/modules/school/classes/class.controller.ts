@@ -4,7 +4,7 @@ import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { cache } from '@/data/cache/cache.service';
 
 /*<!----------------------------------------(GET ROUTES) */
-export const findClasses = asyncHandler(async (req, res) => {
+export const findClasses = asyncHandler(async (_req, res) => {
   const key = 'classes';
   const cachedClasses = await cache.get(key, async () => {
     return await ClassModel.find().lean().exec();
@@ -40,7 +40,7 @@ export const findClassById = asyncHandler(async (req, res) => {
   new SuccessResponse(' Class', data).send(res);
 });
 
-export const deleteAll = asyncHandler(async (req, res) => {
+export const deleteAll = asyncHandler(async (_req, res) => {
   const data = await ClassModel.deleteMany();
 
   new SuccessResponse('All classes deleted', data).send(res);
@@ -50,7 +50,7 @@ export const findClassByName = asyncHandler(async (req, res) => {
   const data = await ClassModel.find({ className: req.params.name })
     .lean()
     .exec();
-  if (data.length == 0) {
+  if (data.length === 0) {
     throw new BadRequestError('Class not found');
   }
   new SuccessResponse(' Class', data).send(res);
@@ -60,7 +60,7 @@ export const updateClassFee = asyncHandler(async (req, res) => {
   const data = await ClassModel.find({ className: req.params.name })
     .lean()
     .exec();
-  if (data.length == 0) {
+  if (data.length === 0) {
     throw new BadRequestError('Class not found');
   }
   const result = await ClassModel.findByIdAndUpdate(data[0]._id, req.body, {
