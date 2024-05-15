@@ -1,13 +1,13 @@
 import { config } from '@/lib/config';
+import { Logger } from '@/lib/logger';
 import Bull from 'bull';
 import { createUserSession } from './session.model';
+const logger = new Logger(__filename);
 
 export const saveSessionQueue = new Bull('saveSessionQueue', {
   redis: {
-    host: config.isDevelopment
-      ? 'localhost'
-      : process.env.REDIS_HOST || 'redis',
-    port: Number(process.env.REDIS_PORT || 6379),
+    host: config.redis.host,
+    port: config.redis.port,
   },
 });
 
@@ -17,7 +17,7 @@ saveSessionQueue.process(async (job, done) => {
     await createUserSession(userID, startTime, endTime, time); // Make sure this function is properly imported or defined
     done();
   } catch (error: any) {
-    console.error(
+    logger.error(
       `Failed to save session for user ${job.data.userID}: ${error}`,
     );
     done(error);
@@ -49,7 +49,7 @@ export async function removeSaveSessionJob(userID: string) {
   const job = await saveSessionQueue.getJob(`save-session-${userID}`);
   if (job) {
     await job.remove();
-    console.log(
+    logger.debug(
       `Cancelled session save for user ${userID} due to reconnection.`,
     );
   }

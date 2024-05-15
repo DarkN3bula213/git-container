@@ -1,11 +1,18 @@
-import { Middleware, RecursiveRoute, Route, RouteMap } from '@/types/routes';
-import { Router, Response } from 'express';
+import type Role from '@/modules/auth/roles/role.model';
+import { RoleModel } from '@/modules/auth/roles/role.model';
+import type {
+  Middleware,
+  RecursiveRoute,
+  Route,
+  RouteMap,
+} from '@/types/routes';
+import type { Response, Router } from 'express';
 import { Types } from 'mongoose';
+import { logoutCookie } from '../config/cookies';
 import { Roles } from '../constants';
-import Role, { RoleModel } from '@/modules/auth/roles/role.model';
 
 export function applyRoutes(router: Router, routes: Route[]): void {
-  routes.forEach((route) => {
+  for (const route of routes) {
     const { path, method, handler, validation } = route;
 
     if (validation) {
@@ -13,66 +20,24 @@ export function applyRoutes(router: Router, routes: Route[]): void {
     } else {
       router[method](path, handler);
     }
-  });
-}
-
-export function recursiveRouting(router: Router, routes: RecursiveRoute[]) {
-  routes.forEach((route) => {
-    router[route.method](route.path, (req, res, next) => {
-      const executeMiddleware = (middlewares: Middleware[], index: number) => {
-        if (index >= middlewares.length) {
-          if (route.validation) {
-            route.validation(req, res, () => {
-              executeMiddleware(route.postValidationMiddleware || [], 0);
-            });
-          } else {
-            route.handler(req, res, next);
-          }
-        } else {
-          middlewares[index](req, res, () =>
-            executeMiddleware(middlewares, index + 1),
-          );
-        }
-      };
-
-      executeMiddleware(route.preValidationMiddleware || [], 0);
-    });
-  });
-}
-
-function proof(): RecursiveRoute[] {
-  return [
-    {
-      path: '/',
-      method: 'get',
-      validation: () => {},
-      postValidationMiddleware: [() => {}],
-      handler: () => {},
-    },
-  ];
+  }
 }
 
 export function setRouter(router: Router, routes: RouteMap[]): void {
-  routes.forEach((route) => {
+  for (const route of routes) {
     const { path, method, handler, validations } = route;
 
-    if (validations && validations.length) {
+    if (validations?.length) {
       router[method](path, ...validations, handler);
     } else {
       router[method](path, handler);
     }
-  });
+  }
 }
 
 // Utility function to clear cookies
 export const clearAuthCookies = (res: Response) => {
-  res.cookie('accessToken', '', {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    maxAge: -1,
-    domain: '.hps-admin.com',
-  });
+  res.cookie('access', '', logoutCookie);
 };
 
 export const normalizeRoles = (
@@ -82,13 +47,10 @@ export const normalizeRoles = (
     return roles.map((role) =>
       typeof role === 'string' ? new Types.ObjectId(role) : role._id,
     );
-  } else {
-    return [
-      typeof roles === 'string'
-        ? new Types.ObjectId(roles)
-        : (roles as Role)._id,
-    ];
   }
+  return [
+    typeof roles === 'string' ? new Types.ObjectId(roles) : (roles as Role)._id,
+  ];
 };
 
 export const isAdminRolePresent = async (

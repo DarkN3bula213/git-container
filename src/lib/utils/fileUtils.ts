@@ -1,19 +1,10 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
 
-/**
- * Ensures the specified directory exists. If it doesn't, it's created.
- * @param dirPath The path to the directory.
- */
 export function ensureDirSync(dirPath: string): void {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
 }
-
-/**
-File System Utility Functions
-*/
 
 export const createNewDirectory = (dirPath: string): void => {
   ensureDirSync(dirPath);

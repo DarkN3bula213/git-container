@@ -89,7 +89,7 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
 export const makeCustomPayment = asyncHandler(async (req, res) => {
   const { studentId, payId, paymentType } = req.body;
 
-  const user = req.user as User
+  const user = req.user as User;
   if (!user) throw new BadRequestError('User not found');
   const student = await StudentModel.findById(studentId);
   if (!student) throw new BadRequestError('Student not found');

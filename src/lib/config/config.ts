@@ -26,35 +26,18 @@ export const config = {
   app: {
     port: normalizePort(process.env.PORT || getOsEnv('PORT')),
   },
-  cors: (env?: 'dev' | 'prod') => {
-    if (env === 'dev') {
-      return {
-        exposedHeaders: ['Set-Cookie'],
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        credentials: true,
-        origin: 'http://localhost:5173',
-        allowedHeaders: [
-          'Content-Type',
-          'x-api-key',
-          'Authorization',
-          'x-access-token',
-        ],
-        optionsSuccessStatus: 200,
-      };
-    } else {
-      return {
-        origin: getOsEnv('ORIGIN_URL'),
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-        credentials: true,
-        allowedHeaders: [
-          'Content-Type',
-          'x-api-key',
-          'Authorization',
-          'x-access-token',
-        ],
-        optionsSuccessStatus: 200,
-      };
-    }
+  cors: {
+    origin: 'https://hps-admin.com',
+    credentials: true,
+    optionsSuccessStatus: 204,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'x-api-key',
+      'Authorization',
+      'x-access-token',
+    ],
+    exposedHeaders: ['Set-Cookie'],
   },
 
   origin: getOsEnvOptional('ORIGIN_URL'),
@@ -88,7 +71,7 @@ export const config = {
     host: getOsEnv('REDIS_HOST'),
     user: getOsEnv('REDIS_USER'),
     pass: getOsEnv('REDIS_PASS'),
-    port: getOsEnv('REDIS_PORT'),
+    port: toNumber(getOsEnv('REDIS_PORT')),
     uri: getOsEnv('REDIS_URI_DEV'),
   },
   tokens: {
@@ -120,7 +103,7 @@ export const config = {
   mail: {
     host: getOsEnv('EMAIL_HOST'),
     port: toNumber(getOsEnv('EMAIL_PORT')),
-   
+
     auth: {
       user: getOsEnv('EMAIL_USER'),
       pass: getOsEnv('EMAIL_PASS'),

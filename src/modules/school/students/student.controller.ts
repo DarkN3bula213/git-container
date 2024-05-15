@@ -86,8 +86,7 @@ export const sortedByClassName = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 5. Get ----------------------------( Custom Sorting )>*/
-export const customSorting = asyncHandler( async ( req, res ) =>
-{
+export const customSorting = asyncHandler(async (req, res) => {
   const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
   // Custom sorting order for class names
   const classOrder: { [key: string]: number } = {

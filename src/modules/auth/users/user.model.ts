@@ -1,18 +1,10 @@
-import {
-  Document,
-  Schema,
-  Model,
-  model,
-  PopulateOptions,
-  Types,
-  FilterQuery,
-} from 'mongoose';
-import bcrypt from 'bcrypt';
-
-import { Logger } from '@/lib/logger';
-import Role, { RoleModel } from '../roles/role.model';
 import { InternalError } from '@/lib/api';
 import { Roles } from '@/lib/constants';
+import { Logger } from '@/lib/logger';
+import bcrypt from 'bcrypt';
+import { type Document, type Model, Schema, Types, model } from 'mongoose';
+import type Role from '../roles/role.model';
+import { RoleModel } from '../roles/role.model';
 export interface User extends Document {
   name: string;
   username: string;
@@ -33,12 +25,12 @@ export interface User extends Document {
   isPrime: boolean;
   temporary?: Date;
 }
-const logger = new Logger(__filename);
+
 interface UserMethods {
   comparePassword: compoarePassword;
 }
 
-interface UserModel extends Model<User, {}, UserMethods> {
+interface UserModel extends Model<User, UserMethods> {
   customId: { type: number; unique: true };
   findUserByEmail(email: string): Promise<User | null>;
   findUserById(id: string): Promise<User | null>;
@@ -52,7 +44,7 @@ export const schema = new Schema<User>(
     temporary: { type: Date, required: false },
     username: {
       type: String,
-      // unique: true,
+      unique: true,
       required: true,
     },
     name: {
@@ -80,7 +72,6 @@ export const schema = new Schema<User>(
     },
     dob: {
       type: Date,
-      required: true,
     },
     email: {
       type: String,
@@ -120,7 +111,7 @@ export const schema = new Schema<User>(
 
 type compoarePassword = (password: string) => Promise<boolean>;
 
-schema.methods.isDuplicateEmail = async function (email: string) {
+schema.methods.isDuplicateEmail = async (email: string) => {
   const user = await UserModel.findOne({ email });
   if (!user) return false;
   return true;
@@ -162,8 +153,19 @@ schema.statics.createUser = async function (userDetails, roleCode?: string) {
     } catch (err: any) {
       throw new InternalError(err.message);
     }
+  } else {
+    try {
+      const role = await RoleModel.findOne({ code: Roles.HPS });
+      if (!role) throw new InternalError('Role must be defined');
+      const user = {
+        ...userDetails,
+        roles: role._id,
+      };
+      return this.create(user);
+    } catch (err: any) {
+      throw new InternalError(err.message);
+    }
   }
-  return this.create(userDetails);
 };
 
 schema.statics.findUserByEmail = async function (email) {
@@ -192,12 +194,5 @@ export const findUserById = async (id: string) => {
   const user = await UserModel.findById(id).select('-password').lean();
   return user;
 };
-
-async function updateInfo(user: User): Promise<any> {
-  user.updatedAt = new Date();
-  return UserModel.updateOne({ _id: user._id }, { $set: { ...user } })
-    .lean()
-    .exec();
-}
 
 schema.index({ temporary: 1 }, { expireAfterSeconds: 86400 });

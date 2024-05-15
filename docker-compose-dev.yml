@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:latest
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: devuser
+      MONGO_INITDB_ROOT_PASSWORD: devpassword
+      MONGO_INITDB_DATABASE: docker-db
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+      - dbdata:/data/db
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    command: redis-server --appendonly no
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  dbdata:

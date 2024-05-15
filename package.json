@@ -83,6 +83,7 @@
     "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.7.3",
     "@faker-js/faker": "^8.4.1",
     "@jest/globals": "^29.7.0",
     "@types/cookie": "^0.6.0",
@@ -96,6 +97,7 @@
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "biome": "^0.3.3",
     "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

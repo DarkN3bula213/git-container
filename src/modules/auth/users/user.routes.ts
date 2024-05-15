@@ -62,13 +62,14 @@ function getRouteMap(): RouteMap[] {
     {
       path: '/logout',
       method: 'post',
+      validations: [authentication],
       handler: controller.logout,
     },
     {
       path: '/currentUser',
       method: 'get',
-      handler: controller.getCurrentUser,
       validations: [authentication],
+      handler: controller.getCurrentUser,
     },
     {
       path: '/id/:id',

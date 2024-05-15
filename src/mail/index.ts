@@ -1,7 +1,7 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 import nodemailer from 'nodemailer';
-import { Transporter } from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 const logger = new Logger(__filename);
 export class MailSendingService {
   private transporter: Transporter;

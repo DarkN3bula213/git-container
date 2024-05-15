@@ -1,8 +1,7 @@
-import http from 'http';
-import { app } from './app';
-import { Logger } from '@/lib/logger';
+import http from 'node:http';
 import { config } from '@/lib/config';
-// import './data/cache';
+import { Logger } from '@/lib/logger';
+import { app } from './app';
 import { db } from './data/database';
 import { signals } from './lib/constants';
 import SocketService from './sockets';
@@ -12,9 +11,10 @@ const server = http.createServer(app);
 const socketService = SocketService.getInstance(server);
 
 const PORT = config.app.port;
+import path from 'node:path';
 import fs from 'fs-extra';
-import path from 'path';
 import { cache } from './data/cache/cache.service';
+import { mailService } from './mail';
 
 const createDirectories = async () => {
   try {
@@ -35,7 +35,7 @@ const createDirectories = async () => {
       );
     } else {
       logger.error(
-        `An unexpected error occurred while trying to start the server.`,
+        'An unexpected error occurred while trying to start the server.',
       );
     }
   }
@@ -51,6 +51,14 @@ const startServer = async () => {
     cache.connect();
     await db.connect().then(() => {
       server.listen(PORT, () => {
+        if (!config.isDevelopment) {
+          mailService.sendMail(
+            'support@hps-admin.com',
+            'Test Subject',
+            'This is a plain text body',
+            '<h1>This is a HTML body</h1>',
+          );
+        }
         logger.info({
           server: `Server instance instantiated and listening on port ${PORT}.`,
           node: process.env.NODE_ENV,
@@ -64,7 +72,7 @@ const startServer = async () => {
   }
 };
 
-signals.forEach((signal) => {
+for (const signal of signals) {
   process.on(signal, async () => {
     logger.debug(`Received ${signal}. Shutting down gracefully...`);
     cache.disconnect();
@@ -72,9 +80,8 @@ signals.forEach((signal) => {
       logger.debug('Server closed. Exiting process now.');
       process.exit(0);
     });
-    // await cache.disconnect().then(() => logger.debug('Cache disconnected'));
     await db.disconnect().then(() => logger.debug('Database disconnected'));
   });
-});
+}
 
 export { socketService };

@@ -1,8 +1,12 @@
-import asyncHandler from '@/lib/handlers/asyncHandler';
-import { User, UserModel } from './user.model';
+import { cache } from '@/data/cache/cache.service';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
-import { signToken } from '@/lib/utils/tokens';
+import { config } from '@/lib/config';
+import { accessCookie } from '@/lib/config/cookies';
 import { Roles } from '@/lib/constants';
+import asyncHandler from '@/lib/handlers/asyncHandler';
+import { Logger } from '@/lib/logger/logger';
+import { convertToMilliseconds } from '@/lib/utils/fns';
+import { signToken } from '@/lib/utils/tokens';
 import {
   clearAuthCookies,
   fetchRoleCodes,
@@ -10,15 +14,12 @@ import {
   isAdminRolePresent,
   normalizeRoles,
 } from '@/lib/utils/utils';
-import { convertToMilliseconds } from '@/lib/utils/fns';
-import { cache } from '@/data/cache/cache.service';
-import { Logger } from '@/lib/logger/logger';
-import { config } from '@/lib/config';
+import { type User, UserModel } from './user.model';
 
 const logger = new Logger(__filename);
 
 /*<!-- 1. Read  ---------------------------( getUsers )-> */
-export const getUsers = asyncHandler(async (req, res) => {
+export const getUsers = asyncHandler(async (_req, res) => {
   const users = await UserModel.find();
   if (!users) return new BadRequestError('No users found');
   res.status(200).json({
@@ -82,7 +83,7 @@ export const register = asyncHandler(async (req, res) => {
     throw new BadRequestError('Something went wrong');
   }
   const userObj = user.toObject();
-  delete userObj.password;
+  userObj.password = undefined;
 
   res.status(200).json({
     success: true,
@@ -105,7 +106,7 @@ export const createTempUser = asyncHandler(async (req, res) => {
   if (check) {
     throw new BadRequestError('User with this email already exists');
   }
-  const { username, email, password, name,dob } = req.body;
+  const { username, email, password, name, dob } = req.body;
   const user = new UserModel({
     username: username,
     email: email,
@@ -113,7 +114,7 @@ export const createTempUser = asyncHandler(async (req, res) => {
     name: name,
     temporary: Date.now(),
     isPrime: false,
-    dob:dob
+    dob: dob,
   });
   await user.save();
   return new SuccessResponse('User created successfully', user).send(res);
@@ -142,7 +143,7 @@ export const deleteUser = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 2. Delete  ---------------------------( deleteMany )-> */
-export const reset = asyncHandler(async (req, res) => {
+export const reset = asyncHandler(async (_req, res) => {
   const user = await UserModel.deleteMany({});
   res.status(200).json({
     success: true,
@@ -174,12 +175,12 @@ export const login = asyncHandler(async (req, res) => {
     const sessionData = {
       user: { id: user._id, username: user.username, isPremium: user.isPrime },
     };
-    const save = await cache.saveSession(req.sessionID, sessionData);
+    await cache.saveSession(req.sessionID, sessionData);
   } else {
     logger.error('User not found');
   }
   const verified = user.toObject();
-  delete verified.password;
+  verified.password = undefined;
   const payload = {
     user: {
       ...verified,
@@ -191,17 +192,7 @@ export const login = asyncHandler(async (req, res) => {
     expiresIn: '120m',
   });
 
-  res.cookie('access', access, {
-    // httpOnly: !config.isDevelopment,
-    // secure: !config.isDevelopment,
-    // sameSite: 'strict',
- 
-    httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
-    domain: '.hps-admin.com',
-    maxAge: convertToMilliseconds('2h'),
-  });
+  res.cookie('access', access, accessCookie);
 
   const role = normalizeRoles(user.roles);
 
@@ -218,13 +209,13 @@ export const login = asyncHandler(async (req, res) => {
  ** -----------------------------( logout )->
  */
 
-export const logout = asyncHandler(async (req, res) => {
+export const logout = asyncHandler(async (_req, res) => {
   clearAuthCookies(res);
 
   return new SuccessResponse('Logout successful', {}).send(res);
 });
 
-export const isAdmin = asyncHandler(async (req, res) => {
+export const isAdmin = asyncHandler(async (_req, res) => {
   return new SuccessResponse('User is admin', {}).send(res);
 });
 
@@ -235,14 +226,11 @@ export const isAdmin = asyncHandler(async (req, res) => {
 
 export const checkSession = asyncHandler(async (req, res) => {
   const sessionData = await cache.getSession(req.sessionID);
-  if (sessionData && sessionData.user) {
+  if (sessionData?.user) {
     return new SuccessResponse('Session is active', sessionData.user).send(res);
   }
   return new BadRequestError('Session is inactive');
 });
-
-
- 
 
 /** ---------------------------( Authentication )->
  *
@@ -250,16 +238,16 @@ export const checkSession = asyncHandler(async (req, res) => {
  */
 
 export const checkLogin = asyncHandler(async (req, res) => {
-  const user = req.user as User
+  const user = req.user as User;
   if (!user) {
-    throw new BadRequestError('No user found')
+    throw new BadRequestError('No user found');
   }
 
-  const roles = normalizeRoles(user.roles)
+  const roles = normalizeRoles(user.roles);
 
-  const isAdmin = await isAdminRolePresent(roles)
+  const isAdmin = await isAdminRolePresent(roles);
 
-  const roleCodes = await fetchUserPermissions(roles)
+  const roleCodes = await fetchUserPermissions(roles);
 
   const data: IDATA = {
     user: user,
@@ -268,12 +256,12 @@ export const checkLogin = asyncHandler(async (req, res) => {
     isLoggedIn: true,
   };
 
-  return new SuccessResponse('User is logged in', data).send(res)
- })
+  return new SuccessResponse('User is logged in', data).send(res);
+});
 
- type IDATA ={
-  user:User,
-  roles:string[]
-  isAdmin:boolean
-  isLoggedIn:boolean
- }
+type IDATA = {
+  user: User;
+  roles: string[];
+  isAdmin: boolean;
+  isLoggedIn: boolean;
+};

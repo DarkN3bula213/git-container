@@ -1,6 +1,6 @@
-import { Types } from 'mongoose'
-import StudentModel from '../students/student.model'
-import { getPayId } from './payment.utils'
+import { Types } from 'mongoose';
+import StudentModel from '../students/student.model';
+import { getPayId } from './payment.utils';
 
 export async function checkPaymentStatus(className: string, payId: string) {
   return StudentModel.aggregate([
@@ -59,11 +59,11 @@ export async function checkPaymentStatus(className: string, payId: string) {
         recordId: 1, // Ensure this field is included in the projection
       },
     },
-  ])
+  ]);
 }
 
 export const schoolAggregation = async () => {
-  const currentPayId = getPayId()
+  const currentPayId = getPayId();
 
   const students = await StudentModel.aggregate([
     {
@@ -160,10 +160,10 @@ export const schoolAggregation = async () => {
         classes: 1,
       },
     },
-  ]).exec()
-  console.log(students)
-  return students
-}
+  ]).exec();
+  console.log(students);
+  return students;
+};
 export const schoolAggregationBySession = async (payId: string) => {
   const students = await StudentModel.aggregate([
     {
@@ -260,10 +260,10 @@ export const schoolAggregationBySession = async (payId: string) => {
         classes: 1,
       },
     },
-  ]).exec()
-  console.log(students)
-  return students
-}
+  ]).exec();
+  console.log(students);
+  return students;
+};
 export const getStudentHistory = async (id: string) => {
   return await StudentModel.aggregate([
     {
@@ -303,5 +303,5 @@ export const getStudentHistory = async (id: string) => {
         },
       },
     },
-  ])
-}
+  ]);
+};

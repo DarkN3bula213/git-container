@@ -13,8 +13,7 @@ export const imagesPath = path.join(STORAGE_BASE_PATH, 'images');
 export const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
 export const uploadsDir = resolve(__dirname, '..', '..', '..', 'uploads');
 
-
 export const redisConfig = {
   host: config.isDevelopment ? 'localhost' : process.env.REDIS_HOST || 'redis',
   port: Number(process.env.REDIS_PORT || 6379),
-} as const
+} as const;
