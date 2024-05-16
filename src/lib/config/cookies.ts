@@ -6,7 +6,7 @@ export const accessCookie: CookieOptions = {
   httpOnly: !config.isDevelopment,
   secure: !config.isDevelopment,
   sameSite: 'strict',
-  domain: !config.isDevelopment ? '.hps-admin.com' : '',
+  // domain: !config.isDevelopment ? '.hps-admin.com' : '',
   maxAge: convertToMilliseconds('2h'),
 };
 

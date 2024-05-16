@@ -1,12 +1,11 @@
-import Bull, { Queue } from 'bull';
+import Bull, { type Queue } from 'bull';
 import { mailService } from './';
 import { Logger } from '@/lib/logger';
-import { redisConfig } from '@/lib/constants';
+import { redisOptions } from '@/lib/constants';
+
 const logger = new Logger(__filename);
 
-export const mailQueue: Queue = new Bull('mailQueue', {
-  redis: redisConfig,
-});
+export const mailQueue: Queue = new Bull('mailQueue', redisOptions);
 
 mailQueue.process(async (job, done) => {
   try {

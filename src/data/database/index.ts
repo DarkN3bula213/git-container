@@ -26,7 +26,7 @@ export const connect = async () => {
     await mongoose.connect(conStr, options);
     logger.info(`Database connected: ${mongoose.connection.name}`);
     mongoose.connection.on('error', (err) => {
-      logger.error('Mongoose default connection error: ' + err);
+      logger.error(`Mongoose default connection error: ${err}`);
     });
     mongoose.connection.on('disconnected', () => {
       logger.info('Mongoose default connection disconnected');
@@ -37,12 +37,13 @@ export const connect = async () => {
     });
   } catch (err: any) {
     if (retry > 10) {
+      // biome-ignore lint/style/useTemplate: <explanation>
       logger.error('Database connection error: ' + err.message);
       throw err;
     }
     retry += 1;
     setTimeout(connect, 10000);
-    logger.error('Database connection error: ' + err.message);
+    logger.error(`Database connection error: ${err.message}`);
     throw err;
   }
 };

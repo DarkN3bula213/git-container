@@ -1,5 +1,5 @@
 import { Logger } from '@/lib/logger';
-import { Application, Router } from 'express';
+import type { Application } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const logger = new Logger(__filename);

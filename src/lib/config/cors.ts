@@ -1,4 +1,4 @@
-import cors from 'cors';
+import type cors from 'cors';
 import { allowedOrigins } from '../constants/allowedOrigins';
 
 // import { allowedOrigins, headers, methods } from '../constants/allowedOrigins';

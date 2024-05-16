@@ -30,18 +30,6 @@ export function signToken(
     algorithm: 'RS256',
   });
 
-  if (config.isDevelopment) {
-    logger.warn({
-      event: 'SignToken',
-      details: {
-        token,
-        payload,
-        signingKey,
-        options,
-      },
-    });
-  }
-
   return token;
 }
 
@@ -54,8 +42,12 @@ export function verifyToken(
   try {
     const decoded = verify(token, verifyKey);
 
-    if (config.isDevelopment) {
-      logger.warn(`Payload: ${JSON.stringify(decoded)}`);
+    if (!decoded) {
+      return {
+        valid: false,
+        expired: false,
+        decoded: null,
+      };
     }
 
     return {

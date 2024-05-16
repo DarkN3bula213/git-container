@@ -1,7 +1,7 @@
 import { app } from "../src/app";
 import  ApiKey, { ApiKeyModel, findByKey }   from "../src/modules/auth/apiKey/apiKey.model";
 
-  
+ 
 
  export const createMockApiKey = async () => {
    const apiKey = await ApiKeyModel.create({
@@ -18,7 +18,7 @@ import  ApiKey, { ApiKeyModel, findByKey }   from "../src/modules/auth/apiKey/ap
 
  export const cleanUpMockApiKeys = async () => {
    await ApiKeyModel.deleteMany({});
- };
+ }; 
 
 
  /**

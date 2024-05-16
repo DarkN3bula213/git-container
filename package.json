@@ -17,14 +17,15 @@
     "start": "node dist/index.js",
     "scripts": "ts-node src/scripts",
     "serve": "pnpm build && node dist/index.js",
-    "test": "jest --verbose --runInBand --detectOpenHandles",
-    "test:watch": "pnpm jest --watch  --forceExit --runInBand --detectOpenHandles",
+    "test": "jest  --verbose --runInBand --detectOpenHandles",
+    "test:watch": "jest  --no-cache --detectOpenHandles",
     "watch-ts": "tsc -w",
     "prepush-check": "pnpm serve"
   },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "globalTeardown": "<rootDir>/tests/teardown.js",
     "setupFilesAfterEnv": [
       "./tests/setup.ts"
     ],

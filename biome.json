@@ -19,8 +19,8 @@
         "noUselessSwitchCase": "error",
         "useFlatMap": "error"
       },
-      "correctness":{
-        "noUnusedVariables":"error"
+      "correctness": {
+        "noUnusedVariables": "error"
       },
       "style": {
         "noNegationElse": "off",
@@ -32,8 +32,8 @@
         "noDoubleEquals": "error",
         "noThenProperty": "error",
         "useIsArray": "error",
-        "noExplicitAny":"off",
-        "noConsoleLog":"error"
+        "noExplicitAny": "off",
+        "noConsoleLog": "error"
       }
     }
   },
@@ -50,10 +50,14 @@
       "attributePosition": "auto"
     }
   },
- 
+
   "overrides": [
     {
       "include": ["*.json"],
+      "files": ["tests/**/*"],
+      "env": {
+        "jest": true
+      },
       "formatter": {
         "indentWidth": 2
       }

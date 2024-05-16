@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import * as path from 'path';
+import * as path from 'node:path';
 import {
   getOsEnv,
   normalizePort,
@@ -27,9 +27,9 @@ export const config = {
     port: normalizePort(process.env.PORT || getOsEnv('PORT')),
   },
   cors: {
-    origin: 'https://hps-admin.com',
+    origin: 'http://localhost:5173/',
     credentials: true,
-    optionsSuccessStatus: 204,
+ 
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',

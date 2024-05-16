@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import { Logger } from '../logger';
-import { ApiError, ErrorType, InternalError } from '../api';
-import { config } from '../config';
+import type { Application, NextFunction, Request, Response } from 'express';
 import { MulterError } from 'multer';
+import { ApiError, ErrorType, InternalError, NotFoundError } from '../api';
+import { config } from '../config';
+import { Logger } from '../logger';
 
 const logger = new Logger(__filename);
 
@@ -10,7 +10,7 @@ export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ) => {
   if (err instanceof ApiError) {
     ApiError.handle(err, res);
@@ -39,4 +39,9 @@ export const errorHandler = (
     }
     ApiError.handle(new InternalError(), res);
   }
+};
+
+export default (app: Application) => {
+  app.all('*', (_req, _res, next) => next(new NotFoundError()));
+  app.use(errorHandler);
 };

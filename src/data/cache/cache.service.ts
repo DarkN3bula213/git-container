@@ -1,6 +1,5 @@
 // cache.service.ts
 import { Logger } from '@/lib/logger';
-import RedisStore from 'connect-redis';
 const logger = new Logger(__filename);
 
 export interface CacheService {
@@ -21,27 +20,27 @@ interface SessionData {
 }
 
 import { createClient, RedisClientType, RedisClientOptions } from 'redis';
+import redisClient from './cache.client';
+
+// export const redisClient: RedisClientType = createClient({
+//   url: process.env.REDIS_URL,
+// });
+
+// redisClient.on('connect', () => logger.info('Cache is connecting'));
+// redisClient.on('ready', () => logger.info('Cache is ready'));
+// redisClient.on('end', () => logger.info('Cache disconnected'));
+// redisClient.on('reconnecting', () => logger.info('Cache is reconnecting'));
+// redisClient.on('error', (e) => logger.error(e));
 
 class CacheClientService {
   private client: RedisClientType;
 
-  constructor(private readonly options?: RedisClientOptions) {
-    this.client = createClient({
-      url: process.env.REDIS_URL,
-    }); // Create client with provided options
-    this.setupEventListeners();
+  constructor(client: RedisClientType) {
+    this.client = client;
   }
 
-  private setupEventListeners() {
-    this.client.on('connect', () => logger.info('Cache is connecting'));
-    this.client.on('ready', () => logger.info('Cache is ready'));
-    this.client.on('end', () => logger.info('Cache disconnected'));
-    this.client.on('reconnecting', () => logger.info('Cache is reconnecting'));
-    this.client.on('error', (e) => logger.error(e));
-  }
-
-  connect(): void {
-    this.client.connect();
+  async connect(): Promise<void> {
+    await this.client.connect();
   }
 
   disconnect(): void {
@@ -84,4 +83,4 @@ class CacheClientService {
   }
 }
 
-export const cache = new CacheClientService();
+export const cache = new CacheClientService(redisClient);

@@ -151,16 +151,6 @@ export const reset = asyncHandler(async (_req, res) => {
   });
 });
 
-/*--- 3. Delete -----------------------------(deleteUserById)-> */
-export const deleteUserById = asyncHandler(async (req, res) => {
-  const user = await UserModel.findByIdAndDelete(req.params._id);
-  if (!user) res.status(400).json({ success: false });
-  res.status(200).json({
-    success: true,
-    data: user,
-  });
-});
-
 /** -----------------------------( Authentication )->
  *
  ** -----------------------------( login )->
@@ -198,9 +188,12 @@ export const login = asyncHandler(async (req, res) => {
 
   const isAdmin = await isAdminRolePresent(role);
 
+  const roleCodes = await fetchUserPermissions(role);
+
   return new SuccessResponse('Login successful', {
     user: verified,
     isAdmin,
+    permissions: [...roleCodes],
   }).send(res);
 });
 
@@ -210,9 +203,8 @@ export const login = asyncHandler(async (req, res) => {
  */
 
 export const logout = asyncHandler(async (_req, res) => {
-  clearAuthCookies(res);
-
-  return new SuccessResponse('Logout successful', {}).send(res);
+  res.clearCookie('access', accessCookie);
+  return new SuccessResponse('Logged out successfully', {}).send(res);
 });
 
 export const isAdmin = asyncHandler(async (_req, res) => {

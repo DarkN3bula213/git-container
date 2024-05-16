@@ -49,16 +49,16 @@ createDirectories().then(() => {
 const startServer = async () => {
   try {
     cache.connect();
+    if (!config.isDevelopment) {
+      await mailService.sendMail(
+        'support@hps-admin.com',
+        'Test Subject',
+        'This is a plain text body',
+        '<h1>This is a HTML body</h1>',
+      );
+    }
     await db.connect().then(() => {
       server.listen(PORT, () => {
-        if (!config.isDevelopment) {
-          mailService.sendMail(
-            'support@hps-admin.com',
-            'Test Subject',
-            'This is a plain text body',
-            '<h1>This is a HTML body</h1>',
-          );
-        }
         logger.info({
           server: `Server instance instantiated and listening on port ${PORT}.`,
           node: process.env.NODE_ENV,
