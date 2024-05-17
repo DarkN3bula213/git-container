@@ -1,16 +1,16 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 
-import Student from './student.model';
+import { cache } from '@/data/cache/cache.service';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import {
   BadRequestError,
   SuccessMsgResponse,
   SuccessResponse,
 } from '@/lib/api';
-import { updateStudentClassIds } from './student.utils';
-import { studentService } from './student.service';
-import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
-import { cache } from '@/data/cache/cache.service';
 import { studentDetailsWithPayments } from './student.aggregation';
+import Student from './student.model';
+import { studentService } from './student.service';
+import { updateStudentClassIds } from './student.utils';
 
 /**                      *
  *  Aggregation Methods  *
@@ -25,7 +25,7 @@ export const studentFeeAggregated = asyncHandler(async (req, res) => {
 
 /*<!-- 1. Get ----------------------------( getStudents )*/
 
-export const getStudents = asyncHandler(async (req, res) => {
+export const getStudents = asyncHandler(async (_req, res) => {
   const students = await Student.find()
     .select('+name +classId +className +admission_date')
     .lean()
@@ -66,8 +66,8 @@ export const getStudentsById = asyncHandler(async (req, res) => {
 /*<!-- 4. Get ----------------------------( sortedByClassName )>*/
 
 export const sortedByClassName = asyncHandler(async (req, res) => {
-  const queryPage = parseInt(req.query.page as string) || 1;
-  const pageSize = parseInt(req.query.limit as string) || 10;
+  const queryPage = Number.parseInt(req.query.page as string) || 1;
+  const pageSize = Number.parseInt(req.query.limit as string) || 10;
 
   const students = await Student.find()
     .sort({ className: -1 })
@@ -86,7 +86,7 @@ export const sortedByClassName = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 5. Get ----------------------------( Custom Sorting )>*/
-export const customSorting = asyncHandler(async (req, res) => {
+export const customSorting = asyncHandler(async (_req, res) => {
   const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
   // Custom sorting order for class names
   const classOrder: { [key: string]: number } = {
@@ -141,7 +141,23 @@ export const bulkPost = asyncHandler(async (req, res) => {
   console.timeEnd('getStudents');
 });
 
-/*------------------     ----------------------------------- */
+/*<!-- 5. Post ----------------------------( Custom Fee )>*/
+export const updateStudentFeeType = asyncHandler(async (req, res) => {
+  const { studentId, newPaymentType, remark, tuition_fee } = req.body;
+
+  const student = await Student.findById(studentId);
+  if (!student) {
+    return res.status(404).send({ message: 'Student not found' });
+  }
+
+  student.feeType = newPaymentType;
+  student.status.remarks.push(remark);
+  student.tuition_fee = tuition_fee;
+
+  await student.save();
+
+  new SuccessResponse('Student updated successfully', student).send(res);
+});
 
 /*------------------     ----------------------------------- */
 
@@ -157,7 +173,7 @@ export const patchStudent = asyncHandler(async (req, res) => {
 
 /*<!-- 2. Patch ----------------------------( fixStudentClassIds )>*/
 
-export const fixStudentClassIds = asyncHandler(async (req, res) => {
+export const fixStudentClassIds = asyncHandler(async (_req, res) => {
   updateStudentClassIds();
   new SuccessMsgResponse('Fixing student classIds').send(res);
 });
@@ -175,7 +191,7 @@ export const removeStudent = asyncHandler(async (req, res) => {
 
 /*<!-- 2. Delete ----------------------------( removeStudent )>*/
 
-export const resetCollection = asyncHandler(async (req, res) => {
+export const resetCollection = asyncHandler(async (_req, res) => {
   await Student.deleteMany();
   new SuccessMsgResponse('Collection reset successfully').send(res);
 });

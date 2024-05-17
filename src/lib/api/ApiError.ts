@@ -1,15 +1,15 @@
-import { Response } from 'express';
+import type { Response } from 'express';
 
+import { config } from '../config';
 import {
-  AuthFailureResponse,
   AccessTokenErrorResponse,
+  AuthFailureResponse,
+  BadRequestResponse,
+  DuplicateKeyResponse,
+  ForbiddenResponse,
   InternalErrorResponse,
   NotFoundResponse,
-  BadRequestResponse,
-  ForbiddenResponse,
-  DuplicateKeyResponse,
 } from './ApiResponse';
-import { config } from '../config';
 
 export enum ErrorType {
   BAD_TOKEN = 'BadTokenError',
@@ -28,7 +28,7 @@ export enum ErrorType {
 export abstract class ApiError extends Error {
   constructor(
     public type: ErrorType,
-    public message: string = 'error',
+    public message = 'error',
   ) {
     super(type);
   }

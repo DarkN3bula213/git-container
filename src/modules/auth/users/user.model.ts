@@ -24,6 +24,7 @@ export interface User extends Document {
   updatedAt: Date;
   isPrime: boolean;
   temporary?: Date;
+  expireAt?: Date;
 }
 
 interface UserMethods {
@@ -94,6 +95,11 @@ export const schema = new Schema<User>(
       type: Boolean,
       default: false,
     },
+    expireAt: {
+      type: Date,
+      index: { expires: '24h' }, // Set TTL for 24 hours
+      default: undefined,
+    },
     roles: [
       {
         type: Types.ObjectId,
@@ -103,6 +109,7 @@ export const schema = new Schema<User>(
     ],
     status: String,
   },
+
   {
     timestamps: true,
     versionKey: false,
@@ -196,3 +203,19 @@ export const findUserById = async (id: string) => {
 };
 
 schema.index({ temporary: 1 }, { expireAfterSeconds: 86400 });
+
+export async function updateInfo(user: User): Promise<any> {
+  user.updatedAt = new Date();
+  return UserModel.updateOne({ _id: user._id }, { $set: { ...user } })
+    .lean()
+    .exec();
+}
+
+export const checkForUserNameAndEmail = async (
+  username: string,
+  email: string,
+) => {
+  const user = await UserModel.findOne({ $or: [{ username }, { email }] });
+  if (user) return true;
+  return false;
+};

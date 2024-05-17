@@ -30,10 +30,7 @@ export default {
       'string.empty': 'Email cannot be empty',
       'string.email': 'Email must be a valid email',
     }),
-    isPrime: Joi.boolean().required().default(false).messages({
-      'boolean.base': 'IsPremium must be a boolean',
-      'boolean.empty': 'IsPremium cannot be empty',
-    }),
+    isPrime: Joi.boolean().optional().default(false),
     password: Joi.string().required(),
     father_name: Joi.string().optional(),
     gender: Joi.string().optional(),

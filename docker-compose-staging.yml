@@ -1,0 +1,81 @@
+version: '3.9'
+
+services:
+  file_server:
+    image: darkn3bula/dtop-ts:latest
+    ports:
+      - '5050:5050'
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+  
+  app:
+    image: darkn3bula/rocknroll:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=docker
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./logs:/usr/src/app/logs
+      - uploads_volume:/usr/src/app/uploads  # Use a named volume for uploads
+    depends_on:
+      - redis
+      - mongo
+    restart: unless-stopped
+    links:
+      - redis
+      - mongo
+      - file_server
+    
+ 
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: devuser
+      MONGO_INITDB_ROOT_PASSWORD: devpassword
+      MONGO_INITDB_DATABASE: docker-db
+    
+    # ports:
+    #   - '27017:27017'
+    volumes:
+      - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+      - dbdata:/data/db
+    networks:
+      - app-network
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    command: redis-server --appendonly no
+    # ports:
+    #   - '6379:6379'
+ 
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  dbdata:
+  uploads_volume:
+  caddy_config:
+  caddy_data:
+  

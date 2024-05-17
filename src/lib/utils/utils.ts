@@ -76,15 +76,15 @@ export const fetchRoleCodes = async (roleIds: Types.ObjectId[]) => {
   }
 };
 
-export const fetchUserPermissions = async (roleIds: Types.ObjectId[]) => {
-  try {
-    const roles = await RoleModel.find({
-      _id: { $in: roleIds.map((id) => new Types.ObjectId(id)) },
-    });
+// export const fetchUserPermissions = async (roleIds: Types.ObjectId[]) => {
+//   try {
+//     const roles = await RoleModel.find({
+//       _id: { $in: roleIds.map((id) => new Types.ObjectId(id)) },
+//     });
 
-    return roles.map((role) => role.code);
-  } catch (error) {
-    console.error('Error fetching role codes:', error);
-    throw error;
-  }
-};
+//     return roles.map((role) => role.code);
+//   } catch (error) {
+//     console.error('Error fetching role codes:', error);
+//     throw error;
+//   }
+// };

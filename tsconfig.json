@@ -31,5 +31,6 @@
       "addons",
       "uploads/**/*.ts",
       "tests",
+      "Caddyfile"
    ]
 }

@@ -53,4 +53,8 @@ const schema = new mongoose.Schema<IPayment>({
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
+// Add unique index on studentId and payId
+
+schema.index({ studentId: 1, payId: 1 }, { unique: true });
+
 export default mongoose.model<IPayment>('Payment', schema);

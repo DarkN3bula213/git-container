@@ -1,8 +1,8 @@
-import { Schema, Model, Types, model, FilterQuery } from 'mongoose';
-import { Student } from './student.interface';
-import { generateUniqueId } from './student.utils';
 import { Logger as log } from '@/lib/logger';
+import { FilterQuery, type Model, Schema, Types, model } from 'mongoose';
 import { ClassModel, IClass } from '../classes/class.model';
+import type { Student } from './student.interface';
+import { generateUniqueId } from './student.utils';
 
 const Logger = new log(__filename);
 
@@ -202,12 +202,11 @@ studentSchema.pre('save', async function (next) {
 
 studentSchema.pre('save', async function (next) {
   try {
-    const student = this;
     const populatedStudent = await ClassModel.findOne({
-      className: student.className,
+      className: this.className,
     });
     if (!populatedStudent) {
-      throw new Error(`Invalid classId provided`);
+      throw new Error('Invalid classId provided');
     }
     const classSections = populatedStudent?.section;
     if (!classSections.includes(this.section)) {
@@ -257,14 +256,15 @@ studentSchema.pre('save', async function (next) {
  */
 
 // Implement the static method
-const getClassIdByName: IStudentStaticMethods['getClassIdByName'] =
-  async function (className) {
-    const classDoc = await ClassModel.findOne({ className }).exec();
-    if (!classDoc) {
-      throw new Error(`Class with name ${className} not found`);
-    }
-    return classDoc._id;
-  };
+const getClassIdByName: IStudentStaticMethods['getClassIdByName'] = async (
+  className,
+) => {
+  const classDoc = await ClassModel.findOne({ className }).exec();
+  if (!classDoc) {
+    throw new Error(`Class with name ${className} not found`);
+  }
+  return classDoc._id;
+};
 
 // Attach the static method to the schema
 studentSchema.statics.getClassIdByName = getClassIdByName;
@@ -272,3 +272,21 @@ studentSchema.index({ registration_no: 1 }, { unique: true });
 
 const StudentModel = model<Student, IStudentModel>('Student', studentSchema);
 export default StudentModel;
+
+/**
+ *  Student Payment type may be updated by adding a custom tuition fee and adding a remark
+ */
+
+export async function updateStudentPaymentType(
+  studentId: string,
+  paymentType: string,
+  remark: string,
+) {
+  const student = await StudentModel.findById(studentId);
+  if (!student) {
+    throw new Error('Student not found');
+  }
+  student.feeType = paymentType;
+  student.status.remarks.push(remark);
+  await student.save();
+}

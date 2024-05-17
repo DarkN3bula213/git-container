@@ -1,5 +1,6 @@
-// cache.service.ts
 import { Logger } from '@/lib/logger';
+import type { RedisClientType } from 'redis';
+import redisClient from './cache.client';
 const logger = new Logger(__filename);
 
 export interface CacheService {
@@ -7,7 +8,6 @@ export interface CacheService {
   get(key: string): Promise<any>;
   del(key: string): Promise<void>;
 }
-// cache.service.ts
 interface SessionUser {
   id: string;
   username: string;
@@ -18,19 +18,6 @@ interface SessionUser {
 interface SessionData {
   user: SessionUser;
 }
-
-import { createClient, RedisClientType, RedisClientOptions } from 'redis';
-import redisClient from './cache.client';
-
-// export const redisClient: RedisClientType = createClient({
-//   url: process.env.REDIS_URL,
-// });
-
-// redisClient.on('connect', () => logger.info('Cache is connecting'));
-// redisClient.on('ready', () => logger.info('Cache is ready'));
-// redisClient.on('end', () => logger.info('Cache disconnected'));
-// redisClient.on('reconnecting', () => logger.info('Cache is reconnecting'));
-// redisClient.on('error', (e) => logger.error(e));
 
 class CacheClientService {
   private client: RedisClientType;
@@ -68,7 +55,7 @@ class CacheClientService {
   async saveSession(
     sessionId: string,
     sessionData: object,
-    ttl: number = 86400,
+    ttl = 86400,
   ): Promise<void> {
     await this.client.setEx(sessionId, ttl, JSON.stringify(sessionData));
   }

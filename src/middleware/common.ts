@@ -26,8 +26,9 @@ export default (app: Application) => {
   app.use(RequestLogger);
 
   // API Key Middleware
-  app.use(apiKey);
-
+  if (!config.isDevelopment) {
+    app.use(apiKey);
+  }
   // Parsing Middleware
   app.use(urlencoded(config.urlEncoded));
   app.use(json(config.json));
@@ -35,7 +36,7 @@ export default (app: Application) => {
   app.use(cookieParser());
 
   // CORS Middleware
-  if (config.isJest) {
+  if (config.isDevelopment || config.isJest) {
     app.use(
       cors({
         origin: '*',

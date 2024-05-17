@@ -2,7 +2,7 @@ import Joi from 'joi';
 
 import { JoiAuthBearer } from '@/lib/handlers/validate';
 
-export const enum Header {
+export enum Header {
   API_KEY = 'x-api-key',
   AUTHORIZATION = 'authorization',
 }

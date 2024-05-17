@@ -264,7 +264,7 @@ export const schoolAggregationBySession = async (payId: string) => {
   console.log(students);
   return students;
 };
-export const getStudentHistory = async (id: string) => {
+export const getStudentPaymentRecord = async (id: string) => {
   return await StudentModel.aggregate([
     {
       // Match the student by ID

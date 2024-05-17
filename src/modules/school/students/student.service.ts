@@ -1,7 +1,7 @@
 import { BadRequestError } from '@/lib/api';
-import { ClassModel, IClass } from '../classes/class.model';
-import { Student } from './student.interface';
-import StudentModel from './student.model';
+import { ClassModel, type IClass } from '../classes/class.model';
+import type { Student } from './student.interface';
+import StudentModel, { updateStudentPaymentType } from './student.model';
 
 import {
   studentOutputSchema,
@@ -50,6 +50,14 @@ class Service {
     //   throw new Error(outputError.details[0].message);
     // }
     return student;
+  }
+
+  async updateStudentPaymentStatus(
+    studentId: string,
+    paymentStatus: string,
+    remark: string,
+  ) {
+    return await updateStudentPaymentType(studentId, paymentStatus, remark);
   }
 }
 

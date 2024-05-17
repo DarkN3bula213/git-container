@@ -1,34 +1,33 @@
-import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-import Bull from 'bull';
+import QueueFactory from '@/queues';
+import type Bull from 'bull';
 import { createUserSession } from './session.model';
-import { redisOptions } from '@/lib/constants';
 const logger = new Logger(__filename);
 
-export const saveSessionQueue = new Bull('saveSessionQueue', redisOptions);
+// export const saveSessionQueue = new Bull('saveSessionQueue', redisOptions);
 
-saveSessionQueue.on('completed', (job) => {
-  logger.info(`Job completed: ${job.id}`);
-});
+// saveSessionQueue.on('completed', (job) => {
+//   logger.info(`Job completed: ${job.id}`);
+// });
 
-saveSessionQueue.on('failed', (job, err) => {
-  logger.error(`Job failed: ${job.id}, Error: ${err}`);
-});
+// saveSessionQueue.on('failed', (job, err) => {
+//   logger.error(`Job failed: ${job.id}, Error: ${err}`);
+// });
 
-// Handle the 'saveUserSession' job type
-saveSessionQueue.process('saveUserSession', async (job, done) => {
-  try {
-    const { userID, startTime, endTime, time } = job.data;
-    await createUserSession(userID, startTime, endTime, time);
-    logger.info(`Saved session for user ${userID}`);
-    done();
-  } catch (error: any) {
-    logger.error(
-      `Failed to save session for user ${job.data.userID}: ${error}`,
-    );
-    done(error);
-  }
-});
+// // Handle the 'saveUserSession' job type
+// saveSessionQueue.process('saveUserSession', async (job, done) => {
+//   try {
+//     const { userID, startTime, endTime, time } = job.data;
+//     await createUserSession(userID, startTime, endTime, time);
+//     logger.info(`Saved session for user ${userID}`);
+//     done();
+//   } catch (error: any) {
+//     logger.error(
+//       `Failed to save session for user ${job.data.userID}: ${error}`,
+//     );
+//     done(error);
+//   }
+// });
 
 export async function addSaveSessionJob(
   userID: string,
@@ -60,3 +59,28 @@ export async function removeSaveSessionJob(userID: string) {
     );
   }
 }
+
+const processSaveSessionJob = async (
+  job: Bull.Job<any>,
+  done: Bull.DoneCallback,
+) => {
+  const { userID, startTime, endTime, time } = job.data;
+  try {
+    await createUserSession(userID, startTime, endTime, time);
+    logger.info(`Saved session for user ${userID}`);
+    done();
+  } catch (error: any) {
+    logger.error(
+      `Failed to save session for user ${job.data.userID}: ${error}`,
+    );
+    done(error);
+  }
+};
+const processorMap = {
+  saveUserSession: processSaveSessionJob,
+};
+
+const saveSessionQueue = QueueFactory.createQueue(
+  'saveSessionQueue',
+  processorMap,
+);

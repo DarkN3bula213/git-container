@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as controller from './session.controller';
-import { RouteMap } from '@/types/routes';
+import type { RouteMap } from '@/types/routes';
 import { authorize } from '@/middleware/authorize';
 import { Roles } from '@/lib/constants';
 import { setRouter } from '@/lib/utils/utils';

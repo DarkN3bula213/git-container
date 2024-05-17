@@ -1,39 +1,26 @@
-import { Logger } from '@/lib/logger';
-import Bull from 'bull';
-import StudentModel from '../students/student.model';
-import { ClassModel } from '../classes/class.model';
-import paymentModel from './payment.model';
-import { batches, checkIfBatchCompleted, getPayId } from './payment.utils';
 import { socketService } from '@/index';
-import { config } from '@/lib/config';
+import { Logger } from '@/lib/logger';
+import QueueFactory from '@/queues';
+import type Bull from 'bull';
+import { ClassModel } from '../classes/class.model';
+import StudentModel from '../students/student.model';
+import paymentModel from './payment.model';
+import { getPayId } from './payment.utils';
 
 const logger = new Logger(__filename);
 
-// Configure the Bull queue
-const paymentQueue = new Bull('paymentQueue', {
-  redis: {
-    host: config.isDevelopment
-      ? 'localhost'
-      : process.env.REDIS_HOST || 'redis',
-    port: Number(process.env.REDIS_PORT || 6379),
-  },
-});
-
-// Process payment creation jobs
-paymentQueue.process(async (job, done) => {
+const processPaymentJob = async (
+  job: Bull.Job<any>,
+  done: Bull.DoneCallback,
+) => {
   const { studentId, userId } = job.data;
 
   try {
-    logger.info(`Attempting to find student with ID ${studentId}`);
     const student = await StudentModel.findById(studentId);
-    if (!student) {
-      throw new Error('Student not found');
-    }
+    if (!student) throw new Error('Student not found');
 
     const grade = await ClassModel.findById(student.classId);
-    if (!grade) {
-      throw new Error('Grade not found');
-    }
+    if (!grade) throw new Error('Grade not found');
 
     const paymentRecord = new paymentModel({
       studentId: student._id,
@@ -44,7 +31,7 @@ paymentQueue.process(async (job, done) => {
       paymentDate: new Date(),
       createdBy: userId,
       paymentType: student.feeType,
-      payId: getPayId(),
+      payId: getPayId(), // Assuming getPayId() returns a static ID for demonstration
     });
 
     await paymentRecord.save();
@@ -60,37 +47,13 @@ paymentQueue.process(async (job, done) => {
     socketService.notifyPaymentFailure(String(job.id), error.message);
     done(error);
   }
-});
+};
 
-paymentQueue.on('completed', (job, result) => {
-  const batchId = String(job.opts.jobId)?.split('-')[0];
-  const batch = batches.get(batchId);
-  if (batch) {
-    batch.completed.push({ jobId: String(job.id), success: true, result });
-    checkIfBatchCompleted(batchId);
-  }
-});
+const paymentMap = {
+  processPayment: processPaymentJob,
+};
 
-paymentQueue.on('failed', (job, err) => {
-  const batchId = String(job.opts.jobId).split('-')[0];
-  const batch = batches.get(batchId);
-  if (batch) {
-    batch.failed.push({
-      jobId: String(job.id),
-      success: false,
-      error: err.message,
-    });
-    checkIfBatchCompleted(batchId);
-  }
-});
-
-paymentQueue.on('progress', (job, progress) => {
-  console.log(`Job ID: ${job.id} is ${progress}% complete`);
-  logger.debug({
-    event: 'Payment Job Progress',
-    jobId: job.id,
-    progress: progress,
-  });
-});
+// Create the payment queue using the factory
+const paymentQueue = QueueFactory.createQueue('paymentQueue', paymentMap);
 
 export default paymentQueue;

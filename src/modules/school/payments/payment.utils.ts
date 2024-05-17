@@ -60,10 +60,10 @@ export function addJobsToQueue(
   batchId: string,
 ) {
   const jobIds = [];
-  studentIds.forEach((studentId) => {
+  for (const studentId of studentIds) {
     const jobId = `${batchId}-${studentId}`;
     paymentQueue.add({ studentId, userId }, { jobId });
     jobIds.push(jobId);
-  });
+  }
   batches.set(batchId, { total: studentIds.length, completed: [], failed: [] });
 }

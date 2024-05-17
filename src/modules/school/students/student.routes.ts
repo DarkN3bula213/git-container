@@ -1,11 +1,11 @@
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
+import { invalidate } from '@/lib/handlers/cache.handler';
+import { validate } from '@/lib/handlers/validate';
+import { applyRoutes } from '@/lib/utils/utils';
+import type { RouteMap } from '@/types/routes';
+import { Router } from 'express';
 import * as controller from './student.controller';
 import * as schema from './student.schema';
-import { validate } from '@/lib/handlers/validate';
-import { Route, RouteMap } from '@/types/routes';
-import { Router } from 'express';
-import { applyRoutes } from '@/lib/utils/utils';
-import { invalidate } from '@/lib/handlers/cache.handler';
-import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 
 const router = Router();
 
@@ -39,6 +39,15 @@ function getRouteMap(): RouteMap[] {
         invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted')),
       ],
       handler: controller.newAdmission,
+    },
+    {
+      path: '/update-fee',
+      method: 'post',
+      validations: [
+        validate(schema.feeChange),
+        invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted')),
+      ],
+      handler: controller.updateStudentFeeType,
     },
     {
       path: '/:id',

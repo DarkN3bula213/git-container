@@ -2,8 +2,9 @@ import { cache } from '@/data/cache/cache.service';
 import asyncHandler from './asyncHandler';
 import { Logger } from '../logger';
 const logger = new Logger(__filename);
+
 export const invalidate = (key: string) => {
-  return asyncHandler(async (req, res, next) => {
+  return asyncHandler(async (_req, _res, next) => {
     try {
       await cache.getClient().del(key);
       logger.debug({

@@ -24,8 +24,7 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "node",
-    "globalTeardown": "<rootDir>/tests/teardown.js",
+    "testEnvironment": "node", 
     "setupFilesAfterEnv": [
       "./tests/setup.ts"
     ],

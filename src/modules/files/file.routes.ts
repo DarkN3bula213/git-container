@@ -1,4 +1,4 @@
-import { RouteMap } from '@/types/routes';
+import type { RouteMap } from '@/types/routes';
 import { Router } from 'express';
 import * as controller from './files.controller';
 import { supaUpload } from '@/lib/config/multer';

@@ -1,3 +1,4 @@
+import { JoiObjectId } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
 export const insterOne = Joi.object({
@@ -64,4 +65,11 @@ export const register = Joi.object({
     hasLeft: Joi.boolean().optional(),
     remarks: Joi.array().items(Joi.string().optional()).optional(),
   }),
+});
+
+export const feeChange = Joi.object({
+  studentId: JoiObjectId().required(),
+  tuition_fee: Joi.number().required(),
+  feeType: Joi.string().required(),
+  remark: Joi.string().optional(),
 });

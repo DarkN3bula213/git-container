@@ -2,7 +2,7 @@ export const signals: ReadonlyArray<NodeJS.Signals> = ['SIGINT', 'SIGTERM'];
 
 export * from './roles';
 
-import path, { resolve } from 'path';
+import path, { resolve } from 'node:path';
 import { config } from '../config';
 const STORAGE_BASE_PATH = 'uploads';
 

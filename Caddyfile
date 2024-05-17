@@ -1,0 +1,7 @@
+api.hps-sialkot.com {
+    reverse_proxy localhost:3000
+}
+
+files.hps-sialkot.com {
+    reverse_proxy localhost:5050
+}

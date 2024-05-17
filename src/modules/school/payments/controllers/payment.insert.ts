@@ -3,12 +3,12 @@ import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import type { User } from '@/modules/auth/users/user.model';
-import { ClassModel } from '../classes/class.model';
-import StudentModel from '../students/student.model';
-import Payments from './payment.model';
-import paymentQueue from './payment.queue';
-import paymentService from './payment.service';
-import { getPayId } from './payment.utils';
+import { ClassModel } from '../../classes/class.model';
+import StudentModel from '../../students/student.model';
+import Payments from '..//payment.model';
+import paymentQueue from '../payment.queue';
+import paymentService from '../payment.service';
+import { getPayId } from '../payment.utils';
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
 
@@ -74,85 +74,6 @@ export const makeCustomPayment = asyncHandler(async (req, res) => {
     res,
   );
 });
-
-/*<!-- 1. Read  ---------------------------( Get All )-> */
-export const getPayments = asyncHandler(async (_req, res) => {
-  const key = getDynamicKey(DynamicKey.FEE, 'all');
-  const cachedPayments = await cache.get(key, async () => {
-    return await Payments.find({}).lean().exec();
-  });
-  return new SuccessResponse(
-    'Payments fetched successfully',
-    cachedPayments,
-  ).send(res);
-});
-
-/*<!-- 3. Read  ---------------------------( Get Student Payments )-> */
-export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
-  const key = getDynamicKey(DynamicKey.FEE, req.params.studentId);
-
-  const cachedPayments = await cache.get(key, async () => {
-    return await Payments.find({ studentId: req.params.studentId })
-      .lean()
-      .exec();
-  });
-  if (!cachedPayments) throw new BadRequestError('Payments not found');
-  return new SuccessResponse(
-    'Payments fetched successfully',
-    cachedPayments,
-  ).send(res);
-});
-
-/*<!-- 5. Read  ---------------------------( Get Months Payments )-> */
-export const getMonthsPayments = asyncHandler(async (req, res) => {
-  const { payId } = req.params;
-  const key = getDynamicKey(DynamicKey.FEE, payId);
-  const cachedPayment = await cache.get(key, async () => {
-    return await Payments.find({ payId }).lean().exec();
-  });
-  if (!cachedPayment) throw new BadRequestError('Payment not found');
-  return new SuccessResponse(
-    'Payment fetched successfully',
-    cachedPayment,
-  ).send(res);
-});
-
-/*<!-- 1. Delete  ---------------------------( Delete by ID )-> */
-
-export const deletePayment = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const response = await Payments.findByIdAndDelete(id);
-  if (!response) throw new BadRequestError('Payment not found');
-  return new SuccessResponse('Payment deleted successfully', response).send(
-    res,
-  );
-});
-/*<!-- 2. Delete  ---------------------------( Reset )-> */
-export const resetCollection = asyncHandler(async (_req, res) => {
-  const payment = await Payments.deleteMany({});
-  res.status(200).json({
-    success: true,
-    data: payment,
-  });
-});
-
-/*<!-- 3. Delete  ---------------------------( DeleteMany by ID )-> */
-
-export const deleteManyByID = asyncHandler(async (req, res) => {
-  const { ids } = req.body;
-  const response = await Payments.deleteMany({ _id: { $in: ids } });
-  if (!response) throw new BadRequestError('Payments not found');
-  return new SuccessResponse('Payments deleted successfully', response).send(
-    res,
-  );
-});
-
-/****
- *
- *  Queues
- *
- *
- ****/
 
 export const enqueuePaymentCreation = asyncHandler(async (req, res) => {
   const { studentId } = req.body;

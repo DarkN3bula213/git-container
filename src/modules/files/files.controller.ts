@@ -41,12 +41,10 @@ export const downloadFile = asyncHandler(async (req, res) => {
 });
 
 export const deleteFile = asyncHandler(async (req, res) => {
-  const bucketName = 'utility'; // Replace with your actual bucket name
-  const filePath = `uploads/${req.params.filename}`; // Assuming the file path is passed as a URL parameter
+  const bucketName = 'utility';
+  const filePath = `uploads/${req.params.filename}`;
 
-  const { data, error } = await supabase.storage
-    .from(bucketName)
-    .remove([filePath]); // `remove` accepts an array of paths
+  const { error } = await supabase.storage.from(bucketName).remove([filePath]);
 
   if (error) throw error;
 
@@ -58,7 +56,7 @@ export const deleteFile = asyncHandler(async (req, res) => {
 
 // Get available files
 
-export const getFiles = asyncHandler(async (req, res) => {
+export const getFiles = asyncHandler(async (_req, res) => {
   const bucketName = 'utility';
   const directory = 'uploads';
 
