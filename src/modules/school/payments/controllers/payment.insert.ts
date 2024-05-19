@@ -48,7 +48,7 @@ export const createPayment = asyncHandler(async (req, res) => {
 
 /*<!-- 2. Create  ---------------------------( Multiple Payments )-> */
 export const createPaymentsBulk = asyncHandler(async (req, res) => {
-  const user = req.user;
+  const user = req.user as User;
   const { studentIds } = req.body;
   if (!user) throw new BadRequestError('User not found');
   const paymentData = paymentService.createManyPayments(user, studentIds);
@@ -60,7 +60,7 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
 export const makeCustomPayment = asyncHandler(async (req, res) => {
   const { studentId, payId, paymentType } = req.body;
 
-  const user = req.user;
+  const user = req.user as User;
 
   if (!user) throw new BadRequestError('User not found');
 
