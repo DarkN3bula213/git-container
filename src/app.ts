@@ -1,4 +1,4 @@
-import express, { type Application, json, urlencoded } from 'express';
+import express, { type Application } from 'express';
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
 import { Logger } from './lib/logger';

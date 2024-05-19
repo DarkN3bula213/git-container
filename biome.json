@@ -54,10 +54,6 @@
   "overrides": [
     {
       "include": ["*.json"],
-      "files": ["tests/**/*"],
-      "env": {
-        "jest": true
-      },
       "formatter": {
         "indentWidth": 2
       }

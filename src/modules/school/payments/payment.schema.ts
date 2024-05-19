@@ -1,3 +1,4 @@
+import { JoiObjectId } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
 export default {
@@ -29,5 +30,8 @@ export default {
     payId: Joi.string()
       .regex(/^\d{2}\d{2}$/)
       .required(),
+  }),
+  studentId: Joi.object({
+    studentId: JoiObjectId().required(),
   }),
 };

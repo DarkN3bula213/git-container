@@ -1,7 +1,7 @@
 import * as controller from './student.controller';
 import * as schema from './student.schema';
 import { validate } from '@/lib/handlers/validate';
-import { Route, RouteMap } from '@/types/routes';
+import { Route, type RouteMap } from '@/types/routes';
 import { Router } from 'express';
 import { applyRoutes } from '@/lib/utils/utils';
 import { invalidate } from '@/lib/handlers/cache.handler';

@@ -1,3 +1,4 @@
+import { JoiObjectId } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
 export default {
@@ -58,3 +59,7 @@ export const register = Joi.object({
 });
 
 export const insertMany = Joi.array().items(register);
+
+export const studentId = Joi.object({
+  studentId: JoiObjectId().required(),
+});
