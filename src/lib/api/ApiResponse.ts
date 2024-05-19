@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import type { Response } from 'express';
 
 // Helper code for the API consumer to understand the error and handle is accordingly
 enum StatusCode {
@@ -46,6 +46,7 @@ abstract class ApiResponse {
     Object.assign(clone, response);
     // eslint-disable-next-line
     //@ts-ignore
+    // biome-ignore lint/performance/noDelete: <explanation>
     delete clone.status;
     for (const i in clone) if (typeof clone[i] === 'undefined') delete clone[i];
     return clone;

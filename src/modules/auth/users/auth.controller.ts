@@ -10,9 +10,10 @@ import {
   isAdminRolePresent,
   normalizeRoles,
 } from '@/lib/utils/utils';
-import { UserModel } from './user.model';
+import { type User, UserModel } from './user.model';
 
 const logger = new Logger(__filename);
+
 export const login = asyncHandler(async (req, res) => {
   const user = await UserModel.login(req.body.email, req.body.password);
   if (!user) {
@@ -62,7 +63,7 @@ export const logout = asyncHandler(async (_req, res) => {
 });
 
 export const getCurrentUser = asyncHandler(async (req, res) => {
-  const user = req.user;
+  const user = req.user as User;
 
   if (!user) {
     throw new BadRequestError('No user found');
