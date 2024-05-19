@@ -3,9 +3,9 @@ import * as schema from './student.schema';
 import { validate } from '@/lib/handlers/validate';
 import { Route, type RouteMap } from '@/types/routes';
 import { Router } from 'express';
-import { applyRoutes } from '@/lib/utils/utils';
 import { invalidate } from '@/lib/handlers/cache.handler';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
+import { setRouter } from '@/lib/utils/utils';
 
 const router = Router();
 
@@ -77,6 +77,6 @@ function getRouteMap(): RouteMap[] {
   ];
 }
 
-applyRoutes(router, getRouteMap());
+setRouter(router, getRouteMap());
 
 export default router;

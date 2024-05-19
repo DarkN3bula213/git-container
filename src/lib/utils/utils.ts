@@ -11,18 +11,6 @@ import { Types } from 'mongoose';
 import { logoutCookie } from '../config/cookies';
 import { Roles } from '../constants';
 
-export function applyRoutes(router: Router, routes: Route[]): void {
-  for (const route of routes) {
-    const { path, method, handler, validation } = route;
-
-    if (validation) {
-      router[method](path, validation, handler);
-    } else {
-      router[method](path, handler);
-    }
-  }
-}
-
 export function setRouter(router: Router, routes: RouteMap[]): void {
   for (const route of routes) {
     const { path, method, handler, validations } = route;
