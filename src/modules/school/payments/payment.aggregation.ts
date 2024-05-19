@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import type { Types } from 'mongoose';
 import StudentModel from '../students/student.model';
 import { getPayId } from './payment.utils';
 
@@ -161,7 +161,6 @@ export const schoolAggregation = async () => {
       },
     },
   ]).exec();
-  console.log(students);
   return students;
 };
 export const schoolAggregationBySession = async (payId: string) => {
@@ -261,15 +260,14 @@ export const schoolAggregationBySession = async (payId: string) => {
       },
     },
   ]).exec();
-  console.log(students);
   return students;
 };
-export const getStudentHistory = async (id: string) => {
+export const getStudentHistory = async (id: Types.ObjectId) => {
   return await StudentModel.aggregate([
     {
       // Match the student by ID
       $match: {
-        _id: new Types.ObjectId(id),
+        _id: id,
       },
     },
     {

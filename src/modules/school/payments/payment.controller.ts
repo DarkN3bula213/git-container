@@ -1,22 +1,23 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 
-import Payments, { IPayment } from './payment.model';
-import StudentModel from '../students/student.model';
-import { BadRequestError, SuccessResponse } from '@/lib/api';
-import { User } from '@/modules/auth/users/user.model';
-import { addJobsToQueue, getPayId } from './payment.utils';
-import { ClassModel } from '../classes/class.model';
-import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { cache } from '@/data/cache/cache.service';
-import { Student } from '../students/student.interface';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
+import { BadRequestError, SuccessResponse } from '@/lib/api';
+import { Logger } from '@/lib/logger';
+import type { User } from '@/modules/auth/users/user.model';
+import { ClassModel } from '../classes/class.model';
+import type { Student } from '../students/student.interface';
+import StudentModel from '../students/student.model';
 import {
   checkPaymentStatus,
   getStudentHistory,
   schoolAggregation,
   schoolAggregationBySession,
 } from './payment.aggregation';
+import Payments, { type IPayment } from './payment.model';
 import paymentQueue from './payment.queue';
-import { Logger } from '@/lib/logger';
+import { addJobsToQueue, getPayId } from './payment.utils';
+import { Types } from 'mongoose';
 const logger = new Logger(__filename);
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
@@ -113,7 +114,7 @@ export const makeCustomPayment = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 1. Read  ---------------------------( Get All )-> */
-export const getPayments = asyncHandler(async (req, res) => {
+export const getPayments = asyncHandler(async (_req, res) => {
   const key = getDynamicKey(DynamicKey.FEE, 'all');
   const cachedPayments = await cache.get(key, async () => {
     return await Payments.find({}).lean().exec();
@@ -157,7 +158,7 @@ export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 5. Read  ---------------------------( Get Months Payments )-> */
-export const getMonthsPayments = asyncHandler(async (req, res) => {
+export const getMonthsPayments = asyncHandler(async (_req, res) => {
   const payId = getPayId();
   const key = getDynamicKey(DynamicKey.FEE, payId);
   const cachedPayment = await cache.get(key, async () => {
@@ -199,7 +200,7 @@ export const deletePayment = asyncHandler(async (req, res) => {
   );
 });
 /*<!-- 2. Delete  ---------------------------( Reset )-> */
-export const resetCollection = asyncHandler(async (req, res) => {
+export const resetCollection = asyncHandler(async (_req, res) => {
   const payment = await Payments.deleteMany({});
   res.status(200).json({
     success: true,
@@ -237,7 +238,7 @@ export const enqueuePaymentCreation = asyncHandler(async (req, res) => {
 
     res.status(202).send('Payment processing initiated');
   } catch (error) {
-    res.status(500).send('Failed to enqueue payment');
+    res.status(500).send(`Error: ${error}`);
   }
 });
 
@@ -245,12 +246,12 @@ export const enqueueMultiplePayments = asyncHandler(async (req, res) => {
   const { studentIds } = req.body;
   const user = req.user as User;
 
-  studentIds.forEach((studentId: string) => {
+  for (const studentId of studentIds) {
     paymentQueue.add({
       studentId,
       userId: user._id,
     });
-  });
+  }
 
   res.status(202).send('Payment processing for multiple students initiated');
 });
@@ -276,7 +277,7 @@ export const getStudentPaymentsByClass = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 2. Aggregation Functions  ----------------( School Stats ) */
-export const getSchoolStats = asyncHandler(async (req, res) => {
+export const getSchoolStats = asyncHandler(async (_req, res) => {
   const key = getDynamicKey(DynamicKey.FEE, 'STATCURRENT');
   const cachedStats = await cache.get(key, async () => {
     return await schoolAggregation();
@@ -304,6 +305,8 @@ export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 
 export const getStudentPaymentHistory = asyncHandler(async (req, res) => {
   const { studentId } = req.params;
-  const history = await getStudentHistory(studentId);
+  const id = new Types.ObjectId(studentId);
+  logger.debug(id);
+  const history = await getStudentHistory(id);
   return new SuccessResponse('Student payment history', history).send(res);
 });

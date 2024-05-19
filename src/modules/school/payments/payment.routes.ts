@@ -66,11 +66,11 @@ const getRouteMap = (): RouteMap[] => {
       validations: [validate(schema.payId)],
       handler: controller.getPaymentById,
     },
-    {
-      path: '/student/:studentId',
-      method: 'get',
-      handler: controller.getPaymentsByStudentId,
-    },
+    // {
+    //   path: '/student/:studentId',
+    //   method: 'get',
+    //   handler: controller.getPaymentsByStudentId,
+    // },
     {
       path: '/history/:studentId',
       method: 'get',
