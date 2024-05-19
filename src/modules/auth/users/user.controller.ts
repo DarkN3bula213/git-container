@@ -1,7 +1,7 @@
 import { cache } from '@/data/cache/cache.service';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { config } from '@/lib/config';
-import { accessCookie } from '@/lib/config/cookies';
+import { accessCookie, logoutCookie } from '@/lib/config/cookies';
 import { Roles } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger/logger';
@@ -203,7 +203,8 @@ export const login = asyncHandler(async (req, res) => {
  */
 
 export const logout = asyncHandler(async (_req, res) => {
-  res.clearCookie('access', accessCookie);
+  res.clearCookie('access');
+  res.cookie('access', '', logoutCookie);
   return new SuccessResponse('Logged out successfully', {}).send(res);
 });
 

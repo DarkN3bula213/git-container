@@ -15,6 +15,7 @@ export const logoutCookie: CookieOptions = {
   httpOnly: !config.isDevelopment,
   secure: !config.isDevelopment,
   sameSite: 'strict',
-  domain: !config.isDevelopment ? '.hps-admin.com' : '',
+  path: '/',
+  // domain: !config.isDevelopment ? '.hps-admin.com' : '',
   maxAge: -1,
 };
