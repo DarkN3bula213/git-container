@@ -74,11 +74,12 @@ const getRouteMap = (): RouteMap[] => {
       method: 'get',
       handler: controller.getPaymentsByStudentId,
     },
-    // {
-    //   path: '/history/:studentId',
-    //   method: 'get',
-    //   handler: controller.getStudentPaymentHistory,
-    // },
+    {
+      path: '/history/:studentId',
+      method: 'get',
+      validations: [validate(schema.studentId)],
+      handler: report.getStudentPaymentsById,
+    },
     {
       path: '/queue',
       method: 'post',
