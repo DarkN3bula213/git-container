@@ -8,7 +8,7 @@ import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { setRouter } from '@/lib/utils/utils';
 
 const router = Router();
-
+router.route('/sorted').get(controller.customSorting);
 function getRouteMap(): RouteMap[] {
   return [
     {
@@ -16,11 +16,11 @@ function getRouteMap(): RouteMap[] {
       method: 'get',
       handler: controller.getStudents,
     },
-    {
-      path: '/sorted',
-      method: 'get',
-      handler: controller.customSorting,
-    },
+    // {
+    //   path: '/sorted',
+    //   method: 'get',
+    //   handler: controller.customSorting,
+    // },
     {
       path: '/payments/:id',
       method: 'get',

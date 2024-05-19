@@ -18,7 +18,7 @@ import Payments, { type IPayment } from './payment.model';
 import paymentQueue from './payment.queue';
 import { addJobsToQueue, getPayId } from './payment.utils';
 import { Types } from 'mongoose';
-const logger = new Logger(__filename);
+// const logger = new Logger(__filename);
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
 
@@ -306,7 +306,6 @@ export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 export const getStudentPaymentHistory = asyncHandler(async (req, res) => {
   const { studentId } = req.params;
   const id = new Types.ObjectId(studentId);
-  logger.debug(id);
   const history = await getStudentHistory(id);
   return new SuccessResponse('Student payment history', history).send(res);
 });

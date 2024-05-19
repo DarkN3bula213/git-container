@@ -12,6 +12,8 @@ import { ValidationSource, validate } from '@/lib/handlers/validate';
 
 const router = Router();
 
+router.route('/history/:studentId').get(controller.getStudentPaymentHistory);
+
 const getRouteMap = (): RouteMap[] => {
   return [
     {
@@ -71,12 +73,12 @@ const getRouteMap = (): RouteMap[] => {
     //   method: 'get',
     //   handler: controller.getPaymentsByStudentId,
     // },
-    {
-      path: '/history/:studentId',
-      method: 'get',
-      validations: [validate(schema.studentId, ValidationSource.PARAM)],
-      handler: controller.getStudentPaymentHistory,
-    },
+    // {
+    //   path: '/history/:studentId',
+    //   method: 'get',
+    //   validations: [validate(schema.studentId, ValidationSource.PARAM)],
+    //   handler: controller.getStudentPaymentHistory,
+    // },
     {
       path: '/class/:className',
       method: 'get',
