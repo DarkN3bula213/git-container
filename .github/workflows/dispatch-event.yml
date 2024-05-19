@@ -1,3 +1,36 @@
+# name: Deployment Workflow
+
+# on:
+#   repository_dispatch:
+#     types: [deployment_event]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Setup SSH
+#         uses: webfactory/ssh-agent@v0.5.3
+#         with:
+#           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+#       - name: Copy project files
+#         run: |
+#           rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
+#         shell: bash
+
+#       - name: Redeploy application
+#         run: |
+#           ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
+#             cd /var/www/app/git-container/
+#             docker-compose down
+#             docker-compose up --build -d
+#           EOF
+#         shell: bash
+
 name: Deployment Workflow
 
 on:
@@ -17,16 +50,14 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Copy project files
-        run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
-        shell: bash
-
-      - name: Redeploy application
+      - name: Pull and deploy Docker image
         run: |
           ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
-            cd /var/www/app/git-container/
-            docker-compose down
-            docker-compose up --build -d
+            docker pull $IMAGE_NAME:latest
+            docker stop my_container || true
+            docker rm my_container || true
+            docker run -d --name my_container -p 3000:3000 $IMAGE_NAME:latest
           EOF
+        env:
+          IMAGE_NAME: darkn3bula/rocknroll
         shell: bash

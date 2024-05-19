@@ -1,32 +1,54 @@
+# FROM node:18-alpine AS builder
+# WORKDIR /usr/src/app
+# COPY package*.json pnpm-lock.yaml ./
+# RUN npm install -g pnpm && pnpm install
+# COPY . .
+ 
+# RUN pnpm build
+# # Optionally, list the contents of the dist directory
+# RUN ls dist
+
+  
+# FROM node:18-alpine
+# WORKDIR /usr/src/app
+# COPY --from=builder /usr/src/app/dist ./dist
+
+# COPY package*.json pnpm-lock.yaml ./
+# ENV DOCKER_BUILD=true
+# # Set environment variables (sensitive variables should be passed at runtime)
+# ENV NODE_ENV=production
+
+# # Copy the .env file to the container
+ 
+
+# ENV PORT=3000
+
+
+# RUN npm install -g pnpm && pnpm install --production
+# # Optionally, list the contents of the dist directory
+# RUN ls dist
+
+# EXPOSE ${PORT}
+# CMD ["node", "dist/index.js"] 
+
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
 COPY package*.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install
 COPY . .
- 
 RUN pnpm build
-# Optionally, list the contents of the dist directory
 RUN ls dist
 
-  
 FROM node:18-alpine
 WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/dist ./dist
-
 COPY package*.json pnpm-lock.yaml ./
 ENV DOCKER_BUILD=true
-# Set environment variables (sensitive variables should be passed at runtime)
 ENV NODE_ENV=production
-
-# Copy the .env file to the container
- 
-
 ENV PORT=3000
 
-
 RUN npm install -g pnpm && pnpm install --production
-# Optionally, list the contents of the dist directory
 RUN ls dist
 
 EXPOSE ${PORT}
-CMD ["node", "dist/index.js"] 
+CMD ["node", "dist/index.js"]
