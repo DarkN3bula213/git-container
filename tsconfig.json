@@ -32,5 +32,6 @@
       "uploads/**/*.ts",
       "tests",
       "Caddyfile"
-   ]
+   ],
+   "include": ["src/**/*.ts", "types/**/*.d.ts"]
 }
