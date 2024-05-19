@@ -25,7 +25,7 @@ export const studentFeeAggregated = asyncHandler(async (req, res) => {
 
 /*<!-- 1. Get ----------------------------( getStudents )*/
 
-export const getStudents = asyncHandler(async (req, res) => {
+export const getStudents = asyncHandler(async (_req, res) => {
   const students = await Student.find()
     .select('+name +classId +className +admission_date')
     .lean()
@@ -66,8 +66,8 @@ export const getStudentsById = asyncHandler(async (req, res) => {
 /*<!-- 4. Get ----------------------------( sortedByClassName )>*/
 
 export const sortedByClassName = asyncHandler(async (req, res) => {
-  const queryPage = parseInt(req.query.page as string) || 1;
-  const pageSize = parseInt(req.query.limit as string) || 10;
+  const queryPage = Number.parseInt(req.query.page as string) || 1;
+  const pageSize = Number.parseInt(req.query.limit as string) || 10;
 
   const students = await Student.find()
     .sort({ className: -1 })
@@ -86,8 +86,8 @@ export const sortedByClassName = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 5. Get ----------------------------( Custom Sorting )>*/
-export const customSorting = asyncHandler(async (req, res) => {
-  const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
+export const customSorting = asyncHandler(async (_req, res) => {
+  // const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
   // Custom sorting order for class names
   const classOrder: { [key: string]: number } = {
     Nursery: 1,
@@ -103,9 +103,7 @@ export const customSorting = asyncHandler(async (req, res) => {
     '9th': 11,
     '10th': 12,
   };
-  const students = await cache.get(key, async () => {
-    return await Student.find({});
-  });
+  const students = await Student.find({});
 
   students.sort((a, b) => {
     const classDiff = classOrder[a.className] - classOrder[b.className];
@@ -157,7 +155,7 @@ export const patchStudent = asyncHandler(async (req, res) => {
 
 /*<!-- 2. Patch ----------------------------( fixStudentClassIds )>*/
 
-export const fixStudentClassIds = asyncHandler(async (req, res) => {
+export const fixStudentClassIds = asyncHandler(async (_req, res) => {
   updateStudentClassIds();
   new SuccessMsgResponse('Fixing student classIds').send(res);
 });
@@ -175,7 +173,7 @@ export const removeStudent = asyncHandler(async (req, res) => {
 
 /*<!-- 2. Delete ----------------------------( removeStudent )>*/
 
-export const resetCollection = asyncHandler(async (req, res) => {
+export const resetCollection = asyncHandler(async (_req, res) => {
   await Student.deleteMany();
   new SuccessMsgResponse('Collection reset successfully').send(res);
 });
