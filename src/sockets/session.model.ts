@@ -1,4 +1,6 @@
-import { Document, model, Schema } from 'mongoose';
+import { Logger } from '@/lib/logger';
+import { type Document, Schema, model } from 'mongoose';
+const logger = new Logger(__filename);
 
 export interface UserSession extends Document {
   userID: string;
@@ -38,11 +40,18 @@ export const createUserSession = async (
   endTime: Date,
   timeSpent: string,
 ) => {
-  const session = new UserSessionModel({
-    userID,
-    startTime,
-    endTime,
-    timeSpent,
-  });
-  return await session.save();
+  try {
+    // Assume session creation involves database operations
+    const session = new UserSessionModel({
+      userID,
+      startTime,
+      endTime,
+      timeSpent,
+    });
+    await session.save();
+    logger.info(`Session saved for user ${userID}`);
+  } catch (error: any) {
+    logger.error(`Error saving session for user ${userID}: ${error.message}`);
+    throw error; // Important to rethrow the error to ensure Bull understands the job failed
+  }
 };
