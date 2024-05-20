@@ -11,7 +11,8 @@ services:
       - app-network
   
   app:
-    image: darkn3bula/rocknroll:latest
+    build:
+      dockerfile: Dockerfile.production
     env_file:
       - .env
     environment:
@@ -25,6 +26,8 @@ services:
       - redis
       - mongo
     restart: unless-stopped
+    ports:
+      - '3000:3000'
     links:
       - redis
       - mongo
@@ -42,8 +45,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: devpassword
       MONGO_INITDB_DATABASE: docker-db
     
-    # ports:
-    #   - '27017:27017'
+    ports:
+      - '27017:27017'
     volumes:
       - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
       - dbdata:/data/db
