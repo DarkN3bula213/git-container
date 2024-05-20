@@ -5,6 +5,7 @@ import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { Logger } from '@/lib/logger';
 import type { User } from '@/modules/auth/users/user.model';
+import { Types } from 'mongoose';
 import { ClassModel } from '../classes/class.model';
 import type { Student } from '../students/student.interface';
 import StudentModel from '../students/student.model';
@@ -17,7 +18,6 @@ import {
 import Payments, { type IPayment } from './payment.model';
 import paymentQueue from './payment.queue';
 import { addJobsToQueue, getPayId } from './payment.utils';
-import { Types } from 'mongoose';
 // const logger = new Logger(__filename);
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
@@ -80,7 +80,8 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
     };
   });
 
-  const insertedPayments = await Payments.insertMany(records);
+  const insertedPayments: Awaited<ReturnType<typeof Payments.insertMany>> =
+    await Payments.insertMany(records);
   return new SuccessResponse(
     'Payments created successfully',
     insertedPayments,
@@ -308,4 +309,31 @@ export const getStudentPaymentHistory = asyncHandler(async (req, res) => {
   const id = new Types.ObjectId(studentId);
   const history = await getStudentHistory(id);
   return new SuccessResponse('Student payment history', history).send(res);
+});
+
+export const customSorting = asyncHandler(async (_req, res) => {
+  // const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
+  // Custom sorting order for class names
+  const classOrder: { [key: string]: number } = {
+    Nursery: 1,
+    Prep: 2,
+    '1st': 3,
+    '2nd': 4,
+    '3rd': 5,
+    '4th': 6,
+    '5th': 7,
+    '6th': 8,
+    '7th': 9,
+    '8th': 10,
+    '9th': 11,
+    '10th': 12,
+  };
+  const students = await StudentModel.find({});
+
+  students.sort((a, b) => {
+    const classDiff = classOrder[a.className] - classOrder[b.className];
+    if (classDiff !== 0) return classDiff;
+    return a.section.localeCompare(b.section);
+  });
+  new SuccessResponse('Students fetched successfully', students).send(res);
 });
