@@ -1,7 +1,7 @@
-import fs, { promises } from 'fs';
-import path from 'path';
+import fs, { promises } from 'node:fs';
+import path from 'node:path';
 import { format } from 'date-fns';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { Logger } from './logger';
 
 type LogEventProps = {
@@ -23,14 +23,14 @@ async function logEvents({ message, logFileName }: LogEventProps) {
 
   await promises.appendFile(path.join(dir, logFileName), logItem);
 }
-const logger = new Logger(__filename);
+// const logger = new Logger(__filename);
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { config } from '../config';
 
 export async function RequestLogger(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ) {
   logEvents({
