@@ -13,47 +13,34 @@ import hpp from 'hpp';
 import apiKey from '../middleware/useApiKey';
 
 export default (app: Application) => {
-  // Trust proxy
+  // Trust proxy for secure cookies in production
   app.set('trust proxy', 1);
-
+  app.use(cookieParser());
   // Security Middleware
   app.use(helmet());
   app.use(compression());
   app.use(hpp());
 
+  // CORS Middleware - It's generally a good practice to put CORS early in the middleware stack
+  app.use(cors(corsOptions));
+
   // Logging Middleware
   app.use(morgan);
   app.use(RequestLogger);
 
-  // API Key Middleware
-  app.use(apiKey);
-
   // Parsing Middleware
   app.use(urlencoded(config.urlEncoded));
   app.use(json(config.json));
+
+  // Sanitization
   app.use(sanitize());
-  app.use(cookieParser());
 
-  // CORS Middleware
-  app.use(
-    cors({
-      origin: 'https://hps-admin.com',
-      credentials: true,
-      preflightContinue: true,
-      optionsSuccessStatus: 204,
-      methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
-      allowedHeaders: [
-        'Content-Type',
-        'x-api-key',
-        'Authorization',
-        'x-access-token',
-      ],
-      exposedHeaders: ['Set-Cookie'],
-    }),
-  );
+  // Cookies and Sessions
 
-  // Session Middleware
   app.use(session(sessionOptions));
+
+  // API Key Middleware
+  app.use(apiKey);
 
   // Rate Limiting Middleware
   app.use(loginLimiter);

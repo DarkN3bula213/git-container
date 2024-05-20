@@ -9,7 +9,10 @@ import router from './routes';
 const logger = new Logger(__filename);
 
 process.on('uncaughtException', (e) => {
-  logger.error(`uncaughtException: ${e.message}`);
+  logger.error({
+    message: e.message,
+    stack: e.stack,
+  });
 });
 const app: Application = express();
 
