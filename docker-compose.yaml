@@ -12,6 +12,7 @@ services:
   
   app:
     build:
+      context: .   
       dockerfile: Dockerfile.production
     env_file:
       - .env
