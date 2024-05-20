@@ -35,16 +35,22 @@ export default (app: Application) => {
   app.use(cookieParser());
 
   // CORS Middleware
-  if (config.isJest) {
-    app.use(
-      cors({
-        origin: '*',
-        credentials: true,
-      }),
-    );
-  } else {
-    app.use(cors(corsOptions));
-  }
+  app.use(
+    cors({
+      origin: 'https://hps-admin.com',
+      credentials: true,
+      preflightContinue: true,
+      optionsSuccessStatus: 204,
+      methods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'x-api-key',
+        'Authorization',
+        'x-access-token',
+      ],
+      exposedHeaders: ['Set-Cookie'],
+    }),
+  );
 
   // Session Middleware
   app.use(session(sessionOptions));

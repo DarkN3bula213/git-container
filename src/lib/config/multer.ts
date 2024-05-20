@@ -8,36 +8,36 @@ export const supaUpload = multer({
   limits: { fileSize: 1024 * 1024 * 5 }, // Limit to 5MB
 });
 
-import { StorageEngine, diskStorage } from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { type StorageEngine, diskStorage } from 'multer';
+import path from 'node:path';
+import fs from 'node:fs';
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (_req, _file, cb) => {
     cb(null, uploadsDir);
   },
-  filename: function (req, file, cb) {
+  filename: (_req, file, cb) => {
     cb(null, file.originalname);
   },
 });
 
 export const upload = multer({ storage: storage });
 
-import { Application, static as static_ } from 'express';
+import { type Application, static as static_ } from 'express';
 import { uploadsDir } from '../constants';
 
 export const handleUploads = (app: Application) => {
-  app.use(static_(process.cwd() + '/uploads'));
+  app.use(static_(`${process.cwd()}/uploads`));
 };
 
 export const multi_upload = multer({
   storage,
   limits: { fileSize: 1 * 1024 * 1024 }, // 1MB
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
     if (
-      file.mimetype == 'image/png' ||
-      file.mimetype == 'image/jpg' ||
-      file.mimetype == 'image/jpeg'
+      file.mimetype === 'image/png' ||
+      file.mimetype === 'image/jpg' ||
+      file.mimetype === 'image/jpeg'
     ) {
       cb(null, true);
     } else {
@@ -53,7 +53,7 @@ const STORAGE_BASE_PATH = 'uploads';
 
 // Custom storage engine
 export const singles: StorageEngine = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (_req, file, cb) => {
     // Define the base path for 'documents' and 'images'
     const documentsPath = path.join(STORAGE_BASE_PATH, 'documents');
     const imagesPath = path.join(STORAGE_BASE_PATH, 'images');
@@ -73,7 +73,7 @@ export const singles: StorageEngine = multer.diskStorage({
 
     cb(null, destinationPath);
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
     // Extract the suffix from the request, e.g., "invoice", "bill", "memo"
     const suffix = req.body.suffix || '-'; // Fallback suffix
     const dateSuffix = new Date()

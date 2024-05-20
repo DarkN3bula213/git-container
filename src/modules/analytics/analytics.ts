@@ -1,6 +1,6 @@
-import { Application, NextFunction, Request, Response } from 'express';
+import type { Application, NextFunction, Request, Response } from 'express';
 import mongoose, { model, Schema } from 'mongoose';
-import { User } from '../auth/users/user.model';
+import type { User } from '../auth/users/user.model';
 
 const serverActivityLogSchema = new Schema({
   timestamp: {
