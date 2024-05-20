@@ -1,20 +1,35 @@
-import session from 'express-session';
+import type session from 'express-session';
 import { cache } from '@/data/cache/cache.service';
-import RedisStore from 'connect-redis';
+import MongoStore from 'connect-mongo';
 import { convertToMilliseconds } from '../utils/fns';
+import { config } from '../config';
 
-// Rest of the Express app setup...
+const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
+
+let conStr = '';
+
+if (config.isDocker) {
+  conStr = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@mongo:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
+} else {
+  conStr = URI;
+}
 
 export const sessionOptions: session.SessionOptions = {
-  store: new RedisStore({ client: cache }),
+  store: MongoStore.create({
+    mongoUrl: conStr,
+    ttl: convertToMilliseconds('2h'),
+    autoRemove: 'native',
+    collectionName: 'useSessions',
+  }),
   secret: 'delayed-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    domain: '.hps-admin.com',
+    httpOnly: !config.isDevelopment,
+    secure: !config.isDevelopment,
+    sameSite: 'strict',
+    path: '/',
+    // domain: !config.isDevelopment ? '.hps-admin.com' : '',
     maxAge: convertToMilliseconds('2h'),
   },
 };

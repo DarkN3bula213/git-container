@@ -17,7 +17,6 @@ const getRouteMap = (): RouteMap[] => {
     {
       path: '/',
       method: 'get',
-      validations: [validate(schema.studentId, ValidationSource.PARAM)],
       handler: controller.customSorting,
     },
     {

@@ -181,7 +181,8 @@ export const login = asyncHandler(async (req, res) => {
   const access = signToken(payload, 'access', {
     expiresIn: '120m',
   });
-
+  req.session.cookie.expires = new Date(Date.now() + 120 * 60 * 1000);
+  
   res.cookie('access', access, accessCookie);
 
   const role = normalizeRoles(user.roles);
