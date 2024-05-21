@@ -16,7 +16,8 @@ import {
   schoolAggregationBySession,
 } from './payment.aggregation';
 import Payments, { type IPayment } from './payment.model';
-import { getPayId } from './payment.utils';
+import paymentQueue from './payment.queue';
+import { addJobsToQueue, getPayId } from './payment.utils';
 // const logger = new Logger(__filename);
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
@@ -217,6 +218,53 @@ export const deleteManyByID = asyncHandler(async (req, res) => {
   return new SuccessResponse('Payments deleted successfully', response).send(
     res,
   );
+});
+
+/****
+ *
+ *  Queues
+ *
+ *
+ ****/
+
+export const enqueuePaymentCreation = asyncHandler(async (req, res) => {
+  const { studentId } = req.body;
+  const user = req.user as User;
+
+  try {
+    await paymentQueue.add({
+      studentId: studentId,
+      userId: user._id,
+    });
+
+    res.status(202).send('Payment processing initiated');
+  } catch (error) {
+    res.status(500).send(`Error: ${error}`);
+  }
+});
+
+export const enqueueMultiplePayments = asyncHandler(async (req, res) => {
+  const { studentIds } = req.body;
+  const user = req.user as User;
+
+  for (const studentId of studentIds) {
+    paymentQueue.add({
+      studentId,
+      userId: user._id,
+    });
+  }
+
+  res.status(202).send('Payment processing for multiple students initiated');
+});
+
+/** -----------------------------( Batch Payments ) */
+
+export const handleBatchPayments = asyncHandler(async (req, res) => {
+  const user = req.user as User;
+  const { studentIds } = req.body;
+  addJobsToQueue(studentIds, user._id, 'paymentQueue');
+
+  res.status(202).send('Payment processing for multiple students initiated');
 });
 
 /*<!-- 1. Aggregation Functions  ----------------( Get Students With Payments ) */
