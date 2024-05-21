@@ -1,57 +1,82 @@
-import { redisOptions } from '@/lib/constants';
 import { Logger } from '@/lib/logger';
-import Bull from 'bull';
 import { createUserSession } from './session.model';
-const logger = new Logger(__filename);
+// const logger = new Logger(__filename);
+import { config } from '@/lib/config';
+import { type Job, Queue } from 'bullmq';
 
-export const saveSessionQueue = new Bull('saveSessionQueue', redisOptions);
+const connection = {
+  host: config.isDevelopment ? 'localhost' : process.env.REDIS_HOST || 'redis',
+  port: Number(process.env.REDIS_PORT || 6379),
+  password: undefined,
+};
 
-saveSessionQueue.on('completed', (job) => {
-  logger.info(`Job completed: ${job.id}`);
-});
+export const myQueue = new Queue('saveSessionQueue', { connection });
 
-saveSessionQueue.on('failed', (job, err) => {
-  logger.error(`Job failed: ${job.id}, Error: ${err}`);
-});
+// import { Worker } from 'bullmq';
 
-// Handle the 'saveUserSession' job type
-saveSessionQueue.process(async (job) => {
-  // Process job here, e.g., save user session
-  return createUserSession(
-    job.data.userID,
-    job.data.startTime,
-    job.data.endTime,
-    job.data.timeSpent,
-  );
-});
+// const worker = new Worker(
+//   'saveSessionQueue',
+//   async (job: Job) => {
+//     // Process job here, e.g., save user session
+//     return createUserSession(
+//       job.data.userID,
+//       job.data.startTime,
+//       job.data.endTime,
+//       job.data.timeSpent,
+//     );
+//   },
+//   { connection },
+// );
 
-export async function addSaveSessionJob(
+const DEFAULT_REMOVE_CONFIG = {
+  removeOnComplete: {
+    age: 3600,
+  },
+  removeOnFail: {
+    age: 24 * 3600,
+  },
+};
+
+export async function addJobToQueue(
   userID: string,
   startTime: Date,
   endTime: Date,
   time: string,
 ) {
-  await saveSessionQueue.add(
+  return myQueue.add(
     'saveUserSession',
-    {
-      userID,
-      startTime,
-      endTime,
-      time,
-    },
-    {
-      jobId: `save-session-${userID}`,
-      delay: 300000, // 5 minutes delay
-    },
+    createUserSession(userID, startTime, endTime, time),
+    DEFAULT_REMOVE_CONFIG,
   );
 }
 
-export async function removeSaveSessionJob(userID: string) {
-  const job = await saveSessionQueue.getJob(`save-session-${userID}`);
-  if (job) {
-    await job.remove();
-    logger.debug(
-      `Cancelled session save for user ${userID} due to reconnection.`,
-    );
-  }
-}
+// export async function addSaveSessionJob(
+//   userID: string,
+//   startTime: Date,
+//   endTime: Date,
+//   time: string,
+// ) {
+//   await worker.add(
+//     'saveUserSession',
+//     {
+//       userID,
+//       startTime,
+//       endTime,
+//       time,
+//     },
+//     {
+//       jobId: `save-session-${userID}`,
+//       delay: 300000, // 5 minutes delay
+//     },
+//   );
+// }
+
+// export async function removeSaveSessionJob(userID: string) {
+//   const job = await saveSessionQueue.getJob(`save-session-${userID}`);
+//   if (job) {
+//     await job.remove();
+//     logger.debug(
+//       `Cancelled session save for user ${userID} due to reconnection.`,
+//     );
+//   }
+// }

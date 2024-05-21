@@ -68,17 +68,6 @@ const getRouteMap = (): RouteMap[] => {
       validations: [validate(schema.payId)],
       handler: controller.getPaymentById,
     },
-    // {
-    //   path: '/student/:studentId',
-    //   method: 'get',
-    //   handler: controller.getPaymentsByStudentId,
-    // },
-    // {
-    //   path: '/history/:studentId',
-    //   method: 'get',
-    //   validations: [validate(schema.studentId, ValidationSource.PARAM)],
-    //   handler: controller.getStudentPaymentHistory,
-    // },
     {
       path: '/class/:className',
       method: 'get',
@@ -127,34 +116,6 @@ const getRouteMap = (): RouteMap[] => {
         invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
       ],
       handler: controller.deleteManyByID,
-    },
-    {
-      path: '/queue',
-      method: 'post',
-      validations: [
-        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
-        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
-      ],
-      handler: controller.enqueuePaymentCreation,
-    },
-    {
-      path: '/queues',
-      method: 'post',
-      validations: [
-        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
-        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
-      ],
-      handler: controller.enqueueMultiplePayments,
-    },
-    {
-      path: '/batch',
-      method: 'post',
-      validations: [
-        validate(schema.batchPayments),
-        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
-        invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
-      ],
-      handler: controller.handleBatchPayments,
     },
   ];
 };

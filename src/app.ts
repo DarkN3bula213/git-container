@@ -10,8 +10,17 @@ const logger = new Logger(__filename);
 
 process.on('uncaughtException', (e) => {
   logger.error({
+    event: 'Uncaught Exception',
     message: e.message,
     stack: e.stack,
+  });
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error({
+    event: 'Unhandled Rejection',
+    reason: reason,
+    promise: promise,
   });
 });
 const app: Application = express();
