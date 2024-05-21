@@ -1,5 +1,5 @@
 import { Logger } from '@/lib/logger';
-import { addSaveSessionJob } from './session.queue';
+import { addJobToQueue } from './session.queue';
 const logger = new Logger(__filename);
 
 export const handleDisconnect = ({
@@ -21,5 +21,5 @@ export const handleDisconnect = ({
     userID: userId,
     timeSpent: time,
   });
-  addSaveSessionJob(userId, startTime, endTime, time);
+  addJobToQueue(userId, startTime, endTime, time);
 };

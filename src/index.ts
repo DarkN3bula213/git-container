@@ -14,7 +14,6 @@ const PORT = config.app.port;
 import path from 'node:path';
 import fs from 'fs-extra';
 import { cache } from './data/cache/cache.service';
-import { mailService } from './mail';
 
 const createDirectories = async () => {
   try {
@@ -49,14 +48,6 @@ createDirectories().then(() => {
 const startServer = async () => {
   try {
     cache.connect();
-    if (!config.isDevelopment) {
-      await mailService.sendMail(
-        'support@hps-admin.com',
-        'Test Subject',
-        'This is a plain text body',
-        '<h1>This is a HTML body</h1>',
-      );
-    }
     await db.connect().then(() => {
       server.listen(PORT, () => {
         logger.info({
