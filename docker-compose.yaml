@@ -12,8 +12,12 @@ services:
   
   app:
     build:
+    # cmd for no cache
+     
+    
       context: .   
       dockerfile: Dockerfile.production
+      no_cache: true
     env_file:
       - .env
     environment:
@@ -34,6 +38,9 @@ services:
       - redis
       - mongo
       - file_server
+
+
+
     
  
     networks:
