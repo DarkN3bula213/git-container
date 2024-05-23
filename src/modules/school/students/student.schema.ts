@@ -65,3 +65,9 @@ export const register = Joi.object({
     remarks: Joi.array().items(Joi.string().optional()).optional(),
   }),
 });
+
+export const changeFee = Joi.object({
+  studentId: Joi.string().required(),
+  amount: Joi.number().required(),
+  remarks: Joi.string().required(),
+});

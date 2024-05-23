@@ -5,7 +5,7 @@ import cookie from 'cookie';
 const logger = new Logger(__filename);
 
 import type { Server as HttpServer } from 'node:http';
-import { Server as SocketIOServer, type Socket } from 'socket.io';
+import { type Socket, Server as SocketIOServer } from 'socket.io';
 import { addJobToQueue } from './session.queue';
 
 class SocketService {
@@ -82,7 +82,7 @@ class SocketService {
           socket.join(`paymentRoom-${roomId}`);
         });
 
-        socket.on('disconnect', () => {
+        socket.on('disconnect', async () => {
           const endTime = new Date();
           const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
           const hours = Math.floor(timeSpent / 3600);
@@ -96,7 +96,11 @@ class SocketService {
             timeSpent: time,
           });
 
-          addJobToQueue(userID, startTime, endTime, time);
+          try {
+            await addJobToQueue(userID, startTime, endTime, time);
+          } catch (error: any) {
+            logger.error(error.message);
+          }
         });
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);

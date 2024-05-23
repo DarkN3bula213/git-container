@@ -3,7 +3,7 @@ import UserSessionModel from './session.model';
 
 /*<!----------(3 Behaviors)------------------------(GET) */
 
-export const getSessions = asyncHandler(async (req, res) => {
+export const getSessions = asyncHandler(async (_req, res) => {
   const sessions = await UserSessionModel.find();
   res.status(200).json(sessions);
 });
@@ -20,7 +20,7 @@ export const getSessionsByUserId = asyncHandler(async (req, res) => {
   res.status(200).json(sessions);
 });
 
-export const getAggregateSessions = asyncHandler(async (req, res) => {
+export const getAggregateSessions = asyncHandler(async (_req, res) => {
   const sessions = await UserSessionModel.aggregate([
     {
       $addFields: {
@@ -61,7 +61,7 @@ export const deleteSession = asyncHandler(async (req, res) => {
   res.status(200).json(session);
 });
 
-export const deleteAllSessions = asyncHandler(async (req, res) => {
+export const deleteAllSessions = asyncHandler(async (_req, res) => {
   const sessions = await UserSessionModel.deleteMany();
   res.status(200).json(sessions);
 });

@@ -6,6 +6,9 @@ import { Router } from 'express';
 import { invalidate } from '@/lib/handlers/cache.handler';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { setRouter } from '@/lib/utils/utils';
+import { Roles } from '@/lib/constants';
+import attachRoles from '@/middleware/attachRoles';
+import { authorize } from '@/middleware/authorize';
 
 const router = Router();
 router.route('/sorted').get(controller.customSorting);
@@ -16,11 +19,17 @@ function getRouteMap(): RouteMap[] {
       method: 'get',
       handler: controller.getStudents,
     },
-    // {
-    //   path: '/sorted',
-    //   method: 'get',
-    //   handler: controller.customSorting,
-    // },
+    {
+      path: '/update-fee',
+      method: 'put',
+      validations: [
+        attachRoles(Roles.ADMIN),
+        authorize(Roles.ADMIN),
+        validate(schema.changeFee),
+        invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted')),
+      ],
+      handler: controller.updateStudentFees,
+    },
     {
       path: '/payments/:id',
       method: 'get',

@@ -1,16 +1,17 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 
-import Student from './student.model';
+import { cache } from '@/data/cache/cache.service';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import {
   BadRequestError,
   SuccessMsgResponse,
   SuccessResponse,
 } from '@/lib/api';
-import { updateStudentClassIds } from './student.utils';
-import { studentService } from './student.service';
-import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
-import { cache } from '@/data/cache/cache.service';
+import { ClassModel } from '../classes/class.model';
 import { studentDetailsWithPayments } from './student.aggregation';
+import Student from './student.model';
+import { studentService } from './student.service';
+import { updateStudentClassIds } from './student.utils';
 
 /**                      *
  *  Aggregation Methods  *
@@ -160,9 +161,6 @@ export const fixStudentClassIds = asyncHandler(async (_req, res) => {
   new SuccessMsgResponse('Fixing student classIds').send(res);
 });
 
-/*------------------     ----------------------------------- */
-/*------------------     ----------------------------------- */
-
 /*<!-- 1. Delete ----------------------------( removeStudent )>*/
 
 export const removeStudent = asyncHandler(async (req, res) => {
@@ -177,3 +175,47 @@ export const resetCollection = asyncHandler(async (_req, res) => {
   await Student.deleteMany();
   new SuccessMsgResponse('Collection reset successfully').send(res);
 });
+
+/*------------------     ----------------------------------- */
+export const updateStudentFees = asyncHandler(async (req, res) => {
+  const { studentId, amount, remarks } = req.body;
+
+  if (!studentId || !amount || !remarks) {
+    return res
+      .status(400)
+      .json({ message: 'Please provide studentId and amount' });
+  }
+
+  const check = await Student.findById(studentId);
+  if (!check) {
+    return res.status(404).json({ message: 'Student not found' });
+  }
+  const classData = await ClassModel.findById(check.classId);
+
+  if (!classData) {
+    throw new BadRequestError('Class not found');
+  }
+  const isNormal = classData.fee === check.tuition_fee;
+
+  const update = {
+    $set: {
+      'status.isSpecialCondition': isNormal,
+      tuition_fee: amount,
+    },
+    $push: {
+      'status.remarks': remarks,
+    },
+  };
+
+  const student = await Student.findByIdAndUpdate(studentId, update, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!student) {
+    return res.status(404).json({ message: 'Student not found' });
+  }
+
+  new SuccessResponse('Student fees updated successfully', student).send(res);
+});
+/*------------------     ----------------------------------- */
