@@ -19,7 +19,7 @@ interface SessionData {
   user: SessionUser;
 }
 
-import { createClient, RedisClientType, RedisClientOptions } from 'redis';
+import { RedisClientOptions, type RedisClientType, createClient } from 'redis';
 import redisClient from './cache.client';
 
 // export const redisClient: RedisClientType = createClient({
@@ -68,7 +68,7 @@ class CacheClientService {
   async saveSession(
     sessionId: string,
     sessionData: object,
-    ttl: number = 86400,
+    ttl = 86400,
   ): Promise<void> {
     await this.client.setEx(sessionId, ttl, JSON.stringify(sessionData));
   }

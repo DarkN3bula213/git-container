@@ -19,7 +19,8 @@ services:
     environment:
       - NODE_ENV=docker
       - PORT=3000
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://redis
+      # - REDIS_URL=redis://redis:6379
     volumes:
       - ./logs:/usr/src/app/logs
       - uploads_volume:/usr/src/app/uploads  # Use a named volume for uploads
@@ -76,7 +77,7 @@ services:
     container_name: redis
     command: redis-server --appendonly no
     # ports:
-    #   - '6379:6379'
+    #   - '6379'
  
     networks:
       - app-network

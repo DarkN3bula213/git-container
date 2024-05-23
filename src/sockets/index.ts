@@ -6,7 +6,7 @@ const logger = new Logger(__filename);
 
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
-import { addJobToQueue } from './session.queue';
+import { saveSessionQueue } from './session.queue';
 
 class SocketService {
   private io: SocketIOServer;
@@ -97,7 +97,7 @@ class SocketService {
           });
 
           try {
-            await addJobToQueue(userID, startTime, endTime, time);
+            await saveSessionQueue.add({ userID, startTime, endTime, time });
           } catch (error: any) {
             logger.error(error.message);
           }
