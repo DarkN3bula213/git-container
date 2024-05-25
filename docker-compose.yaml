@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3.8'
 
 services:
   file_server:
@@ -12,10 +12,7 @@ services:
   
   app:
     build:
-    # cmd for no cache
-     
-    
-      context: .   
+      context: .
       dockerfile: Dockerfile.production
       no_cache: true
     env_file:
@@ -27,7 +24,7 @@ services:
       # - REDIS_URL=redis://redis:6379
     volumes:
       - ./logs:/usr/src/app/logs
-      - uploads_volume:/usr/src/app/uploads  # Use a named volume for uploads
+      - uploads_volume:/usr/src/app/uploads # Use a named volume for uploads
     depends_on:
       - redis
       - mongo
@@ -38,11 +35,6 @@ services:
       - redis
       - mongo
       - file_server
-
-
-
-    
- 
     networks:
       - app-network
 
