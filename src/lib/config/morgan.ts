@@ -1,7 +1,7 @@
-import morgan from 'morgan';
 import colors from 'colors';
 import dayjs from 'dayjs';
-import { Request } from 'express';
+import type { Request } from 'express';
+import morgan from 'morgan';
 import { config } from './config';
 
 if (!config.isTest) {
