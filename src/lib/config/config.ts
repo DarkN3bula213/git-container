@@ -1,11 +1,11 @@
-import * as dotenv from 'dotenv';
 import * as path from 'node:path';
+import * as dotenv from 'dotenv';
 import {
-  getOsEnv,
-  normalizePort,
-  getOsEnvOptional,
-  toNumber,
   getDecodedOsEnv,
+  getOsEnv,
+  getOsEnvOptional,
+  normalizePort,
+  toNumber,
 } from './utils';
 
 dotenv.config({
@@ -29,7 +29,7 @@ export const config = {
   cors: {
     origin: 'http://localhost:5173/',
     credentials: true,
- 
+
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',
@@ -72,7 +72,7 @@ export const config = {
     user: getOsEnv('REDIS_USER'),
     pass: getOsEnv('REDIS_PASS'),
     port: toNumber(getOsEnv('REDIS_PORT')),
-    uri: getOsEnv('REDIS_URI_DEV'),
+    uri: getOsEnv('REDIS_URL'),
   },
   tokens: {
     jwtSecret: getOsEnv('JWT_SECRET'),
