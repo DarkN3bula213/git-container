@@ -1,5 +1,5 @@
-import { Roles } from '@/lib/constants';
-import { Types, Schema, Model, Document, model } from 'mongoose';
+import { Permissions, Roles } from '@/lib/constants';
+import { type Document, type Model, Schema, type Types, model } from 'mongoose';
 
 export default interface Role extends Document {
   _id: Types.ObjectId;
@@ -7,6 +7,7 @@ export default interface Role extends Document {
   status?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  permissions: Permissions[];
 }
 
 const schema = new Schema<Role>({
@@ -20,6 +21,11 @@ const schema = new Schema<Role>({
   status: {
     type: Schema.Types.Boolean,
     default: true,
+  },
+  permissions: {
+    type: [String],
+    enum: Permissions, // Set permissions from Permissions enum
+    default: [Permissions.READALL],
   },
   createdAt: {
     type: Schema.Types.Date,
