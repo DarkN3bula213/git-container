@@ -87,7 +87,7 @@ class SocketService {
           socket.join(`paymentRoom-${roomId}`);
         });
 
-        socket.on('disconnect', async () => {
+        socket.on('disconnect', () => {
           const endTime = new Date();
           const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
           const hours = Math.floor(timeSpent / 3600);
@@ -95,12 +95,13 @@ class SocketService {
           const seconds = Math.floor(timeSpent % 60);
           const time = `${hours}h ${minutes}m ${seconds}s`;
 
-          try {
-            addSaveSessionJob(userID as string, startTime, endTime, time);
-            logger.info(`Saved session for user ${userID}`);
-          } catch (error: any) {
-            logger.error(error.message);
-          }
+          // Add save session job
+          addSaveSessionJob(userID as string, startTime, endTime, time);
+          logger.info({
+            event: 'User disconnected',
+            userID: (userID as string) || 'unknown',
+            timeSpent: time,
+          });
         });
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);
