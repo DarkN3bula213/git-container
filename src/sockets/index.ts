@@ -6,8 +6,12 @@ const logger = new Logger(__filename);
 
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
-import { removeSaveSessionJob, saveSessionQueue } from './session.queue';
 import { sessionQueue } from './session.bull';
+import {
+  addSaveSessionJob,
+  removeSaveSessionJob,
+  saveSessionQueue,
+} from './session.queue';
 
 class SocketService {
   private io: SocketIOServer;
@@ -92,7 +96,7 @@ class SocketService {
           const time = `${hours}h ${minutes}m ${seconds}s`;
 
           try {
-            sessionQueue.addSession({ userID, startTime, endTime, time });
+            addSaveSessionJob(userID as string, startTime, endTime, time);
             logger.info(`Saved session for user ${userID}`);
           } catch (error: any) {
             logger.error(error.message);
