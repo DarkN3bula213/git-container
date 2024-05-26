@@ -8,7 +8,13 @@ const logger = new Logger(__filename);
 const redisConfig = {
   host: config.isDevelopment ? 'localhost' : process.env.REDIS_HOST || 'redis',
   port: Number(process.env.REDIS_PORT || 6379),
-  password: undefined, // Use a password if necessary
+  password: undefined,
+  retryStrategy: (times: number) => {
+    // A simple example of a retry strategy
+    // This will retry after 200 ms, then double each time
+    return Math.min(times * 200, 2000);
+  },
+  maxRetriesPerRequest: null, // Disable limit on retries per request
 };
 
 export const saveSessionQueue = new Bull('saveSessionQueue', {

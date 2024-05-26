@@ -7,6 +7,7 @@ const logger = new Logger(__filename);
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
 import { removeSaveSessionJob, saveSessionQueue } from './session.queue';
+import { sessionQueue } from './session.bull';
 
 class SocketService {
   private io: SocketIOServer;
@@ -73,7 +74,7 @@ class SocketService {
         logger.info(`User ${verificationResult.decoded?.user.name} connected`);
 
         // Remove existing save session job if reconnecting
-        removeSaveSessionJob(userID);
+        // removeSaveSessionJob(userID);
 
         const startTime = new Date();
 
@@ -91,7 +92,7 @@ class SocketService {
           const time = `${hours}h ${minutes}m ${seconds}s`;
 
           try {
-            await saveSessionQueue.add({ userID, startTime, endTime, time });
+            sessionQueue.addSession({ userID, startTime, endTime, time });
             logger.info(`Saved session for user ${userID}`);
           } catch (error: any) {
             logger.error(error.message);
