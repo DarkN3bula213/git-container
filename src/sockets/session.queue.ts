@@ -29,6 +29,10 @@ saveSessionQueue.on('failed', (job, err) => {
   logger.error(`Job failed: ${job.id}, Error: ${err}`);
 });
 
+saveSessionQueue.on('progress', (job) => {
+  logger.info(`Job progress: ${job.id}, Progress: ${job.progress}`);
+});
+
 saveSessionQueue.process('saveUserSession', async (job) => {
   try {
     const { userID, startTime, endTime, time } = job.data;

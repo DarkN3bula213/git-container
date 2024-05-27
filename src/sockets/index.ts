@@ -6,12 +6,7 @@ const logger = new Logger(__filename);
 
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
-import { sessionQueue } from './session.bull';
-import {
-  addSaveSessionJob,
-  removeSaveSessionJob,
-  saveSessionQueue,
-} from './session.queue';
+import { handleDisconnect } from './socket.utils';
 
 class SocketService {
   private io: SocketIOServer;
@@ -45,7 +40,7 @@ class SocketService {
   }
   public emit(eventName: string, message: any, roomId?: string): void {
     if (roomId) {
-      // Emit to a specific room
+      // Emit to a specific roomhttps://biomejs.dev/linter/rules/no-explicit-any
       this.io.to(roomId).emit(eventName, message);
     } else {
       // Broadcast to all connected sockets
@@ -80,29 +75,12 @@ class SocketService {
         // Remove existing save session job if reconnecting
         // removeSaveSessionJob(userID);
 
-        const startTime = new Date();
-
         socket.on('joinPaymentRoom', (roomId) => {
           logger.info(`User ${userID} joined payment room ${roomId}`);
           socket.join(`paymentRoom-${roomId}`);
         });
 
-        socket.on('disconnect', () => {
-          const endTime = new Date();
-          const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
-          const hours = Math.floor(timeSpent / 3600);
-          const minutes = Math.floor((timeSpent % 3600) / 60);
-          const seconds = Math.floor(timeSpent % 60);
-          const time = `${hours}h ${minutes}m ${seconds}s`;
-
-          // Add save session job
-          addSaveSessionJob(userID as string, startTime, endTime, time);
-          logger.info({
-            event: 'User disconnected',
-            userID: (userID as string) || 'unknown',
-            timeSpent: time,
-          });
-        });
+        socket.on('disconnect', () => handleDisconnect);
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);
       }
