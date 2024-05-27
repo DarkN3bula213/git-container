@@ -80,7 +80,11 @@ class SocketService {
           socket.join(`paymentRoom-${roomId}`);
         });
 
-        socket.on('disconnect', () => handleDisconnect);
+        socket.on(
+          'disconnect',
+          async () =>
+            await handleDisconnect({ userId: userID, startTime: new Date() }),
+        );
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);
       }

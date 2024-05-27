@@ -16,7 +16,7 @@ export const handleDisconnect = async ({
   const minutes = Math.floor((timeSpent % 3600) / 60);
   const seconds = Math.floor(timeSpent % 60);
   const time = `${hours}h ${minutes}m ${seconds}s`;
-  await createUserSession(userId, startTime, endTime, time);
+  // await createUserSession(userId, startTime, endTime, time);
   logger.info({
     event: 'User disconnected',
     userID: userId,

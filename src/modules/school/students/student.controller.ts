@@ -8,10 +8,14 @@ import {
   SuccessResponse,
 } from '@/lib/api';
 import { ClassModel } from '../classes/class.model';
-import { studentDetailsWithPayments } from './student.aggregation';
+import {
+  allStudentsWithPayments,
+  studentDetailsWithPayments,
+} from './student.aggregation';
 import Student from './student.model';
 import { studentService } from './student.service';
 import { updateStudentClassIds } from './student.utils';
+import { getPayId } from '../payments/payment.utils';
 
 /**                      *
  *  Aggregation Methods  *
@@ -88,8 +92,6 @@ export const sortedByClassName = asyncHandler(async (req, res) => {
 
 /*<!-- 5. Get ----------------------------( Custom Sorting )>*/
 export const customSorting = asyncHandler(async (_req, res) => {
-  // const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
-  // Custom sorting order for class names
   const classOrder: { [key: string]: number } = {
     Nursery: 1,
     Prep: 2,
@@ -112,6 +114,37 @@ export const customSorting = asyncHandler(async (_req, res) => {
     return a.section.localeCompare(b.section);
   });
   new SuccessResponse('Students fetched successfully', students).send(res);
+});
+
+/*<!-- 6. Get ----------------------------( getStudentsByClassId )>*/
+
+export const getStudentsWithPayments = asyncHandler(async (req, res) => {
+  const payId = getPayId();
+
+  const key = getDynamicKey(DynamicKey.STUDENTS, payId);
+
+  const classOrder: { [key: string]: number } = {
+    Nursery: 1,
+    Prep: 2,
+    '1st': 3,
+    '2nd': 4,
+    '3rd': 5,
+    '4th': 6,
+    '5th': 7,
+    '6th': 8,
+    '7th': 9,
+    '8th': 10,
+    '9th': 11,
+    '10th': 12,
+  };
+  const students = await cache.get(key, async () => {
+    return await allStudentsWithPayments(payId, classOrder);
+  });
+  // const studentsWithPayments = await allStudentsWithPayments(payId, classOrder);
+  new SuccessResponse(
+    'Students with payment status fetched successfully',
+    students,
+  ).send(res);
 });
 
 /*<!-- 1. Post ----------------------------( createStudent )>*/

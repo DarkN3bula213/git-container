@@ -20,6 +20,11 @@ function getRouteMap(): RouteMap[] {
       handler: controller.getStudents,
     },
     {
+      path: '/with-payments',
+      method: 'get',
+      handler: controller.getStudentsWithPayments,
+    },
+    {
       path: '/update-fee',
       method: 'put',
       validations: [

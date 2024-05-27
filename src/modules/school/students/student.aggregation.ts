@@ -44,3 +44,58 @@ export const studentDetailsWithPayments = async (studentId: string) => {
 
   return result;
 };
+export const allStudentsWithPayments = async (
+  payId: string,
+  classOrder: { [key: string]: number },
+) => {
+  return await StudentModel.aggregate([
+    {
+      $lookup: {
+        from: 'payments',
+        let: { studentId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$studentId', '$$studentId'] },
+                  { $eq: ['$payId', payId] },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'payments',
+      },
+    },
+    {
+      $addFields: {
+        paid: { $gt: [{ $size: '$payments' }, 0] },
+        paymentDetails: { $arrayElemAt: ['$payments', 0] },
+      },
+    },
+    {
+      $addFields: {
+        classOrder: {
+          $cond: {
+            if: { $in: ['$className', Object.keys(classOrder)] },
+            then: { $literal: null },
+            else: 99,
+          },
+        },
+      },
+    },
+    {
+      $sort: {
+        classOrder: 1,
+        section: 1,
+      },
+    },
+    {
+      $project: {
+        payments: 0,
+        classOrder: 0,
+      },
+    },
+  ]);
+};

@@ -3,7 +3,7 @@ import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 import { app } from './app';
 import { db } from './data/database';
-import { signals } from './lib/constants';
+import { banner, signals } from './lib/constants';
 import SocketService from './sockets';
 
 const logger = new Logger(__filename);
@@ -40,11 +40,6 @@ const createDirectories = async () => {
   }
 };
 
-// Call this function at the start of your application, before starting your server
-createDirectories().then(() => {
-  startServer();
-});
-
 const startServer = async () => {
   try {
     cache.connect();
@@ -53,6 +48,7 @@ const startServer = async () => {
         logger.info({
           server: `Server instance instantiated and listening on port ${PORT}.`,
           node: process.env.NODE_ENV,
+          banner: banner,
         });
       });
     });
@@ -63,16 +59,31 @@ const startServer = async () => {
   }
 };
 
-for (const signal of signals) {
+signals.forEach((signal) => {
   process.on(signal, async () => {
-    logger.debug(`Received ${signal}. Shutting down gracefully...`);
-    cache.disconnect();
-    server.close(() => {
-      logger.debug('Server closed. Exiting process now.');
+    try {
+      logger.debug(`Received ${signal}. Shutting down gracefully...`);
+      server.close();
+      logger.debug('HTTP server closed.');
+      cache.disconnect();
+      logger.debug('Cache disconnected.');
+      await db.disconnect();
+      logger.debug('Database disconnected.');
       process.exit(0);
-    });
-    await db.disconnect().then(() => logger.debug('Database disconnected'));
+    } catch (error) {
+      logger.error('Failed to shut down gracefully', error);
+      process.exit(1);
+    }
   });
-}
+});
 
 export { socketService };
+
+createDirectories()
+  .then(startServer)
+  .catch((error) => {
+    logger.error(
+      'Failed to initialize required directories or server setup.',
+      error,
+    );
+  });
