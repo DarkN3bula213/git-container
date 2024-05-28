@@ -15,7 +15,6 @@ import {
   normalizeRoles,
 } from '@/lib/utils/utils';
 import { type User, UserModel } from './user.model';
-import { cookieExpirationQueue } from '@/queues/cookie.queue';
 
 const logger = new Logger(__filename);
 
@@ -185,16 +184,7 @@ export const login = asyncHandler(async (req, res) => {
   req.session.cookie.expires = new Date(Date.now() + 120 * 60 * 1000);
 
   res.cookie('access', access, accessCookie);
-  cookieExpirationQueue.add(
-    'logExpiration',
-    {
-      userId: user.id,
-      expires: req.session.cookie.expires,
-    },
-    {
-      delay: 120, // Delay the job for 120 minutes (the same as token expiration)
-    },
-  );
+
   const role = normalizeRoles(user.roles);
 
   const isAdmin = await isAdminRolePresent(role);

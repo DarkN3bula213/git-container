@@ -37,8 +37,6 @@ class QueueFactory {
       logger.debug(`Job ${job.id} in queue ${name} is ${progress}% complete.`);
     });
 
-    // Register job processors based on the provided map
-    // biome-ignore lint/complexity/noForEach: <explanation>
     Object.entries(processorMap).forEach(([jobType, handler]) => {
       queue.process(jobType, handler);
     });
@@ -46,5 +44,4 @@ class QueueFactory {
     return queue;
   }
 }
-
 export default QueueFactory;

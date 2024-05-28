@@ -8,6 +8,7 @@ import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
 import { handleDisconnect } from './socket.utils';
 import { sessionQueue } from './session.bull';
+import { saveSessionQueue } from '@/queues/session.queue';
 
 class SocketService {
   private io: SocketIOServer;
@@ -69,29 +70,38 @@ class SocketService {
           logger.warn('Invalid auth token from cookies, disconnecting socket.');
           socket.disconnect();
           return;
-        } else {
-          sessionQueue.addSession({
-            userId: verificationResult.decoded?.user._id,
-            sessionId: socket.id,
-            startTime: new Date(),
-          });
         }
         const userID = verificationResult.decoded?.user._id;
         logger.info(`User ${verificationResult.decoded?.user.name} connected`);
-
-        // Remove existing save session job if reconnecting
-        // removeSaveSessionJob(userID);
+        socket.data.startTime = new Date();
 
         socket.on('joinPaymentRoom', (roomId) => {
           logger.info(`User ${userID} joined payment room ${roomId}`);
           socket.join(`paymentRoom-${roomId}`);
         });
 
-        socket.on(
-          'disconnect',
-          async () =>
-            await handleDisconnect({ userId: userID, startTime: new Date() }),
-        );
+        socket.on('disconnect', async () => {
+          const endTime = new Date();
+          const startTime = socket.data.startTime;
+          const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
+          const hours = Math.floor(timeSpent / 3600);
+          const minutes = Math.floor((timeSpent % 3600) / 60);
+          const seconds = Math.floor(timeSpent % 60);
+          const time = `${hours}h ${minutes}m ${seconds}s`;
+
+          saveSessionQueue.add(
+            'saveUserSession',
+            {
+              userID,
+              startTime,
+              endTime,
+              time,
+            },
+            {
+              jobId: `job-${userID}`,
+            },
+          );
+        });
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);
       }
