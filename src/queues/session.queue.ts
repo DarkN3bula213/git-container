@@ -2,9 +2,8 @@ import { DoneCallback, Job } from 'bull';
 import QueueFactory from '.';
 import { Logger } from '@/lib/logger';
 import { createUserSession } from '@/sockets/session.model';
-
 const sessionProcessor = {
-  saveSession: async (
+  saveUserSession: async (
     job: Job<{ userID: string; startTime: Date; endTime: Date; time: string }>,
     done: DoneCallback,
   ) => {
