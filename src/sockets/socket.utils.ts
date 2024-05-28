@@ -16,22 +16,23 @@ export const handleDisconnect = async ({
   const minutes = Math.floor((timeSpent % 3600) / 60);
   const seconds = Math.floor(timeSpent % 60);
   const time = `${hours}h ${minutes}m ${seconds}s`;
-  // await createUserSession(userId, startTime, endTime, time);
+  const saveSession = await createUserSession(userId, startTime, endTime, time);
+
   logger.info({
-    event: 'User disconnected',
-    userID: userId,
-    timeSpent: time,
+    event: 'Session Disconnet',
+    user: userId,
+    result: saveSession,
   });
-  saveSessionQueue.add(
-    'saveUserSession',
-    {
-      userID: userId,
-      startTime,
-      endTime,
-      time,
-    },
-    {
-      jobId: `job-${userId}`,
-    },
-  );
+  // saveSessionQueue.add(
+  //   'saveUserSession',
+  //   {
+  //     userID: userId,
+  //     startTime,
+  //     endTime,
+  //     time,
+  //   },
+  //   {
+  //     jobId: `job-${userId}`,
+  //   },
+  // );
 };
