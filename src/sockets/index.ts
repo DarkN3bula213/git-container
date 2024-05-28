@@ -51,7 +51,7 @@ class SocketService {
   }
 
   private registerEvents(): void {
-    this.io.on('connection', (socket: Socket) => {
+    this.io.on('connection', async (socket: Socket) => {
       logger.info({
         event: 'Socket connection attempt',
       });
@@ -74,7 +74,15 @@ class SocketService {
         const userID = verificationResult.decoded?.user._id;
         logger.info(`User ${verificationResult.decoded?.user.name} connected`);
         socket.data.startTime = new Date();
-
+        const jobId = `job-${userID}`;
+        const delayedJobs = await saveSessionQueue.getDelayed();
+        const job = delayedJobs.find((job) => job.id === jobId);
+        if (job) {
+          await job.remove();
+          logger.info(
+            `Removed delayed job for user ${userID} as they reconnected.`,
+          );
+        }
         socket.on('joinPaymentRoom', (roomId) => {
           logger.info(`User ${userID} joined payment room ${roomId}`);
           socket.join(`paymentRoom-${roomId}`);
@@ -99,6 +107,7 @@ class SocketService {
             },
             {
               jobId: `job-${userID}`,
+              delay: 5 * 60 * 1000,
             },
           );
         });

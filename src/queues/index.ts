@@ -44,4 +44,30 @@ class QueueFactory {
     return queue;
   }
 }
-export default QueueFactory;
+
+class AdvancedQueueFactory extends QueueFactory {
+  static async removeJob<T>(queueName: string, jobId: number): Promise<void> {
+    const queue = new Bull<T>(queueName, {
+      redis: config.redis.uri,
+    });
+
+    try {
+      const job = await queue.getJob(jobId);
+      if (job) {
+        await job.remove();
+        logger.info(
+          `Job ${jobId} in queue ${queueName} has been removed successfully.`,
+        );
+      } else {
+        logger.warn(`Job ${jobId} in queue ${queueName} does not exist.`);
+      }
+    } catch (error: any) {
+      logger.error(
+        `Failed to remove job ${jobId} from queue ${queueName}: ${error.message}`,
+      );
+      throw error;
+    }
+  }
+}
+
+export default AdvancedQueueFactory;
