@@ -7,6 +7,7 @@ const logger = new Logger(__filename);
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
 import { handleDisconnect } from './socket.utils';
+import { sessionQueue } from './session.bull';
 
 class SocketService {
   private io: SocketIOServer;
@@ -68,6 +69,12 @@ class SocketService {
           logger.warn('Invalid auth token from cookies, disconnecting socket.');
           socket.disconnect();
           return;
+        } else {
+          sessionQueue.addSession({
+            userId: verificationResult.decoded?.user._id,
+            sessionId: socket.id,
+            startTime: new Date(),
+          });
         }
         const userID = verificationResult.decoded?.user._id;
         logger.info(`User ${verificationResult.decoded?.user.name} connected`);

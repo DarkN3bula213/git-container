@@ -12,11 +12,13 @@ type ProcessorMap<T> = {
 class QueueFactory {
   static createQueue<T>(name: string, processorMap: ProcessorMap<T>) {
     const queue = new Bull<T>(name, {
-      redis: {
-        host: config.isDevelopment
-          ? 'localhost'
-          : process.env.REDIS_HOST || 'redis',
-        port: Number(process.env.REDIS_PORT || 6379),
+      redis: config.redis.uri,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
       },
     });
 
