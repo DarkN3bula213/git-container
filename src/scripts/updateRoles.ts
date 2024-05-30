@@ -1,51 +1,78 @@
-import { Roles } from '@/lib/constants';
+import { Actions, Resources, Roles } from '@/lib/constants';
 import { Logger } from '@/lib/logger';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 
 const logger = new Logger(__filename);
 
-export async function updateDatabase() {
-  const roles = [
+export const initializeOrUpdateRolesAndPermissions = async () => {
+  const allResources = Object.values(Resources);
+  const adminPermissions = allResources
+    .map((resource) => [
+      { resource, action: Actions.READ },
+      { resource, action: Actions.WRITE },
+    ])
+    .flat();
+
+  const defaultPermissions = allResources.map((resource) => ({
+    resource,
+    action: Actions.READ,
+  }));
+
+  // Define expected roles with their permissions
+  const expectedRoles = [
     {
       code: Roles.ADMIN,
-      permissions: ['READALL', 'WRITE', 'DELETE', 'UPDATE'],
+      permissions: adminPermissions,
     },
-    { code: Roles.HPS, permissions: ['READALL'] },
-    { code: Roles.AUX, permissions: ['READALL', 'WRITE'] },
-    { code: Roles.READONLY, permissions: ['READALL'] },
+    {
+      code: Roles.HPS,
+      permissions: defaultPermissions,
+    },
+    {
+      code: Roles.AUX,
+      permissions: defaultPermissions,
+    },
+    {
+      code: Roles.READONLY,
+      permissions: defaultPermissions,
+    },
+    {
+      code: Roles.GUEST,
+      permissions: defaultPermissions,
+    },
+    {
+      code: Roles.EDITOR,
+      permissions: defaultPermissions,
+    },
   ];
 
-  try {
-    const existingRoles = await RoleModel.find({}).exec();
+  for (const expectedRole of expectedRoles) {
+    const existingRole = await RoleModel.findOne({ code: expectedRole.code });
 
-    if (
-      existingRoles.length === roles.length &&
-      existingRoles.every((role) => {
-        const desiredRole = roles.find((r) => r.code === role.code);
-        return (
-          desiredRole &&
-          role.permissions.length === desiredRole.permissions.length &&
-          role.permissions.every((p) => desiredRole.permissions.includes(p))
-        );
-      })
-    ) {
-      logger.info('No updates needed, roles are up-to-date.');
-      return;
+    if (existingRole) {
+      // Check if the permissions are in the old format (array of strings)
+      if (existingRole.permissions.some((perm) => typeof perm === 'string')) {
+        // Unset old permissions array
+        existingRole.permissions = [];
+      }
+      // Set the correct permissions structure
+      existingRole.permissions = expectedRole.permissions;
+      existingRole.updatedAt = new Date(); // Manually update the updatedAt field
+      await existingRole.save();
+      logger.info(`Updated role: ${expectedRole.code}`);
+    } else {
+      // Create new role if it doesn't exist
+      await RoleModel.create({
+        ...expectedRole,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      logger.info(`Created role: ${expectedRole.code}`);
     }
-
-    for (const role of roles) {
-      await RoleModel.findOneAndUpdate(
-        { code: role.code },
-        { $set: role },
-        { upsert: true, new: true },
-      );
-    }
-    logger.info('Successfully updated roles');
-  } catch (error) {
-    logger.error('Error updating roles:', error);
-    throw error;
   }
-}
+
+  logger.info('Roles and permissions initialized');
+};
 export async function removePermissionsField() {
   try {
     const result = await RoleModel.updateMany(

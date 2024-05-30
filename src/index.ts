@@ -14,6 +14,7 @@ const PORT = config.app.port;
 import path from 'node:path';
 import fs from 'fs-extra';
 import { cache } from './data/cache/cache.service';
+import { initializeOrUpdateRolesAndPermissions } from './scripts/updateRoles';
 
 const createDirectories = async () => {
   try {
@@ -44,6 +45,7 @@ const startServer = async () => {
   try {
     cache.connect();
     await db.connect().then(() => {
+      initializeOrUpdateRolesAndPermissions();
       server.listen(PORT, () => {
         logger.info({
           server: `Server instance instantiated and listening on port ${PORT}.`,

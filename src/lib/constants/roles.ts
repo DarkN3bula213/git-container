@@ -3,6 +3,8 @@ export enum Roles {
   HPS = 'HPS',
   AUX = 'AUX',
   READONLY = 'READONLY',
+  GUEST = 'GUEST',
+  EDITOR = 'EDITOR',
 }
 
 export enum Actions {
@@ -10,21 +12,15 @@ export enum Actions {
   WRITE = 'WRITE',
   ALL = 'ALL',
 }
-export enum Permissions {
-  READALL = 'READALL',
-  WRITE = 'WRITE',
-  DELETE = 'DELETE',
-  UPDATE = 'UPDATE',
-  FULL = 'FULL',
-}
+
 export enum Resources {
-  NOTIFICATIONS = 'Notifications',
-  INBOX = 'Inbox',
-  EVENTS = 'Events',
-  CALENDAR = 'Calendar',
-  FEE_MANAGER = 'Fee_Manager',
-  USER_MANAGER = 'User_Manager',
-  FORMS = 'Forms',
-  BUDGET = 'Budget',
-  DATA_SCOPE = 'Data Scope',
+  Notifications = 'Notifications',
+  Inbox = 'Inbox',
+  Events = 'Events',
+  Calendar = 'Calendar',
+  FeeManager = 'Fee_Manager',
+  UserManager = 'User_Manager',
+  Forms = 'Forms',
+  Budget = 'Budget',
+  DataScope = 'Data Scope',
 }
