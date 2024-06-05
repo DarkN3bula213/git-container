@@ -1,3 +1,4 @@
+import { JoiObjectId } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
 export const insterOne = Joi.object({
@@ -70,4 +71,9 @@ export const changeFee = Joi.object({
   studentId: Joi.string().required(),
   amount: Joi.number().required(),
   remarks: Joi.string().required(),
+});
+
+export const updateSection = Joi.object({
+  id: JoiObjectId().required(),
+  section: Joi.string().required(),
 });

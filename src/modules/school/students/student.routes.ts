@@ -36,6 +36,17 @@ function getRouteMap(): RouteMap[] {
       handler: controller.updateStudentFees,
     },
     {
+      path: '/update-section',
+      method: 'put',
+      validations: [
+        attachRoles(Roles.ADMIN),
+        authorize(Roles.ADMIN),
+        validate(schema.updateSection),
+        invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted')),
+      ],
+      handler: controller.changeStudentSection,
+    },
+    {
       path: '/payments/:id',
       method: 'get',
       handler: controller.studentFeeAggregated,

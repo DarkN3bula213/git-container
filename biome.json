@@ -20,13 +20,19 @@
       "trailingComma": "all"
     },
     "suspicious": {
-      "noSuspiciousAny": "off",
-      "noUnusedVars":"error"
+      "noSuspiciousAny": "off"
+    },
+    "linter": {
+      "enabled": true,
+      "rules": { "recommended": true }
     }
   },
   "json": {
     "formatter": {
       "trailingCommas": "none"
     }
+  },
+  "files": {
+    "include": ["src/**/*.js", "src/**/*.ts"]
   }
 }

@@ -252,3 +252,13 @@ export const updateStudentFees = asyncHandler(async (req, res) => {
   new SuccessResponse('Student fees updated successfully', student).send(res);
 });
 /*------------------     ----------------------------------- */
+/*<!-- 3. Patch ----------------------------( change student section )>*/
+export const changeStudentSection = asyncHandler(async (req, res) => {
+  const { id, section } = req.body;
+  const student = await Student.findByIdAndUpdate(
+    id,
+    { section },
+    { new: true },
+  ).lean();
+  new SuccessResponse('Student updated successfully', student).send(res);
+});
