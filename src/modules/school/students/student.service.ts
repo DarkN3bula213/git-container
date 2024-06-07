@@ -51,6 +51,37 @@ class Service {
     // }
     return student;
   }
+
+  async updateStudentFee(studentId: string, amount: number, remarks: string) {
+    const numericAmount = Number(amount);
+    const check = await this.student.findById(studentId);
+    if (!check) {
+      throw new Error('Student not found');
+    }
+    const classData = await this.classModel.findById(check.classId);
+    if (!classData) {
+      throw new Error('Class not found');
+    }
+    const classFee = classData.fee;
+    const isNormal = classFee === numericAmount;
+    const update = {
+      $set: {
+        'status.isSpecialCondition': !isNormal,
+        tuition_fee: numericAmount,
+      },
+      $push: {
+        'status.remarks': remarks,
+      },
+    };
+    const student = await this.student.findByIdAndUpdate(studentId, update, {
+      new: true,
+      runValidators: true,
+    });
+    if (!student) {
+      throw new Error('Student not found');
+    }
+    return student;
+  }
 }
 
 export const studentService = new Service(StudentModel, ClassModel);

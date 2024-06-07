@@ -9,11 +9,11 @@
 #     command: docker compose up -d && pnpm run start
  
 # Commands that will run on workspace start
-tasks:
-    - name: Setup, Install & Build
-      before: echo "Docker Compose" && docker-compose -f docker-compose-dev.yml up -d
-      init: echo "Docker Compose" && docker-compose -f docker-compose-dev.yml up -d && pnpm install 
-      command: echo pnpm serve
+# tasks:
+#     - name: Setup, Install & Build
+#       before: echo "Docker Compose" && docker-compose -f docker-compose-dev.yml up -d
+#       init: echo "Docker Compose" && docker-compose -f docker-compose-dev.yml up -d && pnpm install 
+#       command: echo pnpm serve
 
 # Ports to expose on workspace startup
 # ports:

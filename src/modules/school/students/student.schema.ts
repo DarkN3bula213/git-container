@@ -67,8 +67,8 @@ export const register = Joi.object({
   }),
 });
 
-export const changeFee = Joi.object({
-  studentId: Joi.string().required(),
+export const updateFee = Joi.object({
+  studentId: JoiObjectId().required(),
   amount: Joi.number().required(),
   remarks: Joi.string().required(),
 });
@@ -77,3 +77,7 @@ export const updateSection = Joi.object({
   id: JoiObjectId().required(),
   section: Joi.string().required(),
 });
+
+/**
+ * studentId, amount, remarks
+ */

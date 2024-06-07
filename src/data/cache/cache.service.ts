@@ -1,36 +1,16 @@
-// cache.service.ts
+import { RedisClientType } from 'redis';
+import redisClient from './cache.client';
 import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
 export interface CacheService {
   set(key: string, value: any): Promise<void>;
-  get(key: string): Promise<any>;
+  get<T>(key: string): Promise<T | null>;
   del(key: string): Promise<void>;
+  setExp(key: string, value: any, seconds: number): Promise<void>;
+  delPattern(pattern: string): Promise<void>;
 }
 // cache.service.ts
-interface SessionUser {
-  id: string;
-  username: string;
-  isPremium: boolean;
-}
-
-// Define an interface for the session data structure
-interface SessionData {
-  user: SessionUser;
-}
-
-import { RedisClientOptions, type RedisClientType, createClient } from 'redis';
-import redisClient from './cache.client';
-
-// export const redisClient: RedisClientType = createClient({
-//   url: process.env.REDIS_URL,
-// });
-
-// redisClient.on('connect', () => logger.info('Cache is connecting'));
-// redisClient.on('ready', () => logger.info('Cache is ready'));
-// redisClient.on('end', () => logger.info('Cache disconnected'));
-// redisClient.on('reconnecting', () => logger.info('Cache is reconnecting'));
-// redisClient.on('error', (e) => logger.error(e));
 
 class CacheClientService {
   private client: RedisClientType;
@@ -51,16 +31,43 @@ class CacheClientService {
     return this.client;
   }
 
-  async get<T>(key: string, fetchFunction: () => Promise<T>): Promise<T> {
+  async get<T>(key: string): Promise<T | null> {
     const cachedData = await this.client.get(key);
+    return cachedData ? JSON.parse(cachedData) : null;
+  }
+
+  async set(key: string, value: any): Promise<void> {
+    await this.client.set(key, JSON.stringify(value));
+  }
+
+  async setExp(key: string, value: any, seconds: number): Promise<void> {
+    await this.client.setEx(key, seconds, JSON.stringify(value));
+  }
+
+  async del(key: string): Promise<void> {
+    await this.client.del(key);
+  }
+
+  async delPattern(pattern: string): Promise<void> {
+    const keys = await this.client.keys(pattern);
+    if (keys.length) {
+      await this.client.del(keys);
+    }
+  }
+
+  async getWithFallback<T>(
+    key: string,
+    fetchFunction: () => Promise<T>,
+  ): Promise<T> {
+    const cachedData = await this.get<T>(key);
     if (cachedData) {
       logger.debug('Data fetched from cache');
-      return JSON.parse(cachedData);
+      return cachedData;
     }
 
     logger.debug('Data not in cache - fetching from source');
     const freshData = await fetchFunction();
-    await this.client.setEx(key, 60000, JSON.stringify(freshData)); // Assuming 60 seconds expiration for demonstration
+    await this.setExp(key, freshData, 60000); // Assuming 60 seconds expiration for demonstration
     return freshData;
   }
 
@@ -68,7 +75,7 @@ class CacheClientService {
   async saveSession(
     sessionId: string,
     sessionData: object,
-    ttl = 86400,
+    ttl: number = 86400,
   ): Promise<void> {
     await this.client.setEx(sessionId, ttl, JSON.stringify(sessionData));
   }
@@ -84,3 +91,14 @@ class CacheClientService {
 }
 
 export const cache = new CacheClientService(redisClient);
+
+interface SessionUser {
+  id: string;
+  username: string;
+  isPremium: boolean;
+}
+
+// Define an interface for the session data structure
+interface SessionData {
+  user: SessionUser;
+}

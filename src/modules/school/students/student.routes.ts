@@ -11,7 +11,22 @@ import attachRoles from '@/middleware/attachRoles';
 import { authorize } from '@/middleware/authorize';
 
 const router = Router();
-router.route('/sorted').get(controller.customSorting);
+router.route('/sorted').get(controller.rootFetch);
+router
+  .route('/update-fee')
+  .put(
+    validate(schema.updateFee),
+    invalidate(DynamicKey.STUDENTS),
+    controller.updateStudentFees,
+  );
+
+router
+  .route('/update-section')
+  .put(
+    validate(schema.updateSection),
+    invalidate(DynamicKey.STUDENTS),
+    controller.changeStudentSection,
+  );
 function getRouteMap(): RouteMap[] {
   return [
     {
@@ -20,31 +35,20 @@ function getRouteMap(): RouteMap[] {
       handler: controller.getStudents,
     },
     {
+      path: '/',
+      method: 'post',
+      validations: [validate(schema.register), invalidate(DynamicKey.STUDENTS)],
+      handler: controller.newAdmission,
+    },
+    {
       path: '/with-payments',
       method: 'get',
       handler: controller.getStudentsWithPayments,
     },
     {
-      path: '/update-fee',
-      method: 'put',
-      validations: [
-        attachRoles(Roles.ADMIN),
-        authorize(Roles.ADMIN),
-        validate(schema.changeFee),
-        invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted')),
-      ],
-      handler: controller.updateStudentFees,
-    },
-    {
-      path: '/update-section',
-      method: 'put',
-      validations: [
-        attachRoles(Roles.ADMIN),
-        authorize(Roles.ADMIN),
-        validate(schema.updateSection),
-        invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted')),
-      ],
-      handler: controller.changeStudentSection,
+      path: '/sortedByClassName',
+      method: 'get',
+      handler: controller.sortedByClassName,
     },
     {
       path: '/payments/:id',
@@ -56,15 +60,7 @@ function getRouteMap(): RouteMap[] {
       method: 'get',
       handler: controller.getStudentByClass,
     },
-    {
-      path: '/',
-      method: 'post',
-      validations: [
-        validate(schema.register),
-        invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted')),
-      ],
-      handler: controller.newAdmission,
-    },
+
     {
       path: '/:id',
       method: 'get',
@@ -73,25 +69,8 @@ function getRouteMap(): RouteMap[] {
     {
       path: '/:id',
       method: 'patch',
-      validations: [invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted'))],
+      validations: [invalidate(DynamicKey.STUDENTS)],
       handler: controller.patchStudent,
-    },
-    {
-      path: '/seed',
-      method: 'post',
-      validations: [invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted'))],
-      handler: controller.bulkPost,
-    },
-    {
-      path: '/sortedByClassName',
-      method: 'get',
-      handler: controller.sortedByClassName,
-    },
-    {
-      path: '/reset',
-      method: 'delete',
-      validations: [invalidate(getDynamicKey(DynamicKey.STUDENTS, 'sorted'))],
-      handler: controller.resetCollection,
     },
 
     {

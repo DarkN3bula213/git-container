@@ -10,11 +10,11 @@ import {
 import { ClassModel } from '../classes/class.model';
 import {
   allStudentsWithPayments,
+  rootStudentAggregation,
   studentDetailsWithPayments,
 } from './student.aggregation';
 import Student from './student.model';
 import { studentService } from './student.service';
-import { updateStudentClassIds } from './student.utils';
 import { getPayId } from '../payments/payment.utils';
 
 /**                      *
@@ -48,7 +48,7 @@ export const getStudentByClass = asyncHandler(async (req, res) => {
   const { classId } = req.params;
   const key = getDynamicKey(DynamicKey.CLASS, classId);
 
-  const students = await cache.get(key, async () => {
+  const students = await cache.getWithFallback(key, async () => {
     return await Student.find({
       className: classId,
     })
@@ -90,29 +90,16 @@ export const sortedByClassName = asyncHandler(async (req, res) => {
   }).send(res);
 });
 
-/*<!-- 5. Get ----------------------------( Custom Sorting )>*/
-export const customSorting = asyncHandler(async (_req, res) => {
-  const classOrder: { [key: string]: number } = {
-    Nursery: 1,
-    Prep: 2,
-    '1st': 3,
-    '2nd': 4,
-    '3rd': 5,
-    '4th': 6,
-    '5th': 7,
-    '6th': 8,
-    '7th': 9,
-    '8th': 10,
-    '9th': 11,
-    '10th': 12,
-  };
-  const students = await Student.find({});
+/*<!-- 5. Get -----| Root |-----------------------( Custom Sorting )>*/
+export const rootFetch = asyncHandler(async (req, res) => {
+  const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
 
-  students.sort((a, b) => {
-    const classDiff = classOrder[a.className] - classOrder[b.className];
-    if (classDiff !== 0) return classDiff;
-    return a.section.localeCompare(b.section);
+  const payId = getPayId();
+
+  const students = await cache.getWithFallback(key, async () => {
+    return await rootStudentAggregation(payId);
   });
+
   new SuccessResponse('Students fetched successfully', students).send(res);
 });
 
@@ -137,7 +124,7 @@ export const getStudentsWithPayments = asyncHandler(async (req, res) => {
     '9th': 11,
     '10th': 12,
   };
-  const students = await cache.get(key, async () => {
+  const students = await cache.getWithFallback(key, async () => {
     return await allStudentsWithPayments(payId, classOrder);
   });
   // const studentsWithPayments = await allStudentsWithPayments(payId, classOrder);
@@ -165,13 +152,13 @@ export const newAdmission = asyncHandler(async (req, res) => {
 
 /*<!-- 3. Post ----------------------------( bulkPost )>*/
 
-export const bulkPost = asyncHandler(async (req, res) => {
-  console.time('getStudents');
-  const savedStudent = await Student.insertMany(req.body);
+// export const bulkPost = asyncHandler(async (req, res) => {
+//   console.time('getStudents');
+//   const savedStudent = await Student.insertMany(req.body);
 
-  new SuccessResponse('Students created successfully', savedStudent).send(res);
-  console.timeEnd('getStudents');
-});
+//   new SuccessResponse('Students created successfully', savedStudent).send(res);
+//   console.timeEnd('getStudents');
+// });
 
 /*------------------     ----------------------------------- */
 
@@ -189,10 +176,10 @@ export const patchStudent = asyncHandler(async (req, res) => {
 
 /*<!-- 2. Patch ----------------------------( fixStudentClassIds )>*/
 
-export const fixStudentClassIds = asyncHandler(async (_req, res) => {
-  updateStudentClassIds();
-  new SuccessMsgResponse('Fixing student classIds').send(res);
-});
+// export const fixStudentClassIds = asyncHandler(async (_req, res) => {
+//   updateStudentClassIds();
+//   new SuccessMsgResponse('Fixing student classIds').send(res);
+// });
 
 /*<!-- 1. Delete ----------------------------( removeStudent )>*/
 
@@ -204,50 +191,20 @@ export const removeStudent = asyncHandler(async (req, res) => {
 
 /*<!-- 2. Delete ----------------------------( removeStudent )>*/
 
-export const resetCollection = asyncHandler(async (_req, res) => {
-  await Student.deleteMany();
-  new SuccessMsgResponse('Collection reset successfully').send(res);
-});
+// export const resetCollection = asyncHandler(async (_req, res) => {
+//   await Student.deleteMany();
+//   new SuccessMsgResponse('Collection reset successfully').send(res);
+// });
 
 /*------------------     ----------------------------------- */
 export const updateStudentFees = asyncHandler(async (req, res) => {
   const { studentId, amount, remarks } = req.body;
 
-  if (!studentId || !amount || !remarks) {
-    return res
-      .status(400)
-      .json({ message: 'Please provide studentId and amount' });
-  }
-
-  const check = await Student.findById(studentId);
-  if (!check) {
-    return res.status(404).json({ message: 'Student not found' });
-  }
-  const classData = await ClassModel.findById(check.classId);
-
-  if (!classData) {
-    throw new BadRequestError('Class not found');
-  }
-  const isNormal = classData.fee === check.tuition_fee;
-
-  const update = {
-    $set: {
-      'status.isSpecialCondition': isNormal,
-      tuition_fee: amount,
-    },
-    $push: {
-      'status.remarks': remarks,
-    },
-  };
-
-  const student = await Student.findByIdAndUpdate(studentId, update, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!student) {
-    return res.status(404).json({ message: 'Student not found' });
-  }
+  const student = await studentService.updateStudentFee(
+    studentId,
+    amount,
+    remarks,
+  );
 
   new SuccessResponse('Student fees updated successfully', student).send(res);
 });

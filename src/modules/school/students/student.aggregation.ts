@@ -99,3 +99,47 @@ export const allStudentsWithPayments = async (
     },
   ]);
 };
+
+export const rootStudentAggregation = async (payId: string) => {
+  return await StudentModel.aggregate([
+    {
+      $lookup: {
+        from: 'payments',
+        localField: '_id',
+        foreignField: 'studentId',
+        as: 'payments',
+      },
+    },
+    {
+      $addFields: {
+        paid: {
+          $cond: {
+            if: {
+              $gt: [
+                {
+                  $size: {
+                    $filter: {
+                      input: '$payments',
+                      as: 'payment',
+                      cond: {
+                        $eq: ['$$payment.payId', payId],
+                      },
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        payments: 0, // Remove the payments field if not needed in the final output
+      },
+    },
+  ]);
+};

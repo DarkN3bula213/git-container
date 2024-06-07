@@ -117,7 +117,7 @@ export const makeCustomPayment = asyncHandler(async (req, res) => {
 /*<!-- 1. Read  ---------------------------( Get All )-> */
 export const getPayments = asyncHandler(async (_req, res) => {
   const key = getDynamicKey(DynamicKey.FEE, 'all');
-  const cachedPayments = await cache.get(key, async () => {
+  const cachedPayments = await cache.getWithFallback(key, async () => {
     return await Payments.find({}).lean().exec();
   });
   return new SuccessResponse(
@@ -131,7 +131,7 @@ export const getPaymentById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const key = getDynamicKey(DynamicKey.FEE, id);
 
-  const cachedPayment = await cache.get(key, async () => {
+  const cachedPayment = await cache.getWithFallback(key, async () => {
     return await Payments.findById(id).lean().exec();
   });
 
@@ -146,7 +146,7 @@ export const getPaymentById = asyncHandler(async (req, res) => {
 export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
   const key = getDynamicKey(DynamicKey.FEE, req.params.studentId);
 
-  const cachedPayments = await cache.get(key, async () => {
+  const cachedPayments = await cache.getWithFallback(key, async () => {
     return await Payments.find({ studentId: req.params.studentId })
       .lean()
       .exec();
@@ -162,7 +162,7 @@ export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
 export const getMonthsPayments = asyncHandler(async (_req, res) => {
   const payId = getPayId();
   const key = getDynamicKey(DynamicKey.FEE, payId);
-  const cachedPayment = await cache.get(key, async () => {
+  const cachedPayment = await cache.getWithFallback(key, async () => {
     return await Payments.findOne({ payId }).lean().exec();
   });
   if (!cachedPayment) throw new BadRequestError('Payment not found');
@@ -280,7 +280,7 @@ export const getStudentPaymentsByClass = asyncHandler(async (req, res) => {
 /*<!-- 2. Aggregation Functions  ----------------( School Stats ) */
 export const getSchoolStats = asyncHandler(async (_req, res) => {
   const key = getDynamicKey(DynamicKey.FEE, 'STATCURRENT');
-  const cachedStats = await cache.get(key, async () => {
+  const cachedStats = await cache.getWithFallback(key, async () => {
     return await schoolAggregation();
   });
   if (!cachedStats) throw new BadRequestError('Stats not found');
@@ -293,7 +293,7 @@ export const getSchoolStats = asyncHandler(async (_req, res) => {
 export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
   const { payId } = req.params;
   const key = getDynamicKey(DynamicKey.FEE, payId);
-  const cachedStats = await cache.get(key, async () => {
+  const cachedStats = await cache.getWithFallback(key, async () => {
     return await schoolAggregationBySession(payId);
   });
   if (!cachedStats) throw new BadRequestError('Stats not found');

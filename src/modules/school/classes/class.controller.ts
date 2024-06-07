@@ -6,7 +6,7 @@ import { cache } from '@/data/cache/cache.service';
 /*<!----------------------------------------(GET ROUTES) */
 export const findClasses = asyncHandler(async (_req, res) => {
   const key = 'classes';
-  const cachedClasses = await cache.get(key, async () => {
+  const cachedClasses = await cache.getWithFallback(key, async () => {
     return await ClassModel.find().lean().exec();
   });
   new SuccessResponse('Classes', cachedClasses).send(res);
