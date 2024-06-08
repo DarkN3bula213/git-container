@@ -7,7 +7,6 @@ export const accessCookie: CookieOptions = {
   secure: !config.isDevelopment,
   sameSite: 'strict',
   path: '/',
-  // domain: !config.isDevelopment ? '.hps-admin.com' : '',
   maxAge: convertToMilliseconds('2h'),
 };
 
@@ -16,6 +15,13 @@ export const logoutCookie: CookieOptions = {
   secure: !config.isDevelopment,
   sameSite: 'strict',
   path: '/',
-  // domain: !config.isDevelopment ? '.hps-admin.com' : '',
   maxAge: -1,
+};
+
+export const sessionCookie: CookieOptions = {
+  httpOnly: !config.isDevelopment,
+  secure: !config.isDevelopment,
+  sameSite: 'strict',
+  path: '/',
+  maxAge: convertToMilliseconds('2h'),
 };

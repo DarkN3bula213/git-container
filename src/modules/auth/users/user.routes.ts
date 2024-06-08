@@ -19,24 +19,24 @@ function getRouteMap(): RouteMap[] {
       method: 'get',
       handler: controller.getUsers,
     },
-    {
-      path: '/session',
-      method: 'get',
-      validations: [authentication],
-      handler: controller.checkLogin,
-    },
-    {
-      path: '/check-session',
-      method: 'get',
+    // {
+    //   path: '/session',
+    //   method: 'get',
+    //   validations: [authentication],
+    //   handler: controller.checkLogin,
+    // },
+    // {
+    //   path: '/check-session',
+    //   method: 'get',
 
-      handler: controller.checkSession,
-    },
-    {
-      path: '/seed',
-      method: 'post',
-      validations: [validate(insertMany)],
-      handler: controller.insertMany,
-    },
+    //   handler: controller.checkSession,
+    // },
+    // {
+    //   path: '/seed',
+    //   method: 'post',
+    //   validations: [validate(insertMany)],
+    //   handler: controller.insertMany,
+    // },
     {
       path: '/register',
       method: 'post',
@@ -84,16 +84,16 @@ function getRouteMap(): RouteMap[] {
       handler: controller.getUserById,
       validations: [attachRoles(Roles.ADMIN), authentication],
     },
-    {
-      path: '/status',
-      method: 'get',
-      handler: controller.isAdmin,
-      validations: [
-        attachRoles(Roles.ADMIN),
-        authentication,
-        authorize(Roles.ADMIN),
-      ],
-    },
+    // {
+    //   path: '/status',
+    //   method: 'get',
+    //   handler: controller.isAdmin,
+    //   validations: [
+    //     attachRoles(Roles.ADMIN),
+    //     authentication,
+    //     authorize(Roles.ADMIN),
+    //   ],
+    // },
   ];
 }
 

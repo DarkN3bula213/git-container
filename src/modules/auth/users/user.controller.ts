@@ -8,7 +8,6 @@ import { Logger } from '@/lib/logger/logger';
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import { signToken } from '@/lib/utils/tokens';
 import {
-  clearAuthCookies,
   fetchRoleCodes,
   fetchUserPermissions,
   isAdminRolePresent,
@@ -91,15 +90,6 @@ export const register = asyncHandler(async (req, res) => {
   });
 });
 
-/*<!-- 2. Create  ---------------------------( insertMany )-> */
-export const insertMany = asyncHandler(async (req, res) => {
-  const users = await UserModel.insertMany(req.body);
-  res.status(200).json({
-    success: true,
-    data: users,
-  });
-});
-
 /*<!-- 3. Create  ---------------------------( createTempUser )-> */
 export const createTempUser = asyncHandler(async (req, res) => {
   const check = await UserModel.findUserByEmail(req.body.email);
@@ -136,15 +126,6 @@ export const updateUser = asyncHandler(async (req, res) => {
 export const deleteUser = asyncHandler(async (req, res) => {
   const user = await UserModel.findByIdAndDelete(req.params.id);
   if (!user) res.status(400).json({ success: false });
-  res.status(200).json({
-    success: true,
-    data: user,
-  });
-});
-
-/*<!-- 2. Delete  ---------------------------( deleteMany )-> */
-export const reset = asyncHandler(async (_req, res) => {
-  const user = await UserModel.deleteMany({});
   res.status(200).json({
     success: true,
     data: user,
@@ -209,27 +190,30 @@ export const logout = asyncHandler(async (_req, res) => {
   return new SuccessResponse('Logged out successfully', {}).send(res);
 });
 
-export const isAdmin = asyncHandler(async (_req, res) => {
-  return new SuccessResponse('User is admin', {}).send(res);
+/*
+ *
+ *
+ *
+ */ /** -----------------------------( Archieved )->
+
+/*<!-- Create  ---------------------------( insertMany )-> **
+export const insertMany = asyncHandler(async (req, res) => {
+  const users = await UserModel.insertMany(req.body);
+  res.status(200).json({
+    success: true,
+    data: users,
+  });
 });
 
-/** -----------------------------( Authentication )->
- *
- ** -----------------------------( check session´ )->
- */
-
-export const checkSession = asyncHandler(async (req, res) => {
-  const sessionData = await cache.getSession(req.sessionID);
-  if (sessionData?.user) {
-    return new SuccessResponse('Session is active', sessionData.user).send(res);
-  }
-  return new BadRequestError('Session is inactive');
+/*<!-- 2. Delete  ---------------------------( deleteMany )-> /*
+export const reset = asyncHandler(async (_req, res) => {
+  const user = await UserModel.deleteMany({});
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
 });
 
-/** ---------------------------( Authentication )->
- *
- *---------------------------( Check Login )->
- */
 
 export const checkLogin = asyncHandler(async (req, res) => {
   const user = req.user as User;
@@ -259,3 +243,18 @@ type IDATA = {
   isAdmin: boolean;
   isLoggedIn: boolean;
 };
+
+
+export const isAdmin = asyncHandler(async (_req, res) => {
+  return new SuccessResponse('User is admin', {}).send(res);
+});
+
+
+export const checkSession = asyncHandler(async (req, res) => {
+  const sessionData = await cache.getSession(req.sessionID);
+  if (sessionData?.user) {
+    return new SuccessResponse('Session is active', sessionData.user).send(res);
+  }
+  return new BadRequestError('Session is inactive');
+});
+*/

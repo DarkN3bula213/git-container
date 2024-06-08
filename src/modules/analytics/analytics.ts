@@ -1,77 +1,85 @@
 import type { Application, NextFunction, Request, Response } from 'express';
-import mongoose, { model, Schema } from 'mongoose';
-import type { User } from '../auth/users/user.model';
+import mongoose, { model, Schema, Document } from 'mongoose';
+import { cache } from '@/data/cache/cache.service';
 
-const serverActivityLogSchema = new Schema({
-  timestamp: {
-    type: Date,
-    default: Date.now,
-  },
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  },
-  method: {
-    type: String,
-    required: true,
-  },
-  url: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: Number,
-    required: true,
-  },
-  responseTime: {
-    type: Number, // in milliseconds
-    required: true,
-  },
-  ip: {
-    type: String,
-    required: false,
-  },
-  userAgent: {
-    type: String,
-    required: false,
-  },
-  // Optionally, add more fields as needed
-});
+export const logActivity = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const start = process.hrtime();
+  const sessionId = res.locals.sessionId;
+  res.on('finish', async () => {
+    const [seconds, nanoseconds] = process.hrtime(start);
+    const durationInMilliseconds = seconds * 1000 + nanoseconds / 1e6;
 
-// Index to efficiently query logs by date
-serverActivityLogSchema.index({ timestamp: 1 });
+    const logEntry = {
+      timestamp: new Date(),
+      method: req.method,
+      url: req.originalUrl,
+      status: res.statusCode,
+      responseTime: durationInMilliseconds,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+    };
 
-export const Analytics = model(
-  'Analytics',
-  serverActivityLogSchema,
-  'analytics',
-);
+    // Store log entry in Redis under the session ID
+    await cache.getClient().rPush(sessionId, JSON.stringify(logEntry));
 
-const silentLogs = (req: Request, res: Response, next: NextFunction) => {
-  if (req.originalUrl === '/login' || req.method === 'POST') {
-    const start = process.hrtime();
-    const user = (req.user as User) || null;
-    res.on('finish', () => {
-      const [seconds, nanoseconds] = process.hrtime(start);
-      const durationInMilliseconds = seconds * 1000 + nanoseconds / 1e6;
-
-      // Assuming Analytics.create returns a Promise
-      Analytics.create({
-        timestamp: new Date(),
-        method: req.method,
-        url: req.originalUrl,
-        status: res.statusCode,
-        responseTime: durationInMilliseconds,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        user: user ? user._id : null,
-      });
-    });
-  }
+    // Set an expiry for the session logs in Redis
+    await cache.getClient().expire(sessionId, 2 * 60 * 60); // 2 hours
+  });
 
   next();
 };
 
-export const monitor = (app: Application) => {
-  app.use(silentLogs);
-};
+interface GetRoute {
+  endpoint: string;
+  frequency: number;
+  timestamps: Date[];
+}
+
+interface PostRoute {
+  endpoint: string;
+  frequency: number;
+  timestamps: Date[];
+}
+
+interface UserActivityLog extends Document {
+  userId: string;
+  sessionId: string;
+  startTime: Date;
+  endTime: Date;
+  duration: string;
+  getRoutes: GetRoute[];
+  postRoutes: PostRoute[];
+}
+
+const getRouteSchema = new Schema<GetRoute>({
+  endpoint: { type: String, required: true },
+  frequency: { type: Number, required: true },
+  timestamps: { type: [Date], required: true },
+});
+
+const postRouteSchema = new Schema<PostRoute>({
+  endpoint: { type: String, required: true },
+  frequency: { type: Number, required: true },
+  timestamps: { type: [Date], required: true },
+});
+
+const userActivityLogSchema = new Schema<UserActivityLog>({
+  userId: { type: String, required: true },
+  sessionId: { type: String, required: true },
+  startTime: { type: Date, required: true },
+  endTime: { type: Date, required: true },
+  duration: { type: String, required: true },
+  getRoutes: { type: [getRouteSchema], default: [] },
+  postRoutes: { type: [postRouteSchema], default: [] },
+});
+
+const UserActivityLogModel = mongoose.model<UserActivityLog>(
+  'UserActivityLog',
+  userActivityLogSchema,
+);
+
+export default UserActivityLogModel;

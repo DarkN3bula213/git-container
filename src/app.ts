@@ -3,9 +3,8 @@ import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
 import { Logger } from './lib/logger';
 import handleMiddleware from './middleware/common';
-import { monitor } from './modules/analytics/analytics';
 import router from './routes';
-/*---------------------------------------------------------*/
+
 const logger = new Logger(__filename);
 
 process.on('uncaughtException', (e) => {
@@ -25,7 +24,12 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 const app: Application = express();
 
-monitor(app);
+/*
+ *
+ *
+ *
+ */ /** -----------------------------( Archieved )->*/
+
 handleMiddleware(app);
 handleUploads(app);
 app.use('/api', router);

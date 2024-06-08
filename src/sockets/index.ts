@@ -6,8 +6,6 @@ const logger = new Logger(__filename);
 
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
-import { handleDisconnect } from './socket.utils';
-import { sessionQueue } from './session.bull';
 import { saveSessionQueue } from '@/queues/session.queue';
 
 class SocketService {
@@ -59,7 +57,6 @@ class SocketService {
       try {
         const cookies = cookie.parse(socket.handshake.headers.cookie || '');
         const authToken = cookies.access;
-
         if (!authToken) {
           socket.disconnect();
           return;
@@ -71,39 +68,32 @@ class SocketService {
           socket.disconnect();
           return;
         }
-        const userID = verificationResult.decoded?.user._id;
         logger.info(`User ${verificationResult.decoded?.user.name} connected`);
+
+        const userID = verificationResult.decoded?.user._id;
         socket.data.startTime = new Date();
         const jobId = `job-${userID}`;
+
         const delayedJobs = await saveSessionQueue.getDelayed();
         const job = delayedJobs.find((job) => job.id === jobId);
+
         if (job) {
           await job.remove();
           logger.info(
             `Removed delayed job for user ${userID} as they reconnected.`,
           );
         }
-        socket.on('joinPaymentRoom', (roomId) => {
-          logger.info(`User ${userID} joined payment room ${roomId}`);
-          socket.join(`paymentRoom-${roomId}`);
-        });
 
         socket.on('disconnect', async () => {
-          const endTime = new Date();
-          const startTime = socket.data.startTime;
-          const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
-          const hours = Math.floor(timeSpent / 3600);
-          const minutes = Math.floor((timeSpent % 3600) / 60);
-          const seconds = Math.floor(timeSpent % 60);
-          const time = `${hours}h ${minutes}m ${seconds}s`;
+          const session = this.calculateTimeSpent(socket.data.startTime);
 
           saveSessionQueue.add(
             'saveUserSession',
             {
               userID,
-              startTime,
-              endTime,
-              time,
+              startTime: session.startTime,
+              endTime: session.endTime,
+              time: session.time,
             },
             {
               jobId: `job-${userID}`,
@@ -111,36 +101,51 @@ class SocketService {
             },
           );
         });
+        socket.disconnect();
+        logger.info(`User ${userID} disconnected`);
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);
       }
     });
   }
 
-  public notifyPaymentSuccess(jobId: string, result: any) {
-    try {
-      this.io.to(`paymentRoom-${jobId}`).emit('paymentSuccess', {
-        jobId,
-        message: 'Payment processed successfully',
-        data: result,
-      });
-    } catch (error: any) {
-      logger.error(error);
-    }
+  private calculateTimeSpent(startTime: Date) {
+    const endTime = new Date();
+    const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
+    const hours = Math.floor(timeSpent / 3600);
+    const minutes = Math.floor((timeSpent % 3600) / 60);
+    const seconds = Math.floor(timeSpent % 60);
+    const time = `${hours}h ${minutes}m ${seconds}s`;
+    return {
+      time,
+      endTime,
+      startTime,
+    };
   }
+  // public notifyPaymentSuccess(jobId: string, result: any) {
+  //   try {
+  //     this.io.to(`paymentRoom-${jobId}`).emit('paymentSuccess', {
+  //       jobId,
+  //       message: 'Payment processed successfully',
+  //       data: result,
+  //     });
+  //   } catch (error: any) {
+  //     logger.error(error);
+  //   }
+  // }
 
-  // Call this method when a payment fails
-  public notifyPaymentFailure(jobId: string, error: any) {
-    try {
-      this.io.to(`paymentRoom-${jobId}`).emit('paymentFailure', {
-        jobId,
-        message: 'Payment processing failed',
-        error,
-      });
-    } catch (error: any) {
-      logger.error(error);
-    }
-  }
+  // // Call this method when a payment fails
+  // public notifyPaymentFailure(jobId: string, error: any) {
+  //   try {
+  //     this.io.to(`paymentRoom-${jobId}`).emit('paymentFailure', {
+  //       jobId,
+  //       message: 'Payment processing failed',
+  //       error,
+  //     });
+  //   } catch (error: any) {
+  //     logger.error(error);
+  //   }
+  // }
 }
 
 export default SocketService;

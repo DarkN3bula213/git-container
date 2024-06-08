@@ -1,5 +1,3 @@
-import { socketService } from '@/index';
-import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 import QueueFactory from '@/queues';
 import type Bull from 'bull';
@@ -39,13 +37,11 @@ const processPaymentJob = async (
     logger.info(
       `Payment record saved successfully for student ID ${studentId}`,
     );
-    socketService.notifyPaymentSuccess(String(job.id), paymentRecord);
     done(null, paymentRecord);
   } catch (error: any) {
     logger.error(
       `Error processing payment for student ID ${studentId}: ${error.message}`,
     );
-    socketService.notifyPaymentFailure(String(job.id), error.message);
     done(error);
   }
 };

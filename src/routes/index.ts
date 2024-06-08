@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import users from '../modules/auth/users/user.routes';
-import schoolRoutes from '@/modules/school/school.routes';
+import schoolRoutes from '@/routes/school.routes';
 import { health } from './health';
 import { authentication } from '@/middleware/authMiddleware';
 import files from '@/modules/files/file.routes';

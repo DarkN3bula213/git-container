@@ -40,7 +40,7 @@ export const getAggregateSessions = asyncHandler(async (_req, res) => {
     },
     {
       $project: {
-        _id: 0,
+        _id: 1,
         userID: 1,
         timeSpent: 1,
         startTime: 1,
