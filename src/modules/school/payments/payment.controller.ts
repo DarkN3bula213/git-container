@@ -143,21 +143,35 @@ export const getPaymentById = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 3. Read  ---------------------------( Get Student Payments )-> */
+// export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
+//   const key = getDynamicKey(DynamicKey.FEE, req.params.studentId);
+
+//   const cachedPayments = await cache.getWithFallback(key, async () => {
+//     return await Payments.find({ studentId: req.params.studentId })
+//       .lean()
+//       .exec();
+//   });
+//   if (!cachedPayments) throw new BadRequestError('Payments not found');
+//   return new SuccessResponse(
+//     'Payments fetched successfully',
+//     cachedPayments,
+//   ).send(res);
+// });
+
+/*<!-- 3. Read  ---------------------------( Get Student Payments )-> */
 export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
   const key = getDynamicKey(DynamicKey.FEE, req.params.studentId);
 
-  const cachedPayments = await cache.getWithFallback(key, async () => {
-    return await Payments.find({ studentId: req.params.studentId })
-      .lean()
-      .exec();
+  const cachedPayments = await Payments.find({
+    studentId: req.params.studentId,
   });
+
   if (!cachedPayments) throw new BadRequestError('Payments not found');
   return new SuccessResponse(
     'Payments fetched successfully',
     cachedPayments,
   ).send(res);
 });
-
 /*<!-- 5. Read  ---------------------------( Get Months Payments )-> */
 export const getMonthsPayments = asyncHandler(async (_req, res) => {
   const payId = getPayId();

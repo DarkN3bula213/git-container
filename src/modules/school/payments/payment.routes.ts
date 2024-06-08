@@ -26,6 +26,11 @@ const getRouteMap = (): RouteMap[] => {
       handler: controller.createPayment,
     },
     {
+      path: '/student/:studentId',
+      method: 'get',
+      handler: controller.getPaymentsByStudentId,
+    },
+    {
       path: '/stats',
       method: 'get',
 
