@@ -20,10 +20,9 @@ services:
       - NODE_ENV=docker
       - PORT=3000
       - REDIS_URL=redis://redis
-      # - REDIS_URL=redis://redis:6379
     volumes:
       - ./logs:/usr/src/app/logs
-      - uploads_volume:/usr/src/app/uploads # Use a named volume for uploads
+      - uploads_volume:/usr/src/app/uploads
     depends_on:
       - redis
       - mongo
@@ -39,7 +38,6 @@ services:
 
   mongo:
     image: mongo:latest
-
     command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
     ports:
       - 27017:27017
@@ -49,17 +47,7 @@ services:
       test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
       interval: 5s
       timeout: 30s
-      start_period: 0s
-      start_interval: 1s
       retries: 30
-
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: devuser
-    #   MONGO_INITDB_ROOT_PASSWORD: devpassword
-    #   MONGO_INITDB_DATABASE: docker-db
-    
-    # ports:
-    #   - '27017:27017'
     volumes:
       - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
       - dbdata:/data/db
@@ -88,9 +76,6 @@ services:
     image: redis:alpine
     container_name: redis
     command: redis-server --appendonly no
-    # ports:
-    #   - '6379'
- 
     networks:
       - app-network
 
@@ -99,5 +84,109 @@ networks:
 
 volumes:
   dbdata:
-  uploads_volume:  # Define the named volume for uploads
+  uploads_volume:
   db_config:
+
+# version: '3.8'
+
+# services:
+#   file_server:
+#     image: darkn3bula/dtop-ts:latest
+#     ports:
+#       - '5050:5050'
+#     environment:
+#       - NODE_ENV=production
+#     networks:
+#       - app-network
+  
+#   app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.production
+#     env_file:
+#       - .env
+#     environment:
+#       - NODE_ENV=docker
+#       - PORT=3000
+#       - REDIS_URL=redis://redis
+#       # - REDIS_URL=redis://redis:6379
+#     volumes:
+#       - ./logs:/usr/src/app/logs
+#       - uploads_volume:/usr/src/app/uploads # Use a named volume for uploads
+#     depends_on:
+#       - redis
+#       - mongo
+#     restart: unless-stopped
+#     ports:
+#       - '3000:3000'
+#     links:
+#       - redis
+#       - mongo
+#       - file_server
+#     networks:
+#       - app-network
+
+#   mongo:
+#     image: mongo:latest
+
+#     command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+#     ports:
+#       - 27017:27017
+#     extra_hosts:
+#       - "host.docker.internal:host-gateway"
+#     healthcheck:
+#       test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+#       interval: 5s
+#       timeout: 30s
+#       start_period: 0s
+#       start_interval: 1s
+#       retries: 30
+
+#     # environment:
+#     #   MONGO_INITDB_ROOT_USERNAME: devuser
+#     #   MONGO_INITDB_ROOT_PASSWORD: devpassword
+#     #   MONGO_INITDB_DATABASE: docker-db
+    
+#     # ports:
+#     #   - '27017:27017'
+#     volumes:
+#       - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+#       - dbdata:/data/db
+#       - db_config:/data/configdb
+#     networks:
+#       - app-network
+
+#   nginx:
+#     image: nginx:alpine
+#     ports:
+#       - '80:80'
+#       - '443:443'
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/nginx.conf
+#       - /etc/letsencrypt/live/api.hps-admin.com/fullchain.pem:/etc/ssl/certs/api_fullchain.pem
+#       - /etc/letsencrypt/live/api.hps-admin.com/privkey.pem:/etc/ssl/private/api_privkey.pem
+#       - /etc/letsencrypt/live/file.hps-admin.com/fullchain.pem:/etc/ssl/certs/file_fullchain.pem
+#       - /etc/letsencrypt/live/file.hps-admin.com/privkey.pem:/etc/ssl/private/file_privkey.pem
+#     depends_on:
+#       - app
+#       - file_server
+#     networks:
+#       - app-network
+
+#   redis:
+#     image: redis:alpine
+#     container_name: redis
+#     command: redis-server --appendonly no
+#     # ports:
+#     #   - '6379'
+ 
+#     networks:
+#       - app-network
+
+# networks:
+#   app-network:
+
+# volumes:
+#   dbdata:
+#   uploads_volume:  # Define the named volume for uploads
+#   db_config:

@@ -14,20 +14,19 @@ if (config.isDocker) {
   conStr = URI;
 }
 
-export const connect = async () => {
+const connect = async () => {
   const options = {
     autoIndex: true,
-    minPoolSize: config.mongo.pool.min,
-    maxPoolSize: config.mongo.pool.max,
+    minPoolSize: 5,
+    maxPoolSize: 10,
     connectTimeoutMS: 60000,
     socketTimeoutMS: 45000,
     dbName: 'docker-db',
   };
   let retry = 0;
   try {
-    logger.debug(`Connecting to ${URI}`);
     await mongoose.connect(
-      'mongodb://127.0.0.1:27017/?replicaSet=rs0',
+      'mongodb://mongo:27017/docker-db?replicaSet=rs0',
       options,
     );
     logger.info(`Database connected: ${mongoose.connection.name}`);
@@ -43,7 +42,6 @@ export const connect = async () => {
     });
   } catch (err: any) {
     if (retry > 10) {
-      // biome-ignore lint/style/useTemplate: <explanation>
       logger.error('Database connection error: ' + err.message);
       throw err;
     }
