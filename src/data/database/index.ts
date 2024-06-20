@@ -13,7 +13,52 @@ if (config.isDocker) {
 } else {
   conStr = URI;
 }
+const options = {
+  autoIndex: true,
+  minPoolSize: 5,
+  maxPoolSize: 10,
+  connectTimeoutMS: 60000,
+  socketTimeoutMS: 45000,
+  dbName: 'docker-db',
+};
+const connectionStrings = [
+  'mongodb://devuser:devpassword@host1.docker.internal:27017/docker-db',
+  'mongodb://devuser:devpassword@localhost:27017/docker-db',
+  'mongodb://devuser:devpassword@127.0.0.1:27017/docker-db',
+  'mongodb://host.docker.internal:27017/docker-db',
+  'mongodb://devuser:devpassword@host.docker.internal:27017/docker-db?authSource=admin',
+  'mongodb://devuser:devpassword@host.docker.internal:27017,host2.docker.internal:27017,host3.docker.internal:27017/docker-db?replicaSet=rs0&authSource=admin',
+  'mongodb://devuser:devpassword@host.docker.internal:27017,host2.docker.internal:27017,host3.docker.internal:27017/docker-db?replicaSet=rs0&authSource=admin&ssl=true',
+];
 
+const connectWithRetry = (index: number) => {
+  if (index >= connectionStrings.length) {
+    console.error(
+      'Failed to connect to MongoDB: All connection attempts failed',
+    );
+    return;
+  }
+
+  const connectionString = connectionStrings[index];
+
+  logger.debug(`Attempting to connect to MongoDB using: ${connectionString}`);
+  mongoose
+    .connect(connectionString, options)
+    .then(() => {
+      console.log('Connected to MongoDB');
+    })
+    .catch((err) => {
+      console.error(
+        `Failed to connect to MongoDB using ${connectionString}:`,
+        err.message,
+      );
+      console.log(
+        `Retrying connection using the next connection string in 5 seconds...`,
+      );
+
+      setTimeout(() => connectWithRetry(index + 1), 5000); // Retry after 5 seconds with the next connection string
+    });
+};
 const connect = async () => {
   const options = {
     autoIndex: true,
@@ -51,7 +96,7 @@ const connect = async () => {
 
 class dBclient {
   async connect(): Promise<void> {
-    await connect();
+    await connectWithRetry(0);
   }
 
   async disconnect(): Promise<void> {
