@@ -16,11 +16,11 @@ services:
       dockerfile: Dockerfile.production
     env_file:
       - .env
+    container_name: hps-api
     environment:
       - NODE_ENV=docker
       - PORT=3000
-      - REDIS_URL=redis://redis
-      - mongodb://mongo:27017/?replicaSet=rs0
+      - REDIS_URL=redis://redis 
     volumes:
       - ./logs:/usr/src/app/logs
       - uploads_volume:/usr/src/app/uploads
@@ -40,6 +40,7 @@ services:
   mongo:
     image: mongo:latest
     command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    container_name: mongo
     ports:
       - 27017:27017
     extra_hosts:
@@ -89,11 +90,11 @@ services:
 
 networks:
   app-network:
+    driver: bridge
 
 volumes:
   dbdata:
   uploads_volume:
-
   dbdata_config:
 
 # version: '3.8'
