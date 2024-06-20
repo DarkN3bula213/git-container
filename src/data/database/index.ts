@@ -25,7 +25,11 @@ export const connect = async () => {
   };
   let retry = 0;
   try {
-    await mongoose.connect(conStr, options);
+    logger.debug(`Connecting to ${URI}`);
+    await mongoose.connect(
+      'mongodb://127.0.0.1:27017/?replicaSet=rs0',
+      options,
+    );
     logger.info(`Database connected: ${mongoose.connection.name}`);
     mongoose.connection.on('error', (err) => {
       logger.error(`Mongoose default connection error: ${err}`);
