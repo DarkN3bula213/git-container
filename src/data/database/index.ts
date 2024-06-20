@@ -4,7 +4,7 @@ import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
 // const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
-const URI = `mongodb://127.0.0.1:27017/?replicaSet=rs0`;
+const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@localhost:27017,localhost:27018,localhost:27019/docker-db?replicaSet=rs0`;
 
 let conStr = '';
 
