@@ -33,6 +33,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
             cd /var/www/app/git-container/
             docker-compose down
-            docker-compose up --build -d
+            docker compose up --build -d
           EOF
         shell: bash
