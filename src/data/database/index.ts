@@ -24,14 +24,19 @@ const options = {
 const connectionStrings = [
   'mongodb://devuser:devpassword@host1.docker.internal:27017/docker-db',
   'mongodb://devuser:devpassword@192.168.32.1:27017/docker-db',
+  'mongodb://devuser:devpassword@192.168.32.2:27017/docker-db',
+  'mongodb://devuser:devpassword@192.168.32.3:27017/docker-db',
+  'mongodb://devuser:devpassword@192.168.32.4:27017/docker-db',
+  'mongodb://devuser:devpassword@192.168.32.5:27017/docker-db',
+  'mongodb://devuser:devpassword@192.168.32.6:27017/docker-db',
+  'mongodb://devuser:devpassword@192.168.32.7:27017/docker-db',
+  'mongodb://devuser:devpassword@192.168.32.8:27017/docker-db',
   'mongodb://devuser:devpassword@172.17.0.1:27017/docker-db',
   'mongodb://devuser:devpassword@24.144.94.199:27017/docker-db',
   'mongodb://devuser:devpassword@0.0.0.0:27017/docker-db',
-  'mongodb://devuser:devpassword@127.0.0.1:27017/docker-db',
+  'mongodb://devuser:devpassword@mongo:27017/docker-db',
   'mongodb://host.docker.internal:27017/docker-db',
   'mongodb://devuser:devpassword@host.docker.internal:27017/docker-db?authSource=admin',
-  'mongodb://devuser:devpassword@host.docker.internal:27017,host2.docker.internal:27017,host3.docker.internal:27017/docker-db?replicaSet=rs0&authSource=admin',
-  'mongodb://devuser:devpassword@host.docker.internal:27017,host2.docker.internal:27017,host3.docker.internal:27017/docker-db?replicaSet=rs0&authSource=admin&ssl=true',
 ];
 
 const connectWithRetry = (index: number) => {
