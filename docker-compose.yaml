@@ -26,51 +26,32 @@ services:
       - uploads_volume:/usr/src/app/uploads # Use a named volume for uploads
     depends_on:
       - redis
-      - mongo1
+      - mongo
     restart: unless-stopped
     ports:
       - '3000:3000'
     links:
       - redis
-      - mongo1
+      - mongo
       - file_server
     networks:
       - app-network
 
-  mongo1:
-    image: mongo:7.0
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
-    ports:
-      - 27017:27017
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    healthcheck:
-      test: ["CMD-SHELL", "echo 'try { rs.status() } catch (err) { rs.initiate({_id:\"rs0\",members:[{_id:0,host:\"mongo1:27017\"}]}) }' | mongosh --port 27017 --quiet"]
-      interval: 5s
-      timeout: 30s
-      start_period: 0s
-      start_interval: 1s
-      retries: 30
-    volumes:
-      - "dbdata:/data/db"
-      - "db_config:/data/configdb"
-      - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
-
-  # mongo:
-  #   image: mongo:latest
-  #   command: mongod --auth
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: devuser
-  #     MONGO_INITDB_ROOT_PASSWORD: devpassword
-  #     MONGO_INITDB_DATABASE: docker-db
+  mongo:
+    image: mongo:latest
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: devuser
+      MONGO_INITDB_ROOT_PASSWORD: devpassword
+      MONGO_INITDB_DATABASE: docker-db
     
-  #   ports:
-  #     - '27017:27017'
-  #   volumes:
-  #     - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
-  #     - dbdata:/data/db
-  #   networks:
-  #     - app-network
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+      - dbdata:/data/db
+    networks:
+      - app-network
 
   nginx:
     image: nginx:alpine
@@ -103,6 +84,5 @@ networks:
   app-network:
 
 volumes:
-  db_config:
   dbdata:
   uploads_volume:  # Define the named volume for uploads
