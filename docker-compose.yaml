@@ -26,13 +26,13 @@ services:
       - uploads_volume:/usr/src/app/uploads # Use a named volume for uploads
     depends_on:
       - redis
-      - mongo
+      - mongo1
     restart: unless-stopped
     ports:
       - '3000:3000'
     links:
       - redis
-      - mongo
+      - mongo1
       - file_server
     networks:
       - app-network
@@ -45,15 +45,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+      test: ["CMD-SHELL", "echo 'try { rs.status() } catch (err) { rs.initiate({_id:\"rs0\",members:[{_id:0,host:\"mongo1:27017\"}]}) }' | mongosh --port 27017 --quiet"]
       interval: 5s
       timeout: 30s
       start_period: 0s
       start_interval: 1s
       retries: 30
     volumes:
-      - "mongo1_data:/data/db"
-      - "mongo1_config:/data/configdb"
+      - "dbdata:/data/db"
+      - "db_config:/data/configdb"
       - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
 
   # mongo:
@@ -103,5 +103,6 @@ networks:
   app-network:
 
 volumes:
+  db_config:
   dbdata:
   uploads_volume:  # Define the named volume for uploads
