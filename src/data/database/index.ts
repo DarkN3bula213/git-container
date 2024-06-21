@@ -80,7 +80,10 @@ const connect = async () => {
   };
   let retry = 0;
   try {
-    await mongoose.connect('mongodb://mongo:27017/?replicaSet=rs0', options);
+    await mongoose.connect(
+      'mongodb://devuser:devpassword@mongo:27017/docker-db',
+      options,
+    );
     logger.info(`Database connected: ${mongoose.connection.name}`);
     mongoose.connection.on('error', (err) => {
       logger.error(`Mongoose default connection error: ${err}`);
@@ -106,7 +109,7 @@ const connect = async () => {
 
 class dBclient {
   async connect(): Promise<void> {
-    await connectWithRetry(0);
+    await connect();
   }
 
   async disconnect(): Promise<void> {
