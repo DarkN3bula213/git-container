@@ -34,4 +34,8 @@ export default {
   studentId: Joi.object({
     studentId: JoiObjectId().required(),
   }),
+  getInvoiceQRCode: Joi.object().keys({
+    studentId: JoiObjectId().required(),
+    paymentId: JoiObjectId().required(),
+  }),
 };

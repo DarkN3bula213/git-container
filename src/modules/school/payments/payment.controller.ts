@@ -18,32 +18,16 @@ import {
 import Payments, { type IPayment } from './payment.model';
 import paymentQueue from './payment.queue';
 import { addJobsToQueue, getPayId } from './payment.utils';
+import paymentsService from './payments.service';
 // const logger = new Logger(__filename);
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
-
 export const createPayment = asyncHandler(async (req, res) => {
   const { studentId } = req.body;
   const user = req.user as User;
-  if (!user) throw new BadRequestError('User not found');
-  const student = await StudentModel.findById(studentId);
-  if (!student) throw new BadRequestError('Student not found');
-  const grade = await ClassModel.findById(student.classId);
-  if (!grade) throw new BadRequestError('Grade not found');
-
-  const records: IPayment = new Payments({
-    studentId: student._id,
-    classId: student.classId,
-    className: grade.className,
-    section: student.section,
-    amount: grade.fee,
-    paymentDate: new Date(),
-    createdBy: user._id,
-    paymentType: student.feeType,
-    payId: getPayId(),
-  });
-
-  await records.save();
+  const userId = user._id as string;
+  const data = paymentsService.createPayment(studentId, userId);
+  const records = (await Payments.create(data)) as IPayment;
   return new SuccessResponse('Payment created successfully', records).send(res);
 });
 
