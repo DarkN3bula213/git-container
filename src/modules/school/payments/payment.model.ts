@@ -14,9 +14,11 @@ export interface IPayment extends mongoose.Document {
   description: string;
   createdBy: mongoose.Schema.Types.ObjectId;
   updatedBy: mongoose.Schema.Types.ObjectId;
+  invoiceId: string;
 }
 
 const schema = new mongoose.Schema<IPayment>({
+  invoiceId: { type: String, required: false, unique: true },
   studentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',

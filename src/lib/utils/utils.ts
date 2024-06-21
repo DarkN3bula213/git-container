@@ -76,3 +76,13 @@ export const fetchUserPermissions = async (roleIds: Types.ObjectId[]) => {
     throw error;
   }
 };
+import QRCode from 'qrcode';
+
+export async function generateQRCode(token: string): Promise<string> {
+  try {
+    const qrCodeDataURL = await QRCode.toDataURL(token);
+    return qrCodeDataURL;
+  } catch (err: any) {
+    throw new Error('Error generating QR Code: ' + err.message);
+  }
+}

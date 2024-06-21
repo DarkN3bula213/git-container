@@ -34,6 +34,9 @@ services:
       - redis
       - mongo
       - file_server
+    
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - app-network
 

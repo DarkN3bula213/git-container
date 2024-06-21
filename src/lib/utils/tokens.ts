@@ -5,6 +5,7 @@ import { Logger as log } from '../logger/logger';
 import { config } from '../config';
 import { User, findUserById } from '@/modules/auth/users/user.model';
 import { get } from 'lodash';
+import { InvoiceProps } from '@/types';
 
 const logger = new log(__filename);
 
@@ -115,4 +116,18 @@ export async function reIssueAccessToken({
     }
     return accessToken;
   }
+}
+
+/* -----------------------------( Token Generator )-----!>
+ *
+ * ----------( QRCode )->
+ */
+
+export function generateInvoiceToken(payload: InvoiceProps) {
+  const signingKey = config.tokens.refresh.private;
+  const token = sign({ ...payload }, signingKey, {
+    algorithm: 'RS256',
+    noTimestamp: true,
+  });
+  return token;
 }

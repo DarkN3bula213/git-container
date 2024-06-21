@@ -67,3 +67,29 @@ export function addJobsToQueue(
   }
   batches.set(batchId, { total: studentIds.length, completed: [], failed: [] });
 }
+
+import { getDayOfYear } from 'date-fns';
+
+/** -----------------------------( Serial Number )->
+ *
+ ** ----------( QRCode )->
+ */
+
+export function generateSerial(currentDate: Date, count: number): string {
+  const yearCodes = 'HPSN';
+  const dayCodes = 'AEFIKLST0';
+  const reversedDayCodes = [...dayCodes].reverse().join('');
+  const dayOfYear = getDayOfYear(currentDate);
+
+  const yearIndex = Math.floor((dayOfYear - 1) / 100);
+  const yearSegment = yearCodes[yearIndex];
+
+  const dayStr = dayOfYear.toString().padStart(2, '0');
+  const daySegment1 = dayCodes[parseInt(dayStr[0])];
+  const daySegment2 = reversedDayCodes[parseInt(dayStr[1])];
+
+  const checkAlphabet = String.fromCharCode(65 + Math.floor(count / 100));
+  const counterSegment = (count % 100).toString().padStart(2, '0');
+
+  return `${yearSegment}${daySegment1}${daySegment2}${checkAlphabet}${counterSegment}`;
+}
