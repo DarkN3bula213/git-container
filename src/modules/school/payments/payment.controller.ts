@@ -335,3 +335,31 @@ export const customSorting = asyncHandler(async (_req, res) => {
   });
   new SuccessResponse('Students fetched successfully', students).send(res);
 });
+
+export const commitTransaction = asyncHandler(async (req, res) => {
+  const { studentIds } = req.body;
+  const user = req.user as User;
+  if (!user) throw new BadRequestError('User not found');
+  const response = (await paymentsService.commitMultiInsert(
+    studentIds,
+    user._id as string,
+  )) as IPayment[];
+  return new SuccessResponse('Payments created successfully', response).send(
+    res,
+  );
+});
+
+export const deleteCommittedPayment = asyncHandler(async (req, res) => {
+  const { paymentId } = req.params;
+  const response = await paymentsService.deletePayment(paymentId);
+  return new SuccessResponse('Payment deleted successfully', response).send(
+    res,
+  );
+});
+export const deleteCommittedTransactions = asyncHandler(async (req, res) => {
+  const { studentIds } = req.body;
+  const response = await paymentsService.deleteMultiplePayments(studentIds);
+  return new SuccessResponse('Payments deleted successfully', response).send(
+    res,
+  );
+});

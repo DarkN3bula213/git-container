@@ -26,6 +26,30 @@ const getRouteMap = (): RouteMap[] => {
       handler: controller.createPayment,
     },
     {
+      path: '/transaction',
+      method: 'post',
+      validations: [
+        validate(schema.transactions),
+        invalidate([
+          getDynamicKey(DynamicKey.FEE, '*'),
+          getDynamicKey(DynamicKey.STUDENTS, '*'),
+        ]),
+      ],
+      handler: controller.commitTransaction,
+    },
+    {
+      path: '/transaction',
+      method: 'put',
+      validations: [
+        validate(schema.transactions),
+        invalidate([
+          getDynamicKey(DynamicKey.FEE, '*'),
+          getDynamicKey(DynamicKey.STUDENTS, '*'),
+        ]),
+      ],
+      handler: controller.deleteCommittedTransactions,
+    },
+    {
       path: '/student/:studentId',
       method: 'get',
       handler: controller.getPaymentsByStudentId,

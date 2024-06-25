@@ -153,19 +153,8 @@ schema.statics.createUser = async function (userDetails, roleCode?: string) {
     } catch (err: any) {
       throw new InternalError(err.message);
     }
-  } else {
-    try {
-      const role = await RoleModel.findOne({ code: Roles.HPS });
-      if (!role) throw new InternalError('Role must be defined');
-      const user = {
-        ...userDetails,
-        roles: role._id,
-      };
-      return this.create(user);
-    } catch (err: any) {
-      throw new InternalError(err.message);
-    }
   }
+  return this.create(userDetails);
 };
 
 schema.statics.findUserByEmail = async function (email) {

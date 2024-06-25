@@ -77,7 +77,7 @@ export const register = asyncHandler(async (req, res) => {
     throw new BadRequestError('User with this email already exists');
   }
 
-  const user = await UserModel.createUser(req.body, Roles.READONLY);
+  const user = await UserModel.createUser(req.body, Roles.HPS);
   if (!user) {
     throw new BadRequestError('Something went wrong');
   }

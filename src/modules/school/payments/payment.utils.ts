@@ -69,13 +69,17 @@ export function addJobsToQueue(
 }
 
 import { getDayOfYear } from 'date-fns';
+import { getNextSequence } from '../counter/counter.model';
 
 /** -----------------------------( Serial Number )->
  *
  ** ----------( QRCode )->
  */
 
-export function generateSerial(currentDate: Date, count: number): string {
+export async function generateSerial(
+  currentDate: Date = new Date(),
+): Promise<string> {
+  const count = await getNextSequence('invoice');
   const yearCodes = 'HPSN';
   const dayCodes = 'AEFIKLST0';
   const reversedDayCodes = [...dayCodes].reverse().join('');
@@ -85,8 +89,8 @@ export function generateSerial(currentDate: Date, count: number): string {
   const yearSegment = yearCodes[yearIndex];
 
   const dayStr = dayOfYear.toString().padStart(2, '0');
-  const daySegment1 = dayCodes[parseInt(dayStr[0])];
-  const daySegment2 = reversedDayCodes[parseInt(dayStr[1])];
+  const daySegment1 = dayCodes[parseInt(dayStr[0], 10)];
+  const daySegment2 = reversedDayCodes[parseInt(dayStr[1], 10)];
 
   const checkAlphabet = String.fromCharCode(65 + Math.floor(count / 100));
   const counterSegment = (count % 100).toString().padStart(2, '0');

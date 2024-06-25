@@ -7,28 +7,12 @@ import { InvoiceProps } from '@/types';
 import { generateInvoiceToken } from '@/lib/utils/tokens';
 import { generateQRCode } from '@/lib/utils/utils';
 import { Logger } from '@/lib/logger';
+import { ClientSession, startSession } from 'mongoose';
 const logger = new Logger(__filename);
 
 class PaymentService {
   async getNextInvoiceId(): Promise<string> {
-    const lastPayment = await Payments.findOne().sort({ createdAt: -1 }).exec();
-    const currentDate = new Date();
-
-    let lastCount = 0;
-    if (lastPayment && lastPayment.invoiceId) {
-      // Extract count and checkAlphabet from last invoiceId
-      const { invoiceId } = lastPayment;
-      const checkAlphabet = invoiceId.slice(3, 4);
-      const counterSegment = parseInt(invoiceId.slice(4));
-
-      if (counterSegment < 99) {
-        lastCount = (checkAlphabet.charCodeAt(0) - 65) * 100 + counterSegment;
-      } else {
-        lastCount = (checkAlphabet.charCodeAt(0) - 65) * 100 + 99;
-      }
-    }
-
-    return generateSerial(currentDate, lastCount + 1);
+    return await generateSerial();
   }
 
   async generateInvoice(paymentId: string, studentId: string) {
@@ -94,6 +78,153 @@ class PaymentService {
     } catch (err: any) {
       logger.error(err);
       throw new BadRequestError('Error creating payment');
+    }
+  }
+
+  async commitMultiInsert(studentIds: string[], userId: string) {
+    if (!Array.isArray(studentIds) || studentIds.length === 0) {
+      throw new BadRequestError('studentIds should be a non-empty array');
+    }
+
+    const session: ClientSession = await startSession();
+    session.startTransaction();
+    try {
+      const payId = getPayId();
+      const studentData: Student[] = [];
+
+      for (const id of studentIds) {
+        const student = (await StudentModel.findById(id).session(
+          session,
+        )) as Student;
+        if (!student) throw new BadRequestError(`Student not found: ${id}`);
+        studentData.push(student);
+      }
+
+      // Pre-generate invoice numbers for all payments
+      const invoiceIds = [] as string[];
+      for (let i = 0; i < studentData.length; i++) {
+        invoiceIds.push(await this.getNextInvoiceId());
+      }
+
+      const payments = studentData.map((student, index) => ({
+        studentId: student._id,
+        classId: student.classId,
+        className: student.className,
+        section: student.section,
+        amount: student.tuition_fee,
+        paymentDate: new Date(),
+        createdBy: userId,
+        paymentType: student.feeType,
+        invoiceId: invoiceIds[index],
+        payId: payId,
+      }));
+
+      const paymentDocs = await Payments.insertMany(payments, { session });
+
+      // Other database operations...
+      // Push Entry into Student's Payment History
+      await StudentModel.updateMany(
+        { _id: { $in: studentIds } },
+        {
+          $push: {
+            paymentHistory: {
+              $each: paymentDocs.map((payment) => ({
+                paymentId: payment._id,
+                payId: payment.payId,
+                amount: payment.amount,
+                date: payment.paymentDate,
+              })),
+            },
+          },
+        },
+        { session },
+      );
+
+      await session.commitTransaction();
+      return paymentDocs;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  async deletePayment(paymentId: string) {
+    const session: ClientSession = await startSession();
+    session.startTransaction();
+    try {
+      // Find the payment document
+      const payment = await Payments.findById(paymentId).session(session);
+      if (!payment) {
+        throw new BadRequestError('Payment not found');
+      }
+
+      // Delete the payment document
+      await Payments.findByIdAndDelete(paymentId).session(session);
+
+      // Remove the entry from the student's payment history
+      await StudentModel.findByIdAndUpdate(
+        payment.studentId,
+        {
+          $pull: {
+            paymentHistory: {
+              paymentId: paymentId,
+            },
+          },
+        },
+        { session },
+      );
+
+      await session.commitTransaction();
+      return { message: 'Payment deleted successfully' };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  async deleteMultiplePayments(studentIds: string[]) {
+    const session: ClientSession = await startSession();
+    session.startTransaction();
+    const payId = getPayId();
+    try {
+      // Find the payment documents
+      const payments = await Payments.find({
+        studentId: { $in: studentIds },
+        payId: payId,
+      }).session(session);
+      if (!payments) {
+        logger.error('Payments not found');
+        throw new BadRequestError('Payments not found');
+      }
+
+      // Delete the payment documents
+      const paymentIds = payments.map((payment) => payment._id);
+      await Payments.deleteMany({ _id: { $in: paymentIds } }).session(session);
+
+      // Remove the entries from the student's payment history
+      await StudentModel.updateMany(
+        { _id: { $in: payments.map((payment) => payment.studentId) } },
+        {
+          $pull: {
+            paymentHistory: {
+              paymentId: { $in: paymentIds },
+            },
+          },
+        },
+        { session },
+      );
+
+      await session.commitTransaction();
+      return { message: 'Payments deleted successfully' };
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
   }
 }

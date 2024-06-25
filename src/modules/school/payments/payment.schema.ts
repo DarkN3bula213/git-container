@@ -38,4 +38,8 @@ export default {
     studentId: JoiObjectId().required(),
     paymentId: JoiObjectId().required(),
   }),
+  transactions: Joi.object().keys({
+    studentIds: Joi.array().items(JoiObjectId()).optional(),
+    paymentIds: Joi.array().items(JoiObjectId()).optional(),
+  }),
 };
