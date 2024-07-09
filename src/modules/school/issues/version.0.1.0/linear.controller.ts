@@ -6,11 +6,12 @@ import { Logger } from '@/lib/logger';
 import { Types } from 'mongoose';
 import service from './linear.service';
 import addToIsSeenBy from './linear.utils';
+import { User } from '@/modules/auth/users/user.model';
 const logger = new Logger('Linear Controller');
 
 export const createLinearIssue = asyncHandler(async (req, res) => {
   const { description, title, tags, priority, status } = req.body;
-  const user = req.user;
+  const user = req.user as User;
 
   if (!user) return new BadRequestError('No user found');
   const input: Partial<LinearIssue> = {
@@ -29,7 +30,7 @@ export const createLinearIssue = asyncHandler(async (req, res) => {
 });
 
 export const getAllLinearIssues = asyncHandler(async (req, res) => {
-  const user = req.user;
+  const user = req.user as User;
   if (!user) throw new BadRequestError('No user found');
 
   const roles = normalizeRoles(user.roles);
@@ -80,10 +81,10 @@ export const getAllLinearIssues = asyncHandler(async (req, res) => {
 
 export const getLinearIssueById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const user = req.user;
+  const user = req.user as User;
   if (!user) throw new BadRequestError('No user found');
 
-  const userId = user._id as string;
+  const userId = user._id;
 
   const roles = normalizeRoles(user.roles);
   const isAdmin = await isAdminRolePresent(roles);
@@ -143,7 +144,7 @@ export const addReply = asyncHandler(async (req, res) => {
   const { issueId } = req.params;
   const { description } = req.body;
 
-  const user = req.user;
+  const user = req.user as User;
 
   if (!user) return new BadRequestError('No user found');
   const userId = new Types.ObjectId(user._id as string);
