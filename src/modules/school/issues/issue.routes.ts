@@ -1,5 +1,6 @@
 import * as controller from './issue.controller';
 import schema from './issue.schema';
+import linearRoutes from './version.0.1.0/linear.routes';
 
 import { ValidationSource, validate } from '@/lib/handlers/validate';
 
@@ -74,6 +75,7 @@ const getRoutesMap = (): RouteMap[] => {
   ];
 };
 const router = Router();
+router.use('/linear', linearRoutes);
 setRouter(router, getRoutesMap());
 
 export default router;
