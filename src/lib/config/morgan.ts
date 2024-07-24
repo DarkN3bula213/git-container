@@ -28,7 +28,7 @@ morgan.token('colored-method', (req) => {
 });
 
 morgan.format('myFormat', (tokens, req, res) => {
-  const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm'));
+  const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
   const method = tokens['colored-method'](req, res);
   const url = tokens.url(req, res);
   const status = tokens.status(req, res);

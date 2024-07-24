@@ -1,9 +1,10 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 
 import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
-interface Teacher extends Document {
+export interface Teacher extends Document {
+  _id: Types.ObjectId;
   first_name: string;
   last_name: string;
   gender: string;

@@ -1,11 +1,49 @@
 import mongoose, { Model, Document, model, Schema, Types } from 'mongoose';
+import { Teacher } from '../teachers/teacher.model';
+import { SubjectNames } from '@/lib/constants/subject-list';
 
+export interface IClassSubject {
+  classId: Types.ObjectId;
+  subjectId: string;
+  name: string;
+  level: string;
+  teacherId?: Types.ObjectId;
+  prescribedBooks?: string[];
+}
 export interface IClass extends Document {
   className: string;
   section: string[];
   fee: number;
+  subjects?: IClassSubject[];
+  classTeacher?: Teacher['_id'];
 }
 
+const classSubjectSchema = new Schema<IClassSubject>({
+  classId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Class',
+    required: true,
+  },
+  name: {
+    type: Schema.Types.String,
+    enum: Object.values(SubjectNames),
+    required: true,
+  },
+  level: {
+    type: Schema.Types.String,
+    required: true,
+  },
+  teacherId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Teacher',
+  },
+  prescribedBooks: {
+    type: [Schema.Types.String],
+  },
+  subjectId: {
+    type: Schema.Types.String,
+  },
+});
 const schema = new Schema<IClass>(
   {
     className: {
@@ -36,6 +74,13 @@ const schema = new Schema<IClass>(
     fee: {
       type: Schema.Types.Number,
       required: true,
+    },
+    subjects: {
+      type: [classSubjectSchema],
+    },
+    classTeacher: {
+      type: Schema.Types.ObjectId,
+      ref: 'Teacher',
     },
   },
   {
