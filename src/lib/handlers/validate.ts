@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi, { ObjectSchema } from 'joi';
 import { Request, Response, NextFunction } from 'express';
 
 import { Types } from 'mongoose';
@@ -52,3 +52,42 @@ export const validate =
       next(error);
     }
   };
+
+interface ValidationSchemas {
+  params?: ObjectSchema;
+  query?: ObjectSchema;
+  body?: ObjectSchema;
+}
+
+export const validateReq = (schemas: ValidationSchemas) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (schemas.params) {
+      const { error: paramsError } = schemas.params.validate(req.params, {
+        abortEarly: false,
+      });
+      if (paramsError) {
+        return next(new BadRequestError(paramsError.message));
+      }
+    }
+
+    if (schemas.query) {
+      const { error: queryError } = schemas.query.validate(req.query, {
+        abortEarly: false,
+      });
+      if (queryError) {
+        return next(new BadRequestError(queryError.message));
+      }
+    }
+
+    if (schemas.body) {
+      const { error: bodyError } = schemas.body.validate(req.body, {
+        abortEarly: false,
+      });
+      if (bodyError) {
+        return next(new BadRequestError(bodyError.message));
+      }
+    }
+
+    next();
+  };
+};
