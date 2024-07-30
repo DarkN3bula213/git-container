@@ -2,6 +2,9 @@ import { Router } from 'express';
 import * as controller from './class.controller';
 import * as schema from './class.schema';
 import { validate } from '@/lib/handlers/validate';
+import { RouteMap } from '@/types/routes';
+import { invalidate } from '@/lib/handlers/cache.handler';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 
 const router = Router();
 
@@ -23,10 +26,29 @@ router.put('/fee/:name', validate(schema.fee), controller.updateClassFee);
 
 router.post('/seed', validate(schema.multiClass), controller.insertMany);
 
-router.post(
-  '/subject/:classId',
-  schema.addSubjectToClass,
-  controller.addSubjectToClass,
-);
+const routes = (): RouteMap[] => {
+  return [
+    /*<----------------------------------------(NEW ROUTES) */
+
+    {
+      path: '/subject/:classId',
+      method: 'post',
+      validations: [invalidate(DynamicKey.CLASS)],
+      handler: controller.addSubjectToClass,
+    },
+    {
+      path: '/subject/:classId',
+      method: 'put',
+      validations: [invalidate(DynamicKey.CLASS)],
+      handler: controller.removeSubjectFromClass,
+    },
+    {
+      path: '/teacher/:classId',
+      method: 'post',
+      validations: [invalidate(DynamicKey.CLASS)],
+      handler: controller.addClassTeacher,
+    },
+  ];
+};
 
 export default router;

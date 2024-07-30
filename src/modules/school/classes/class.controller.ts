@@ -1,12 +1,14 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ClassModel, IClass, IClassSubject } from './class.model';
+import { ClassModel } from './class.model';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { cache } from '@/data/cache/cache.service';
 import { generateSubjectId } from './class.utils';
+import classService from './class.service';
+import { DynamicKey } from '@/data/cache/keys';
 
 /*<!----------------------------------------(GET ROUTES) */
 export const findClasses = asyncHandler(async (_req, res) => {
-  const key = 'classes';
+  const key = DynamicKey.CLASS;
   const cachedClasses = await cache.getWithFallback(key, async () => {
     return await ClassModel.find().lean().exec();
   });
@@ -70,47 +72,38 @@ export const updateClassFee = asyncHandler(async (req, res) => {
   new SuccessResponse('Class updated successfully', result).send(res);
 });
 
-//
-// ───────────────────────────────────────────────────────────────────────────
-//
+/*<!-- 1. POST  ---------------------------( Add Subjects To Class )->*/
 
 export const addSubjectToClass = asyncHandler(async (req, res) => {
-  const { subject } = req.body;
+  const { subjects } = req.body;
   const { classId } = req.params;
 
-  // Find the class by ID
-  const existingClass = (await ClassModel.findById(classId)) as IClass;
-  if (!existingClass) {
-    throw new BadRequestError('Class not found');
-  }
-
-  // Check if the subject already exists in this class
-  if (
-    existingClass.subjects?.some(
-      (sub: { name: string; level: string }) =>
-        sub.name === subject && sub.level === existingClass.className,
-    )
-  ) {
-    throw new BadRequestError('Subject already exists in this class');
-  }
-
-  const subjectId = generateSubjectId(subject, existingClass.className);
-  console.log('Generated subjectId:', subjectId);
-
-  // Create a new subject
-  const newSubject = {
-    classId: existingClass._id,
-    subjectId: subjectId,
-    name: subject,
-    level: existingClass.className,
-  } as IClassSubject;
-  console.log(newSubject);
-  // Add the new subject to the class
-  existingClass.subjects?.push(newSubject);
-
-  // Save the updated class
-  const updatedClass = await existingClass.save();
-
-  // Send success response
+  const updatedClass = await classService.addSubjects(classId, subjects);
   new SuccessResponse('Subject added successfully', updatedClass).send(res);
+});
+
+/*<!-- 1. POST  ---------------------------( Remove Subjects From Class )->*/
+
+export const removeSubjectFromClass = asyncHandler(async (req, res) => {
+  const { classId } = req.params;
+  const { subjectId } = req.body;
+  const response = await classService.removeClassSubjects(classId, subjectId);
+  new SuccessResponse('Subject removed successfully', response).send(res);
+});
+
+/*<!-- 1. POST  ---------------------------( Add Class Teacher )->*/
+
+export const addClassTeacher = asyncHandler(async (req, res) => {
+  const { classId } = req.params;
+  const { data } = req.body;
+  const { teacherId, teacherName } = data;
+
+  console.log(`${teacherId} ${teacherName}`, req.body);
+
+  const response = await classService.addClassTeacher(
+    classId,
+    teacherId,
+    teacherName,
+  );
+  new SuccessResponse('Teacher added successfully', response).send(res);
 });

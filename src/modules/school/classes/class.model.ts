@@ -3,47 +3,68 @@ import { Teacher } from '../teachers/teacher.model';
 import { SubjectNames } from '@/lib/constants/subject-list';
 
 export interface IClassSubject {
+  _id?: Types.ObjectId;
   classId: Types.ObjectId;
   subjectId: string;
   name: string;
   level: string;
-  teacherId?: Types.ObjectId;
+  teacherId?: string;
+  teacherName?: string;
   prescribedBooks?: string[];
 }
 export interface IClass extends Document {
   className: string;
   section: string[];
   fee: number;
-  subjects?: IClassSubject[];
-  classTeacher?: Teacher['_id'];
+  subjects: IClassSubject[];
+  classTeacher?: {
+    teacherId: Types.ObjectId;
+    teacherName: string;
+  };
 }
 
-const classSubjectSchema = new Schema<IClassSubject>({
-  classId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Class',
-    required: true,
+/*<!-- 1. Model  ---------------------------( Subjects )->*/
+
+const classSubjectSchema = new Schema<IClassSubject>(
+  {
+    classId: {
+      type: Schema.Types.ObjectId,
+      // ref: 'Class',
+      required: true,
+    },
+    name: {
+      type: Schema.Types.String,
+      required: true, // Add required validation
+    },
+    level: {
+      type: Schema.Types.String,
+      required: true, // Add required validation
+    },
+    teacherId: {
+      type: Schema.Types.ObjectId,
+      // ref: 'Teacher',
+      required: false,
+    },
+    prescribedBooks: {
+      type: [Schema.Types.String],
+      required: false,
+    },
+    subjectId: {
+      type: Schema.Types.String,
+      required: true, // Add required validation
+    },
+    teacherName: {
+      type: Schema.Types.String,
+      required: false,
+    },
   },
-  name: {
-    type: Schema.Types.String,
-    enum: Object.values(SubjectNames),
-    required: true,
+  {
+    timestamps: true,
   },
-  level: {
-    type: Schema.Types.String,
-    required: true,
-  },
-  teacherId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Teacher',
-  },
-  prescribedBooks: {
-    type: [Schema.Types.String],
-  },
-  subjectId: {
-    type: Schema.Types.String,
-  },
-});
+);
+
+/*<!-- 2. Model  ---------------------------( Classes )->*/
+
 const schema = new Schema<IClass>(
   {
     className: {

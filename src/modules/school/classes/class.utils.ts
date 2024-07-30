@@ -1,3 +1,6 @@
+import { IClassSubject } from './class.model';
+import { Types } from 'mongoose';
+
 export function generateSubjectId(subjectName: string, level: string): string {
   const abbreviations: { [key: string]: string } = {
     English: 'ENG',
@@ -31,4 +34,27 @@ export function generateSubjectId(subjectName: string, level: string): string {
   const levelCode = level.substring(0, 1).toUpperCase();
 
   return `${subjectCode}${levelCode}`;
+}
+
+export function createIClassSubject(
+  data: Partial<IClassSubject>,
+  className: string,
+  classId: Types.ObjectId,
+  teacherName: string,
+): IClassSubject {
+  if (!data.name) {
+    throw new Error('Missing required fields');
+  }
+  const dataTransform: IClassSubject = {
+    _id: data._id ?? new Types.ObjectId(),
+    subjectId: generateSubjectId(data.name, className),
+    name: data.name,
+    teacherId: data.teacherId ?? '', // Ensure optional fields are handled
+    classId: classId,
+    level: className,
+    prescribedBooks: data.prescribedBooks ?? [],
+    teacherName: teacherName,
+  };
+  console.log('Transformed Data:', dataTransform);
+  return dataTransform;
 }
