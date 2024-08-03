@@ -5,6 +5,7 @@ import { validate } from '@/lib/handlers/validate';
 import { RouteMap } from '@/types/routes';
 import { invalidate } from '@/lib/handlers/cache.handler';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
+import { setRouter } from '@/lib/utils/utils';
 
 const router = Router();
 
@@ -50,5 +51,7 @@ const routes = (): RouteMap[] => {
     },
   ];
 };
+
+setRouter(router, routes());
 
 export default router;
