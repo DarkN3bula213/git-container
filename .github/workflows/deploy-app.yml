@@ -5,7 +5,7 @@ on:
   #   types: [trigger-deploy]
   push:
     branches:
-      - main
+      - cidi
   # push:
   #   branches:
   #     - main
