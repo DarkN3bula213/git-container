@@ -107,3 +107,18 @@ export const addClassTeacher = asyncHandler(async (req, res) => {
   );
   new SuccessResponse('Teacher added successfully', response).send(res);
 });
+/*<!----------------------------------------(Add Teacher) */
+export const addTeacher = asyncHandler(async (req, res) => {
+  const { classId } = req.params;
+  const { data } = req.body;
+  const { teacherId, teacherName } = data;
+
+  console.log(`${teacherId} ${teacherName}`, req.body);
+
+  const response = await classService.addClassTeacher(
+    classId,
+    teacherId,
+    teacherName,
+  );
+  new SuccessResponse('Teacher added successfully', response).send(res);
+});

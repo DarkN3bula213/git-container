@@ -24,7 +24,7 @@ class ClassService {
   }
 
   // Add classTeacher to Class
-  public async addClassTeacher(
+   public async addClassTeacher(
     classId: string,
     teacherId: string,
     teacherName: string,

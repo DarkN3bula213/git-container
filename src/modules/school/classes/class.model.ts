@@ -1,7 +1,5 @@
-import mongoose, { Model, Document, model, Schema, Types } from 'mongoose';
-import { Teacher } from '../teachers/teacher.model';
-import { SubjectNames } from '@/lib/constants/subject-list';
-
+import { type Document, model, Schema, Types } from 'mongoose';
+import { generateSubjectId } from './class.utils';
 export interface IClassSubject {
   _id?: Types.ObjectId;
   classId: Types.ObjectId;
@@ -12,19 +10,6 @@ export interface IClassSubject {
   teacherName?: string;
   prescribedBooks?: string[];
 }
-export interface IClass extends Document {
-  className: string;
-  section: string[];
-  fee: number;
-  subjects: IClassSubject[];
-  classTeacher?: {
-    teacherId: Types.ObjectId;
-    teacherName: string;
-  };
-}
-
-/*<!-- 1. Model  ---------------------------( Subjects )->*/
-
 const classSubjectSchema = new Schema<IClassSubject>(
   {
     classId: {
@@ -62,8 +47,16 @@ const classSubjectSchema = new Schema<IClassSubject>(
     timestamps: true,
   },
 );
-
-/*<!-- 2. Model  ---------------------------( Classes )->*/
+export interface IClass extends Document {
+  className: string;
+  section: string[];
+  fee: number;
+  subjects: IClassSubject[];
+  classTeacher?: {
+    teacherId: Types.ObjectId;
+    teacherName: string;
+  };
+}
 
 const schema = new Schema<IClass>(
   {
@@ -98,10 +91,18 @@ const schema = new Schema<IClass>(
     },
     subjects: {
       type: [classSubjectSchema],
+      required: true,
     },
     classTeacher: {
-      type: Schema.Types.ObjectId,
-      ref: 'Teacher',
+      type: {
+        teacherId: {
+          type: Schema.Types.ObjectId,
+          ref: 'Teacher',
+        },
+        teacherName: {
+          type: Schema.Types.String,
+        },
+      },
     },
   },
   {
@@ -110,3 +111,26 @@ const schema = new Schema<IClass>(
   },
 );
 export const ClassModel = model<IClass>('Class', schema);
+
+export function createIClassSubject(
+  data: Partial<IClassSubject>,
+  className: string,
+  classId: Types.ObjectId,
+  teacherName: string,
+): IClassSubject {
+  if (!data.name) {
+    throw new Error('Missing required fields');
+  }
+  const dataTransform: IClassSubject = {
+    _id: data._id ?? new Types.ObjectId(),
+    subjectId: generateSubjectId(data.name, className),
+    name: data.name,
+    teacherId: data.teacherId ?? '', // Ensure optional fields are handled
+    classId: classId,
+    level: className,
+    prescribedBooks: data.prescribedBooks ?? [],
+    teacherName: teacherName,
+  };
+  console.log('Transformed Data:', dataTransform);
+  return dataTransform;
+}
