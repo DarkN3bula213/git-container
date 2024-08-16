@@ -85,9 +85,13 @@ class SocketService {
         }
 
         socket.on('disconnect', async () => {
+          logger.info(`User ${userID} is disconnecting...`);
+
           const session = this.calculateTimeSpent(socket.data.startTime);
 
-          saveSessionQueue.add(
+          logger.info(`Session calculated for user ${userID}:`, session);
+
+          const job = await saveSessionQueue.add(
             'saveUserSession',
             {
               userID,
@@ -97,12 +101,15 @@ class SocketService {
             },
             {
               jobId: `job-${userID}`,
-              delay: 5 * 60 * 1000,
+              delay: 5 * 60 * 1000, // 5-minute delay
             },
           );
+
+          logger.info(`Job ${job.id} queued for user ${userID}`);
+
+          socket.disconnect();
+          logger.info(`User ${userID} disconnected`);
         });
-        socket.disconnect();
-        logger.info(`User ${userID} disconnected`);
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);
       }
