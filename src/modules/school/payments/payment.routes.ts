@@ -8,7 +8,7 @@ import { setRouter } from '@/lib/utils/utils';
 import { invalidate } from '@/lib/handlers/cache.handler';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import schema from './payment.schema';
-import { ValidationSource, validate } from '@/lib/handlers/validate';
+import { validate } from '@/lib/handlers/validate';
 
 const router = Router();
 
@@ -16,6 +16,21 @@ router.route('/history/:studentId').get(controller.getStudentPaymentHistory);
 
 const getRouteMap = (): RouteMap[] => {
   return [
+    /*<!-- 1. Get  ---------------------------( Get Billing Cycle )->*/
+    {
+      path: '/cycles',
+      method: 'get',
+      handler: controller.getAvailableBillingCycles,
+    },
+
+    /*<!-- 1. Get  ---------------------------( Get by PayID )->*/
+    {
+      path: '/bill-cycle/:billingCycle',
+      method: 'get',
+      validations: [schema.billingCycle],
+      handler: controller.getFeesByCycle,
+    },
+
     {
       path: '/',
       method: 'post',
@@ -141,7 +156,7 @@ const getRouteMap = (): RouteMap[] => {
       method: 'delete',
       validations: [
         validate(schema.removeBulk),
-        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, '*')),
         invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
       ],
       handler: controller.deleteManyByID,

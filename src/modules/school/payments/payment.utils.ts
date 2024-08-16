@@ -97,3 +97,20 @@ export async function generateSerial(
 
   return `${yearSegment}${daySegment1}${daySegment2}${checkAlphabet}${counterSegment}`;
 }
+export function formatBillingCycle(
+  payIDs: string[],
+): { label: string; value: string }[] {
+  return payIDs.map((payID) => {
+    const month = payID.slice(0, 2);
+    const year = `20${payID.slice(2, 4)}`;
+    const startDate = new Date(`${year}-${month}-01`);
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + 1);
+    endDate.setDate(0);
+
+    return {
+      label: `${startDate.getDate()} ${startDate.toLocaleString('default', { month: 'short' })} - ${endDate.getDate()} ${endDate.toLocaleString('default', { month: 'short' })} ${year}`,
+      value: payID,
+    };
+  });
+}

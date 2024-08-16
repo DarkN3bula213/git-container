@@ -17,7 +17,7 @@ import {
 } from './payment.aggregation';
 import Payments, { type IPayment } from './payment.model';
 import paymentQueue from './payment.queue';
-import { addJobsToQueue, getPayId } from './payment.utils';
+import { addJobsToQueue, formatBillingCycle, getPayId } from './payment.utils';
 import paymentsService from './payments.service';
 // const logger = new Logger(__filename);
 
@@ -127,22 +127,6 @@ export const getPaymentById = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 3. Read  ---------------------------( Get Student Payments )-> */
-// export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
-//   const key = getDynamicKey(DynamicKey.FEE, req.params.studentId);
-
-//   const cachedPayments = await cache.getWithFallback(key, async () => {
-//     return await Payments.find({ studentId: req.params.studentId })
-//       .lean()
-//       .exec();
-//   });
-//   if (!cachedPayments) throw new BadRequestError('Payments not found');
-//   return new SuccessResponse(
-//     'Payments fetched successfully',
-//     cachedPayments,
-//   ).send(res);
-// });
-
-/*<!-- 3. Read  ---------------------------( Get Student Payments )-> */
 export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
   const key = getDynamicKey(DynamicKey.FEE, req.params.studentId);
 
@@ -170,6 +154,51 @@ export const getMonthsPayments = asyncHandler(async (_req, res) => {
   ).send(res);
 });
 
+/*<!-- 6. Read  ---------------------------( Get Available Cycles )->*/
+
+export const getAvailableBillingCycles = asyncHandler(async (req, res) => {
+  const payIDs = (await Payments.distinct('payId').exec()) as string[];
+
+  if (!payIDs || payIDs.length === 0) {
+    return res.status(404).json({ message: 'No billing cycles found.' });
+  }
+
+  // Format payIDs into a list of { label, value }
+  const availableBillingCycles = formatBillingCycle(payIDs);
+
+  return new SuccessResponse(
+    'Available billing cycles fetched successfully',
+    availableBillingCycles,
+  ).send(res);
+});
+
+/*<!-- 6. Read  ---------------------------( Get Available Cycles )->*/
+export const getFeesByCycle = asyncHandler(async (req, res) => {
+  const { billingCycle } = req.params;
+  const payID = billingCycle;
+
+  if (!payID || payID.length !== 4) {
+    return res
+      .status(400)
+      .json({ message: 'Invalid payID format. Expected MMYY.' });
+  }
+
+  const key = getDynamicKey(DynamicKey.FEE, `billing-cycle-${payID}`);
+  const cachedPayments: any = await cache.getWithFallback(key, async () => {
+    return await Payments.find({ payId: payID }).lean().exec();
+  });
+
+  if (cachedPayments.length === 0) {
+    return res
+      .status(404)
+      .json({ message: 'No payments found for the specified billing cycle' });
+  }
+
+  return new SuccessResponse(
+    `Payments for billing cycle ${payID} fetched successfully`,
+    cachedPayments,
+  ).send(res);
+});
 /*<!-- 1. Update  ---------------------------( Update by ID )-> */
 export const updatePayment = asyncHandler(async (req, res) => {
   const { id } = req.params;

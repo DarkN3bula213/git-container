@@ -1,4 +1,4 @@
-import { JoiObjectId } from '@/lib/handlers/validate';
+import { JoiObjectId, validateReq } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
 export default {
@@ -41,5 +41,10 @@ export default {
   transactions: Joi.object().keys({
     studentIds: Joi.array().items(JoiObjectId()).optional(),
     paymentIds: Joi.array().items(JoiObjectId()).optional(),
+  }),
+  billingCycle: validateReq({
+    params: Joi.object({
+      billingCycle: Joi.string().required(),
+    }),
   }),
 };
