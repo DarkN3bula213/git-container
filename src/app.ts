@@ -21,6 +21,8 @@ process.on('unhandledRejection', (reason, promise) => {
     reason: reason,
     promise: promise,
   });
+  console.error(`Reason: ${reason}`);
+  console.dir(promise);
 });
 const app: Application = express();
 

@@ -5,7 +5,8 @@ const logger = new Logger(__filename);
 import cookie from 'cookie';
 import { saveSessionQueue } from '@/queues/session.queue';
 import { verifyToken } from '@/lib/utils/tokens';
-export const handleDisconnect = async (userID: string, socket: Socket) => {
+export const handleDisconnect = async (socket: Socket) => {
+  const userID = socket.data.userId;
   logger.info(`User ${userID} is disconnecting...`);
 
   const session = calculateTimeSpent(socket.data.startTime);
@@ -49,6 +50,7 @@ export const handleConnect = async (socket: Socket) => {
   logger.info(`User ${verificationResult.decoded?.user.name} connected`);
 
   const userID = verificationResult.decoded?.user._id;
+  socket.data.userId = userID;
   socket.data.startTime = new Date();
   const jobId = `job-${userID}`;
 

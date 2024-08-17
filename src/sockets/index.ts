@@ -1,13 +1,9 @@
 import { Logger } from '@/lib/logger';
-import { verifyToken } from '@/lib/utils/tokens';
-import cookie from 'cookie';
 
 const logger = new Logger(__filename);
 
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
-import { saveSessionQueue } from '@/queues/session.queue';
-import { calculateTimeSpent } from './socket.utils';
 import { handleConnect, handleDisconnect } from './events';
 import { corsOptions } from '@/lib/config/cors';
 
@@ -30,10 +26,8 @@ class SocketService {
   }
   public emit(eventName: string, message: any, roomId?: string): void {
     if (roomId) {
-      // Emit to a specific roomhttps://biomejs.dev/linter/rules/no-explicit-any
       this.io.to(roomId).emit(eventName, message);
     } else {
-      // Broadcast to all connected sockets
       this.io.emit(eventName, message);
     }
   }
@@ -52,7 +46,7 @@ class SocketService {
             arguments: JSON.stringify(args),
           });
         });
-        socket.on('disconnect', handleDisconnect);
+        socket.on('disconnect', () => handleDisconnect);
       } catch (error) {
         logger.error(`Error in socket connection: ${error}`);
       }
