@@ -11,7 +11,7 @@ const login = Joi.object({
   email: Joi.string().required(),
   password: Joi.string().required(),
 });
-
+// its the nano
 const verifyEmail = Joi.object({
   code: Joi.string().required(),
 });
