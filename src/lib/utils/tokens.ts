@@ -6,6 +6,7 @@ import { config } from '../config';
 import { User, findUserById } from '@/modules/auth/users/user.model';
 import { get } from 'lodash';
 import { InvoiceProps } from '@/types';
+import { createHmac, randomBytes } from 'node:crypto';
 
 const logger = new log(__filename);
 
@@ -131,3 +132,40 @@ export function generateInvoiceToken(payload: InvoiceProps) {
   });
   return token;
 }
+
+/*
+ * ----------( Verification Token )->
+ */
+const verificationToken = Math.floor(
+  100000 + Math.random() * 900000,
+).toString();
+
+/*
+ * ----------( Email Verification Token )->
+ */
+function generateVerifyEmailToken() {
+  const token = verificationToken;
+  return token;
+}
+
+const tokenExpiryTime = Date.now() + 24 * 60 * 60 * 1000;
+
+/*
+ * ----------( Generate Reset Token )->
+ */
+
+const generateSecureResetToken = (): string => {
+  const token = randomBytes(20).toString('hex');
+  const hmac = createHmac(
+    'sha256',
+    process.env.RESET_TOKEN_SECRET || 'default_secret_key',
+  );
+  return hmac.update(token).digest('hex');
+};
+
+export const verfication = {
+  token: verificationToken,
+  resetToken: generateSecureResetToken,
+  generateToken: generateVerifyEmailToken,
+  expiry: tokenExpiryTime,
+};

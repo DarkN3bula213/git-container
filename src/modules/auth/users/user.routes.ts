@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import * as controller from './user.controller';
+import * as verfication from '../verification';
 import { validate } from '@/lib/handlers/validate';
 import schema, { insertMany, register } from './user.schema';
+import verify from '../verification/verification.schema';
 import type { RouteMap } from '@/types/routes';
 import { setRouter } from '@/lib/utils/utils';
 
@@ -19,24 +21,28 @@ function getRouteMap(): RouteMap[] {
       method: 'get',
       handler: controller.getUsers,
     },
-    // {
-    //   path: '/session',
-    //   method: 'get',
-    //   validations: [authentication],
-    //   handler: controller.checkLogin,
-    // },
-    // {
-    //   path: '/check-session',
-    //   method: 'get',
+    /*<!-- 1. Forgot Password  ---------------------------( x )->*/
 
-    //   handler: controller.checkSession,
-    // },
-    // {
-    //   path: '/seed',
-    //   method: 'post',
-    //   validations: [validate(insertMany)],
-    //   handler: controller.insertMany,
-    // },
+    {
+      path: '/forgot-password',
+      method: 'post',
+      validations: [verify.forgotPass],
+      handler: verfication.forgotPassword,
+    },
+    /*<!-- 2. Reset Password  ---------------------------( x )->*/
+    {
+      path: '/reset-password/:token',
+      method: 'post',
+      validations: [verify.resetPass],
+      handler: verfication.resetPassword,
+    },
+    /*<!-- 3. Verify Email  ---------------------------( x )->*/
+    {
+      path: '/verify-email',
+      method: 'post',
+      validations: [verify.verfify],
+      handler: verfication.verifyUser,
+    },
     {
       path: '/register',
       method: 'post',

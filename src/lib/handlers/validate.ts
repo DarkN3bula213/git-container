@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import { Types } from 'mongoose';
 import { BadRequestError } from '../api';
+import { formatJoiErrorMessage } from '../utils/utils';
 
 export enum ValidationSource {
   BODY = 'body',
@@ -66,7 +67,9 @@ export const validateReq = (schemas: ValidationSchemas) => {
         abortEarly: false,
       });
       if (paramsError) {
-        return next(new BadRequestError(paramsError.message));
+        const { details } = paramsError;
+        const message = formatJoiErrorMessage(details);
+        return next(new BadRequestError(message));
       }
     }
 
@@ -75,7 +78,9 @@ export const validateReq = (schemas: ValidationSchemas) => {
         abortEarly: false,
       });
       if (queryError) {
-        return next(new BadRequestError(queryError.message));
+        const { details } = queryError;
+        const message = formatJoiErrorMessage(details);
+        return next(new BadRequestError(message));
       }
     }
 
@@ -84,7 +89,9 @@ export const validateReq = (schemas: ValidationSchemas) => {
         abortEarly: false,
       });
       if (bodyError) {
-        return next(new BadRequestError(bodyError.message));
+        const { details } = bodyError;
+        const message = formatJoiErrorMessage(details);
+        return next(new BadRequestError(message));
       }
     }
 

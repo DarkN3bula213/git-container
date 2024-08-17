@@ -24,6 +24,12 @@ export interface User extends Document {
   updatedAt: Date;
   isPrime: boolean;
   temporary?: Date;
+  resetPasswordToken: string | null;
+  resetPasswordExpiresAt: Date | null;
+  verificationToken: string | null;
+  verificationTokenExpiresAt: Date | null;
+  isVerified: boolean;
+  lastLogin: Date;
 }
 
 interface UserMethods {
@@ -93,6 +99,27 @@ export const schema = new Schema<User>(
     isPrime: {
       type: Boolean,
       default: false,
+    },
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    verificationToken: {
+      type: String,
+    },
+    verificationTokenExpiresAt: {
+      type: Date,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    lastLogin: {
+      type: Date,
     },
     roles: [
       {

@@ -103,6 +103,9 @@ export const config = {
   mail: {
     host: getOsEnv('EMAIL_HOST'),
     port: toNumber(getOsEnv('EMAIL_PORT')),
+    token: getOsEnv('MAILTRAP_TOKEN'),
+    address: getOsEnv('SENDER_EMAIL'),
+    url: getOsEnv('CLIENT_URL'),
 
     auth: {
       user: getOsEnv('EMAIL_USER'),
