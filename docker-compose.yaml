@@ -45,8 +45,8 @@ services:
       retries: 30
     volumes:
       - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
-      - dbdata:/data/db
-      - dbdata_config:/data/configdb
+      - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
+      - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
     networks:
       - app-network
 
