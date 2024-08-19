@@ -9,7 +9,7 @@ const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pa
 let conStr = '';
 
 if (config.isDocker) {
-  conStr = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@mongo:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
+  conStr = config.mongo.url;
 } else {
   conStr = URI;
 }
