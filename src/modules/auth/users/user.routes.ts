@@ -43,6 +43,13 @@ function getRouteMap(): RouteMap[] {
       validations: [verify.verfify],
       handler: verfication.verifyUser,
     },
+    /*<!-- 4. Resend Verification  ---------------------------( x )->*/
+    {
+      path: '/reissue-email',
+      method: 'post',
+      validations: [verify.reissueEmail],
+      handler: verfication.reissueEmailVerificationToken,
+    },
     {
       path: '/register',
       method: 'post',

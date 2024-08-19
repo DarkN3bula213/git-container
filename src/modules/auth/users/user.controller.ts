@@ -14,6 +14,8 @@ import {
   normalizeRoles,
 } from '@/lib/utils/utils';
 import { type User, UserModel } from './user.model';
+import { service } from './user.service';
+import { sendVerifyEmail } from '@/services/mail/mailTrap';
 
 const logger = new Logger(__filename);
 
@@ -72,22 +74,15 @@ export const getUserById = asyncHandler(async (req, res) => {
 
 /*<!-- 1. Create  ---------------------------( createUser )-> */
 export const register = asyncHandler(async (req, res) => {
-  const check = await UserModel.findUserByEmail(req.body.email);
-  if (check) {
-    throw new BadRequestError('User with this email already exists');
-  }
-
-  const user = await UserModel.createUser(req.body, Roles.HPS);
-  if (!user) {
-    throw new BadRequestError('Something went wrong');
-  }
-  const userObj = user.toObject();
-  userObj.password = undefined;
-
-  res.status(200).json({
-    success: true,
-    data: userObj,
+  const { email, username, password } = req.body;
+  const data = await service.createUser({
+    email,
+    username,
+    password,
   });
+  const { user, token } = data;
+  await sendVerifyEmail(user.name, user.email, token);
+  return new SuccessResponse('User created', user).send(res);
 });
 
 /*<!-- 3. Create  ---------------------------( createTempUser )-> */

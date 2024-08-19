@@ -33,6 +33,9 @@ export default {
   forgotPass: validateReq({
     body: fotgotPassword,
   }),
+  reissueEmail: validateReq({
+    body: fotgotPassword,
+  }),
   resetPass: validateReq({
     body: Joi.object({
       password: Joi.string().required(),

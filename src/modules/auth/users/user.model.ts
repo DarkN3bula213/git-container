@@ -2,7 +2,14 @@ import { InternalError } from '@/lib/api';
 import { Roles } from '@/lib/constants';
 import { Logger } from '@/lib/logger';
 import bcrypt from 'bcrypt';
-import { type Document, type Model, Schema, Types, model } from 'mongoose';
+import {
+  ClientSession,
+  type Document,
+  type Model,
+  Schema,
+  Types,
+  model,
+} from 'mongoose';
 import type Role from '../roles/role.model';
 import { RoleModel } from '../roles/role.model';
 export interface User extends Document {
@@ -40,7 +47,11 @@ interface UserModel extends Model<User, UserMethods> {
   customId: { type: number; unique: true };
   findUserByEmail(email: string): Promise<User | null>;
   findUserById(id: string): Promise<User | null>;
-  createUser(userDetails: Partial<User>, rolesCode?: string): Promise<User>;
+  createUser(
+    userDetails: Partial<User>,
+    rolesCode?: string,
+    session?: ClientSession,
+  ): Promise<User>;
   login(email: string, password: string): Promise<User | null>;
   insertManyWithId(docs: User[]): Promise<User[]>;
 }
@@ -55,7 +66,6 @@ export const schema = new Schema<User>(
     },
     name: {
       type: String,
-      required: true,
     },
     father_name: {
       type: String,
@@ -135,7 +145,17 @@ export const schema = new Schema<User>(
     versionKey: false,
   },
 );
-
+const exclusionDate = new Date('2024-08-01'); // Example exclusion date
+schema.index(
+  { verificationTokenExpiresAt: 1 },
+  {
+    expireAfterSeconds: 0,
+    partialFilterExpression: {
+      isVerified: false,
+      createdAt: { $gte: exclusionDate }, // Apply TTL only to users created after this date
+    },
+  },
+);
 type compoarePassword = (password: string) => Promise<boolean>;
 
 schema.methods.isDuplicateEmail = async (email: string) => {
@@ -164,7 +184,11 @@ schema.pre('save', async function (next) {
   next();
 });
 
-schema.statics.createUser = async function (userDetails, roleCode?: string) {
+schema.statics.createUser = async function (
+  userDetails,
+  roleCode?: string,
+  session?: ClientSession,
+) {
   if (roleCode) {
     try {
       const role = await RoleModel.findOne({ code: roleCode })
@@ -176,7 +200,7 @@ schema.statics.createUser = async function (userDetails, roleCode?: string) {
         ...userDetails,
         roles: role._id,
       };
-      return this.create(user);
+      return this.create(user, { session });
     } catch (err: any) {
       throw new InternalError(err.message);
     }

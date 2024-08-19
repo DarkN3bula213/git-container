@@ -4,7 +4,7 @@ import { Logger } from '@/lib/logger';
 const logger = new Logger(__filename);
 
 // const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
-const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@localhost:27017,localhost:27018,localhost:27019/docker-db?replicaSet=rs0`;
+const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:27017/docker-db?replicaSet=rs0`;
 
 let conStr = '';
 
@@ -78,33 +78,41 @@ const connect = async () => {
     socketTimeoutMS: 45000,
     dbName: 'docker-db',
   };
-  let retry = 0;
-  try {
-    await mongoose.connect(
-      'mongodb://devuser:devpassword@mongo:27017/docker-db',
-      options,
-    );
-    logger.info(`Database connected: ${mongoose.connection.name}`);
-    mongoose.connection.on('error', (err) => {
-      logger.error(`Mongoose default connection error: ${err}`);
-    });
-    mongoose.connection.on('disconnected', () => {
-      logger.info('Mongoose default connection disconnected');
-    });
 
-    mongoose.connection.on('reconnected', () => {
-      logger.info('Mongoose default connection reconnected');
-    });
-  } catch (err: any) {
-    if (retry > 10) {
-      logger.error('Database connection error: ' + err.message);
-      throw err;
+  let retry = 0;
+  const maxRetries = 10;
+
+  const attemptConnection = async () => {
+    try {
+      await mongoose.connect(conStr, options);
+      logger.info(`Database connected: ${mongoose.connection.name}`);
+
+      mongoose.connection.on('error', (err) => {
+        logger.error(`Mongoose default connection error: ${err}`);
+      });
+      mongoose.connection.on('disconnected', () => {
+        logger.info('Mongoose default connection disconnected');
+      });
+      mongoose.connection.on('reconnected', () => {
+        logger.info('Mongoose default connection reconnected');
+      });
+    } catch (err: any) {
+      logger.error(`Database connection error: ${err.message}`);
+
+      if (retry < maxRetries) {
+        retry += 1;
+        logger.info(
+          `Retrying connection attempt ${retry}/${maxRetries} in 10 seconds...`,
+        );
+        setTimeout(attemptConnection, 10000);
+      } else {
+        logger.error('Max retries reached. Could not connect to the database.');
+        process.exit(1); // Optionally, exit the process if retries fail
+      }
     }
-    retry += 1;
-    setTimeout(connect, 10000);
-    logger.error(`Database connection error: ${err.message}`);
-    throw err;
-  }
+  };
+
+  await attemptConnection();
 };
 
 class dBclient {

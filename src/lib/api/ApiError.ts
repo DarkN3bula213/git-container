@@ -129,3 +129,31 @@ export class DuplicateKeyError extends ApiError {
     super(ErrorType.DUPLICATE_KEY, message);
   }
 }
+
+// Custom error class for Mongoose validation errors
+export class MongooseValidationError extends ApiError {
+  constructor(message = 'Validation error occurred') {
+    super(ErrorType.BAD_REQUEST, message);
+  }
+}
+
+// Custom error class for Mongoose duplicate key errors
+export class MongooseDuplicateKeyError extends ApiError {
+  constructor(message = 'Duplicate key error') {
+    super(ErrorType.DUPLICATE_KEY, message);
+  }
+}
+
+// Custom error class for Mongoose cast errors (e.g., invalid ObjectId)
+export class MongooseCastError extends ApiError {
+  constructor(message = 'Invalid ID format') {
+    super(ErrorType.BAD_REQUEST, message);
+  }
+}
+
+// Custom error class for other general Mongoose errors
+export class MongooseGeneralError extends ApiError {
+  constructor(message = 'A database error occurred') {
+    super(ErrorType.INTERNAL, message);
+  }
+}

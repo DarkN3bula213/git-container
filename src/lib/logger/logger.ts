@@ -156,7 +156,7 @@ export class Logger {
       Logger.logger.log(level, formattedMessage);
     } else {
       // Handle regular logging
-      const formattedMessage = `${timestamp} ${message}`;
+      const formattedMessage = `${message}`;
       Logger.logger.log({
         level,
         message: formattedMessage,

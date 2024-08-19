@@ -4,6 +4,7 @@ import {
   sendResetPasswordEmail,
   sendResetSuccessEmail,
   sendSuccessMessage,
+  sendVerifyEmail,
   sendWelcomeEmail,
 } from '@/services/mail/mailTrap';
 import { verfication } from '@/lib/utils/tokens';
@@ -91,4 +92,21 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
   await sendResetSuccessEmail(user.email);
   return new SuccessResponse('Password reset successful', {}).send(res);
+});
+
+export const reissueEmailVerificationToken = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await UserModel.findOne({ email });
+  if (!user) {
+    throw new BadRequestError('User not found');
+  }
+  const token = verfication.generateToken();
+  const expiry = verfication.expiry;
+  const userData = {
+    verificationToken: token,
+    verificationTokenExpiresAt: expiry,
+  };
+  await UserModel.findByIdAndUpdate(user._id, userData);
+  await sendVerifyEmail(user.username, email, token);
+  return new SuccessResponse('Email verification sent', {}).send(res);
 });

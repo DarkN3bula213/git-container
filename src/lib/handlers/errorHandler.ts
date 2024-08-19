@@ -3,9 +3,10 @@ import { MulterError } from 'multer';
 import { ApiError, ErrorType, InternalError, NotFoundError } from '../api';
 import { config } from '../config';
 import { Logger } from '../logger';
+import { handleMongooseError } from '../api/MongooseError';
+import mongoose from 'mongoose';
 
 const logger = new Logger(__filename);
-
 export const errorHandler = (
   err: Error,
   req: Request,
@@ -21,6 +22,8 @@ export const errorHandler = (
         'method: ': req.method,
       });
     }
+  } else if (err instanceof mongoose.Error) {
+    handleMongooseError(err, req, res);
   } else if (err instanceof MulterError) {
     const multerError: MulterError = err;
     const statusCode = multerError.code === 'LIMIT_UNEXPECTED_FILE' ? 400 : 500;
