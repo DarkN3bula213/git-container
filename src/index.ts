@@ -47,7 +47,7 @@ const startServer = async () => {
       server.listen(PORT, () => {
         logger.info({
           server: `Server instance instantiated and listening on port ${PORT}.`,
-          node: process.env.NODE_ENV,
+          node: `${process.env.NODE_ENV} ${config.isDocker}`,
           banner: banner,
         });
       });
