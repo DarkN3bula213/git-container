@@ -63,7 +63,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   // send email
   await sendResetPasswordEmail(
     user.email,
-    `${config.mail.url}/reset-password/${resetToken}`,
+    `${config.mail.url}reset-password/${resetToken}`,
   );
   return new SuccessResponse('Password reset link sent to your email', {}).send(
     res,

@@ -16,6 +16,7 @@ import {
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
 import { sendVerifyEmail } from '@/services/mail/mailTrap';
+import { validCNICs } from '@/lib/constants/validCNIC';
 
 const logger = new Logger(__filename);
 
@@ -75,6 +76,10 @@ export const getUserById = asyncHandler(async (req, res) => {
 /*<!-- 1. Create  ---------------------------( createUser )-> */
 export const register = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
+
+  // if (!validCNICs.includes(cnic)) {
+  //   return res.status(401).json({ message: 'Invalid CNIC number' });
+  // }
   const data = await service.createUser({
     email,
     username,

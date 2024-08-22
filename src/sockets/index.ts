@@ -34,21 +34,34 @@ class SocketService {
 
   private registerEvents(): void {
     this.io.on('connection', async (socket: Socket) => {
-      logger.info({
-        event: 'Socket connection attempt',
-      });
-
       try {
-        socket.on('connect', handleConnect);
+        // No need for socket.on('connect', ...), the connection is already established
+
+        // Handle the connection logic immediately
+        await handleConnect(socket);
+
+        // Set up other event listeners directly on the socket object
         socket.onAny((event, ...args) => {
           logger.debug({
             event: event,
+            socketId: socket.id,
             arguments: JSON.stringify(args),
           });
         });
-        socket.on('disconnect', () => handleDisconnect);
-      } catch (error) {
-        logger.error(`Error in socket connection: ${error}`);
+
+        socket.on('disconnect', async () => {
+          try {
+            await handleDisconnect(socket);
+          } catch (error: any) {
+            logger.error(
+              `Error in handleDisconnect for socket ${socket.id}: ${error.message}`,
+            );
+          }
+        });
+      } catch (error: any) {
+        logger.error(
+          `Error during connection setup for socket ${socket.id}: ${error.message}`,
+        );
       }
     });
   }

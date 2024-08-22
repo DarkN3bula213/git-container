@@ -21,6 +21,19 @@ const sessionProcessor = {
       logger.error(
         `Error saving session for user ${job.data.userID}: ${error.message}`,
       );
+
+      // If it's a retryable error, we could decide to delay the retry further
+      // or handle it differently.
+      if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
+        logger.error(
+          `Job ${job.id} failed after maximum attempts for user ${job.data.userID}`,
+        );
+      } else {
+        logger.info(
+          `Retrying job ${job.id} for user ${job.data.userID}. Attempt: ${job.attemptsMade + 1}`,
+        );
+      }
+
       done(error);
     }
   },

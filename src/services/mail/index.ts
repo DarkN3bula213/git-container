@@ -40,7 +40,7 @@ const sendEmail = async ({
     },
     from: {
       address: config.mail.address,
-      name: 'Application Support',
+      name: 'HPS Admin Support Team',
     },
     subject: subject,
     html: htmlTemplate,
@@ -96,42 +96,5 @@ class EmailTemplateService {
     }
 
     return template;
-  }
-}
-
-class EmailService {
-  constructor(
-    private templateService: EmailTemplateService,
-    private mailClient: typeof client,
-  ) {}
-
-  async sendEmail({
-    to,
-    subject,
-    templateName,
-    templateData,
-    name,
-    message,
-  }: SendEmailProps) {
-    const htmlTemplate = this.templateService.generateHtmlTemplate(
-      templateName,
-      templateData,
-    );
-
-    const request: MailtrapMailOptions = {
-      text: message ?? '',
-      to: { address: to, name: name ?? '' },
-      from: { address: config.mail.address, name: 'Application Support' },
-      subject: subject,
-      html: htmlTemplate,
-    };
-
-    try {
-      const response = await this.mailClient.sendMail(request);
-      logger.info('Email sent successfully', response);
-    } catch (error) {
-      logger.error('Error sending email:', error);
-      throw new Error(`Error sending email: ${error}`);
-    }
   }
 }
