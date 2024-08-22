@@ -7,13 +7,15 @@ export interface UserSession extends Document {
   startTime: Date;
   endTime: Date;
   timeSpent: string;
+  lastLoggedIn?: Date;
 }
 
-const UserSessionSchema: Schema = new Schema({
+const UserSessionSchema: Schema = new Schema<UserSession>({
   userID: { type: String, required: true },
   startTime: { type: Date, required: true },
   endTime: { type: Date, required: true },
   timeSpent: { type: String, required: true },
+  lastLoggedIn: { type: Date, default: Date.now },
 });
 
 const UserSessionModel = model<UserSession>('UserSession', UserSessionSchema);

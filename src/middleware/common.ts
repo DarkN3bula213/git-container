@@ -11,6 +11,7 @@ import session from 'express-session';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import apiKey from '../middleware/useApiKey';
+import sanitizeInputs from './sanitizeReq';
 
 export default (app: Application) => {
   // Trust proxy for secure cookies in production
@@ -20,6 +21,7 @@ export default (app: Application) => {
   app.use(helmet());
   app.use(compression());
   app.use(hpp());
+  app.use(sanitizeInputs);
 
   // CORS Middleware - It's generally a good practice to put CORS early in the middleware stack
   app.use(cors(corsOptions));

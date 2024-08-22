@@ -85,7 +85,8 @@
     "redis": "^4.6.13",
     "socket.io": "^4.7.5",
     "winston": "^3.13.0",
-    "winston-daily-rotate-file": "^4.7.1"
+    "winston-daily-rotate-file": "^4.7.1",
+    "xss": "^1.0.15"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.7.3",

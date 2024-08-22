@@ -13,6 +13,30 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction,
 ) => {
+  let error = { ...err };
+  error.message = err.message;
+
+  // Mongoose Error Handling
+
+  // Bad ObjectId
+  if (err.name === 'CastError') {
+    const message = `Resource not found`;
+    error = new NotFoundError(message);
+  }
+
+  // Duplicate Key
+  if ((err as any).code === 11000) {
+    const message = `Duplicate field value entered`;
+    error = new InternalError(message);
+  }
+
+  // Validation Error
+  if (err.name === 'ValidationError') {
+    const message = Object.values((err as any).errors)
+      .map((val: any) => val.message)
+      .join(', ');
+    error = new InternalError(message);
+  }
   if (err instanceof ApiError) {
     ApiError.handle(err, res);
     if (err.type === ErrorType.INTERNAL) {

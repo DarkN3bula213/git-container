@@ -25,7 +25,7 @@ export interface User extends Document {
   password: string;
   phone: string;
   address: string;
-  roles: Types.ObjectId[] | Role[] | string[] | string;
+  roles: string[];
   status: 'active' | 'inactive';
   createdAt: Date;
   updatedAt: Date;

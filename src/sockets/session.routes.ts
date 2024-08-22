@@ -8,6 +8,7 @@ const router = Router();
 
 const getRouteMap = (): RouteMap[] => {
   return [
+    /*<!---------( 3 Behaviour ) -------------------------(GET) */
     {
       path: '/',
       method: 'get',
@@ -23,11 +24,19 @@ const getRouteMap = (): RouteMap[] => {
       method: 'get',
       handler: controller.getSessionsByUserId,
     },
+    /*<!---------( 3 Behaviour ) -------------------------(DELETE) */
     {
       path: '/',
       method: 'delete',
       validations: [authorize(Roles.ADMIN)],
       handler: controller.deleteAllSessions,
+    },
+
+    {
+      path: '/ids',
+      method: 'delete',
+      validations: [authorize(Roles.ADMIN)],
+      handler: controller.deleteMany,
     },
     {
       path: '/:id',
