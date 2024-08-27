@@ -47,4 +47,11 @@ export default {
       billingCycle: Joi.string().required(),
     }),
   }),
+  schoolStats: validateReq({
+    params: Joi.object({
+      payId: Joi.string()
+        .regex(/^\d{2}\d{2}$/)
+        .required(),
+    }),
+  }),
 };

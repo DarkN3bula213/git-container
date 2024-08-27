@@ -4,7 +4,12 @@ const logger = new Logger(__filename);
 
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
-import { handleConnect, handleDisconnect } from './events';
+import {
+  handleConnect,
+  handleDisconnect,
+  handleChatOptIn,
+  handleMessageSend,
+} from './events';
 import { corsOptions } from '@/lib/config/cors';
 
 class SocketService {
@@ -39,8 +44,26 @@ class SocketService {
 
         // Handle the connection logic immediately
         await handleConnect(socket);
-
+        socket.on('opt-in-chat', async () => {
+          try {
+            await handleChatOptIn(socket);
+          } catch (error: any) {
+            logger.error(
+              `Error in handleChatOptIn for socket ${socket.id}: ${error.message}`,
+            );
+          }
+        });
         // Set up other event listeners directly on the socket object
+
+        socket.on('send-message', async (messageData) => {
+          try {
+            await handleMessageSend(socket, messageData);
+          } catch (error: any) {
+            logger.error(
+              `Error in handleMessageSend for socket ${socket.id}: ${error.message}`,
+            );
+          }
+        });
         socket.onAny((event, ...args) => {
           logger.debug({
             event: event,

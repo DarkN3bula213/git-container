@@ -30,12 +30,18 @@ const getRouteMap = (): RouteMap[] => {
       validations: [schema.billingCycle],
       handler: controller.getFeesByCycle,
     },
-
+    /*<!-- 1. Get  ---------------------------( Get by Schools )->*/
+    {
+      path: '/stat/:payId',
+      method: 'get',
+      validations: [schema.schoolStats],
+      handler: controller.getSchoolStatsBySession,
+    },
     {
       path: '/',
       method: 'post',
       validations: [
-        invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+        invalidate(getDynamicKey(DynamicKey.FEE, '*')),
         invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT')),
       ],
       handler: controller.createPayment,

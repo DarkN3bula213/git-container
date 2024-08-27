@@ -75,16 +75,23 @@ export const getUserById = asyncHandler(async (req, res) => {
 
 /*<!-- 1. Create  ---------------------------( createUser )-> */
 export const register = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
+  const { email, username, password, cnic } = req.body;
 
-  // if (!validCNICs.includes(cnic)) {
-  //   return res.status(401).json({ message: 'Invalid CNIC number' });
-  // }
-  const data = await service.createUser({
-    email,
-    username,
-    password,
-  });
+  let isValid = false;
+
+  if (cnic && !validCNICs.includes(cnic)) {
+    isValid = false;
+  } else {
+    isValid = true;
+  }
+  const data = await service.createUser(
+    {
+      email,
+      username,
+      password,
+    },
+    isValid,
+  );
   const { user, token } = data;
   await sendVerifyEmail(user.name, user.email, token);
   return new SuccessResponse('User created', user).send(res);

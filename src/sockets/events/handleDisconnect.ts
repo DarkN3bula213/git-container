@@ -8,7 +8,19 @@ const logger = new Logger(__filename);
 export const handleDisconnect = async (socket: Socket) => {
   const userID = socket.data.userId;
   const redisKey = `user:${userID}:startTime`;
+  const userId = socket.data.userId;
 
+  if (userId) {
+    // Remove the user's chat opt-in status from the cache
+    const chatOptInKey = `user:${userId}:chatOptIn`;
+    await cache.del(chatOptInKey);
+
+    logger.info(
+      `User ${userId} disconnected from socket ${socket.id}, cache cleared`,
+    );
+  } else {
+    logger.warn(`No user ID found for disconnected socket ${socket.id}`);
+  }
   // Retrieve the startTime from Redis using CacheClientService
   const cachedStartTime = await cache.get<Date>(redisKey);
 
@@ -59,10 +71,6 @@ export const handleDisconnect = async (socket: Socket) => {
 
   // Clean up Redis key after job is queued
   await cache.del(redisKey);
-  logger.info(
-    `Removed startTime from Redis for user ${userID} on socket ${socket.id}`,
-  );
 
   socket.disconnect();
-  logger.info(`User ${userID} disconnected from socket ${socket.id}`);
 };

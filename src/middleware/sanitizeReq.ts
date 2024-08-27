@@ -32,11 +32,11 @@ const sanitizeInputs = (req: Request, res: Response, next: NextFunction) => {
     sanitized = true;
   }
 
-  if (sanitized) {
-    logger.info(
-      `Request sanitized at ${new Date().toISOString()}: ${req.method} ${req.url}`,
-    );
-  }
+  // if (sanitized) {
+  //   logger.info(
+  //     `Request sanitized at ${new Date().toISOString()}: ${req.method} ${req.url}`,
+  //   );
+  // }
 
   next();
 };

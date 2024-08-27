@@ -7,6 +7,7 @@ import events from '../modules/school/events/event.routes';
 import payments from '../modules/school/payments/payment.routes';
 import custom from '../modules/school/payments/custom.router';
 import expenses from '../modules/school/expenses/expense.routes';
+import stats from '../modules/school/stats/stat.routes';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/events', events);
 router.use('/payments', payments);
 router.use('/custom', custom);
 router.use('/expenses', expenses);
+router.use('/stats', stats);
 
 export default router;

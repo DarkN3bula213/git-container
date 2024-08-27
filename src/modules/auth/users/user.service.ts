@@ -68,7 +68,7 @@ class UserService {
       isAdmin,
     };
   }
-  async createUser(userDetails: Partial<User>) {
+  async createUser(userDetails: Partial<User>, isValidCNIC?: boolean) {
     return withTransaction(async (session) => {
       if (!userDetails.email || !userDetails.username) {
         throw new BadRequestError(
