@@ -1,5 +1,6 @@
 export enum Key {
   roles = 'roles',
+  Events = 'Events',
 }
 export enum DynamicKey {
   CLASS = 'class',

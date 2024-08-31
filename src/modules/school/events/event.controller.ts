@@ -1,7 +1,8 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import eventModel from './event.model';
 import { NotFoundError, SuccessResponse } from '@/lib/api';
-
+import { cache } from '@/data/cache/cache.service';
+import { Key } from '@/data/cache/keys';
 export const addEvent = asyncHandler(async (req, res) => {
   const newEvent = new eventModel(req.body);
   const savedEvent = await newEvent.save();
@@ -19,7 +20,10 @@ export const fetchEvent = asyncHandler(async (req, res) => {
 });
 
 export const fetchAllEvents = asyncHandler(async (req, res) => {
-  const events = await eventModel.find({});
+  const key = Key.Events;
+  const events = await cache.getWithFallback(key, async () => {
+    return await eventModel.find().lean().exec();
+  });
   new SuccessResponse('Events fetched successfully', events).send(res);
 });
 

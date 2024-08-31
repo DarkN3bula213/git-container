@@ -94,8 +94,8 @@ function getRouteMap(): RouteMap[] {
     {
       path: '/:id',
       method: 'delete',
-      handler: controller.getUserById,
-      validations: [attachRoles(Roles.ADMIN), authentication],
+      handler: controller.deleteUser,
+      // validations: [attachRoles(Roles.ADMIN), authentication],
     },
     // {
     //   path: '/status',

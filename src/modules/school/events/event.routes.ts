@@ -6,6 +6,8 @@ import * as controller from './event.controller';
 import { RouteMap } from '@/types/routes';
 import schema from './event.schema';
 import { setRouter } from '@/lib/utils/utils';
+import { invalidate } from '@/lib/handlers/cache.handler';
+import { Key } from '@/data/cache/keys';
 
 const router = Router();
 
@@ -14,8 +16,8 @@ const getRouteMap = (): RouteMap[] => {
     {
       path: '/',
       method: 'post',
+      validations: [schema.createEvent, invalidate(Key.Events)],
       handler: controller.addEvent,
-      validations: [validate(schema.addEvent)],
     },
     {
       path: '/:id',

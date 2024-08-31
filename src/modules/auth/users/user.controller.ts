@@ -22,12 +22,9 @@ const logger = new Logger(__filename);
 
 /*<!-- 1. Read  ---------------------------( getUsers )-> */
 export const getUsers = asyncHandler(async (_req, res) => {
-  const users = await UserModel.find();
+  const users = await UserModel.find().populate('roles').exec();
   if (!users) return new BadRequestError('No users found');
-  res.status(200).json({
-    success: true,
-    data: users,
-  });
+  return new SuccessResponse('Users found', users).send(res);
 });
 
 /*<!-- 2. Read  ---------------------------( getUser )-> */
@@ -66,11 +63,10 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 /*<!-- 4. Read  ---------------------------( getUserById )-> */
 export const getUserById = asyncHandler(async (req, res) => {
   const user = await UserModel.findById(req.params._id);
-  if (!user) res.status(400).json({ success: false });
-  res.status(200).json({
-    success: true,
-    data: user,
-  });
+  if (!user) {
+    throw new BadRequestError('No user found');
+  }
+  return new SuccessResponse('User found', user).send(res);
 });
 
 /*<!-- 1. Create  ---------------------------( createUser )-> */
@@ -131,7 +127,11 @@ export const updateUser = asyncHandler(async (req, res) => {
 
 /*<!-- 1. Delete  ---------------------------( deleteUser )-> */
 export const deleteUser = asyncHandler(async (req, res) => {
-  const user = await UserModel.findByIdAndDelete(req.params.id);
+  const { id } = req.params;
+  console.log(id);
+  const user = await UserModel.findByIdAndDelete({
+    _id: id,
+  });
   if (!user) res.status(400).json({ success: false });
   res.status(200).json({
     success: true,
