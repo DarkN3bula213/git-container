@@ -5,7 +5,7 @@ import { config } from './config';
 export const accessCookie: CookieOptions = {
   httpOnly: !config.isDevelopment,
   secure: !config.isDevelopment,
-  sameSite: 'strict',
+  // sameSite: 'strict',
   path: '/',
   maxAge: convertToMilliseconds('2h'),
 };

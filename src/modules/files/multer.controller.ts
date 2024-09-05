@@ -53,8 +53,10 @@ export const uploadDocument = asyncHandler(
     // console.log('req.file', req);
     singleUpload(req, res, async (err) => {
       if (err instanceof MulterError) {
+        logger.error('Error uploading file:', err);
         return res.status(500).json({ error: err.message });
       } else if (err) {
+        logger.error('Error uploading file:', err);
         return next(err);
       }
 
@@ -73,7 +75,7 @@ export const uploadDocument = asyncHandler(
             date,
             filePath,
           });
-
+          logger.debug(newExpense);
           res.status(201).json(newExpense);
         } catch (error: any) {
           res.status(400).json({ error: error.message });

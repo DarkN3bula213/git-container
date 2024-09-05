@@ -1,6 +1,10 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Expenses } from './expense.model';
-
+import { Expense, Expenses } from './expense.model';
+import { singleDocumentUpload } from '@/lib/config';
+import { Request, Response, NextFunction } from 'express';
+import { MulterError } from 'multer';
+import { Logger } from '@/lib/logger';
+const logger = new Logger('ExpenseController');
 /*<!-----------  GET   --------------->*/
 export const getExpenses = asyncHandler(async (req, res) => {
   const expenses = await Expenses.find();
@@ -9,7 +13,7 @@ export const getExpenses = asyncHandler(async (req, res) => {
 
 export const getExpenseById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const expense = await Expenses.findById(id);
+  const expense = (await Expenses.findById(id)) as Expense;
   if (!expense) {
     res.status(404).json({ message: 'Expense not found' });
     return;
@@ -31,8 +35,68 @@ export const getExpensesByDate = asyncHandler(async (req, res) => {
 
 /*<!-----------  POST   --------------->*/
 export const createExpense = asyncHandler(async (req, res) => {
-  const expense = await Expenses.create(req.body);
-  res.status(201).json({ expense });
+  console.log(req.body);
+  async (req: Request, res: Response, next: NextFunction) => {
+    singleDocumentUpload(req, res, async (err) => {
+      if (err instanceof MulterError) {
+        logger.error('Error uploading file:', err);
+        return res.status(500).json({ error: err.message });
+      } else if (err) {
+        logger.error('Error uploading file:', err);
+        return next(err);
+      }
+
+      // Assuming the rest of the form data is available in req.body
+      // and the file path is available in req.file.path
+      if (req.file) {
+        const { title, amount, vendor, date } = req.body;
+        const filePath = req.file.path; // The path where the file is saved
+
+        try {
+          // Create a new document in the Expense collection
+          const newExpense = await Expenses.create({
+            title,
+            amount,
+            vendor,
+            date,
+            filePath,
+          });
+          logger.debug(newExpense);
+          res.status(201).json(newExpense);
+        } catch (error: any) {
+          res.status(400).json({ error: error.message });
+        }
+      } else {
+        res.status(402).json({ error: 'File is required.' });
+      }
+    });
+    // Handle where no file was uploaded.
+  };
+  const {
+    amount,
+    description,
+    date,
+    vendor,
+    expenseType,
+    receipt,
+    approvedBy,
+  } = req.body;
+
+  // Create the expense object, ensuring proper parsing of fields
+  const expenseData = {
+    amount: parseFloat(amount), // Parse amount to number
+    description,
+    date: new Date(date), // Ensure date is a Date object
+    vendor: vendor, // Handle comma-separated vendor list
+    expenseType,
+    receipt,
+    approvedBy,
+    document: req.file ? req.file.path : null, // Get file path if the file was uploaded
+  };
+  logger.debug(expenseData);
+  const newExpense = new Expenses(expenseData);
+  await newExpense.save();
+  res.status(201).json(newExpense);
 });
 
 export const insertMUltipleExpenses = asyncHandler(async (req, res) => {

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as controller from './expense.controller';
 
-import schema from './expense.schema';
+import * as schema from './expense.schema';
 import { validate } from '@/lib/handlers/validate';
 import { RouteMap } from '@/types/routes';
 import { setRouter } from '@/lib/utils/utils';
@@ -34,18 +34,19 @@ function getRouteMap(): RouteMap[] {
       path: '/',
       method: 'post',
       // validations: [validate(schema.createExpense)],
+      // validations: [schema.createRequest],
       handler: controller.createExpense,
     },
     {
       path: '/insertMany',
       method: 'post',
-      validations: [validate(schema.insertMUltipleExpenses)],
+      // validations: [validate(schema.)],
       handler: controller.insertMUltipleExpenses,
     },
     {
       path: '/:id',
       method: 'put',
-      validations: [validate(schema.updateExpense)],
+      // validations: [validate(schema.updateExpense)],
       handler: controller.updateExpense,
     },
     {

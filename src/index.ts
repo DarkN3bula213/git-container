@@ -42,14 +42,16 @@ const createDirectories = async () => {
 
 const startServer = async () => {
   try {
-    cache.connect();
-    await db.connect().then(() => {
-      server.listen(PORT, () => {
-        logger.info({
-          server: `Server instance instantiated and listening on port ${PORT}.`,
-          node: `${process.env.NODE_ENV} ${config.isDocker}`,
-          banner: banner,
-        });
+    // Connect to cache and database
+    await cache.connect();
+    await db.connect();
+
+    // Start the server and listen on all network interfaces
+    server.listen(PORT, () => {
+      logger.info({
+        server: `Server instance instantiated and listening on port ${PORT}.`,
+        node: `${process.env.NODE_ENV} ${config.isDocker}`,
+        banner: banner,
       });
     });
   } catch (error: any) {
@@ -58,7 +60,6 @@ const startServer = async () => {
     );
   }
 };
-
 signals.forEach((signal) => {
   process.on(signal, async () => {
     try {

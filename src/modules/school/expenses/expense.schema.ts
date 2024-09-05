@@ -1,3 +1,4 @@
+import { validateReq } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
 export default {
@@ -51,3 +52,52 @@ export default {
     password: Joi.string().required(),
   }),
 };
+const expenseValidationSchema = Joi.object({
+  amount: Joi.string().required(),
+  description: Joi.string().required(),
+  date: Joi.date().required(),
+  vendor: Joi.alternatives()
+    .try(Joi.string(), Joi.array().items(Joi.string()))
+    .required(),
+  expenseType: Joi.string().required(),
+  receipt: Joi.string().optional(),
+  approvedBy: Joi.string().optional(),
+  document: Joi.string().optional().allow(''), // Allow empty or no document
+});
+
+// Create a validation schema for FormData
+export const createRequest = validateReq({
+  body: Joi.object({
+    amount: Joi.string()
+      .required()
+      .custom((value, helpers) => {
+        // Attempt to parse the amount as a number
+        const parsedValue = parseFloat(value);
+        if (isNaN(parsedValue)) {
+          return helpers.error('any.invalid', {
+            message: 'Amount must be a number',
+          });
+        }
+        return parsedValue; // Replace the string with the parsed number
+      }),
+    description: Joi.string().required(),
+    date: Joi.string() // Accept the date as a string and validate it as a date
+      .required()
+      .custom((value, helpers) => {
+        const parsedDate = new Date(value);
+        if (isNaN(parsedDate.getTime())) {
+          return helpers.error('any.invalid', {
+            message: 'Invalid date format',
+          });
+        }
+        return parsedDate; // Replace the string with the parsed Date object
+      }),
+    vendor: Joi.alternatives()
+      .try(Joi.string(), Joi.array().items(Joi.string()))
+      .required(),
+    expenseType: Joi.string().required(),
+    receipt: Joi.string().optional(),
+    approvedBy: Joi.string().optional(),
+    document: Joi.string().optional().allow(''), // Allow empty or no document
+  }),
+});
