@@ -16,10 +16,16 @@ import {
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
 import { sendVerifyEmail } from '@/services/mail/mailTrap';
-import { validCNICs } from '@/lib/constants/validCNIC';
+import { getRoleFromMap } from '@/lib/constants/validCNIC';
 
 const logger = new Logger(__filename);
+// import session from 'express-session';
 
+declare module 'express-session' {
+  interface SessionData {
+    userId?: string;
+  }
+}
 /*<!-- 1. Read  ---------------------------( getUsers )-> */
 export const getUsers = asyncHandler(async (_req, res) => {
   const users = await UserModel.find().populate('roles').exec();
@@ -73,20 +79,17 @@ export const getUserById = asyncHandler(async (req, res) => {
 export const register = asyncHandler(async (req, res) => {
   const { email, username, password, cnic } = req.body;
 
-  let isValid = false;
-
-  if (cnic && !validCNICs.includes(cnic)) {
-    isValid = false;
-  } else {
-    isValid = true;
-  }
+  const roleCode = getRoleFromMap(cnic);
+  logger.info({
+    role: roleCode,
+  });
   const data = await service.createUser(
     {
       email,
       username,
       password,
     },
-    isValid,
+    roleCode,
   );
   const { user, token } = data;
   await sendVerifyEmail(user.name, user.email, token);
@@ -124,6 +127,28 @@ export const updateUser = asyncHandler(async (req, res) => {
     data: user,
   });
 });
+/*<!-- 2. Update  ---------------------------( Change Password )-> */
+export const changePassword = asyncHandler(async (req, res) => {
+  const { userId, oldPassword, newPassword } = req.body;
+
+  if (!userId || !oldPassword || !newPassword) {
+    return new BadRequestError('Missing required fields');
+  }
+  if (oldPassword === newPassword) {
+    return new BadRequestError(
+      'New password cannot be the same as old password',
+    );
+  }
+  const reqUser = req.user as User;
+  if (reqUser.id !== userId) {
+    return new BadRequestError(
+      'You are not authorized to change this password',
+    );
+  }
+
+  const user = await UserModel.changePassword(userId, oldPassword, newPassword);
+  return new SuccessResponse('Password changed successfully', user).send(res);
+});
 
 /*<!-- 1. Delete  ---------------------------( deleteUser )-> */
 export const deleteUser = asyncHandler(async (req, res) => {
@@ -149,14 +174,8 @@ export const login = asyncHandler(async (req, res) => {
   if (!user) {
     throw new BadRequestError('Invalid credentials');
   }
-  if (user) {
-    const sessionData = {
-      user: { id: user._id, username: user.username, isPremium: user.isPrime },
-    };
-    await cache.saveSession(req.sessionID, sessionData);
-  } else {
-    logger.error('User not found');
-  }
+
+  req.session.userId = user._id;
   const verified = user.toObject();
   verified.password = undefined;
   const payload = {
@@ -193,10 +212,12 @@ export const login = asyncHandler(async (req, res) => {
  ** -----------------------------( logout )->
  */
 
-export const logout = asyncHandler(async (_req, res) => {
+export const logout = asyncHandler(async (req, res) => {
   res.clearCookie('access');
   res.cookie('access', '', logoutCookie);
-  return new SuccessResponse('Logged out successfully', {}).send(res);
+  req.session.destroy(() => {
+    res.send('User logged out, session destroyed');
+  });
 });
 
 /*

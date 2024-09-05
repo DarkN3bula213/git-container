@@ -68,25 +68,32 @@ class UserService {
       isAdmin,
     };
   }
-  async createUser(userDetails: Partial<User>, isValidCNIC?: boolean) {
+  async createUser(userDetails: Partial<User>, roleCode: Roles) {
     return withTransaction(async (session) => {
-      if (!userDetails.email || !userDetails.username) {
+      if (!userDetails.email || !userDetails.username || !roleCode) {
         throw new BadRequestError(
           !userDetails.email ? 'Email is required' : 'Username is required',
         );
       }
 
       const duplicate = await this.user
-        .findOne({ email: userDetails.email })
+        .findOne({
+          $or: [
+            { email: userDetails.email },
+            { username: userDetails.username },
+          ],
+        })
         .session(session);
 
       if (duplicate) {
-        throw new BadRequestError('Email already exists');
+        if (duplicate.email === userDetails.email) {
+          throw new BadRequestError('Email already exists');
+        } else if (duplicate.username === userDetails.username) {
+          throw new BadRequestError('Username already exists');
+        }
       }
-
       const token = verfication.generateToken();
-
-      const role = await RoleModel.findOne({ code: Roles.HPS })
+      const role = await RoleModel.findOne({ code: roleCode })
         .select('+code')
         .session(session) // Ensure the session is used
         .lean()

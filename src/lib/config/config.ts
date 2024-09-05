@@ -113,4 +113,9 @@ export const config = {
       pass: getOsEnv('EMAIL_PASS'),
     },
   },
+  cnic: {
+    numberOne: getOsEnv('CNIC_ONE'),
+    numberTwo: getOsEnv('CNIC_TWO'),
+    numberThree: getOsEnv('CNIC_THREE'),
+  },
 };

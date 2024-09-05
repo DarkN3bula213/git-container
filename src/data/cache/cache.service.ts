@@ -1,6 +1,9 @@
 import { RedisClientType } from 'redis';
 import redisClient from './cache.client';
+import RedisStore from 'connect-redis';
+import session from 'express-session';
 import { Logger } from '@/lib/logger';
+import { config } from '@/lib/config';
 const logger = new Logger(__filename);
 
 export interface CacheService {
@@ -54,7 +57,22 @@ class CacheClientService {
       await this.client.del(keys);
     }
   }
-
+  cachedSession(secret: string) {
+    const RedisSessionStore = new RedisStore({
+      client: this.client,
+    });
+    logger.debug('cachedSession');
+    return session({
+      store: RedisSessionStore,
+      secret: secret,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: config.isProduction, // Use secure cookies in production
+        maxAge: 1000 * 60 * 60 * 24, // 1 day session expiration
+      },
+    });
+  }
   async getWithFallback<T>(
     key: string,
     fetchFunction: () => Promise<T>,

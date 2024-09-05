@@ -1,9 +1,10 @@
-import express, { type Application } from 'express';
+import express, { type Application, Request, Response } from 'express';
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
 import { Logger } from './lib/logger';
 import handleMiddleware from './middleware/common';
 import router from './routes';
+import { setupCronJobs } from './services/reporting/cron';
 
 const logger = new Logger(__filename);
 
@@ -25,7 +26,22 @@ process.on('unhandledRejection', (reason, promise) => {
   console.dir(promise);
 });
 const app: Application = express();
-
+export function onlyForHandshake(
+  middleware: (req: Request, res: Response, next: any) => void,
+) {
+  return (
+    req: Request & { _query: Record<string, string> },
+    res: Response,
+    next: (err?: Error) => void,
+  ) => {
+    const isHandshake = req._query.sid === undefined;
+    if (isHandshake) {
+      middleware(req, res, next);
+    } else {
+      next();
+    }
+  };
+}
 /*
  *
  *
@@ -35,6 +51,8 @@ const app: Application = express();
 handleMiddleware(app);
 handleUploads(app);
 app.use('/api', router);
+setupCronJobs();
+
 handleErrors(app);
 
 export { app };

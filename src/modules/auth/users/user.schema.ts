@@ -43,6 +43,11 @@ export default {
     cnic_issued_date: Joi.date().optional(),
     cnic_expiry_date: Joi.date().optional(),
   }),
+  changePassword: Joi.object({
+    userId: JoiObjectId().required(),
+    oldPassword: Joi.string().required(),
+    newPassword: Joi.string().required(),
+  }),
 };
 
 export const register = Joi.object({
@@ -55,7 +60,7 @@ export const register = Joi.object({
   name: Joi.string().optional(),
   father_name: Joi.string().optional(),
   gender: Joi.string().optional(),
-  cnic: Joi.string().optional(),
+  cnic: Joi.string().optional().allow(''),
   dob: Joi.date().optional(),
   cnic_issued_date: Joi.date().optional(),
   cnic_expiry_date: Joi.date().optional(),

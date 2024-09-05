@@ -1,6 +1,7 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { UserModel } from '../users/user.model';
 import {
+  sendEmailVerified,
   sendResetPasswordEmail,
   sendResetSuccessEmail,
   sendSuccessMessage,
@@ -34,7 +35,7 @@ export const verifyUser = asyncHandler(async (req, res) => {
   user.verificationTokenExpiresAt = null;
   await user.save();
 
-  await sendWelcomeEmail(user.email, user.name);
+  await sendEmailVerified(user.email);
   const userdat = {
     ...user,
     password: undefined,

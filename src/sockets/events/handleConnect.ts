@@ -24,7 +24,7 @@ export const handleConnect = async (socket: Socket) => {
     socket.disconnect();
     return;
   }
-
+  const user = verificationResult.decoded?.user;
   const userID = verificationResult.decoded?.user._id;
   const redisKey = `user:${userID}:startTime`;
 
@@ -46,7 +46,7 @@ export const handleConnect = async (socket: Socket) => {
       `Set new startTime in Redis for user ${userID} on socket ${socket.id}: ${socket.data.startTime}`,
     );
   }
-
+  socket.data.user = user;
   socket.data.userId = userID;
 
   // Handle any delayed jobs

@@ -12,6 +12,7 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 import apiKey from '../middleware/useApiKey';
 import sanitizeInputs from './sanitizeReq';
+import { cache } from '@/data/cache/cache.service';
 
 export default (app: Application) => {
   // Trust proxy for secure cookies in production
@@ -39,7 +40,7 @@ export default (app: Application) => {
 
   // Cookies and Sessions
 
-  app.use(session(sessionOptions));
+  app.use(cache.cachedSession(config.tokens.jwtSecret));
 
   // API Key Middleware
   app.use(apiKey);

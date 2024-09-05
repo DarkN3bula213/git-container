@@ -50,11 +50,19 @@ function getRouteMap(): RouteMap[] {
       validations: [verify.reissueEmail],
       handler: verfication.reissueEmailVerificationToken,
     },
+    /*<!-- 5. Register  ---------------------------( x )->*/
     {
       path: '/register',
       method: 'post',
       validations: [validate(register)],
       handler: controller.register,
+    },
+    /*<!-- 6. Change Password  ---------------------------( x )->*/
+    {
+      path: '/change-password',
+      method: 'post',
+      validations: [authentication, validate(schema.changePassword)],
+      handler: controller.changePassword,
     },
     {
       path: '/aux',

@@ -40,7 +40,10 @@ const getRouteMap = (): RouteMap[] => {
       path: '/:id',
       method: 'delete',
       handler: controller.deleteEvent,
-      validations: [validate(schema.eventParams, ValidationSource.PARAM)],
+      validations: [
+        validate(schema.eventParams, ValidationSource.PARAM),
+        invalidate(Key.Events),
+      ],
     },
   ];
 };

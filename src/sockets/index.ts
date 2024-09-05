@@ -9,17 +9,22 @@ import {
   handleDisconnect,
   handleChatOptIn,
   handleMessageSend,
+  handleRooms,
 } from './events';
 import { corsOptions } from '@/lib/config/cors';
+import { cache } from '@/data/cache/cache.service';
+import { config } from '@/lib/config';
 
 class SocketService {
   private io: SocketIOServer;
   private static instance: SocketService;
+  sessionMiddleware = cache.cachedSession(config.tokens.jwtSecret);
 
   constructor(httpServer: HttpServer) {
     this.io = new SocketIOServer(httpServer, {
       cors: corsOptions,
     });
+    this.io.engine.use(this.sessionMiddleware);
     this.registerEvents();
   }
 
@@ -54,16 +59,16 @@ class SocketService {
           }
         });
         // Set up other event listeners directly on the socket object
-
-        socket.on('send-message', async (messageData) => {
-          try {
-            await handleMessageSend(socket, messageData);
-          } catch (error: any) {
-            logger.error(
-              `Error in handleMessageSend for socket ${socket.id}: ${error.message}`,
-            );
-          }
-        });
+        handleRooms(socket);
+        // socket.on('send-message', async (messageData) => {
+        //   try {
+        //     await handleMessageSend(socket, messageData);
+        //   } catch (error: any) {
+        //     logger.error(
+        //       `Error in handleMessageSend for socket ${socket.id}: ${error.message}`,
+        //     );
+        //   }
+        // });
         socket.onAny((event, ...args) => {
           logger.debug({
             event: event,

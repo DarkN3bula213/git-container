@@ -1,6 +1,4 @@
 import { InternalError } from '@/lib/api';
-import { Roles } from '@/lib/constants';
-import { Logger } from '@/lib/logger';
 import bcrypt from 'bcrypt';
 import {
   ClientSession,
@@ -10,7 +8,6 @@ import {
   Types,
   model,
 } from 'mongoose';
-import type Role from '../roles/role.model';
 import { RoleModel } from '../roles/role.model';
 export interface User extends Document {
   name: string;
@@ -54,8 +51,12 @@ interface UserModel extends Model<User, UserMethods> {
   ): Promise<User>;
   login(email: string, password: string): Promise<User | null>;
   insertManyWithId(docs: User[]): Promise<User[]>;
+  changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void>;
 }
-
 export const schema = new Schema<User>(
   {
     temporary: { type: Date, required: false },
@@ -221,7 +222,25 @@ schema.statics.login = async function (email, password) {
   if (!isMatch) return null;
   return user;
 };
+schema.statics.changePassword = async function (
+  userId: string,
+  oldPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const user = await this.findById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
 
+  const isMatch = await user.comparePassword(oldPassword);
+  if (!isMatch) {
+    throw new Error('Old password is incorrect');
+  }
+
+  // Simply update the password field; the pre-save hook will hash it
+  user.password = newPassword;
+  await user.save();
+};
 export const UserModel: UserModel = model<User, UserModel>('User', schema);
 
 export const findUserByEmail = async (email: string) => {

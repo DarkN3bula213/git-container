@@ -53,6 +53,7 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
 
     return {
       studentId: student._id,
+      studentName: student.name,
       classId: student.classId,
       className: grade.className,
       section: student.section,
@@ -84,6 +85,7 @@ export const makeCustomPayment = asyncHandler(async (req, res) => {
 
   const records: IPayment = new Payments({
     studentId: student._id,
+    studentName: student.name,
     classId: student.classId,
     className: grade.className,
     section: student.section,

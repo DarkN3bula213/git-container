@@ -97,3 +97,18 @@ export const sendResetSuccessEmail = async (email: string) => {
     throw new Error(`Error sending password reset success email: ${error}`);
   }
 };
+
+export const sendEmailVerified = async (email: string) => {
+  try {
+    const response = await sendEmail({
+      to: email,
+      subject: 'Verification Successful',
+      templateName: 'emailVerified',
+    });
+
+    console.log('Password reset email sent successfully', response);
+  } catch (error) {
+    console.error(`Error sending password reset success email`, error);
+    throw new Error(`Error sending password reset success email: ${error}`);
+  }
+};

@@ -64,6 +64,7 @@ class PaymentService {
 
       const payment = {
         studentId: student._id,
+        studentName: student.name,
         classId: student.classId,
         className: student.className,
         section: student.section,
@@ -108,6 +109,7 @@ class PaymentService {
 
       const payments = studentData.map((student, index) => ({
         studentId: student._id,
+        studentName: student.name,
         classId: student.classId,
         className: student.className,
         section: student.section,
