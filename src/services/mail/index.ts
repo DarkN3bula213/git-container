@@ -12,43 +12,53 @@ export const client = Nodemailer.createTransport(
   }),
 );
 
-interface SendEmailProps {
+interface SendEmailWithTemplate {
   to: string;
   subject: string;
-  templateName: keyof typeof templates;
+  templateName: keyof typeof templates; // Required when using template
   templateData?: Record<string, string>;
   name?: string;
   message?: string;
 }
 
-const sendEmail = async ({
-  to,
-  subject,
-  templateName,
-  templateData,
-  name,
-  message,
-}: SendEmailProps) => {
-  const htmlTemplate = generateHtmlTemplate(templateName, templateData);
+interface SendEmailWithHtml {
+  to: string;
+  subject: string;
+  html: string; // Required when sending complete HTML
+  name?: string;
+  message?: string;
+}
+
+type SendEmailProps = SendEmailWithTemplate | SendEmailWithHtml;
+
+const sendEmail = async (props: SendEmailProps) => {
+  let htmlTemplate: string;
+
+  if ('html' in props) {
+    // If `html` is provided, use it directly
+    htmlTemplate = props.html;
+  } else {
+    // If `templateName` and `templateData` are provided, use the template system
+    htmlTemplate = generateHtmlTemplate(props.templateName, props.templateData);
+  }
 
   const request: MailtrapMailOptions = {
-    text: message ?? '',
+    text: props.message ?? '',
 
     to: {
-      address: to,
-      name: name ?? '',
+      address: props.to,
+      name: props.name ?? '',
     },
     from: {
       address: config.mail.address,
       name: 'HPS Admin Support Team',
     },
-    subject: subject,
-    html: htmlTemplate,
+    subject: props.subject,
+    html: htmlTemplate, // Use either pre-generated or dynamically generated HTML
   };
 
   try {
     const response = await client.sendMail(request);
-
     logger.info('Email sent successfully', response);
   } catch (error) {
     logger.error('Error sending email:', error);
@@ -56,7 +66,7 @@ const sendEmail = async ({
   }
 };
 
-const generateHtmlTemplate = (
+export const generateHtmlTemplate = (
   templateName: keyof typeof templates,
   templateData?: Record<string, string>,
 ): string => {
@@ -69,32 +79,3 @@ const generateHtmlTemplate = (
 };
 
 export default sendEmail;
-
-interface SendEmailProps {
-  to: string;
-  subject: string;
-  templateName: keyof typeof templates;
-  templateData?: Record<string, string>;
-  name?: string;
-  message?: string;
-}
-
-class EmailTemplateService {
-  constructor(private templates: Record<string, string>) {}
-
-  generateHtmlTemplate(
-    templateName: keyof typeof templates,
-    templateData?: Record<string, string>,
-  ): string {
-    let template = this.templates[templateName];
-
-    if (templateData) {
-      for (const key in templateData) {
-        const value = templateData[key];
-        template = template.replace(new RegExp(`{${key}}`, 'g'), value);
-      }
-    }
-
-    return template;
-  }
-}

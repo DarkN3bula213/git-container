@@ -61,7 +61,7 @@ class CacheClientService {
     const RedisSessionStore = new RedisStore({
       client: this.client,
     });
-    logger.debug('cachedSession');
+
     return session({
       store: RedisSessionStore,
       secret: secret,
