@@ -6,7 +6,7 @@ import { authentication } from '@/middleware/authMiddleware';
 import files from '@/modules/files/file.routes';
 import NotifcationRoutes from '@/modules/notifications/notification.routes';
 import socketRoues from '@/sockets/session.routes';
-
+import invoices from '../modules/school/invoices/invoice.routes';
 /* -----------------------------------------------------------------------------------*/
 const router = Router();
 /* -----------------------------------------------------------------------------------*/
@@ -28,5 +28,6 @@ router.use('/notifications', NotifcationRoutes);
 /* -----------------------------------------------------------------------------------*/
 router.use('/sessions', socketRoues);
 /* -----------------------------------------------------------------------------------*/
+router.use('/invoices', invoices);
 
 export default router;

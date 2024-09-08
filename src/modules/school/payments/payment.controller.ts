@@ -196,9 +196,22 @@ export const getFeesByCycle = asyncHandler(async (req, res) => {
       .json({ message: 'No payments found for the specified billing cycle' });
   }
 
+  // Fetch and append student names to the payments
+  const paymentsWithStudentNames = await Promise.all(
+    cachedPayments.map(async (payment: any) => {
+      const student = await StudentModel.findById(payment.studentId)
+        .lean()
+        .exec();
+      return {
+        ...payment,
+        studentName: student ? student.name : 'Unknown Student',
+      };
+    }),
+  );
+
   return new SuccessResponse(
     `Payments for billing cycle ${payID} fetched successfully`,
-    cachedPayments,
+    paymentsWithStudentNames,
   ).send(res);
 });
 /*<!-- 1. Update  ---------------------------( Update by ID )-> */

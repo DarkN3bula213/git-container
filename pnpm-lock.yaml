@@ -56,6 +56,9 @@ importers:
       bullmq:
         specifier: ^5.7.9
         version: 5.7.9
+      bwip-js:
+        specifier: ^4.5.1
+        version: 4.5.1
       colors:
         specifier: ^1.4.0
         version: 1.4.0
@@ -167,6 +170,9 @@ importers:
       xss:
         specifier: ^1.0.15
         version: 1.0.15
+      zlib:
+        specifier: ^1.0.5
+        version: 1.0.5
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.7.3
@@ -177,6 +183,9 @@ importers:
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
+      '@types/bwip-js':
+        specifier: ^3.2.3
+        version: 3.2.3
       '@types/cookie':
         specifier: ^0.6.0
         version: 0.6.0
@@ -1168,6 +1177,9 @@ packages:
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
 
+  '@types/bwip-js@3.2.3':
+    resolution: {integrity: sha512-kgL1GOW7n5FhlC5aXnckaEim0rz1cFM4t9/xUwuNXCIDnWLx8ruQ4JQkG6znq4GQFovNLhQy5JdgbDwJw4D/zg==}
+
   '@types/compression@1.7.5':
     resolution: {integrity: sha512-AAQvK5pxMpaT+nDvhHrsBhLSYG5yQdtkaJE1WYieSNY2mVFKAgmU4ks65rkZD5oqnGCFLyQpUr1CqI4DmUMyDg==}
 
@@ -1655,6 +1667,10 @@ packages:
   busboy@1.6.0:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
     engines: {node: '>=10.16.0'}
+
+  bwip-js@4.5.1:
+    resolution: {integrity: sha512-83yQCKiIftz5YonnsTh6wIkFoHHWl+B/XaGWD1UdRw7aB6XP9JtyYP9n8sRy3m5rzL+Ch/RUPnu28UW0RrPZUA==}
+    hasBin: true
 
   bytes@3.0.0:
     resolution: {integrity: sha512-pMhOfFDPiv9t5jjIXkHosWmkSyQbvsgEVNkz0ERHbuLh2T/7j4Mqqpz523Fe8MVY89KC6Sh/QfS2sM+SjgFDcw==}
@@ -4263,6 +4279,10 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zlib@1.0.5:
+    resolution: {integrity: sha512-40fpE2II+Cd3k8HWTWONfeKE2jL+P42iWJ1zzps5W51qcTsOUKM5Q5m2PFb0CLxlmFAaUuUdJGc3OfZy947v0w==}
+    engines: {node: '>=0.2.0'}
+
 snapshots:
 
   '@aashutoshrathi/word-wrap@1.2.6': {}
@@ -5735,6 +5755,10 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/node': 20.12.7
 
+  '@types/bwip-js@3.2.3':
+    dependencies:
+      '@types/node': 20.12.7
+
   '@types/compression@1.7.5':
     dependencies:
       '@types/express': 4.17.21
@@ -6333,6 +6357,8 @@ snapshots:
   busboy@1.6.0:
     dependencies:
       streamsearch: 1.1.0
+
+  bwip-js@4.5.1: {}
 
   bytes@3.0.0: {}
 
@@ -9252,3 +9278,5 @@ snapshots:
   yn@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zlib@1.0.5: {}
