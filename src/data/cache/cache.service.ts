@@ -15,7 +15,7 @@ export interface CacheService {
 }
 // cache.service.ts
 
-class CacheClientService {
+export class CacheClientService {
   private client: RedisClientType;
 
   constructor(client: RedisClientType) {

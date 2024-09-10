@@ -117,9 +117,9 @@ export const getPaymentById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const key = getDynamicKey(DynamicKey.FEE, id);
 
-  const cachedPayment = await cache.getWithFallback(key, async () => {
+  const cachedPayment = (await cache.getWithFallback(key, async () => {
     return await Payments.findById(id).lean().exec();
-  });
+  })) as IPayment;
 
   if (!cachedPayment) throw new BadRequestError('Payment not found');
   return new SuccessResponse(
@@ -158,7 +158,7 @@ export const getMonthsPayments = asyncHandler(async (_req, res) => {
 
 /*<!-- 6. Read  ---------------------------( Get Available Cycles )->*/
 
-export const getAvailableBillingCycles = asyncHandler(async (req, res) => {
+export const getAvailableBillingCycles = asyncHandler(async (_req, res) => {
   const payIDs = (await Payments.distinct('payId').exec()) as string[];
 
   if (!payIDs || payIDs.length === 0) {

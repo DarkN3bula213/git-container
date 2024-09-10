@@ -41,14 +41,14 @@ export function prepareBatchReport(batchId: string) {
       successes: batch.completed.length,
       failures: batch.failed.length,
     });
-    socketService.emit('batchReport', {
-      result: {
-        id: batchId,
-        total: batch.total,
-        completed: batch.completed,
-        failed: batch.failed,
-      },
-    });
+    // socketService.socketService.emit('batchReport', {
+    //   result: {
+    //     id: batchId,
+    //     total: batch.total,
+    //     completed: batch.completed,
+    //     failed: batch.failed,
+    //   },
+    // });
     // Clean up after report
     batches.delete(batchId);
   }
