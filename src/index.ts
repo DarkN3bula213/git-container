@@ -14,6 +14,7 @@ const PORT = config.app.port;
 import path from 'node:path';
 import fs from 'fs-extra';
 import { cache } from './data/cache/cache.service';
+import { verfication } from './lib/utils/tokens';
 
 const createDirectories = async () => {
   try {

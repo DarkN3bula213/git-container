@@ -143,11 +143,12 @@ const verificationToken = Math.floor(
 /*
  * ----------( Email Verification Token )->
  */
-function generateVerifyEmailToken() {
-  const token = verificationToken;
-  return token;
-}
 
+function generateVerifyEmailToken(): string {
+  const buffer = randomBytes(3); // Generate 3 bytes, which gives a number up to 16777215
+  const token = parseInt(buffer.toString('hex'), 16) % 1000000; // Convert to integer and ensure it's a 6-digit number
+  return token.toString().padStart(6, '0'); // Ensure it's always 6 digits by padding with zeros if necessary
+}
 const tokenExpiryTime = Date.now() + 24 * 60 * 60 * 1000;
 
 /*

@@ -1,63 +1,53 @@
 import { Logger } from '@/lib/logger';
-import { type Socket } from 'socket.io';
-const logger = new Logger(__filename);
+import { Server, type Socket } from 'socket.io';
 import cookie from 'cookie';
 import { saveSessionQueue } from '@/queues/session.queue';
 import { verifyToken } from '@/lib/utils/tokens';
 import { cache } from '@/data/cache/cache.service';
+import { Message, messageSingleton } from './messgageStore';
 
-export const handleConnect = async (socket: Socket) => {
+import {
+  authenticateUser,
+  getOrSetStartTime,
+  handleDelayedJobs,
+  manageUserConnection,
+  handleMessageEvents,
+} from '../socket.events';
+
+const logger = new Logger(__filename);
+
+// Main connection handler
+export const handleConnect = async (
+  socket: Socket,
+  io: Server,
+  connectedUsers: Map<
+    string,
+    { userId: string; username: string; socketId: string }
+  >,
+) => {
   logger.info(`Handling connection for socket ${socket.id}`);
 
-  const cookies = cookie.parse(socket.handshake.headers.cookie || '');
-  const authToken = cookies.access;
+  const authResult = authenticateUser(socket);
+  if (!authResult) return;
 
-  if (!authToken) {
-    logger.warn(`No auth token provided, disconnecting socket ${socket.id}`);
-    socket.disconnect();
-    return;
-  }
-
-  const verificationResult = verifyToken(authToken, 'access');
-  if (!verificationResult.valid) {
-    logger.warn(`Invalid auth token, disconnecting socket ${socket.id}`);
-    socket.disconnect();
-    return;
-  }
-  const user = verificationResult.decoded?.user;
-  const userID = verificationResult.decoded?.user._id;
-  const redisKey = `user:${userID}:startTime`;
-
-  // Check if startTime is already set in Redis using CacheClientService
-  const startTime = await cache.get<Date>(redisKey);
-
-  if (startTime) {
-    // If there's an existing startTime, use it
-    socket.data.startTime = new Date(startTime);
-    logger.info(
-      `Reusing startTime from Redis for user ${userID} on socket ${socket.id}: ${socket.data.startTime}`,
-    );
-  } else {
-    // If not, set a new startTime and cache it
-    const newStartTime = new Date();
-    socket.data.startTime = newStartTime;
-    await cache.set(redisKey, newStartTime.toISOString());
-    logger.info(
-      `Set new startTime in Redis for user ${userID} on socket ${socket.id}: ${socket.data.startTime}`,
-    );
-  }
+  const { user, userID } = authResult;
   socket.data.user = user;
   socket.data.userId = userID;
 
-  // Handle any delayed jobs
-  const jobId = `job-${userID}`;
-  const delayedJobs = await saveSessionQueue.getDelayed();
-  const job = delayedJobs.find((job) => job.id === jobId);
+  await getOrSetStartTime(userID, socket);
+  await handleDelayedJobs(userID);
 
-  if (job) {
-    await job.remove();
-    logger.info(
-      `Removed delayed job for user ${userID} as they reconnected on socket ${socket.id}`,
-    );
-  }
+  const username = manageUserConnection(socket, connectedUsers);
+
+  // Emit updated user list to everyone
+  const users = Array.from(connectedUsers.values());
+  socket.broadcast.emit('userListUpdated', users);
+  socket.emit('currentUser', connectedUsers.get(userID));
+  io.emit('systemMessage', {
+    message: `${username} has joined the chat`,
+    timestamp: new Date().toISOString(),
+  });
+
+  // Handle messages
+  handleMessageEvents(socket, connectedUsers);
 };

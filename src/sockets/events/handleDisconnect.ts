@@ -1,11 +1,18 @@
 import { Logger } from '@/lib/logger';
 import { calculateTimeSpent } from '../socket.utils';
-import { type Socket } from 'socket.io';
+import { Server, type Socket } from 'socket.io';
 import { saveSessionQueue } from '@/queues/session.queue';
 import { cache } from '@/data/cache/cache.service';
 const logger = new Logger(__filename);
 
-export const handleDisconnect = async (socket: Socket) => {
+export const handleDisconnect = async (
+  socket: Socket,
+  io: Server,
+  connectedUsers: Map<
+    string,
+    { userId: string; username: string; socketId: string }
+  >,
+) => {
   const userID = socket.data.userId;
   const redisKey = `user:${userID}:startTime`;
   const userId = socket.data.userId;
@@ -71,6 +78,13 @@ export const handleDisconnect = async (socket: Socket) => {
 
   // Clean up Redis key after job is queued
   await cache.del(redisKey);
+  connectedUsers.delete(userId);
+  io.emit('systemMessage', {
+    message: `User ${socket.data.username} disconnected`,
+    timestamp: new Date().toISOString(),
+  });
 
+  const updatedUsers = Array.from(connectedUsers.values());
+  socket.broadcast.emit('userListUpdated', updatedUsers);
   socket.disconnect();
 };

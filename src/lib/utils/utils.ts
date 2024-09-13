@@ -6,7 +6,7 @@ import type {
   Route,
   RouteMap,
 } from '@/types/routes';
-import type { Response, Router } from 'express';
+import type { NextFunction, Response, Router } from 'express';
 import { Types } from 'mongoose';
 import { logoutCookie } from '../config/cookies';
 import { Roles } from '../constants';
@@ -78,6 +78,9 @@ export const fetchUserPermissions = async (roleIds: Types.ObjectId[]) => {
 };
 import QRCode from 'qrcode';
 import Joi from 'joi';
+import { Socket } from 'socket.io';
+import { IncomingMessage } from 'http';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 export async function generateQRCode(token: string): Promise<string> {
   try {
@@ -106,3 +109,23 @@ export const formatJoiErrorMessage = (
     })
     .join(' ');
 };
+
+export const wrap =
+  (
+    middleware: (
+      arg0: IncomingMessage,
+      arg1: object,
+      arg2: NextFunction,
+    ) => any,
+  ) =>
+  (socket: Socket, next: NextFunction) =>
+    middleware(socket.request, {}, next);
+export const wrapAsync =
+  (
+    fn: (
+      arg0: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
+      arg1: NextFunction,
+    ) => Promise<any>,
+  ) =>
+  (socket: Socket, next: NextFunction) =>
+    fn(socket, next).catch(next);

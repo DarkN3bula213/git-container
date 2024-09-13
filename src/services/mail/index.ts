@@ -58,8 +58,9 @@ const sendEmail = async (props: SendEmailProps) => {
   };
 
   try {
-    const response = await client.sendMail(request);
-    logger.info('Email sent successfully', response);
+    await client.sendMail(request).then(() => {
+      logger.info('Email sent successfully');
+    });
   } catch (error) {
     logger.error('Error sending email:', error);
     throw new Error(`Error sending email: ${error}`);

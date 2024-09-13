@@ -66,7 +66,7 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
   });
 
   const insertedPayments: Awaited<ReturnType<typeof Payments.insertMany>> =
-    await Payments.insertMany(records);
+    (await Payments.insertMany(records)) as any;
   return new SuccessResponse(
     'Payments created successfully',
     insertedPayments,
@@ -130,17 +130,15 @@ export const getPaymentById = asyncHandler(async (req, res) => {
 
 /*<!-- 3. Read  ---------------------------( Get Student Payments )-> */
 export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
-  const key = getDynamicKey(DynamicKey.FEE, req.params.studentId);
-
-  const cachedPayments = await Payments.find({
-    studentId: req.params.studentId,
+  const { studentId } = req.params;
+  const payments = await Payments.find({
+    studentId,
   });
 
-  if (!cachedPayments) throw new BadRequestError('Payments not found');
-  return new SuccessResponse(
-    'Payments fetched successfully',
-    cachedPayments,
-  ).send(res);
+  if (!payments) throw new BadRequestError('Payments not found');
+  return new SuccessResponse('Payments fetched successfully', payments).send(
+    res,
+  );
 });
 /*<!-- 5. Read  ---------------------------( Get Months Payments )-> */
 export const getMonthsPayments = asyncHandler(async (_req, res) => {
