@@ -7,14 +7,14 @@ import { setRouter } from '@/lib/utils/utils';
 const router = Router();
 
 const getRoutes = (): RouteMap[] => {
-  return [
-    {
-      path: '/global/:payId',
-      method: 'get',
-      validations: [schema.schoolStats],
-      handler: controller.getSchoolStatsBySession,
-    },
-  ];
+   return [
+      {
+         path: '/global/:payId',
+         method: 'get',
+         validations: [schema.schoolStats],
+         handler: controller.getSchoolStatsBySession
+      }
+   ];
 };
 
 setRouter(router, getRoutes());

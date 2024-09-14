@@ -73,14 +73,6 @@ export const deleteSessionsByUserId = asyncHandler(async (req, res) => {
   res.status(200).json(sessions);
 });
 
-/**
- * Deletes multiple user sessions by their IDs.
- *
- * @param req - The HTTP request object.
- *   - `req.body.ids` - An array of session IDs to delete.
- * @param res - The HTTP response object.
- * @returns - The result of the delete operation.
- */
 export const deleteMany = asyncHandler(async (req, res) => {
   const { ids } = req.body; // Expecting { ids: ['id1', 'id2', 'id3'] }
 
@@ -90,8 +82,6 @@ export const deleteMany = asyncHandler(async (req, res) => {
       .status(400)
       .json({ error: 'Invalid input, expected an array of IDs' });
   }
-
-  console.log(ids); // Should output an array of IDs
 
   // Delete the sessions matching the provided IDs
   const sessions = await UserSessionModel.deleteMany({ _id: { $in: ids } });

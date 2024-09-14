@@ -11,51 +11,51 @@ import { invalidate } from '@/lib/handlers/cache.handler';
 const router = Router();
 
 const getRouteMap = (): RouteMap[] => {
-  return [
-    {
-      path: '/',
-      method: 'get',
-      handler: controller.getNotifications,
-    },
-    {
-      path: '/:id',
-      method: 'get',
-      handler: controller.getNotificationById,
-    },
-    {
-      path: '/',
-      method: 'post',
-      validations: [
-        attachRoles(Roles.ADMIN),
-        validate(schema.create),
-        authorize(Roles.ADMIN),
-        invalidate('notifications'),
-      ],
-      handler: controller.createNotification,
-    },
-    {
-      path: '/:id',
-      method: 'put',
-      handler: controller.markAsRead,
-    },
-    {
-      path: '/:id',
-      method: 'get',
-      handler: controller.checkIfRead,
-    },
-    {
-      path: '/:id',
-      method: 'delete',
-      validations: [attachRoles(Roles.ADMIN), authorize(Roles.ADMIN)],
-      handler: controller.deleteNotification,
-    },
-    {
-      path: '/',
-      method: 'delete',
-      validations: [attachRoles(Roles.ADMIN), authorize(Roles.ADMIN)],
-      handler: controller.deleteAllNotifications,
-    },
-  ];
+   return [
+      {
+         path: '/',
+         method: 'get',
+         handler: controller.getNotifications
+      },
+      {
+         path: '/:id',
+         method: 'get',
+         handler: controller.getNotificationById
+      },
+      {
+         path: '/',
+         method: 'post',
+         validations: [
+            attachRoles(Roles.ADMIN),
+            validate(schema.create),
+            authorize(Roles.ADMIN),
+            invalidate('notifications')
+         ],
+         handler: controller.createNotification
+      },
+      {
+         path: '/:id',
+         method: 'put',
+         handler: controller.markAsRead
+      },
+      {
+         path: '/:id',
+         method: 'get',
+         handler: controller.checkIfRead
+      },
+      {
+         path: '/:id',
+         method: 'delete',
+         validations: [attachRoles(Roles.ADMIN), authorize(Roles.ADMIN)],
+         handler: controller.deleteNotification
+      },
+      {
+         path: '/',
+         method: 'delete',
+         validations: [attachRoles(Roles.ADMIN), authorize(Roles.ADMIN)],
+         handler: controller.deleteAllNotifications
+      }
+   ];
 };
 
 setRouter(router, getRouteMap());

@@ -3,6 +3,8 @@ import { calculateTimeSpent } from '../socket.utils';
 import { Server, type Socket } from 'socket.io';
 import { saveSessionQueue } from '@/queues/session.queue';
 import { cache } from '@/data/cache/cache.service';
+import { getStartTimeFromCache } from '../socket.events';
+import { addSaveSessionJob } from '../session.processor';
 const logger = new Logger(__filename);
 
 export const handleDisconnect = async (
@@ -16,31 +18,14 @@ export const handleDisconnect = async (
   const userID = socket.data.userId;
   const redisKey = `user:${userID}:startTime`;
   const userId = socket.data.userId;
+  const startTime = await getStartTimeFromCache(userID, socket);
+  if (!startTime) return; // If start time is missing, return early
 
-  if (userId) {
-    // Remove the user's chat opt-in status from the cache
-    const chatOptInKey = `user:${userId}:chatOptIn`;
-    await cache.del(chatOptInKey);
-
-    logger.info(
-      `User ${userId} disconnected from socket ${socket.id}, cache cleared`,
-    );
-  } else {
-    logger.warn(`No user ID found for disconnected socket ${socket.id}`);
-  }
-  // Retrieve the startTime from Redis using CacheClientService
-  const cachedStartTime = await cache.get<Date>(redisKey);
-
-  if (!cachedStartTime) {
-    logger.error(
-      `startTime is missing in Redis for user ${userID} on socket ${socket.id}. Cannot calculate session time.`,
-    );
-    return;
-  }
+  // Calculate the time spent in the session
 
   let session;
   try {
-    session = calculateTimeSpent(new Date(cachedStartTime));
+    session = calculateTimeSpent(new Date(startTime));
   } catch (error: any) {
     logger.error(
       `Error calculating time spent for user ${userID} on socket ${socket.id}: ${error.message}`,
@@ -53,22 +38,14 @@ export const handleDisconnect = async (
   );
 
   try {
-    const job = await saveSessionQueue.add(
-      'saveUserSession',
-      {
-        userID,
-        startTime: session.startTime,
-        endTime: session.endTime,
-        time: session.time,
-      },
-      {
-        jobId: `job-${userID}`,
-        delay: 5 * 60 * 1000, // 5-minute delay
-      },
+    const job = await addSaveSessionJob(
+      userID,
+      session.startTime,
+      session.endTime,
+      session.time,
     );
-
     logger.info(
-      `Job ${job.id} queued for user ${userID} on socket ${socket.id}`,
+      `Successfully added job for user ${userID}  on socket ${socket.id}`,
     );
   } catch (error: any) {
     logger.error(
@@ -78,13 +55,23 @@ export const handleDisconnect = async (
 
   // Clean up Redis key after job is queued
   await cache.del(redisKey);
-  connectedUsers.delete(userId);
-  io.emit('systemMessage', {
-    message: `User ${socket.data.username} disconnected`,
-    timestamp: new Date().toISOString(),
-  });
 
-  const updatedUsers = Array.from(connectedUsers.values());
-  socket.broadcast.emit('userListUpdated', updatedUsers);
-  socket.disconnect();
+  // Handle users if connected
+
+  if (connectedUsers && connectedUsers.has(userId)) {
+    connectedUsers.delete(userId);
+    io.emit('systemMessage', {
+      message: `User ${socket.data.username} disconnected`,
+      timestamp: new Date().toISOString(),
+    });
+
+    const updatedUsers = Array.from(connectedUsers.values());
+    socket.broadcast.emit('userListUpdated', updatedUsers);
+    socket.disconnect();
+  } else {
+    logger.info(
+      `User ${socket.data.username} disconnected but not found in connectedUsers`,
+    );
+    socket.disconnect();
+  }
 };

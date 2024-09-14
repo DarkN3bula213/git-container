@@ -1,73 +1,86 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-import Bull, { type DoneCallback, type Job } from 'bull';
+import Bull, { DoneCallback, Job, Queue } from 'bull';
 
 const logger = new Logger(__filename);
 
+type ProcessorFunction<T> = (job: Job<T>, done: DoneCallback) => Promise<void>;
+
 type ProcessorMap<T> = {
-  [key: string]: (job: Job<T>, done: DoneCallback) => void;
+   [key: string]: ProcessorFunction<T>;
 };
 
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 class QueueFactory {
-  static createQueue<T>(name: string, processorMap: ProcessorMap<T>) {
-    const queue = new Bull<T>(name, {
-      redis: config.redis.uri,
-      defaultJobOptions: {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 1000,
-        },
-      },
-    });
+   static createQueue<T>(
+      name: string,
+      processorMap: ProcessorMap<T>
+   ): Queue<T> {
+      const queue = new Bull<T>(name, {
+         redis: config.redis.uri,
+         defaultJobOptions: {
+            attempts: 3,
+            backoff: {
+               type: 'exponential',
+               delay: 1000
+            }
+         }
+      });
 
-    // Register event listeners
-    queue.on('completed', (job: Job<T>, _result) => {
-      logger.info(`Job ${job.id} in queue ${name} has completed successfully.`);
-    });
+      // Register event listeners
+      queue.on('completed', (job: Job<T>) => {
+         logger.info(`Job ${job.id} in queue ${name} completed successfully.`);
+      });
 
-    queue.on('failed', (job: Job<T>, err: Error) => {
-      logger.error(
-        `Job ${job.id} in queue ${name} has failed with error: ${err.message}`,
-      );
-    });
+      queue.on('failed', (job: Job<T>, err: Error) => {
+         logger.error(`Job ${job.id} in queue ${name} failed: ${err.message}`);
+      });
 
-    queue.on('progress', (job: Job<T>, progress: number) => {
-      logger.debug(`Job ${job.id} in queue ${name} is ${progress}% complete.`);
-    });
+      queue.on('progress', (job: Job<T>, progress: number) => {
+         logger.debug(
+            `Job ${job.id} in queue ${name} is ${progress}% complete.`
+         );
+      });
 
-    Object.entries(processorMap).forEach(([jobType, handler]) => {
-      queue.process(jobType, handler);
-    });
+      queue.on('active', (job: Job<T>) => {
+         logger.info(`Job ${job.id} in queue ${name} is now active.`);
+      });
 
-    return queue;
-  }
-}
+      queue.on('stalled', (job: Job<T>) => {
+         logger.warn(`Job ${job.id} in queue ${name} has stalled.`);
+      });
 
-class AdvancedQueueFactory extends QueueFactory {
-  static async removeJob<T>(queueName: string, jobId: number): Promise<void> {
-    const queue = new Bull<T>(queueName, {
-      redis: config.redis.uri,
-    });
+      // Register processors
+      Object.entries(processorMap).forEach(([jobType, handler]) => {
+         queue.process(jobType, handler);
+      });
 
-    try {
-      const job = await queue.getJob(jobId);
-      if (job) {
-        await job.remove();
-        logger.info(
-          `Job ${jobId} in queue ${queueName} has been removed successfully.`,
-        );
-      } else {
-        logger.warn(`Job ${jobId} in queue ${queueName} does not exist.`);
+      logger.info(`Queue ${name} initialized with processors.`);
+
+      return queue;
+   }
+
+   static async removeJob<T>(queueName: string, jobId: string): Promise<void> {
+      const queue = new Bull<T>(queueName, {
+         redis: config.redis.uri
+      });
+
+      try {
+         const job = await queue.getJob(jobId);
+         if (job) {
+            await job.remove();
+            logger.info(
+               `Job ${jobId} removed successfully from queue ${queueName}.`
+            );
+         } else {
+            logger.warn(`Job ${jobId} not found in queue ${queueName}.`);
+         }
+      } catch (error: any) {
+         logger.error(
+            `Failed to remove job ${jobId} from queue ${queueName}: ${error.message}`
+         );
+         throw error;
       }
-    } catch (error: any) {
-      logger.error(
-        `Failed to remove job ${jobId} from queue ${queueName}: ${error.message}`,
-      );
-      throw error;
-    }
-  }
+   }
 }
 
-export default AdvancedQueueFactory;
+export default QueueFactory;

@@ -15,36 +15,36 @@ import sanitizeInputs from './sanitizeReq';
 import { cache } from '@/data/cache/cache.service';
 
 export default (app: Application) => {
-  // Trust proxy for secure cookies in production
-  app.set('trust proxy', 1);
-  app.use(cookieParser());
-  // Security Middleware
-  app.use(helmet());
-  app.use(compression());
-  app.use(hpp());
-  app.use(sanitizeInputs);
+   // Trust proxy for secure cookies in production
+   app.set('trust proxy', 1);
+   app.use(cookieParser());
+   // Security Middleware
+   app.use(helmet());
+   app.use(compression());
+   app.use(hpp());
+   app.use(sanitizeInputs);
 
-  // CORS Middleware - It's generally a good practice to put CORS early in the middleware stack
-  app.use(cors(corsOptions));
+   // CORS Middleware - It's generally a good practice to put CORS early in the middleware stack
+   app.use(cors(corsOptions));
 
-  // Logging Middleware
-  app.use(morgan);
-  app.use(RequestLogger);
+   // Logging Middleware
+   app.use(morgan);
+   app.use(RequestLogger);
 
-  // Parsing Middleware
-  app.use(urlencoded(config.urlEncoded));
-  app.use(json(config.json));
+   // Parsing Middleware
+   app.use(urlencoded(config.urlEncoded));
+   app.use(json(config.json));
 
-  // Sanitization
-  app.use(sanitize());
+   // Sanitization
+   app.use(sanitize());
 
-  // Cookies and Sessions
+   // Cookies and Sessions
 
-  app.use(cache.cachedSession(config.tokens.jwtSecret));
+   app.use(cache.cachedSession(config.tokens.jwtSecret));
 
-  // API Key Middleware
-  app.use(apiKey);
+   // API Key Middleware
+   app.use(apiKey);
 
-  // Rate Limiting Middleware
-  app.use(loginLimiter);
+   // Rate Limiting Middleware
+   app.use(loginLimiter);
 };

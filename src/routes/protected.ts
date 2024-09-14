@@ -12,14 +12,14 @@ const router = Router();
 router.use(authentication, authorize(Roles.HPS));
 
 router.get('/', attachRoles(Roles.ADMIN), (req, res) => {
-  Logger.debug({
-    attached: req.roles,
-  });
-  res.json({
-    data: {
-      roles: req.roles,
-    },
-  });
+   Logger.debug({
+      attached: req.roles
+   });
+   res.json({
+      data: {
+         roles: req.roles
+      }
+   });
 });
 
 export default router;

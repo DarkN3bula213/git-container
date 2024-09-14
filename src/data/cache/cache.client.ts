@@ -4,7 +4,7 @@ import { type RedisClientType, createClient } from 'redis';
 const logger = new Logger(__filename);
 
 const redisClient: RedisClientType = createClient({
-  url: config.isDevelopment ? 'redis://localhost:6379' : process.env.REDIS_URL,
+   url: config.isDevelopment ? 'redis://localhost:6379' : process.env.REDIS_URL
 });
 
 redisClient.on('connect', () => logger.info('Cache is connecting'));

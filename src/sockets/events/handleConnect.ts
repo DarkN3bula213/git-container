@@ -13,6 +13,7 @@ import {
   manageUserConnection,
   handleMessageEvents,
 } from '../socket.events';
+import { removeSaveSessionJob } from '../session.processor';
 
 const logger = new Logger(__filename);
 
@@ -33,13 +34,9 @@ export const handleConnect = async (
   const { user, userID } = authResult;
   socket.data.user = user;
   socket.data.userId = userID;
+  const username = manageUserConnection(socket, connectedUsers, io);
+  await removeSaveSessionJob(userID);
 
-  await getOrSetStartTime(userID, socket);
-  await handleDelayedJobs(userID);
-
-  const username = manageUserConnection(socket, connectedUsers);
-
-  // Emit updated user list to everyone
   const users = Array.from(connectedUsers.values());
   socket.broadcast.emit('userListUpdated', users);
   socket.emit('currentUser', connectedUsers.get(userID));
