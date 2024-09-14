@@ -6,66 +6,66 @@ import { createUserSession } from '@/sockets/session.model';
 const logger = new Logger(__filename);
 
 const sessionProcessor = {
-   saveUserSession: async (
-      job: Job<{
-         userID: string;
-         startTime: Date;
-         endTime: Date;
-         time: string;
-      }>,
-      done: DoneCallback
-   ) => {
-      logger.info(`Processing job: ${job.id} for user ${job.data.userID}`);
+  saveUserSession: async (
+    job: Job<{
+      userID: string;
+      startTime: Date;
+      endTime: Date;
+      time: string;
+    }>,
+    done: DoneCallback,
+  ) => {
+    logger.info(`Processing job: ${job.id} for user ${job.data.userID}`);
 
-      try {
-         const { userID, startTime, endTime, time } = job.data;
-         await createUserSession(userID, startTime, endTime, time);
-         logger.info(`Successfully saved session for user ${userID}`);
-         done();
-      } catch (error: any) {
-         logger.error(
-            `Error saving session for user ${job.data.userID}: ${error.message}`
-         );
+    try {
+      const { userID, startTime, endTime, time } = job.data;
+      await createUserSession(userID, startTime, endTime, time);
+      logger.info(`Successfully saved session for user ${userID}`);
+      done();
+    } catch (error: any) {
+      logger.error(
+        `Error saving session for user ${job.data.userID}: ${error.message}`,
+      );
 
-         // If it's a retryable error, we could decide to delay the retry further
-         // or handle it differently.
-         if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
-            logger.error(
-               `Job ${job.id} failed after maximum attempts for user ${job.data.userID}`
-            );
-         } else {
-            logger.info(
-               `Retrying job ${job.id} for user ${job.data.userID}. Attempt: ${job.attemptsMade + 1}`
-            );
-         }
-
-         done(error);
+      // If it's a retryable error, we could decide to delay the retry further
+      // or handle it differently.
+      if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
+        logger.error(
+          `Job ${job.id} failed after maximum attempts for user ${job.data.userID}`,
+        );
+      } else {
+        logger.info(
+          `Retrying job ${job.id} for user ${job.data.userID}. Attempt: ${job.attemptsMade + 1}`,
+        );
       }
-   }
+
+      done(error);
+    }
+  },
 };
 
 export const saveSessionQueue = QueueFactory.createQueue(
-   'saveSession',
-   sessionProcessor
+  'saveSession',
+  sessionProcessor,
 );
 
 // Logging when a new job is added to the queue
 saveSessionQueue.on('added', (job) => {
-   logger.info(
-      `Job ${job.id} added to saveSessionQueue for user ${job.data.userID}`
-   );
+  logger.info(
+    `Job ${job.id} added to saveSessionQueue for user ${job.data.userID}`,
+  );
 });
 
 // Logging when a job completes successfully
 saveSessionQueue.on('completed', (job) => {
-   logger.info(
-      `Job ${job.id} completed successfully for user ${job.data.userID}`
-   );
+  logger.info(
+    `Job ${job.id} completed successfully for user ${job.data.userID}`,
+  );
 });
 
 // Logging when a job fails
 saveSessionQueue.on('failed', (job, err) => {
-   logger.error(
-      `Job ${job.id} failed for user ${job.data.userID}: ${err.message}`
-   );
+  logger.error(
+    `Job ${job.id} failed for user ${job.data.userID}: ${err.message}`,
+  );
 });
