@@ -1,66 +1,69 @@
 import { join } from 'path';
 
 export function getOsEnv(key: string): string {
-   if (typeof process.env[key] === 'undefined') {
-      throw new Error(`Environment variable ${key} is not set.`);
-   }
+    if (typeof process.env[key] === 'undefined') {
+        throw new Error(`Environment variable ${key} is not set.`);
+    }
 
-   return process.env[key] as string;
+    return process.env[key] as string;
 }
 
 export function getOsEnvOptional(key: string): string | undefined {
-   return process.env[key];
+    return process.env[key];
 }
 
 export function getPath(path: string): string {
-   return process.env.NODE_ENV === 'production'
-      ? join(process.cwd(), path.replace('src/', 'dist/').slice(0, -3) + '.js')
-      : join(process.cwd(), path);
+    return process.env.NODE_ENV === 'production'
+        ? join(
+              process.cwd(),
+              path.replace('src/', 'dist/').slice(0, -3) + '.js'
+          )
+        : join(process.cwd(), path);
 }
 
 export function getPaths(paths: string[]): string[] {
-   return paths.map((p) => getPath(p));
+    return paths.map((p) => getPath(p));
 }
 
 export function getOsPath(key: string): string {
-   return getPath(getOsEnv(key));
+    return getPath(getOsEnv(key));
 }
 
 export function getOsPaths(key: string): string[] {
-   return getPaths(getEnvArray(key));
+    return getPaths(getEnvArray(key));
 }
 
 export function toNumber(value: string): number {
-   return parseInt(value, 10);
+    return parseInt(value, 10);
 }
 
 export function toBool(value: string): boolean {
-   return value === 'true';
+    return value === 'true';
 }
 
 export function normalizePort(port: string): number | string | boolean {
-   const parsedPort = parseInt(port, 10);
-   if (isNaN(parsedPort)) {
-      // named pipe
-      return port;
-   }
-   if (parsedPort >= 0) {
-      // port number
-      return parsedPort;
-   }
-   return false;
+    const parsedPort = parseInt(port, 10);
+    if (isNaN(parsedPort)) {
+        // named pipe
+        return port;
+    }
+    if (parsedPort >= 0) {
+        // port number
+        return parsedPort;
+    }
+    return false;
 }
 
 export function getEnvArray(key: string, delimiter: string = ','): string[] {
-   const envValue = process.env[key];
-   return (envValue && envValue.split(delimiter)) || [];
+    const envValue = process.env[key];
+    return (envValue && envValue.split(delimiter)) || [];
 }
 
 export function decoded(key: string) {
-   return Buffer.from(key, 'base64').toString('ascii');
+    return Buffer.from(key, 'base64').toString('ascii');
 }
 
 export function getDecodedOsEnv(key: string): string {
-   const envVar = getOsEnv(key);
-   return decoded(envVar);
+    const envVar = getOsEnv(key);
+    return decoded(envVar);
 }

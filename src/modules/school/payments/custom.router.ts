@@ -13,19 +13,19 @@ import { ValidationSource, validate } from '@/lib/handlers/validate';
 const router = Router();
 
 const getRouteMap = (): RouteMap[] => {
-   return [
-      {
-         path: '/',
-         method: 'get',
-         handler: controller.customSorting
-      },
-      {
-         path: '/id/:studentId',
-         method: 'get',
-         validations: [validate(schema.studentId, ValidationSource.PARAM)],
-         handler: controller.getStudentPaymentHistory
-      }
-   ];
+    return [
+        {
+            path: '/',
+            method: 'get',
+            handler: controller.customSorting
+        },
+        {
+            path: '/id/:studentId',
+            method: 'get',
+            validations: [validate(schema.studentId, ValidationSource.PARAM)],
+            handler: controller.getStudentPaymentHistory
+        }
+    ];
 };
 
 setRouter(router, getRouteMap());

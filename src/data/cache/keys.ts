@@ -1,18 +1,18 @@
 export enum Key {
-   roles = 'roles',
-   Events = 'Events'
+    roles = 'roles',
+    Events = 'Events'
 }
 export enum DynamicKey {
-   CLASS = 'class',
-   FEE = 'fee',
-   STUDENTS = 'students'
+    CLASS = 'class',
+    FEE = 'fee',
+    STUDENTS = 'students'
 }
 
 export type DynamicKeyType = `${DynamicKey}:${string}`;
 
 export function getDynamicKey(key: DynamicKey, suffix: string) {
-   const dynamic: DynamicKeyType = `${key}:${suffix}`;
-   return dynamic;
+    const dynamic: DynamicKeyType = `${key}:${suffix}`;
+    return dynamic;
 }
 
 export const usersKey = (userId: string) => `users#${userId}`;

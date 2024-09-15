@@ -12,33 +12,33 @@ const logger = new Logger(__filename);
 import express from 'express';
 
 declare global {
-   namespace Express {
-      interface Request {
-         apiKey: ApiKey;
-      }
-   }
+    namespace Express {
+        interface Request {
+            apiKey: ApiKey;
+        }
+    }
 }
 
 const router = express.Router();
 
 export default router.use(
-   validate(schema.apiKey, ValidationSource.HEADER),
-   asyncHandler(async (req, _res, next) => {
-      const key = req.headers[Header.API_KEY]?.toString();
-      if (!key) {
-         logger.info('Api key is missing');
-         next();
-         throw new ForbiddenError();
-      }
+    validate(schema.apiKey, ValidationSource.HEADER),
+    asyncHandler(async (req, _res, next) => {
+        const key = req.headers[Header.API_KEY]?.toString();
+        if (!key) {
+            logger.info('Api key is missing');
+            next();
+            throw new ForbiddenError();
+        }
 
-      const apiKey = await findByKey(key);
+        const apiKey = await findByKey(key);
 
-      if (!apiKey) {
-         logger.info('Api key is invalid');
-         // next();
-         throw new ForbiddenError();
-      }
-      req.apiKey = apiKey;
-      return next();
-   })
+        if (!apiKey) {
+            logger.info('Api key is invalid');
+            // next();
+            throw new ForbiddenError();
+        }
+        req.apiKey = apiKey;
+        return next();
+    })
 );

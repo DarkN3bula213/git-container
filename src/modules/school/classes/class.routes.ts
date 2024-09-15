@@ -10,16 +10,16 @@ import { setRouter } from '@/lib/utils/utils';
 const router = Router();
 
 router
-   .route('/')
-   .get(controller.findClasses)
-   .post(validate(schema.singleClass), controller.addClass)
-   .delete(controller.deleteAll);
+    .route('/')
+    .get(controller.findClasses)
+    .post(validate(schema.singleClass), controller.addClass)
+    .delete(controller.deleteAll);
 
 router
-   .route('/:id')
-   .get(controller.findClassById)
-   .put(validate(schema.singleClass), controller.updateClass)
-   .delete(controller.deleteClass);
+    .route('/:id')
+    .get(controller.findClassById)
+    .put(validate(schema.singleClass), controller.updateClass)
+    .delete(controller.deleteClass);
 
 router.get('/name/:name', controller.findClassByName);
 
@@ -28,28 +28,28 @@ router.put('/fee/:name', validate(schema.fee), controller.updateClassFee);
 router.post('/seed', validate(schema.multiClass), controller.insertMany);
 
 const routes = (): RouteMap[] => {
-   return [
-      /*<----------------------------------------(NEW ROUTES) */
+    return [
+        /*<----------------------------------------(NEW ROUTES) */
 
-      {
-         path: '/subject/:classId',
-         method: 'post',
-         validations: [invalidate(DynamicKey.CLASS)],
-         handler: controller.addSubjectToClass
-      },
-      {
-         path: '/subject/:classId',
-         method: 'put',
-         validations: [invalidate(DynamicKey.CLASS)],
-         handler: controller.removeSubjectFromClass
-      },
-      {
-         path: '/teacher/:classId',
-         method: 'post',
-         validations: [invalidate(DynamicKey.CLASS)],
-         handler: controller.addClassTeacher
-      }
-   ];
+        {
+            path: '/subject/:classId',
+            method: 'post',
+            validations: [invalidate(DynamicKey.CLASS)],
+            handler: controller.addSubjectToClass
+        },
+        {
+            path: '/subject/:classId',
+            method: 'put',
+            validations: [invalidate(DynamicKey.CLASS)],
+            handler: controller.removeSubjectFromClass
+        },
+        {
+            path: '/teacher/:classId',
+            method: 'post',
+            validations: [invalidate(DynamicKey.CLASS)],
+            handler: controller.addClassTeacher
+        }
+    ];
 };
 
 setRouter(router, routes());

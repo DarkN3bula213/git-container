@@ -15,77 +15,77 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { cache } from './data/cache/cache.service';
 import { verfication } from './lib/utils/tokens';
-
+import './modules/school/stats/stat.aggregations';
 const createDirectories = async () => {
-   try {
-      const uploadsDir = path.join(__dirname, 'uploads');
-      const imagesDir = path.join(__dirname, '..', 'uploads/images');
-      const documentsDir = path.join(__dirname, '..', 'uploads/documents');
-      // fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
-      await fs.ensureDir(uploadsDir);
-      await fs.ensureDir(imagesDir);
-      await fs.ensureDir(documentsDir);
+    try {
+        const uploadsDir = path.join(__dirname, 'uploads');
+        const imagesDir = path.join(__dirname, '..', 'uploads/images');
+        const documentsDir = path.join(__dirname, '..', 'uploads/documents');
+        // fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
+        await fs.ensureDir(uploadsDir);
+        await fs.ensureDir(imagesDir);
+        await fs.ensureDir(documentsDir);
 
-      logger.info('Ensured that upload directories exist.');
-   } catch (error: unknown) {
-      if (error instanceof Error) {
-         // Type-guard check
-         logger.error(
-            `Error occurred while trying to start server: ${error.message}`
-         );
-      } else {
-         logger.error(
-            'An unexpected error occurred while trying to start the server.'
-         );
-      }
-   }
+        logger.info('Ensured that upload directories exist.');
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            // Type-guard check
+            logger.error(
+                `Error occurred while trying to start server: ${error.message}`
+            );
+        } else {
+            logger.error(
+                'An unexpected error occurred while trying to start the server.'
+            );
+        }
+    }
 };
 
 const startServer = async () => {
-   try {
-      // Connect to cache and database
-      await cache.connect();
-      await db.connect();
+    try {
+        // Connect to cache and database
+        await cache.connect();
+        await db.connect();
 
-      // Start the server and listen on all network interfaces
-      server.listen(PORT, () => {
-         logger.info({
-            server: `Server instance instantiated and listening on port ${PORT}.`,
-            node: `${process.env.NODE_ENV} ${config.isDocker}`,
-            banner: banner
-         });
-      });
-   } catch (error: any) {
-      logger.error(
-         `Error occurred while trying to start server: ${error.message}`
-      );
-   }
+        // Start the server and listen on all network interfaces
+        server.listen(PORT, () => {
+            logger.info({
+                server: `Server instance instantiated and listening on port ${PORT}.`,
+                node: `${process.env.NODE_ENV} ${config.isDocker}`,
+                banner: banner
+            });
+        });
+    } catch (error: any) {
+        logger.error(
+            `Error occurred while trying to start server: ${error.message}`
+        );
+    }
 };
 signals.forEach((signal) => {
-   process.on(signal, async () => {
-      try {
-         logger.debug(`Received ${signal}. Shutting down gracefully...`);
-         server.close();
-         logger.debug('HTTP server closed.');
-         cache.disconnect();
-         logger.debug('Cache disconnected.');
-         await db.disconnect();
-         logger.debug('Database disconnected.');
-         process.exit(0);
-      } catch (error) {
-         logger.error('Failed to shut down gracefully', error);
-         process.exit(1);
-      }
-   });
+    process.on(signal, async () => {
+        try {
+            logger.debug(`Received ${signal}. Shutting down gracefully...`);
+            server.close();
+            logger.debug('HTTP server closed.');
+            cache.disconnect();
+            logger.debug('Cache disconnected.');
+            await db.disconnect();
+            logger.debug('Database disconnected.');
+            process.exit(0);
+        } catch (error) {
+            logger.error('Failed to shut down gracefully', error);
+            process.exit(1);
+        }
+    });
 });
 
 export { socketService };
 
 createDirectories()
-   .then(startServer)
-   .catch((error) => {
-      logger.error(
-         'Failed to initialize required directories or server setup.',
-         error
-      );
-   });
+    .then(startServer)
+    .catch((error) => {
+        logger.error(
+            'Failed to initialize required directories or server setup.',
+            error
+        );
+    });

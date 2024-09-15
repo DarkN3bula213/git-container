@@ -7,12 +7,12 @@ import { setRouter } from '@/lib/utils/utils';
 const router = Router();
 
 const routes = (): RouteMap[] => [
-   {
-      path: '/generate',
-      method: 'post',
-      validations: [schema.getInvoice],
-      handler: controllers.generateInvoice
-   }
+    {
+        path: '/generate',
+        method: 'post',
+        validations: [schema.getInvoice],
+        handler: controllers.generateInvoice
+    }
 ];
 
 setRouter(router, routes());
