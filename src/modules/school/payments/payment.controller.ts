@@ -70,7 +70,7 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
         };
     });
 
-    const insertedPayments = await Payments.insertMany(records);
+    const insertedPayments = await Payments.insertMany(records) as object[];
     return new SuccessResponse(
         'Payments created successfully',
         insertedPayments

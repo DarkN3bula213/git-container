@@ -6,6 +6,7 @@ import { db } from './data/database';
 import { banner, signals } from './lib/constants';
 import SocketService from './sockets';
 // import './services/reporting/daily-fees';
+
 const logger = new Logger(__filename);
 const server = http.createServer(app);
 const socketService = SocketService.getInstance(server);
@@ -14,8 +15,7 @@ const PORT = config.app.port;
 import path from 'node:path';
 import fs from 'fs-extra';
 import { cache } from './data/cache/cache.service';
-import { verfication } from './lib/utils/tokens';
-import './modules/school/stats/stat.aggregations';
+import { setupCronJobs } from './services/cron';
 const createDirectories = async () => {
     try {
         const uploadsDir = path.join(__dirname, 'uploads');
@@ -46,13 +46,13 @@ const startServer = async () => {
         // Connect to cache and database
         await cache.connect();
         await db.connect();
+        setupCronJobs();
 
         // Start the server and listen on all network interfaces
         server.listen(PORT, () => {
             logger.info({
                 server: `Server instance instantiated and listening on port ${PORT}.`,
-                node: `${process.env.NODE_ENV} ${config.isDocker}`,
-                banner: banner
+                node: banner
             });
         });
     } catch (error: any) {
@@ -89,3 +89,4 @@ createDirectories()
             error
         );
     });
+ 

@@ -33,9 +33,7 @@ export const handleDisconnect = async (
         return;
     }
 
-    logger.info(
-        `Session calculated for user ${userID} on socket ${socket.id}: ${JSON.stringify(session)}`
-    );
+ 
 
     try {
         const job = await addSaveSessionJob(
@@ -44,9 +42,7 @@ export const handleDisconnect = async (
             session.endTime,
             session.time
         );
-        logger.info(
-            `Successfully added job for user ${userID}  on socket ${socket.id}`
-        );
+ 
     } catch (error: any) {
         logger.error(
             `Failed to add job for user ${userID} on socket ${socket.id}: ${error.message}`

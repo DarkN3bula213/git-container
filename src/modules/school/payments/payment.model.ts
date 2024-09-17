@@ -1,4 +1,5 @@
-import mongoose from 'mongoose';
+import { cache } from '@/data/cache/cache.service';
+import mongoose, { Schema } from 'mongoose';
 
 export interface IPayment extends mongoose.Document {
     studentId: mongoose.Schema.Types.ObjectId;
@@ -18,7 +19,7 @@ export interface IPayment extends mongoose.Document {
     invoiceId: string;
 }
 
-const schema = new mongoose.Schema<IPayment>(
+const schema = new Schema<IPayment>(
     {
         invoiceId: { type: String, required: false, unique: true },
         studentId: {
@@ -64,6 +65,64 @@ const schema = new mongoose.Schema<IPayment>(
         versionKey: false
     }
 );
+
+// Save the money flow in Redis
+async function updateMoneyFlow(
+    doc: { className: string; section: string; amount: number },
+    next: () => void
+) {
+    const { className, section, amount } = doc;
+
+    try {
+        // Use a key for each class-section combination
+        const redisKey = `classSection:${className}:${section}`;
+
+        // Increment the total amount for this class-section
+        const result = await cache
+            .getClient()
+            .hIncrBy(redisKey, 'totalAmount', amount);
+
+        console.log(
+            `Updated Redis for ${className}-${section}: New total amount is ${result}`
+        );
+    } catch (err) {
+        console.error('Error updating class-section money flow in Redis:', err);
+    }
+
+    next();
+}
+
+
+ 
+schema.post('save', updateMoneyFlow);
+
+ 
+export async function deleteMoneyFlow(
+    doc: { className: string; section: string; amount: number },
+    next: () => void
+) {
+    const { className, section, amount } = doc;
+
+    try {
+        // Use the class-section combination key
+        const redisKey = `classSection:${className}:${section}`;
+
+        // Decrease the total amount for this class-section
+        const result = await cache
+            .getClient()
+            .hIncrBy(redisKey, 'totalAmount', -amount);
+
+        console.log(
+            `Updated Redis for ${className}-${section}: New total amount is ${result}`
+        );
+    } catch (err) {
+        console.error('Error updating class-section money flow in Redis:', err);
+    }
+
+    next();
+}
+
+
 
 schema.index({ studentId: 1, payId: 1 }, { unique: true });
 

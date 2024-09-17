@@ -26,7 +26,7 @@ export const handleConnect = async (
         { userId: string; username: string; socketId: string }
     >
 ) => {
-    logger.info(`Handling connection for socket ${socket.id}`);
+
 
     const authResult = authenticateUser(socket);
     if (!authResult) return;

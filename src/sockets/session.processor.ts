@@ -45,7 +45,7 @@ export async function addSaveSessionJob(
             { userID, startTime, endTime, time },
             { jobId: `save-session-${userID}`, delay: 300000 } // 5-minute delay
         );
-        logger.info(`Job ${job.id} queued for user ${userID}`);
+        logger.debug(`Job ${job.id} queued for user ${userID}`);
     } catch (error: any) {
         logger.error(
             `Failed to add save session job for user ${userID}: ${error.message}`
@@ -61,8 +61,8 @@ export async function removeSaveSessionJob(userID: string) {
 
         if (job) {
             await job.remove();
-            logger.info(
-                `Removed queued job for user ${userID} due to reconnection.`
+            logger.debug(
+                `Reconnection: Queued job removed `
             );
         } else {
             logger.warn(

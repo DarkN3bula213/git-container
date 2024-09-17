@@ -1,6 +1,7 @@
 export enum Key {
     roles = 'roles',
-    Events = 'Events'
+    Events = 'Events',
+    DAILYTOTAL = 'DailyAmount'
 }
 export enum DynamicKey {
     CLASS = 'class',

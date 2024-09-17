@@ -2,9 +2,9 @@ import express, { type Application, Request, Response } from 'express';
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
 import { Logger } from './lib/logger';
-import handleMiddleware from './middleware/common';
+import middleware from './middleware/common';
 import router from './routes';
-import { setupCronJobs } from './services/reporting/cron';
+
 
 const logger = new Logger(__filename);
 
@@ -48,10 +48,10 @@ export function onlyForHandshake(
  *
  */ /** -----------------------------( Archieved )->*/
 
-handleMiddleware(app);
+middleware(app);
 handleUploads(app);
 app.use('/api', router);
-setupCronJobs();
+
 
 handleErrors(app);
 

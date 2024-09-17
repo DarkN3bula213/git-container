@@ -1,7 +1,7 @@
 import { Logger } from '@/lib/logger';
 import sendEmail, { generateHtmlTemplate } from '.';
 import { BadRequestError } from '@/lib/api';
-import { getPaymentsForDate } from '../reporting/daily-fees';
+import { getPaymentsForDate } from '../cron/daily-fees';
 import template from './mailTemplates';
 
 const logger = new Logger(__filename);

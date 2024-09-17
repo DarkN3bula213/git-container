@@ -12,6 +12,8 @@ export interface CacheService {
     del(key: string): Promise<void>;
     setExp(key: string, value: any, seconds: number): Promise<void>;
     delPattern(pattern: string): Promise<void>;
+    incrBy(key: string, increment: number): Promise<number>;
+    decrBy(key: string, decrement: number): Promise<number>;
 }
 // cache.service.ts
 
@@ -56,6 +58,17 @@ export class CacheClientService {
         if (keys.length) {
             await this.client.del(keys);
         }
+    }
+    // Increment a value by a specific number (used for adding money flow)
+    async incrBy(key: string, increment: number): Promise<number> {
+        const result = await this.client.incrBy(key, increment);
+        return result;
+    }
+
+    // Decrement a value by a specific number (used for removing money flow)
+    async decrBy(key: string, decrement: number): Promise<number> {
+        const result = await this.client.decrBy(key, decrement);
+        return result;
     }
     cachedSession(secret: string) {
         const RedisSessionStore = new RedisStore({

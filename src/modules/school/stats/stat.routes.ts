@@ -13,6 +13,17 @@ const getRoutes = (): RouteMap[] => {
             method: 'get',
             validations: [schema.schoolStats],
             handler: controller.getSchoolStatsBySession
+        },
+        {
+            path: '/students/:payId',
+            method: 'get',
+            validations: [schema.schoolStats],
+            handler: controller.getUnpaidStudentsList
+        },
+        {
+            path: '/collection',
+            method: 'get',
+            handler: controller.getTodaysCollection
         }
     ];
 };

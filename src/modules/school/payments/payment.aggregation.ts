@@ -189,6 +189,8 @@ export const schoolAggregation = async () => {
     return students;
 };
 export const schoolAggregationBySession = async (payId: string) => {
+
+    
     const students = await StudentModel.aggregate([
         {
             $lookup: {
@@ -276,6 +278,7 @@ export const schoolAggregationBySession = async (payId: string) => {
             $group: {
                 _id: null,
                 schoolTotalStrength: { $sum: '$totalStudents' },
+                totalPaidStudents: { $sum: '$totalPaidStudents' }, // Added line
                 totalRevenueTarget: {
                     $sum: '$totalRevenueTarget'
                 },
@@ -300,6 +303,7 @@ export const schoolAggregationBySession = async (payId: string) => {
             $project: {
                 _id: 0,
                 schoolTotalStrength: 1,
+                totalPaidStudents: 1, // Added line
                 totalRevenueTarget: 1,
                 totalAmountCollected: 1,
                 classes: 1

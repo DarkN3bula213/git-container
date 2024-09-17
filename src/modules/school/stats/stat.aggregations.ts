@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
 import PaymentModel from '../payments/payment.model';
-import { isBefore, startOfMonth, subDays } from 'date-fns';
-
+import { isBefore,  subDays } from 'date-fns';
+import StudentModel from '../students/student.model';
+import { getPayId } from '../payments/payment.utils';
+import { Logger } from '@/lib/logger';
+import { startOfMonth, endOfMonth } from 'date-fns';
 async function getBillingCycleMetrics() {
     const today = new Date();
     const startOfBillingCycle = startOfMonth(today);
@@ -15,6 +18,11 @@ async function getBillingCycleMetrics() {
         : sevenDaysAgo;
     const startDateFor7DaysISO = startDateFor7Days.toISOString();
 
+    // Compute currentPayId based on today's date
+    const currentMonth = ('0' + (today.getMonth() + 1)).slice(-2);
+    const currentYear = today.getFullYear().toString().slice(-2);
+    const currentPayId = currentMonth + currentYear; // e.g., '0924' for September 2024
+    const payId = getPayId();
     // Build the aggregation pipeline
     const pipeline = [
         {
@@ -58,6 +66,10 @@ async function getBillingCycleMetrics() {
                 // Identify if the payment is for a previous billing cycle
                 isArrear: {
                     $lt: ['$payDate', new Date(startOfBillingCycleISO)]
+                },
+                // Identify if the payment is not for the current billing cycle
+                isNonBillCycleDeposit: {
+                    $ne: ['$payId', payId]
                 }
             }
         },
@@ -93,6 +105,20 @@ async function getBillingCycleMetrics() {
                 arrearRevenue: {
                     $sum: {
                         $cond: [{ $eq: ['$isArrear', true] }, '$amount', 0]
+                    }
+                },
+                nonBillCycleDeposits: {
+                    $sum: {
+                        $cond: [{ $eq: ['$isNonBillCycleDeposit', true] }, 1, 0]
+                    }
+                },
+                nonBillCycleRevenue: {
+                    $sum: {
+                        $cond: [
+                            { $eq: ['$isNonBillCycleDeposit', true] },
+                            '$amount',
+                            0
+                        ]
                     }
                 },
                 studentsPaid: { $addToSet: '$studentId' },
@@ -140,6 +166,8 @@ async function getBillingCycleMetrics() {
                 totalPaymentsPast7Days: 1,
                 totalRevenuePast7Days: 1,
                 arrearRevenue: 1,
+                nonBillCycleDeposits: 1,
+                nonBillCycleRevenue: 1,
                 studentsPaidCount: { $size: '$studentsPaid' },
                 collectionTarget: {
                     $arrayElemAt: ['$studentMetrics.totalTuitionFees', 0]
@@ -220,6 +248,8 @@ async function getBillingCycleMetrics() {
                         totalPaymentsPast7Days: '$totalPaymentsPast7Days',
                         totalRevenuePast7Days: '$totalRevenuePast7Days',
                         arrearRevenue: '$arrearRevenue',
+                        nonBillCycleDeposits: '$nonBillCycleDeposits', // Include this
+                        nonBillCycleRevenue: '$nonBillCycleRevenue', // Include this
                         studentsPaidCount: '$studentsPaidCount',
                         totalStudents: '$totalStudents',
                         collectionTarget: '$collectionTarget',
@@ -239,6 +269,7 @@ async function getBillingCycleMetrics() {
                 }
             }
         },
+
         {
             // Stage 13: Project final result
             $project: {
@@ -255,12 +286,219 @@ async function getBillingCycleMetrics() {
     // Return the metrics
     return result.length > 0 ? result[0] : {};
 }
+ 
+ 
 
-// Example usage
-getBillingCycleMetrics()
-    .then((metrics) => {
-        console.log('Billing Cycle Metrics:', JSON.stringify(metrics, null, 2));
-    })
-    .catch((error) => {
-        console.error('Error fetching billing cycle metrics:', error);
-    });
+
+export const schoolAggregationBySession = async (payId: string) => {
+    // Extract the month and year from payId (format MMYY)
+    const month = parseInt(payId.substring(0, 2), 10); // MM (month)
+    const year = parseInt(`20${payId.substring(2, 4)}`, 10); // YY (year)
+
+    // Calculate the start and end of the billing month using date-fns
+    const startOfBillingCycle = startOfMonth(new Date(year, month - 1));
+    const endOfBillingCycle = endOfMonth(new Date(year, month - 1));
+
+    const students = await StudentModel.aggregate([
+        {
+            $lookup: {
+                from: 'classes',
+                localField: 'className',
+                foreignField: 'className',
+                as: 'classInfo'
+            }
+        },
+        { $unwind: '$classInfo' },
+        {
+            $lookup: {
+                from: 'payments',
+                localField: '_id',
+                foreignField: 'studentId',
+                as: 'paymentInfo'
+            }
+        },
+        {
+            $addFields: {
+                // Only consider payments created within the billing cycle, ensure it's not null
+                paymentsWithinBillingCycle: {
+                    $ifNull: [
+                        {
+                            $filter: {
+                                input: '$paymentInfo',
+                                as: 'payment',
+                                cond: {
+                                    $and: [
+                                        {
+                                            $gte: [
+                                                '$$payment.createdAt',
+                                                startOfBillingCycle
+                                            ]
+                                        },
+                                        {
+                                            $lte: [
+                                                '$$payment.createdAt',
+                                                endOfBillingCycle
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        []
+                    ]
+                },
+                // Payments for previous billing cycles (arrears), ensure it's not null
+                arrearPayments: {
+                    $ifNull: [
+                        {
+                            $filter: {
+                                input: '$paymentInfo',
+                                as: 'payment',
+                                cond: { $lt: ['$$payment.payId', payId] } // Lexicographic comparison for arrears
+                            }
+                        },
+                        []
+                    ]
+                },
+                // Payments for the current billing cycle, ensure it's not null
+                currentCyclePayments: {
+                    $ifNull: [
+                        {
+                            $filter: {
+                                input: '$paymentInfo',
+                                as: 'payment',
+                                cond: { $eq: ['$$payment.payId', payId] }
+                            }
+                        },
+                        []
+                    ]
+                },
+                // Payments for future billing cycles (advance), ensure it's not null
+                advancePayments: {
+                    $ifNull: [
+                        {
+                            $filter: {
+                                input: '$paymentInfo',
+                                as: 'payment',
+                                cond: { $gt: ['$$payment.payId', payId] } // Lexicographic comparison for future payments
+                            }
+                        },
+                        []
+                    ]
+                }
+            }
+        },
+        {
+            $addFields: {
+                // Determine if the student paid in the current billing cycle
+                paid: {
+                    $anyElementTrue: {
+                        $map: {
+                            input: '$currentCyclePayments',
+                            as: 'payment',
+                            in: { $eq: ['$$payment.payId', payId] }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    className: '$className',
+                    section: '$section'
+                },
+                students: { $sum: 1 },
+                paidStudents: {
+                    $sum: { $cond: ['$paid', 1, 0] }
+                },
+                fee: { $first: '$classInfo.fee' },
+                arrearCount: { $sum: { $size: '$arrearPayments' } },
+                advanceCount: { $sum: { $size: '$advancePayments' } }
+            }
+        },
+        {
+            $sort: { '_id.section': 1 }
+        },
+        {
+            $group: {
+                _id: '$_id.className',
+                sections: {
+                    $push: {
+                        section: '$_id.section',
+                        students: '$students',
+                        paidStudents: '$paidStudents',
+                        revenueTarget: {
+                            $multiply: ['$students', '$fee']
+                        },
+                        amountCollected: {
+                            $multiply: ['$paidStudents', '$fee']
+                        },
+                        arrearPayments: '$arrearCount',
+                        advancePayments: '$advanceCount'
+                    }
+                },
+                classFee: { $first: '$fee' },
+                totalStudents: { $sum: '$students' },
+                totalPaidStudents: { $sum: '$paidStudents' },
+                totalRevenueTarget: {
+                    $sum: {
+                        $multiply: ['$students', '$fee']
+                    }
+                },
+                totalAmountCollected: {
+                    $sum: {
+                        $multiply: ['$paidStudents', '$fee']
+                    }
+                },
+                totalArrears: { $sum: '$arrearCount' },
+                totalAdvances: { $sum: '$advanceCount' }
+            }
+        },
+        {
+            $sort: { _id: 1 }
+        },
+        {
+            $group: {
+                _id: null,
+                schoolTotalStrength: { $sum: '$totalStudents' },
+                totalPaidStudents: { $sum: '$totalPaidStudents' },
+                totalRevenueTarget: {
+                    $sum: '$totalRevenueTarget'
+                },
+                totalAmountCollected: {
+                    $sum: '$totalAmountCollected'
+                },
+                totalArrears: { $sum: '$totalArrears' },
+                totalAdvances: { $sum: '$totalAdvances' },
+                classes: {
+                    $push: {
+                        class: '$_id',
+                        classFee: '$classFee',
+                        classRevenueTarget: '$totalRevenueTarget',
+                        students_strength: '$totalStudents',
+                        paidStudents: '$totalPaidStudents',
+                        amountGen: '$totalAmountCollected',
+                        arrearPayments: '$totalArrears',
+                        advancePayments: '$totalAdvances',
+                        sections: '$sections'
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                schoolTotalStrength: 1,
+                totalPaidStudents: 1,
+                totalRevenueTarget: 1,
+                totalAmountCollected: 1,
+                totalArrears: 1,
+                totalAdvances: 1,
+                classes: 1
+            }
+        }
+    ]).exec();
+
+    return students;
+}; 

@@ -54,7 +54,7 @@ const getRouteMap = (): RouteMap[] => {
                 invalidate([
                     getDynamicKey(DynamicKey.FEE, '*'),
                     getDynamicKey(DynamicKey.STUDENTS, '*')
-                ])
+                ]),
             ],
             handler: controller.commitTransaction
         },
@@ -72,7 +72,7 @@ const getRouteMap = (): RouteMap[] => {
         },
         {
             path: '/student/:studentId',
-            method: 'get',
+            method: 'get', 
             handler: controller.getPaymentsByStudentId
         },
         {

@@ -2,14 +2,15 @@ import cron from 'node-cron';
 import { Logger } from '@/lib/logger';
 import { sendPaymentSummaryEmail } from '../mail/mailTrap';
 const logger = new Logger(__filename);
-export const setupCronJobs = () => {
-    // Schedule the daily payment report at 11:59 PM
+
+// Function to send the payment summary email
+export const setupPaymentSummaryJob = () => {
     cron.schedule(
-        '59 23 * * *',
+        '59 23 * * *', // Daily at 11:59 PM
         async () => {
             logger.info('Sending daily payment report...');
             try {
-                const date = new Date(); // This will capture the current date
+                const date = new Date();
                 await sendPaymentSummaryEmail('a.ateeb@proton.me', date);
                 logger.info('Daily payment report sent successfully.');
             } catch (error) {
@@ -17,10 +18,7 @@ export const setupCronJobs = () => {
             }
         },
         {
-            timezone: 'Asia/Karachi' // Adjust this to your local timezone
+            timezone: 'Asia/Karachi',
         }
     );
-
-    // Schedule the monthly payment report at 11:59 PM on the last day of the month
-    logger.info('Setting up monthly payment report cron job...');
 };

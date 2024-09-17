@@ -9,13 +9,15 @@ import { generateQRCode } from '@/lib/utils/utils';
 import { Logger } from '@/lib/logger';
 import { ClientSession, startSession } from 'mongoose';
 import { withTransaction } from '@/data/database/db.utils';
+import { Key } from '@/data/cache/keys';
+import { cache } from '@/data/cache/cache.service';
 const logger = new Logger(__filename);
 
 class PaymentService {
     async getNextInvoiceId(): Promise<string> {
         return await generateSerial();
     }
-
+    /*===============( GENERATE INVOICE _ )==============================*/
     async generateInvoice(paymentId: string, studentId: string) {
         const payment = await Payments.findById(paymentId);
         if (!payment) throw new BadRequestError('Payment not found');
@@ -52,7 +54,7 @@ class PaymentService {
         }
     }
 
-    /*=============================================*/
+    /*===============( OFF CYCLE CREATE PAYMENT )==============================*/
     async createOffBillCyclePayment(
         studentId: string,
         payId: string,
@@ -92,11 +94,13 @@ class PaymentService {
                 },
                 { session }
             );
+            const key = Key.DAILYTOTAL;
+            await cache.incrBy(key, student.tuition_fee);
 
             return paymentDocument;
         });
     }
-
+    /*===============( CREATE REGULAR PAYMENT )==============================*/
     async createPayment(studentId: string, userId: string) {
         return await withTransaction(async (session) => {
             const student =
@@ -131,10 +135,14 @@ class PaymentService {
                 },
                 { session }
             );
+
+            const key = Key.DAILYTOTAL;
+            await cache.incrBy(key, student.tuition_fee);
+
             return paymentDocument;
         });
     }
-
+    /*===============( CREATE MULTIPLE REGULAR PAYMENTS )==============================*/
     async commitMultiInsert(studentIds: string[], userId: string) {
         if (!Array.isArray(studentIds) || studentIds.length === 0) {
             throw new BadRequestError('studentIds should be a non-empty array');
@@ -199,6 +207,20 @@ class PaymentService {
             );
 
             await session.commitTransaction();
+
+            // Calculate total amount for this transaction
+            const totalAmount = payments.reduce(
+                (sum, payment) => sum + payment.amount,
+                0
+            );
+
+            // Update the money flow in Redis
+            const key = Key.DAILYTOTAL;
+            await cache.incrBy(key, totalAmount);
+            logger.debug(
+                `Calculated total amount for this transaction: ${totalAmount}`
+            );
+
             return paymentDocs;
         } catch (error) {
             await session.abortTransaction();
@@ -208,6 +230,7 @@ class PaymentService {
         }
     }
 
+    /*===============( DELETE SINGLE PAYMENT )==============================*/
     async deletePayment(paymentId: string) {
         const session: ClientSession = await startSession();
         session.startTransaction();
@@ -235,6 +258,10 @@ class PaymentService {
             );
 
             await session.commitTransaction();
+
+            // Update the money flow in Redis
+            const key = Key.DAILYTOTAL;
+            await cache.decrBy(key, payment.amount);
             return { message: 'Payment deleted successfully' };
         } catch (error) {
             await session.abortTransaction();
@@ -244,6 +271,7 @@ class PaymentService {
         }
     }
 
+    /*===============( DELETE MULTIPLE PAYMENTS )==============================*/
     async deleteMultiplePayments(studentIds: string[]) {
         const session: ClientSession = await startSession();
         session.startTransaction();
@@ -284,7 +312,19 @@ class PaymentService {
                 { session }
             );
 
+
+
             await session.commitTransaction();
+
+            // Update the money flow in Redis
+            const key = Key.DAILYTOTAL;
+            const totalAmount = payments.reduce(
+                (sum, payment) => sum + payment.amount,
+                0
+            );
+            await cache.decrBy(key, totalAmount);
+            logger.debug(
+                `Calculated total amount for this transaction: ${totalAmount}`  );
             return { message: 'Payments deleted successfully' };
         } catch (error) {
             await session.abortTransaction();

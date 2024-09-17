@@ -37,7 +37,21 @@ class SocketService {
             this.io.emit(eventName, message);
         }
     }
-
+    public emitToSocket(
+        socketId: string,
+        eventName: string,
+        message: any
+    ): void {
+        const socket = this.io.sockets.sockets.get(socketId);
+        if (socket) {
+            socket.emit(eventName, message);
+        } else {
+            logger.warn(`Socket ${socketId} not found`);
+        }
+    }
+    public broadcast(eventName: string, message: any): void {
+        this.io.emit(eventName, message);
+    }
     private registerEvents(): void {
         this.io.on('connection', async (socket: Socket) => {
             try {
