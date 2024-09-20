@@ -1,13 +1,14 @@
 import { Router } from 'express';
+
 import classes from '../modules/school/classes/class.routes';
+import events from '../modules/school/events/event.routes';
+import expenses from '../modules/school/expenses/expense.routes';
+import issues from '../modules/school/issues/issue.routes';
+import custom from '../modules/school/payments/custom.router';
+import payments from '../modules/school/payments/payment.routes';
+import stats from '../modules/school/stats/stat.routes';
 import students from '../modules/school/students/student.routes';
 import teacher from '../modules/school/teachers/teacher.routes';
-import issues from '../modules/school/issues/issue.routes';
-import events from '../modules/school/events/event.routes';
-import payments from '../modules/school/payments/payment.routes';
-import custom from '../modules/school/payments/custom.router';
-import expenses from '../modules/school/expenses/expense.routes';
-import stats from '../modules/school/stats/stat.routes';
 
 const router = Router();
 

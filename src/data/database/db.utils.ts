@@ -1,27 +1,28 @@
 import { Logger } from '@/lib/logger';
+
 import mongoose, { type ClientSession } from 'mongoose';
 
 type TransactionCallback<T> = (session: ClientSession) => Promise<T>;
 const logger = new Logger(__filename);
 
 export async function withTransaction<T>(
-    callback: TransactionCallback<T>
+	callback: TransactionCallback<T>
 ): Promise<T> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
+	const session = await mongoose.startSession();
+	session.startTransaction();
 
-    try {
-        const result = await callback(session);
-        logger.info('Transaction Success');
+	try {
+		const result = await callback(session);
+		logger.info('Transaction Success');
 
-        await session.commitTransaction();
-        return result;
-    } catch (error) {
-        await session.abortTransaction();
-        throw error;
-    } finally {
-        session.endSession();
-    }
+		await session.commitTransaction();
+		return result;
+	} catch (error) {
+		await session.abortTransaction();
+		throw error;
+	} finally {
+		session.endSession();
+	}
 }
 
 /**

@@ -1,9 +1,11 @@
+import path, { resolve } from 'node:path';
+
+import { config } from '../config';
+
 export const signals: ReadonlyArray<NodeJS.Signals> = ['SIGINT', 'SIGTERM'];
 
 export * from './roles';
 
-import path, { resolve } from 'node:path';
-import { config } from '../config';
 const STORAGE_BASE_PATH = 'uploads';
 
 export const documentsPath = path.join(STORAGE_BASE_PATH, 'documents');
@@ -14,13 +16,13 @@ export const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
 export const uploadsDir = resolve(__dirname, '..', '..', '..', 'uploads');
 
 export const redisOptions = {
-    redis: {
-        host: config.isDevelopment
-            ? 'localhost'
-            : process.env.REDIS_HOST || 'redis',
-        port: Number(process.env.REDIS_PORT || 6379),
-        password: undefined
-    }
+	redis: {
+		host: config.isDevelopment
+			? 'localhost'
+			: process.env.REDIS_HOST || 'redis',
+		port: Number(process.env.REDIS_PORT || 6379),
+		password: undefined
+	}
 } as const;
 export const banner = `
 __/\\________/\\__/\\\\\\\\\\\\\\_______/\\\\\\______ 

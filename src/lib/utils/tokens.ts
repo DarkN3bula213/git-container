@@ -1,122 +1,122 @@
-import { sign, verify, SignOptions } from 'jsonwebtoken';
-import dayjs from 'dayjs';
-
-import { Logger as log } from '../logger/logger';
-import { config } from '../config';
 import { User, findUserById } from '@/modules/auth/users/user.model';
-import { get } from 'lodash';
 import { InvoiceProps } from '@/types';
+
+import dayjs from 'dayjs';
+import { SignOptions, sign, verify } from 'jsonwebtoken';
 import { createHmac, randomBytes } from 'node:crypto';
+
+import { config } from '../config';
+import { Logger as log } from '../logger/logger';
 
 const logger = new log(__filename);
 
 interface TokenPayload {
-    user: User;
-    session?: string;
-    isPrime?: boolean;
+	user: User;
+	session?: string;
+	isPrime?: boolean;
 }
 interface TokenVerificationResult {
-    valid: boolean;
-    expired: boolean;
-    decoded: TokenPayload | null;
+	valid: boolean;
+	expired: boolean;
+	decoded: TokenPayload | null;
 }
 export function signToken(
-    payload: TokenPayload,
-    key: 'access' | 'refresh',
-    options?: SignOptions | undefined
+	payload: TokenPayload,
+	key: 'access' | 'refresh',
+	options?: SignOptions | undefined
 ) {
-    const signingKey = config.tokens[key].private;
+	const signingKey = config.tokens[key].private;
 
-    const token = sign(payload, signingKey, {
-        ...(options && options),
-        algorithm: 'RS256'
-    });
+	const token = sign(payload, signingKey, {
+		...(options && options),
+		algorithm: 'RS256'
+	});
 
-    return token;
+	return token;
 }
 
 export function verifyToken(
-    token: string,
-    key: 'access' | 'refresh'
+	token: string,
+	key: 'access' | 'refresh'
 ): TokenVerificationResult {
-    const verifyKey = config.tokens[key].public;
+	const verifyKey = config.tokens[key].public;
 
-    try {
-        const decoded = verify(token, verifyKey);
+	try {
+		const decoded = verify(token, verifyKey);
 
-        if (!decoded) {
-            return {
-                valid: false,
-                expired: false,
-                decoded: null
-            };
-        }
+		if (!decoded) {
+			return {
+				valid: false,
+				expired: false,
+				decoded: null
+			};
+		}
 
-        return {
-            valid: true,
-            expired: false,
-            decoded: decoded as TokenPayload
-        };
-    } catch (e: any) {
-        let expired = false;
-        let errorMessage = 'Invalid token';
+		return {
+			valid: true,
+			expired: false,
+			decoded: decoded as TokenPayload
+		};
+	} catch (e: any) {
+		let expired = false;
+		let errorMessage = 'Invalid token';
 
-        if (e.message === 'jwt expired') {
-            expired = true;
-            const expiredAt = dayjs(e.expiredAt);
-            const now = dayjs();
-            const formattedExpiryTime = expiredAt.format('YYYY-MM-DD HH:mm:ss');
-            const timeAgo = now.diff(expiredAt, 'hour');
-            errorMessage = `Token is expired since ${formattedExpiryTime} (${timeAgo} hours ago)`;
-        }
+		if (e.message === 'jwt expired') {
+			expired = true;
+			const expiredAt = dayjs(e.expiredAt);
+			const now = dayjs();
+			const formattedExpiryTime = expiredAt.format('YYYY-MM-DD HH:mm:ss');
+			const timeAgo = now.diff(expiredAt, 'hour');
+			errorMessage = `Token is expired since ${formattedExpiryTime} (${timeAgo} hours ago)`;
+		}
 
-        logger.error(`errorMessage: ${errorMessage}`);
+		logger.error(`errorMessage: ${errorMessage}`);
 
-        return {
-            valid: false,
-            expired,
-            decoded: null
-        };
-    }
+		return {
+			valid: false,
+			expired,
+			decoded: null
+		};
+	}
 }
 
 export async function reIssueAccessToken({
-    refreshToken
+	refreshToken
 }: {
-    refreshToken: string;
+	refreshToken: string;
 }) {
-    const { decoded, valid, expired } = verifyToken(refreshToken, 'refresh');
+	const { decoded, valid, expired } = verifyToken(refreshToken, 'refresh');
 
-    // Check for validity of the refresh token
-    if (!valid) {
-        return false;
-    }
+	// Check for validity of the refresh token
+	if (!valid) {
+		return false;
+	}
 
-    // Check for expiry of the refresh token
-    if (expired) {
-        logger.debug('Refresh token has expired');
-        return false;
-    }
+	// Check for expiry of the refresh token
+	if (expired) {
+		logger.debug('Refresh token has expired');
+		return false;
+	}
 
-    if (decoded && decoded.user) {
-        const verifiedUser = await findUserById(decoded.user._id);
-        if (!verifiedUser) {
-            return false;
-        }
+	if (decoded && decoded.user) {
+		const verifiedUser = await findUserById(decoded.user._id);
+		if (!verifiedUser) {
+			return false;
+		}
 
-        const accessToken = signToken(
-            { user: verifiedUser },
-            'access',
-            { expiresIn: config.tokens.access.ttl } // Adjust the TTL as necessary
-        );
+		const accessToken = signToken(
+			{ user: verifiedUser },
+			'access',
+			{ expiresIn: config.tokens.access.ttl } // Adjust the TTL as necessary
+		);
 
-        if (config.isDevelopment) {
-            logger.warn({
-                token: `Issues to user ${verifiedUser._id}`
-            });
-        }
-        return accessToken;
-    }
+		if (config.isDevelopment) {
+			logger.warn({
+				token: `Issues to user ${verifiedUser._id}`
+			});
+		}
+		return accessToken;
+	}
 }
 
 /* -----------------------------( Token Generator )-----!>
@@ -125,19 +125,19 @@ export async function reIssueAccessToken({
  */
 
 export function generateInvoiceToken(payload: InvoiceProps) {
-    const signingKey = config.tokens.refresh.private;
-    const token = sign({ ...payload }, signingKey, {
-        algorithm: 'RS256',
-        noTimestamp: true
-    });
-    return token;
+	const signingKey = config.tokens.refresh.private;
+	const token = sign({ ...payload }, signingKey, {
+		algorithm: 'RS256',
+		noTimestamp: true
+	});
+	return token;
 }
 
 /*
  * ----------( Verification Token )->
  */
 const verificationToken = Math.floor(
-    100000 + Math.random() * 900000
+	100000 + Math.random() * 900000
 ).toString();
 
 /*
@@ -145,9 +145,9 @@ const verificationToken = Math.floor(
  */
 
 function generateVerifyEmailToken(): string {
-    const buffer = randomBytes(3); // Generate 3 bytes, which gives a number up to 16777215
-    const token = parseInt(buffer.toString('hex'), 16) % 1000000; // Convert to integer and ensure it's a 6-digit number
-    return token.toString().padStart(6, '0'); // Ensure it's always 6 digits by padding with zeros if necessary
+	const buffer = randomBytes(3); // Generate 3 bytes, which gives a number up to 16777215
+	const token = parseInt(buffer.toString('hex'), 16) % 1000000; // Convert to integer and ensure it's a 6-digit number
+	return token.toString().padStart(6, '0'); // Ensure it's always 6 digits by padding with zeros if necessary
 }
 const tokenExpiryTime = Date.now() + 24 * 60 * 60 * 1000;
 
@@ -156,17 +156,17 @@ const tokenExpiryTime = Date.now() + 24 * 60 * 60 * 1000;
  */
 
 const generateSecureResetToken = (): string => {
-    const token = randomBytes(20).toString('hex');
-    const hmac = createHmac(
-        'sha256',
-        process.env.RESET_TOKEN_SECRET || 'default_secret_key'
-    );
-    return hmac.update(token).digest('hex');
+	const token = randomBytes(20).toString('hex');
+	const hmac = createHmac(
+		'sha256',
+		process.env.RESET_TOKEN_SECRET || 'default_secret_key'
+	);
+	return hmac.update(token).digest('hex');
 };
 
 export const verfication = {
-    token: verificationToken,
-    resetToken: generateSecureResetToken,
-    generateToken: generateVerifyEmailToken,
-    expiry: tokenExpiryTime
+	token: verificationToken,
+	resetToken: generateSecureResetToken,
+	generateToken: generateVerifyEmailToken,
+	expiry: tokenExpiryTime
 };

@@ -1,12 +1,15 @@
-import { Router } from 'express';
-import users from '../modules/auth/users/user.routes';
-import schoolRoutes from '@/routes/school.routes';
-import { health } from './health';
 import { authentication } from '@/middleware/authMiddleware';
+import socketRoues from '@/modules/auth/sessions/session.routes';
 import files from '@/modules/files/file.routes';
 import NotifcationRoutes from '@/modules/notifications/notification.routes';
-import socketRoues from '@/sockets/session.routes';
+import schoolRoutes from '@/routes/school.routes';
+
+import { Router } from 'express';
+
+import users from '../modules/auth/users/user.routes';
 import invoices from '../modules/school/invoices/invoice.routes';
+import { health } from './health';
+
 /* -----------------------------------------------------------------------------------*/
 const router = Router();
 /* -----------------------------------------------------------------------------------*/
