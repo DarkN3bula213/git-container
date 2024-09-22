@@ -1,4 +1,4 @@
-import { JoiObjectId } from '@/lib/handlers/validate';
+import { JoiObjectId, validateReq } from '@/lib/handlers/validate';
 
 import Joi from 'joi';
 
@@ -72,3 +72,23 @@ export const insertMany = Joi.array().items(register);
 export const studentId = Joi.object({
 	studentId: JoiObjectId().required()
 });
+
+
+export const updateProfile = validateReq({
+	params: Joi.object({
+		id: JoiObjectId().required()
+	}),
+	body: Joi.object({
+		name: Joi.string().optional(),
+		father_name: Joi.string().optional(),
+		gender: Joi.string().optional(),
+		cnic: Joi.string().optional().allow(''),
+		dob: Joi.date().optional(),
+		cnic_issued_date: Joi.date().optional(),
+		cnic_expiry_date: Joi.date().optional(),
+		address: Joi.string().optional(),
+
+		phone: Joi.string().optional().min(11).max(11),
+	})
+	
+})

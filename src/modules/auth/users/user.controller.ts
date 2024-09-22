@@ -4,16 +4,14 @@ import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger/logger';
 import { signToken } from '@/lib/utils/tokens';
-import {
-	fetchRoleCodes,
-	fetchUserPermissions,
-	isAdminRolePresent,
-	normalizeRoles
-} from '@/lib/utils/utils';
+import { fetchRoleCodes, fetchUserPermissions, isAdminRolePresent, normalizeRoles } from '@/lib/utils/utils';
 import { sendVerifyEmail } from '@/services/mail/mailTrap';
+
+
 
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
+
 
 const logger = new Logger(__filename);
 // import session from 'express-session';
@@ -115,14 +113,14 @@ export const createTempUser = asyncHandler(async (req, res) => {
 
 /*<!-- 1. Update  ---------------------------( updateUser )-> */
 export const updateUser = asyncHandler(async (req, res) => {
-	const user = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
-		new: true
-	});
-	if (!user) res.status(400).json({ success: false });
-	res.status(200).json({
-		success: true,
-		data: user
-	});
+	const userId = req.params.id;  
+	const user = req.user as User;
+	if (userId  !== user._id.toString()) {
+		return new BadRequestError('You are not authorized to update this user');
+	}
+	const updateData = req.body;  
+	const updatedUser =  await service.updateUser(userId, updateData);
+	return new SuccessResponse('User updated successfully', updatedUser).send(res);
 });
 /*<!-- 2. Update  ---------------------------( Change Password )-> */
 export const changePassword = asyncHandler(async (req, res) => {

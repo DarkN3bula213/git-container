@@ -40,12 +40,12 @@ const manageUserConnection = async (
 	}
 
 	// Broadcast updated user list to others
-	broadcastUserList(socket, connectedUsers);
+	// broadcastUserList(socket, connectedUsers);
 
 	// Fetch and emit conversations to the connected user
 	try {
-		const conversations = await getAllConversationsForUser(userId);
-		socket.emit('conversationsLoaded', conversations);
+		// const conversations = await getAllConversationsForUser(userId);
+		// socket.emit('conversationsLoaded', conversations);
 		logger.info(`Sent conversations to user ${username}`);
 	} catch (error: any) {
 		logger.error(

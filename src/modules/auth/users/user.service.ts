@@ -123,6 +123,27 @@ class UserService {
 			};
 		});
 	}
+	// Partial update
+	async updateUser(userID: string, userDetails: Partial<User>) {
+		return withTransaction(async (session) => {
+			const user = await this.user
+				.findById(userID)
+				.session(session)
+				.lean()
+				.exec();
+				if (!user) {
+					throw new BadRequestError('User not found');
+				}
+				const updatedUser = await this.user
+					.findByIdAndUpdate(userID, userDetails, {
+						new: true,
+						session
+					})
+					.lean()
+					.exec();
+					return updatedUser;
+				});
+			}
 }
 
-export const service = UserService.getInstance();
+export const service = UserService.getInstance() as UserService
