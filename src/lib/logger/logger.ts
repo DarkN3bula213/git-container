@@ -18,12 +18,12 @@ colors.setTheme({
 	infoMessage: 'green',
 	warnMessage: 'teal',
 	errorMessage: 'magenta',
-	debugMessage: 'magenta'
+	debugMessage: 'blue'
 });
 
 const levelColors: levelColorMap = {
 	info: 'yellow',
-	warn: 'yellow',
+	warn: 'cyan',
 	error: 'red',
 	debug: 'blue'
 };

@@ -53,13 +53,69 @@ export const handleDisconnect = async (
 
 	// Handle users if connected
 
-	if (connectedUsers && connectedUsers.has(userId)) {
+	/*=============================================
+	=            Section comment block            =
+	=============================================*/
+
+	const sessionId = socket.data.sessionId as string;
+	const username = socket.data.username as string;
+
+	logger.info(
+		`Handling disconnect for user ${username} (sessionId: ${sessionId})`
+	);
+	const matchingSockets = await io.in(userId).fetchSockets();
+	const isDisconnected = matchingSockets.length === 0;
+
+	console.log(`Status disconnected: ${isDisconnected}`);
+
+	if (isDisconnected) {
+		// User is fully disconnected
 		connectedUsers.delete(userId);
+		logger.info(`User ${userId} disconnected completely`);
+
+		// Notify other users
+		socket.broadcast.emit('user disconnected', userId);
+	} else {
+		logger.info(
+			`User ${userId} still connected with ${matchingSockets.length} socket(s)`
+		);
+	}
+	if (connectedUsers.has(sessionId)) {
+		connectedUsers.delete(sessionId);
+		logger.info(
+			`User ${username} disconnected and removed from connectedUsers`
+		);
+
+		// Log the total number of connected users
+		logger.info(
+			`Total connected users after disconnect: ${connectedUsers.size}`
+		);
+
+		// Broadcast updated user list
+		const onlineUsers = Array.from(connectedUsers.values());
+		socket.broadcast.emit('userListUpdated', onlineUsers);
+		logger.debug('Broadcasted updated user list after disconnect', {
+			onlineUsers
+		});
+
+		// Emit a system message if needed
+		io.emit('systemMessage', {
+			message: `User ${username} disconnected`,
+			timestamp: new Date().toISOString()
+		});
+	} else {
+		logger.info(
+			`User ${username} disconnected but was not found in connectedUsers`
+		);
+	}
+	/*=====  End of Section comment block  ======*/
+
+	if (connectedUsers && connectedUsers.has(userId)) {
 		io.emit('systemMessage', {
 			message: `User ${socket.data.username} disconnected`,
 			timestamp: new Date().toISOString()
 		});
-
+		connectedUsers.delete(userId);
 		const updatedUsers = Array.from(connectedUsers.values());
 		socket.broadcast.emit('userListUpdated', updatedUsers);
 		socket.disconnect();

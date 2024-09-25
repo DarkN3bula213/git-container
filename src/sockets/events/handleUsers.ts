@@ -6,7 +6,7 @@ import { Socket } from 'socket.io';
 // Assuming logger is set up
 const logger = new Logger(__filename);
 // Handle user connection and prevent duplicate sessions
-const manageUserConnection = async (
+export const manageUserConnection = async (
 	socket: Socket,
 	connectedUsers: Map<
 		string,
@@ -15,44 +15,42 @@ const manageUserConnection = async (
 ) => {
 	const userId = socket.data.userId as string;
 	const user = socket.data.user;
-	const username = user.username as string;
 
-	// If user already exists, update their socketId
+	logger.warn('User Manager Invoked');
+
+	if (!userId || !user) {
+		logger.error('User not authenticated, cannot manage connection.');
+		return;
+	}
+
 	if (connectedUsers.has(userId)) {
+		// User is reconnecting
 		const existingUser = connectedUsers.get(userId);
-		if (existingUser) {
+		if (existingUser && existingUser.socketId !== socket.id) {
+			// Update the socketId if it has changed
 			existingUser.socketId = socket.id;
 			connectedUsers.set(userId, existingUser);
 			logger.info(
-				`Updated socketId for user ${username} to ${socket.id}`
+				`User ${existingUser.username} reconnected with socketId ${socket.id}`
 			);
 		}
 	} else {
-		// Add a new user connection
+		// New user connection
 		connectedUsers.set(userId, {
-			userId,
-			username,
+			userId: userId,
+			username: user.username,
 			socketId: socket.id
 		});
 		logger.info(
-			`New user ${username} connected with socketId ${socket.id}`
+			`New user ${user.username} connected with socketId ${socket.id}`
 		);
 	}
 
-	// Broadcast updated user list to others
-	// broadcastUserList(socket, connectedUsers);
-
-	// Fetch and emit conversations to the connected user
-	try {
-		// const conversations = await getAllConversationsForUser(userId);
-		// socket.emit('conversationsLoaded', conversations);
-		logger.info(`Sent conversations to user ${username}`);
-	} catch (error: any) {
-		logger.error(
-			`Error sending conversations to user ${username}: ${error.message}`
-		);
-		socket.emit('error', { message: 'Failed to load conversations' });
-	}
+	// Only broadcast user list update if the users list has actually changed
+	socket.broadcast.emit(
+		'userListUpdated',
+		Array.from(connectedUsers.values())
+	);
 };
 
 // Broadcast updated user list to all other sockets

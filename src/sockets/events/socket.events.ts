@@ -7,7 +7,7 @@ import cookie from 'cookie';
 import { Socket } from 'socket.io';
 
 import { saveSessionQueue } from '../../modules/auth/sessions/session.processor';
-import { Message, messageSingleton } from './messgageStore';
+import { Message, messageSingleton } from '../store/messgageStore';
 
 const logger = new Logger(__filename);
 // Utility functions to handle token verification, Redis, etc.
@@ -34,6 +34,8 @@ const authenticateUser = (
 
 	const user = verificationResult.decoded?.user;
 	const userID = user?._id;
+	console.log(user);
+
 	getOrSetStartTime(userID, socket);
 	return { user, userID };
 };
@@ -44,7 +46,7 @@ const getOrSetStartTime = async (userID: string, socket: Socket) => {
 
 	if (startTime) {
 		socket.data.startTime = new Date(startTime);
-		logger.debug(`Found start time for user ${socket.data.user.name}`);
+		logger.debug(`Found start time for user ${socket.data.user}`);
 	} else {
 		const newStartTime = new Date();
 		socket.data.startTime = newStartTime;
@@ -129,7 +131,7 @@ const manageUserConnection = (
 	}
 
 	const users = Array.from(connectedUsers.values());
-	socket.broadcast.emit('userListUpdated', users);
+	// socket.broadcast.emit('userListUpdated', users);
 	return username;
 };
 

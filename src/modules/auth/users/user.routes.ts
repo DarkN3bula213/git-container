@@ -10,7 +10,7 @@ import { Router } from 'express';
 import * as verfication from '../verification';
 import verify from '../verification/verification.schema';
 import * as controller from './user.controller';
-import schema, { register,updateProfile } from './user.schema';
+import schema, { register, updateProfile } from './user.schema';
 
 const router = Router();
 

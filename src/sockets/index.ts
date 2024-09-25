@@ -2,11 +2,18 @@ import { cache } from '@/data/cache/cache.service';
 import { config } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
 import { Logger } from '@/lib/logger';
+import { removeSaveSessionJob } from '@/modules/auth/sessions/session.processor';
+import { getAllConversationsForUser } from '@/modules/conversations/conversation.utils';
 
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
 
 import { handleConnect, handleDisconnect } from './events';
+import {
+	handleAuth,
+	handleMessages,
+	handleUsers
+} from './events/handleAuthentication';
 
 const logger = new Logger(__filename);
 
@@ -19,15 +26,17 @@ class SocketService {
 		{ userId: string; username: string; socketId: string }
 	>();
 	private static instance: SocketService;
-	sessionMiddleware = cache.cachedSession(config.tokens.jwtSecret);
 
 	constructor(httpServer: HttpServer) {
 		this.io = new SocketIOServer(httpServer, {
+			serveClient: false,
+			pingInterval: 10000,
+			pingTimeout: 5000,
 			cors: corsOptions
 		});
 		socketParser = this.io;
 
-		this.io.engine.use(this.sessionMiddleware);
+		this.io.engine.use(cache.cachedSession(config.tokens.jwtSecret));
 
 		this.registerEvents();
 	}
@@ -63,24 +72,65 @@ class SocketService {
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {
 			try {
-				// No need for socket.on('connect', ...), the connection is already established
-
 				// Handle the connection logic immediately
-				await handleConnect(socket, this.connectedUsers);
 
-				socket.onAny((event, ...args) => {
-					logger.warn({
-						event: event,
-						arguments: JSON.stringify(args, null, 2)
+				const authResult = await handleAuth(socket);
+				if (!authResult) return;
+				await removeSaveSessionJob(socket.data.userId);
+				await handleUsers(socket, this.connectedUsers);
+
+				/*=============================================
+				=            Section comment block            =
+				=============================================*/
+				// Join the user room
+				const userId = socket.data.userId as string;
+				socket.join(userId);
+				logger.info(`Socket ${socket.id} joined room ${userId}`);
+
+				// Emit the initial data to the client
+				const onlineUsers = Array.from(
+					this.connectedUsers.values()
+				).map((user) => ({
+					userId: user.userId,
+					username: user.username
+				}));
+				const conversations = await getAllConversationsForUser(userId);
+
+				socket.on('joinConversation', async () => {
+					socket.emit('init', {
+						currentUser: {
+							userId,
+							username: socket.data.username,
+							socketId: socket.id
+						},
+						onlineUsers,
+						conversations
 					});
 				});
 
-				socket.onAnyOutgoing((event, ...args) => {
-					logger.debug({
-						outgoing: `Outgoing ${event}`,
-						arguments: JSON.stringify(args, null, 2)
-					});
-				});
+				socket.broadcast.emit(
+					'userListUpdated',
+					Array.from(onlineUsers.values())
+				);
+
+				/*=====  End of Section comment block  ======*/
+
+				await handleMessages(socket, this.io);
+				/*=====  End of Section comment block  ======*/
+
+				// socket.onAny((event, ...args) => {
+				// 	logger.warn({
+				// 		event: event,
+				// 		arguments: JSON.stringify(args, null, 2)
+				// 	});
+				// });
+
+				// socket.onAnyOutgoing((event, ...args) => {
+				// 	logger.debug({
+				// 		outgoing: `Outgoing ${event}`,
+				// 		arguments: JSON.stringify(args, null, 2)
+				// 	});
+				// });
 
 				socket.on('disconnect', async () => {
 					try {

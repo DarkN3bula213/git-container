@@ -73,7 +73,6 @@ export const studentId = Joi.object({
 	studentId: JoiObjectId().required()
 });
 
-
 export const updateProfile = validateReq({
 	params: Joi.object({
 		id: JoiObjectId().required()
@@ -88,7 +87,6 @@ export const updateProfile = validateReq({
 		cnic_expiry_date: Joi.date().optional(),
 		address: Joi.string().optional(),
 
-		phone: Joi.string().optional().min(11).max(11),
+		phone: Joi.string().optional().min(11).max(11)
 	})
-	
-})
+});

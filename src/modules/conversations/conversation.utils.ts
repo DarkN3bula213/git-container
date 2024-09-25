@@ -1,11 +1,9 @@
 import { cache } from '@/data/cache/cache.service';
+
 import { Types } from 'mongoose';
 import mongoose from 'mongoose';
 
-
 import ConversationModel, { MessageModel } from './conversation.model';
-
-
 
 export const getOrCreateConversation = async (
 	userId: string,
@@ -31,6 +29,13 @@ interface PopulatedChatUser {
 	_id: mongoose.Types.ObjectId; // This is the raw ObjectId from the database
 	username: string;
 	socketId?: string;
+	name: string;
+	email: string;
+	dob: Date;
+	phone: string;
+	address: string;
+	isVerified: boolean;
+	lastLogin: Date;
 }
 export const getAllConversationsForUser = async (userId: string) => {
 	// Find conversations and populate participants and lastMessage
@@ -39,7 +44,7 @@ export const getAllConversationsForUser = async (userId: string) => {
 	})
 		.populate<{ participants: PopulatedChatUser[] }>({
 			path: 'participants',
-			select: '_id username socketId'
+			select: '_id username name email dob phone address isVerified lastLogin'
 		})
 		.populate<{
 			lastMessage: {
@@ -55,7 +60,6 @@ export const getAllConversationsForUser = async (userId: string) => {
 		.exec();
 
 	// console.log(conversations);
-
 	// Transform the participants and lastMessage fields for frontend consumption
 	const transformedConversations = conversations.map((conversation) => ({
 		...conversation.toObject(),
@@ -63,15 +67,24 @@ export const getAllConversationsForUser = async (userId: string) => {
 		participants: conversation.participants.map((participant) => ({
 			userId: participant._id.toString(),
 			username: participant.username,
-			socketId: participant.socketId
+			socketId: participant.socketId,
+			name: participant.name,
+			email: participant.email,
+			dob: participant.dob,
+			phone: participant.phone,
+			address: participant.address,
+			isVerified: participant.isVerified,
+			lastLogin: participant.lastLogin
 		})),
-		messages: conversation.messages.map((message) => ({
-			conversationId: conversation._id.toString(),
-			sender: message.sender,
-			message: message.content, // Ensure we use 'content' here
-			timestamp: message.timestamp,
-			messageId: message._id
-		})),
+		messages: conversation.messages
+			.map((message) => ({
+				conversationId: conversation._id.toString(),
+				sender: message.sender,
+				message: message.content, // Ensure we use 'content' here
+				timestamp: message.timestamp,
+				messageId: message._id
+			}))
+			.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()), // Sort messages chronologically
 		lastMessage: conversation.lastMessage
 			? {
 					messageId: conversation.lastMessage._id.toString(),
@@ -81,7 +94,7 @@ export const getAllConversationsForUser = async (userId: string) => {
 				}
 			: null
 	}));
-	console.log(transformedConversations);
+
 	return transformedConversations;
 };
 export const saveMessageInConversation = async ({
@@ -137,9 +150,6 @@ export const getMessagesForConversation = async (conversationId: string) => {
 		return messages;
 	});
 };
-
- 
- 
 
 export const generateConversationKey = (
 	userId1: string,

@@ -1,17 +1,25 @@
 import { BadRequestError, SuccessResponse } from '@/lib/api';
+
+/** -----------------------------( Authentication )->
+ *
+ ** -----------------------------( login )->
+ */
+import { config } from '@/lib/config';
 import { accessCookie, logoutCookie } from '@/lib/config/cookies';
 import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger/logger';
 import { signToken } from '@/lib/utils/tokens';
-import { fetchRoleCodes, fetchUserPermissions, isAdminRolePresent, normalizeRoles } from '@/lib/utils/utils';
+import {
+	fetchRoleCodes,
+	fetchUserPermissions,
+	isAdminRolePresent,
+	normalizeRoles
+} from '@/lib/utils/utils';
 import { sendVerifyEmail } from '@/services/mail/mailTrap';
-
-
 
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
-
 
 const logger = new Logger(__filename);
 // import session from 'express-session';
@@ -19,6 +27,10 @@ const logger = new Logger(__filename);
 declare module 'express-session' {
 	interface SessionData {
 		userId?: string;
+		username?: string;
+		email?: string;
+		roles?: string[];
+		lastLogin?: Date;
 	}
 }
 /*<!-- 1. Read  ---------------------------( getUsers )-> */
@@ -113,14 +125,18 @@ export const createTempUser = asyncHandler(async (req, res) => {
 
 /*<!-- 1. Update  ---------------------------( updateUser )-> */
 export const updateUser = asyncHandler(async (req, res) => {
-	const userId = req.params.id;  
+	const userId = req.params.id;
 	const user = req.user as User;
-	if (userId  !== user._id.toString()) {
-		return new BadRequestError('You are not authorized to update this user');
+	if (userId !== user._id.toString()) {
+		return new BadRequestError(
+			'You are not authorized to update this user'
+		);
 	}
-	const updateData = req.body;  
-	const updatedUser =  await service.updateUser(userId, updateData);
-	return new SuccessResponse('User updated successfully', updatedUser).send(res);
+	const updateData = req.body;
+	const updatedUser = await service.updateUser(userId, updateData);
+	return new SuccessResponse('User updated successfully', updatedUser).send(
+		res
+	);
 });
 /*<!-- 2. Update  ---------------------------( Change Password )-> */
 export const changePassword = asyncHandler(async (req, res) => {
@@ -163,47 +179,46 @@ export const deleteUser = asyncHandler(async (req, res) => {
 	});
 });
 
-/** -----------------------------( Authentication )->
- *
- ** -----------------------------( login )->
- */
-
+// Login Controller
 export const login = asyncHandler(async (req, res) => {
-	const user = await UserModel.login(req.body.email, req.body.password);
+	const { email, password } = req.body;
+	const user = await UserModel.login(email, password);
+
 	if (!user) {
 		throw new BadRequestError('Invalid credentials');
 	}
 
-	req.session.userId = user._id;
-	const verified = user.toObject();
-	verified.password = undefined;
+	const verifiedUser = user.toObject();
+	verifiedUser.password = undefined;
+
 	const payload = {
 		user: {
-			...verified,
-			isPremium: verified.isPrime || false
+			...verifiedUser,
+			isPremium: verifiedUser.isPrime || false
 		}
 	};
 
-	const access = signToken(payload, 'access', {
-		expiresIn: '120m'
-	});
-	req.session.cookie.expires = new Date(Date.now() + 120 * 60 * 1000);
+	const access = signToken(payload, 'access', { expiresIn: '120m' });
 
+	// Store user data in session
+	req.session.userId = user._id;
+	req.session.username = user.username;
+
+	// Optional: Update last login
 	user.lastLogin = new Date();
 	await user.save();
+
+	// Send back JWT as an additional security layer if needed
 	res.cookie('access', access, accessCookie);
-	// const startTime = await startUserSession(user._id);
+
 	const role = normalizeRoles(user.roles);
-
 	const isAdmin = await isAdminRolePresent(role);
-
 	const roleCodes = (await fetchUserPermissions(role)) as string[];
 
 	return new SuccessResponse('Login successful', {
-		user: verified,
+		user: verifiedUser,
 		isAdmin,
-		permissions: [...roleCodes]
-		// startTime: startTime,
+		permissions: roleCodes
 	}).send(res);
 });
 
@@ -215,18 +230,12 @@ export const login = asyncHandler(async (req, res) => {
 export const logout = asyncHandler(async (req, res) => {
 	res.clearCookie('access');
 	res.cookie('access', '', logoutCookie);
-	// const user = req.user as User;
-	// const userID = user?._id;
-	// const sessionData = await endUserSession(userID);
-
-	// logger.debug({
-	//   message: 'User logged out',
-	//   sessionData: JSON.stringify(sessionData),
-	//   user: user._id,
-	//   sessionID: req.sessionID,
-	// });
-	req.session.destroy(() => {
-		res.send('User logged out, session destroyed');
+	req.session.destroy((err) => {
+		if (err) {
+			return res.status(500).json({ message: 'Logout failed' });
+		}
+		res.clearCookie('connect.sid'); // Clear the session cookie
+		return res.status(200).json({ message: 'Logout successful' });
 	});
 });
 

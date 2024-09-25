@@ -131,19 +131,19 @@ class UserService {
 				.session(session)
 				.lean()
 				.exec();
-				if (!user) {
-					throw new BadRequestError('User not found');
-				}
-				const updatedUser = await this.user
-					.findByIdAndUpdate(userID, userDetails, {
-						new: true,
-						session
-					})
-					.lean()
-					.exec();
-					return updatedUser;
-				});
+			if (!user) {
+				throw new BadRequestError('User not found');
 			}
+			const updatedUser = await this.user
+				.findByIdAndUpdate(userID, userDetails, {
+					new: true,
+					session
+				})
+				.lean()
+				.exec();
+			return updatedUser;
+		});
+	}
 }
 
-export const service = UserService.getInstance() as UserService
+export const service = UserService.getInstance() as UserService;

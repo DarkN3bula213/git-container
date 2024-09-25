@@ -1,4 +1,5 @@
 import express, { type Application, Request, Response } from 'express';
+import session from 'express-session';
 
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
@@ -26,22 +27,7 @@ process.on('unhandledRejection', (reason, promise) => {
 	console.dir(promise);
 });
 const app: Application = express();
-export function onlyForHandshake(
-	middleware: (req: Request, res: Response, next: any) => void
-) {
-	return (
-		req: Request & { _query: Record<string, string> },
-		res: Response,
-		next: (err?: Error) => void
-	) => {
-		const isHandshake = req._query.sid === undefined;
-		if (isHandshake) {
-			middleware(req, res, next);
-		} else {
-			next();
-		}
-	};
-}
+
 /*
  *
  *
@@ -49,6 +35,7 @@ export function onlyForHandshake(
  */ /** -----------------------------( Archieved )->*/
 
 middleware(app);
+
 handleUploads(app);
 app.use('/api', router);
 
