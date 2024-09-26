@@ -1,6 +1,5 @@
 import { BadRequestError } from '@/lib/api';
 import { config } from '@/lib/config';
-
 import bwipjs from 'bwip-js';
 import jwt from 'jsonwebtoken';
 import QRCode from 'qrcode';

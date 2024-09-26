@@ -4,7 +4,6 @@ import type { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import fs, { promises } from 'node:fs';
 import path from 'node:path';
-
 import { config } from '../config';
 
 type LogEventProps = {

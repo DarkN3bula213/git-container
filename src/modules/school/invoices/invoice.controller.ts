@@ -1,8 +1,6 @@
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-
 import { deflateSync } from 'zlib';
-
 import Payments from '../payments/payment.model';
 import Students from '../students/student.model';
 import Invoice from './invoice.model';

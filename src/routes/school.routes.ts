@@ -1,5 +1,4 @@
 import { Router } from 'express';
-
 import classes from '../modules/school/classes/class.routes';
 import events from '../modules/school/events/event.routes';
 import expenses from '../modules/school/expenses/expense.routes';

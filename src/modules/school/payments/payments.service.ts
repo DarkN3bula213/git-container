@@ -6,9 +6,7 @@ import { Logger } from '@/lib/logger';
 import { generateInvoiceToken } from '@/lib/utils/tokens';
 import { generateQRCode } from '@/lib/utils/utils';
 import { InvoiceProps } from '@/types';
-
 import { ClientSession, startSession } from 'mongoose';
-
 import { Student } from '../students/student.interface';
 import StudentModel from '../students/student.model';
 import Payments from './payment.model';

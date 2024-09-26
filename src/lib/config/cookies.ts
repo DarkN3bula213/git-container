@@ -1,5 +1,4 @@
 import type { CookieOptions } from 'express';
-
 import { convertToMilliseconds } from '../utils/fns';
 import { config } from './config';
 

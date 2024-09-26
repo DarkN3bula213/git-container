@@ -1,7 +1,5 @@
 import { Logger } from '@/lib/logger';
-
 import cron from 'node-cron';
-
 import { sendPaymentSummaryEmail } from '../mail/mailTrap';
 
 const logger = new Logger(__filename);

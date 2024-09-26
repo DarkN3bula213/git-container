@@ -1,5 +1,4 @@
 import { sessionCookie } from '@/lib/config/cookies';
-
 import { NextFunction, Request, Response } from 'express';
 
 const sessionMiddleware = (req: Request, res: Response, next: NextFunction) => {

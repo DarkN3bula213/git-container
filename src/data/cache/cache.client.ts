@@ -1,6 +1,5 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-
 import { type RedisClientType, createClient } from 'redis';
 
 const logger = new Logger(__filename);

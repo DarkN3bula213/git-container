@@ -2,7 +2,6 @@ import { cache } from '@/data/cache/cache.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-
 import { User } from '../auth/users/user.model';
 import ConversationModel, { MessageModel } from './conversation.model';
 
@@ -96,4 +95,21 @@ export const getConversationMessages = asyncHandler(async (req, res) => {
 		.populate('sender')
 		.populate('conversation');
 	new SuccessResponse('Conversation messages retrieved', messages).send(res);
+});
+
+export const deleteMessage = asyncHandler(async (req, res) => {
+	const { id } = req.params;
+
+	const user = req.user as User;
+	const userId = user._id;
+
+	const message = await MessageModel.findById(id);
+
+	if (message?.sender !== userId) {
+		throw new BadRequestError('Cannot delete other users messages');
+	}
+
+	await MessageModel.findByIdAndDelete(message?._id);
+
+	return new SuccessResponse('Message deleted', {}).send(res);
 });

@@ -1,8 +1,6 @@
 import { withTransaction } from '@/data/database/db.utils';
 import { Logger } from '@/lib/logger';
-
 import { type ClientSession, Types, startSession } from 'mongoose';
-
 import LinearIssueModel, { type LinearIssue } from './linear.model';
 import addToIsSeenBy from './linear.utils';
 

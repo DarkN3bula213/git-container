@@ -1,5 +1,4 @@
 import { Logger } from '@/lib/logger';
-
 import { type Document, InferSchemaType, Schema, model } from 'mongoose';
 
 const logger = new Logger('__filename');

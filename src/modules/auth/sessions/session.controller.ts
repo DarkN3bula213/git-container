@@ -1,5 +1,4 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
-
 import UserSessionModel from './session.model';
 
 /*<!----------(3 Behaviors)------------------------(GET) */

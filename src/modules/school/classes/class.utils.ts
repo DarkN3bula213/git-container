@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-
 import { IClassSubject } from './class.model';
 
 export function generateSubjectId(subjectName: string, level: string): string {

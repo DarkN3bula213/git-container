@@ -1,6 +1,5 @@
 import { NotFoundError, SuccessMsgResponse, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-
 import TeacherModel from './teacher.model';
 
 /*

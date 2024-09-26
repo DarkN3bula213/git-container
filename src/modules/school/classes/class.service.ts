@@ -1,9 +1,7 @@
 import { withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
-
 // import { Logger } from '@/lib/logger';
 import mongoose from 'mongoose';
-
 import { ClassModel } from './class.model';
 import { createIClassSubject } from './class.utils';
 

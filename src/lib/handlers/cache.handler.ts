@@ -1,7 +1,5 @@
 import { cache } from '@/data/cache/cache.service';
-
 import { RedisClientType } from 'redis';
-
 import { Logger } from '../logger';
 import asyncHandler from './asyncHandler';
 

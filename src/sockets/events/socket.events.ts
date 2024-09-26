@@ -2,10 +2,8 @@ import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger';
 import { verifyToken } from '@/lib/utils/tokens';
 import { getOrCreateConversation } from '@/modules/conversations/conversation.model';
-
 import cookie from 'cookie';
 import { Socket } from 'socket.io';
-
 import { saveSessionQueue } from '../../modules/auth/sessions/session.processor';
 import { Message, messageSingleton } from '../store/messgageStore';
 

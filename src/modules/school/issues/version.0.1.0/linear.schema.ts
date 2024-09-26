@@ -1,5 +1,4 @@
 import { JoiObjectId } from '@/lib/handlers/validate';
-
 import Joi from 'joi';
 
 export default {

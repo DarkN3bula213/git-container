@@ -2,7 +2,6 @@ import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import { NotFoundError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-
 import eventModel from './event.model';
 
 export const addEvent = asyncHandler(async (req, res) => {

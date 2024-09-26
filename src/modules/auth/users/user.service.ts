@@ -7,7 +7,6 @@ import {
 	isAdminRolePresent,
 	normalizeRoles
 } from '@/lib/utils/utils';
-
 import { RoleModel } from '../roles/role.model';
 import { User, UserModel } from './user.model';
 

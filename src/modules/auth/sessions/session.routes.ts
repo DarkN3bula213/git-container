@@ -2,9 +2,7 @@ import { Roles } from '@/lib/constants';
 import { setRouter } from '@/lib/utils/utils';
 import { authorize } from '@/middleware/authorize';
 import type { RouteMap } from '@/types/routes';
-
 import { Router } from 'express';
-
 import * as controller from './session.controller';
 
 const router = Router();

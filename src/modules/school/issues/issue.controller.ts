@@ -3,10 +3,8 @@ import { config } from '@/lib/config';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
 import { User } from '@/modules/auth/users/user.model';
-
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-
 import IssueModel from './issue.model';
 import IssueService from './issue.service';
 

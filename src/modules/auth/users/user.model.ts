@@ -1,5 +1,4 @@
 import { InternalError } from '@/lib/api';
-
 import bcrypt from 'bcrypt';
 import {
 	ClientSession,
@@ -9,7 +8,6 @@ import {
 	Types,
 	model
 } from 'mongoose';
-
 import { RoleModel } from '../roles/role.model';
 
 export interface User extends Document {

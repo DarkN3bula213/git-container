@@ -1,5 +1,4 @@
 import { type Document, Schema, Types, model } from 'mongoose';
-
 import { generateSubjectId } from './class.utils';
 
 export interface IClassSubject {

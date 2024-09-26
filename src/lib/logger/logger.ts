@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import * as path from 'node:path';
 import * as winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-
 import { config } from '../config';
 
 // Define custom colors for log levels

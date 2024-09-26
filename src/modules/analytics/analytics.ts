@@ -1,5 +1,4 @@
 import { cache } from '@/data/cache/cache.service';
-
 import type { Application, NextFunction, Request, Response } from 'express';
 import mongoose, { Document, Schema, model } from 'mongoose';
 

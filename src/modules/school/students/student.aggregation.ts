@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 import StudentModel from './student.model';
 
 export const studentDetailsWithPayments = async (studentId: string) => {

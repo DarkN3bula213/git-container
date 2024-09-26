@@ -1,10 +1,8 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import { RedisClientType } from 'redis';
-
 import redisClient from './cache.client';
 
 const logger = new Logger(__filename);

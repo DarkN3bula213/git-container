@@ -13,7 +13,6 @@ import {
 	sendResetSuccessEmail,
 	sendVerifyEmail
 } from '@/services/mail/mailTrap';
-
 import { UserModel } from '../users/user.model';
 
 const logger = new Logger(__filename);

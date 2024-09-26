@@ -1,5 +1,4 @@
 import { validateReq } from '@/lib/handlers/validate';
-
 import Joi from 'joi';
 
 const registerUser = Joi.object({

@@ -1,9 +1,7 @@
 import { validate } from '@/lib/handlers/validate';
 import { setRouter } from '@/lib/utils/utils';
 import { RouteMap } from '@/types/routes';
-
 import { Router } from 'express';
-
 import * as controller from './teacher.controller';
 import * as schema from './teacher.schema';
 

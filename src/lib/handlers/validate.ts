@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import Joi, { ObjectSchema } from 'joi';
 import { Types } from 'mongoose';
-
 import { BadRequestError } from '../api';
 import { formatJoiErrorMessage } from '../utils/utils';
 

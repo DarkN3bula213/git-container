@@ -173,7 +173,7 @@ const PAYMENT_EMAIL_TEMPLATE = `
     <h1 style="color: white; margin: 0;">Payment Summary for {formattedDate}</h1>
   </div>
   <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-     
+     <p>Total revenue generated: Rs {revenue} /- </p>
     <p>Here is the payment summary for the class and sections:</p>
     {classSections}
     <p>Best regards,<br>Hafeez Public School - Application Support Team </p>

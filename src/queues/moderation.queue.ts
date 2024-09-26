@@ -1,9 +1,7 @@
 import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger';
 import UserActivityLogModel from '@/modules/analytics/analytics';
-
 import type { DoneCallback, Job } from 'bull';
-
 import QueueFactory from '.';
 
 const logger = new Logger(__filename);

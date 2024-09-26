@@ -1,5 +1,4 @@
 import { Logger } from '@/lib/logger';
-
 import rateLimit from 'express-rate-limit';
 
 const logger = new Logger(__filename);

@@ -1,5 +1,4 @@
 import { Logger } from '@/lib/logger';
-
 import { generateUniqueId } from './utils';
 
 const logger = new Logger(__filename);

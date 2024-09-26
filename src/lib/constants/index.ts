@@ -1,5 +1,4 @@
 import path, { resolve } from 'node:path';
-
 import { config } from '../config';
 
 export const signals: ReadonlyArray<NodeJS.Signals> = ['SIGINT', 'SIGTERM'];

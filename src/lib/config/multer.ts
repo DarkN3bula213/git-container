@@ -2,7 +2,6 @@ import { type Application, static as static_ } from 'express';
 import multer, { MulterError, StorageEngine } from 'multer';
 import fs from 'node:fs';
 import path from 'node:path';
-
 import { uploadsDir } from '../constants';
 
 // Base path for uploads

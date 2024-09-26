@@ -1,9 +1,7 @@
 import { supaUpload } from '@/lib/config/multer';
 import { setRouter } from '@/lib/utils/utils';
 import { RouteMap } from '@/types/routes';
-
 import { Router } from 'express';
-
 import * as controller from './files.controller';
 import * as multer from './multer.controller';
 

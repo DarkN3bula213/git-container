@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
-
 import {
 	getDecodedOsEnv,
 	getOsEnv,

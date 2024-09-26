@@ -1,5 +1,5 @@
-export * from './handleDisconnect';
-export * from './handleConnect';
-export * from './optInChat';
-
-export * from './handleRooms';
+// export * from './handleDisconnect';
+export * from './disconnect';
+export * from './authentication';
+export * from './messages';
+export * from './users';

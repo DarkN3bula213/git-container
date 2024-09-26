@@ -1,10 +1,8 @@
 import { singleDocumentUpload } from '@/lib/config';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
-
 import { NextFunction, Request, Response } from 'express';
 import { MulterError } from 'multer';
-
 import { Expense, Expenses } from './expense.model';
 
 const logger = new Logger('ExpenseController');

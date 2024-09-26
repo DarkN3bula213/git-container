@@ -1,5 +1,4 @@
 import { cache } from '@/data/cache/cache.service';
-
 import mongoose, { Schema } from 'mongoose';
 
 export interface IPayment extends mongoose.Document {

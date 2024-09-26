@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-
 import type { LinearIssue } from './linear.model';
 
 const MAX_SEEN_BY_ENTRIES = 100; // Set a limit to prevent bloating

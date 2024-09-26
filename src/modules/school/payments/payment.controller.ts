@@ -3,9 +3,7 @@ import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import type { User } from '@/modules/auth/users/user.model';
-
 import { Types } from 'mongoose';
-
 import { ClassModel } from '../classes/class.model';
 import type { Student } from '../students/student.interface';
 import StudentModel from '../students/student.model';

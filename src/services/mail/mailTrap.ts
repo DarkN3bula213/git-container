@@ -1,8 +1,6 @@
 import { BadRequestError } from '@/lib/api';
 import { Logger } from '@/lib/logger';
-
 import { writeFileSync } from 'fs';
-
 import sendEmail, { generateHtmlTemplate } from '.';
 import { getPaymentsForDate } from '../cron/daily-fees';
 import template from './mailTemplates';
@@ -132,7 +130,10 @@ export const sendDailyReport = async () => {
 export async function generatePaymentEmail(date: Date): Promise<string> {
 	const payments = await getPaymentsForDate(date);
 	const formattedDate = new Date(date).toDateString();
-
+	const totalRevenue = payments.reduce(
+		(sum, payment) => sum + payment.totalAmount,
+		0
+	);
 	const classSectionsHtml = payments
 		.map((payment) => {
 			const studentRowsHtml = payment.students
@@ -155,7 +156,8 @@ export async function generatePaymentEmail(date: Date): Promise<string> {
 	// Inject the class sections and formatted date into the main template
 	const templateData = {
 		formattedDate,
-		classSections: classSectionsHtml
+		classSections: classSectionsHtml,
+		revenue: totalRevenue.toFixed(2)
 	};
 
 	return generateHtmlTemplate('paymentSummary', templateData);

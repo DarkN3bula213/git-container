@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-
 import { IDTrackerModel, IIDTracker } from './idTracker.model';
 
 export const generateUniqueId = async (): Promise<string> => {

@@ -1,6 +1,5 @@
 import MongoStore from 'connect-mongo';
 import type session from 'express-session';
-
 import { config } from '../config';
 import { convertToMilliseconds } from '../utils/fns';
 

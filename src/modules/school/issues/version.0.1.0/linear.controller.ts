@@ -3,9 +3,7 @@ import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
 import { isAdminRolePresent, normalizeRoles } from '@/lib/utils/utils';
 import { User } from '@/modules/auth/users/user.model';
-
 import { Types } from 'mongoose';
-
 import LinearIssueModel, { type LinearIssue } from './linear.model';
 import service from './linear.service';
 import addToIsSeenBy from './linear.utils';

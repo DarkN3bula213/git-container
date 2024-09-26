@@ -1,11 +1,10 @@
 import { authentication } from '@/middleware/authMiddleware';
 import socketRoues from '@/modules/auth/sessions/session.routes';
+import Conversations from '@/modules/conversations/conversation.routes';
 import files from '@/modules/files/file.routes';
 import NotifcationRoutes from '@/modules/notifications/notification.routes';
 import schoolRoutes from '@/routes/school.routes';
-
 import { Router } from 'express';
-
 import users from '../modules/auth/users/user.routes';
 import invoices from '../modules/school/invoices/invoice.routes';
 import { health } from './health';
@@ -32,5 +31,7 @@ router.use('/notifications', NotifcationRoutes);
 router.use('/sessions', socketRoues);
 /* -----------------------------------------------------------------------------------*/
 router.use('/invoices', invoices);
+/* -----------------------------------------------------------------------------------*/
+router.use('/conversations', Conversations);
 
 export default router;

@@ -1,6 +1,5 @@
 import express, { type Application, Request, Response } from 'express';
 import session from 'express-session';
-
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
 import { Logger } from './lib/logger';

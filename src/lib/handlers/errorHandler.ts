@@ -1,7 +1,6 @@
 import type { Application, NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MulterError } from 'multer';
-
 import { ApiError, ErrorType, InternalError, NotFoundError } from '../api';
 import { handleMongooseError } from '../api/MongooseError';
 import { config } from '../config';

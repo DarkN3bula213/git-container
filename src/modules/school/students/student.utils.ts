@@ -2,9 +2,7 @@ import {
 	IDTrackerModel,
 	IIDTracker
 } from '@/modules/school/students/ID Tracker/idTracker.model';
-
 import dayjs from 'dayjs';
-
 import { ClassModel } from '../classes/class.model';
 import StudentModel from './student.model';
 

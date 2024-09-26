@@ -1,8 +1,6 @@
 import { setRouter } from '@/lib/utils/utils';
 import { RouteMap } from '@/types/routes';
-
 import { Router } from 'express';
-
 import * as controller from './stat.controller';
 import schema from './stat.schema';
 

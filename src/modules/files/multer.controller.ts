@@ -3,12 +3,10 @@ import { uploadsDir } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
 import { getFileMetadata } from '@/lib/utils/getFileMetaData';
-
 import { Request, Response } from 'express';
 import fs from 'fs-extra';
 import { MulterError } from 'multer';
 import path from 'path';
-
 import Files from './file.model';
 
 const logger = new Logger(__filename);

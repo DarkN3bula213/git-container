@@ -3,22 +3,17 @@ import { config } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
 import { Logger } from '@/lib/logger';
 import { removeSaveSessionJob } from '@/modules/auth/sessions/session.processor';
-import { getAllConversationsForUser } from '@/modules/conversations/conversation.utils';
-
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
-
-import { handleConnect, handleDisconnect } from './events';
 import {
 	handleAuth,
+	handleDisconnect,
 	handleMessages,
 	handleUsers
-} from './events/handleAuthentication';
+} from './events';
 
 const logger = new Logger(__filename);
-
 export let socketParser: SocketIOServer;
-
 class SocketService {
 	private io: SocketIOServer;
 	connectedUsers = new Map<
@@ -72,66 +67,27 @@ class SocketService {
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {
 			try {
-				// Handle the connection logic immediately
 
 				const authResult = await handleAuth(socket);
 				if (!authResult) return;
 				await removeSaveSessionJob(socket.data.userId);
 				await handleUsers(socket, this.connectedUsers);
+				await handleMessages(socket, this.io, this.connectedUsers);
 
-				/*=============================================
-				=            Section comment block            =
-				=============================================*/
-				// Join the user room
-				const userId = socket.data.userId as string;
-				socket.join(userId);
-				logger.info(`Socket ${socket.id} joined room ${userId}`);
-
-				// Emit the initial data to the client
-				const onlineUsers = Array.from(
-					this.connectedUsers.values()
-				).map((user) => ({
-					userId: user.userId,
-					username: user.username
-				}));
-				const conversations = await getAllConversationsForUser(userId);
-
-				socket.on('joinConversation', async () => {
-					socket.emit('init', {
-						currentUser: {
-							userId,
-							username: socket.data.username,
-							socketId: socket.id
-						},
-						onlineUsers,
-						conversations
+				socket.onAny((event, ...args) => {
+					logger.warn({
+						event: event,
+						arguments: JSON.stringify(args, null, 2)
 					});
 				});
 
-				socket.broadcast.emit(
-					'userListUpdated',
-					Array.from(onlineUsers.values())
-				);
-
-				/*=====  End of Section comment block  ======*/
-
-				await handleMessages(socket, this.io);
-				/*=====  End of Section comment block  ======*/
-
-				// socket.onAny((event, ...args) => {
-				// 	logger.warn({
-				// 		event: event,
-				// 		arguments: JSON.stringify(args, null, 2)
-				// 	});
-				// });
-
-				// socket.onAnyOutgoing((event, ...args) => {
-				// 	logger.debug({
-				// 		outgoing: `Outgoing ${event}`,
-				// 		arguments: JSON.stringify(args, null, 2)
-				// 	});
-				// });
-
+				socket.onAnyOutgoing((event, ...args) => {
+					console.log(JSON.stringify(args, null, 2));
+					logger.debug({
+						outgoing: `Outgoing ${event}`,
+						arguments: JSON.stringify(args, null, 2)
+					});
+				});
 				socket.on('disconnect', async () => {
 					try {
 						await handleDisconnect(

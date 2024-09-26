@@ -6,9 +6,7 @@ import { setRouter } from '@/lib/utils/utils';
 import attachRoles from '@/middleware/attachRoles';
 import { authorize } from '@/middleware/authorize';
 import type { RouteMap } from '@/types/routes';
-
 import { Router } from 'express';
-
 import * as controller from './payment.controller';
 import schema from './payment.schema';
 

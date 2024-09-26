@@ -1,10 +1,8 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-
 import fs from 'fs-extra';
 import http from 'node:http';
 import path from 'node:path';
-
 import { app } from './app';
 import { cache } from './data/cache/cache.service';
 import { db } from './data/database';

@@ -1,10 +1,8 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-
 import { MailtrapTransport } from 'mailtrap';
 import { MailtrapMailOptions } from 'mailtrap/dist/types/transport';
 import Nodemailer from 'nodemailer';
-
 // Replace with the actual Mailtrap client import
 import templates from './mailTemplates';
 

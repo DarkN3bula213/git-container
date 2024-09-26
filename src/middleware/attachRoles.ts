@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { Roles } from '@/lib/constants';
-
 import { NextFunction, Request, Response } from 'express';
 
 declare global {

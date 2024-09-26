@@ -1,5 +1,4 @@
 import { Actions, Resources, Roles } from '@/lib/constants';
-
 import { type Document, type Model, Schema, type Types, model } from 'mongoose';
 
 export interface Permission {

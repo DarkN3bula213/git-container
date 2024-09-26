@@ -1,5 +1,4 @@
 import { JoiObjectId, validateReq } from '@/lib/handlers/validate';
-
 import Joi from 'joi';
 
 export const singleClass = Joi.object({

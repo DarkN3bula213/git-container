@@ -3,9 +3,7 @@ import { invalidate } from '@/lib/handlers/cache.handler';
 import { ValidationSource, validate } from '@/lib/handlers/validate';
 import { setRouter } from '@/lib/utils/utils';
 import { RouteMap } from '@/types/routes';
-
 import { Router } from 'express';
-
 import * as controller from './event.controller';
 import schema from './event.schema';
 

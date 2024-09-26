@@ -1,6 +1,5 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-
 import Bull, { DoneCallback, Job, Queue } from 'bull';
 
 const logger = new Logger(__filename);

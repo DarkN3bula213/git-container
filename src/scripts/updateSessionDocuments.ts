@@ -1,5 +1,4 @@
 import { Logger } from '@/lib/logger';
-
 import mongoose from 'mongoose';
 
 const logger = new Logger(__filename);

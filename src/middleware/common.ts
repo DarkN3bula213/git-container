@@ -2,7 +2,6 @@ import { cache } from '@/data/cache/cache.service';
 import { config, loginLimiter, morganMiddleware as morgan } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
 import { RequestLogger } from '@/lib/logger';
-
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -10,7 +9,6 @@ import { type Application, json, urlencoded } from 'express';
 import sanitize from 'express-mongo-sanitize';
 import helmet from 'helmet';
 import hpp from 'hpp';
-
 import apiKey from '../middleware/useApiKey';
 import sanitizeInputs from './sanitizeReq';
 

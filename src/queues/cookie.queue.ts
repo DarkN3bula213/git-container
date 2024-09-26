@@ -1,7 +1,5 @@
 import { Logger } from '@/lib/logger';
-
 import { DoneCallback, Job } from 'bull';
-
 import QueueFactory from '.';
 
 const logger = new Logger(__filename);

@@ -1,7 +1,5 @@
 import { BadRequestError } from '@/lib/api';
-
 import { Types } from 'mongoose';
-
 import IssueModel, { Issue, Reply } from './issue.model';
 
 class IssueService {

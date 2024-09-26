@@ -1,8 +1,6 @@
 import { socketService } from '@/index';
 import { Logger } from '@/lib/logger';
-
 import { getDayOfYear } from 'date-fns';
-
 import { getNextSequence } from '../counter/counter.model';
 import paymentQueue from './payment.queue';
 

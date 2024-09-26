@@ -1,10 +1,8 @@
 import { User, findUserById } from '@/modules/auth/users/user.model';
 import { InvoiceProps } from '@/types';
-
 import dayjs from 'dayjs';
 import { SignOptions, sign, verify } from 'jsonwebtoken';
 import { createHmac, randomBytes } from 'node:crypto';
-
 import { config } from '../config';
 import { Logger as log } from '../logger/logger';
 

@@ -1,7 +1,5 @@
 import { Logger as log } from '@/lib/logger';
-
 import { type Model, Schema, Types, model } from 'mongoose';
-
 import { ClassModel } from '../classes/class.model';
 import type { Student } from './student.interface';
 import { generateUniqueId } from './student.utils';

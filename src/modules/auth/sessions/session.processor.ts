@@ -1,9 +1,7 @@
 import { validateData } from '@/lib/handlers/validate';
 import { Logger } from '@/lib/logger';
 import QueueFactory from '@/queues';
-
 import { DoneCallback, Job } from 'bull';
-
 import { createUserSession } from './session.model';
 import { sessionSchema } from './session.schema';
 

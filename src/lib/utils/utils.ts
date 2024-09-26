@@ -1,7 +1,6 @@
 import type Role from '@/modules/auth/roles/role.model';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 import type { RouteMap } from '@/types/routes';
-
 import type { NextFunction, Response, Router } from 'express';
 import { IncomingMessage } from 'http';
 import Joi from 'joi';
@@ -9,7 +8,6 @@ import { Types } from 'mongoose';
 import QRCode from 'qrcode';
 import { Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-
 import { logoutCookie } from '../config/cookies';
 import { Roles } from '../constants';
 

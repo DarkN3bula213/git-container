@@ -17,7 +17,6 @@ import {
 	normalizeRoles
 } from '@/lib/utils/utils';
 import { sendVerifyEmail } from '@/services/mail/mailTrap';
-
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
 

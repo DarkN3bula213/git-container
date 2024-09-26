@@ -1,5 +1,4 @@
 import { BadRequestError } from '@/lib/api';
-
 import { ClassModel, IClass } from '../classes/class.model';
 import { Student } from './student.interface';
 import StudentModel from './student.model';

@@ -1,5 +1,4 @@
 import { Document, ObjectId } from 'mongoose';
-
 import { IClass } from '../classes/class.model';
 
 export type Student = Document & {

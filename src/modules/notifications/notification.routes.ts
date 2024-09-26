@@ -5,9 +5,7 @@ import { setRouter } from '@/lib/utils/utils';
 import attachRoles from '@/middleware/attachRoles';
 import { authorize } from '@/middleware/authorize';
 import { RouteMap } from '@/types/routes';
-
 import { Router } from 'express';
-
 import * as controller from './notification.controller';
 import schema from './notification.schema';
 

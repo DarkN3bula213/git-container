@@ -2,7 +2,6 @@ import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { socketParser } from '@/sockets';
-
 import { NextFunction, Request, Response } from 'express';
 
 const broadcast = (eventName: string, getMessage: any) => {

@@ -3,7 +3,6 @@ import { Logger as log } from '@/lib/logger';
 import attachRoles from '@/middleware/attachRoles';
 import { authentication } from '@/middleware/authMiddleware';
 import { authorize } from '@/middleware/authorize';
-
 import { Router } from 'express';
 
 const Logger = new log(__filename);

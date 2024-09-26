@@ -1,5 +1,4 @@
 import asyncHandler from '@/lib/handlers/asyncHandler';
-
 import { User } from '../auth/users/user.model';
 import { NotificationModel } from './notification.model';
 
