@@ -34,7 +34,7 @@ jobs:
             docker-compose down || true
 
             # Build or rebuild the Docker images and start the containers
-            docker-compose up --build -d
+            docker-compose up --build --force-recreate -d
 
             # Check if the containers are running
             RUNNING_CONTAINERS=$(docker ps --filter "status=running" --format "{{.Names}}" | grep -v "^$")
