@@ -35,13 +35,15 @@ export interface User extends Document {
 	verificationTokenExpiresAt: Date | null;
 	isVerified: boolean;
 	lastLogin: Date;
+	pendingEmail?: string;
+	lastPasswordChange: Date | null;
 }
 
 interface UserMethods {
-	comparePassword: compoarePassword;
+	comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-interface UserModel extends Model<User, UserMethods> {
+interface UserModel extends Model<User, {}, UserMethods> {
 	customId: { type: number; unique: true };
 	findUserByEmail(email: string): Promise<User | null>;
 	findUserById(id: string): Promise<User | null>;
@@ -140,8 +142,17 @@ export const schema = new Schema<User>(
 				required: false
 			}
 		],
-		status: String
+		pendingEmail: {
+			type: String,
+			default: null
+		},
+		status: String,
+		lastPasswordChange: {
+			type: Date,
+			default: null
+		}
 	},
+
 	{
 		timestamps: true,
 		versionKey: false

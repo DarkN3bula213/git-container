@@ -66,6 +66,7 @@ class UserService {
 			isAdmin
 		};
 	}
+
 	async createUser(userDetails: Partial<User>, roleCode: Roles) {
 		return withTransaction(async (session) => {
 			if (!userDetails.email || !userDetails.username || !roleCode) {
@@ -141,6 +142,106 @@ class UserService {
 				.lean()
 				.exec();
 			return updatedUser;
+		});
+	}
+	async generateVerificationToken(email: string, password: string) {
+		return withTransaction(async (session) => {
+			// Find the user by email
+			const user = await this.user.findOne({ email }).session(session);
+
+			if (!user) {
+				throw new BadRequestError('User not found');
+			}
+
+		 
+
+			// Verify the password
+			const isPasswordValid = await user.comparePassword(password);
+			if (!isPasswordValid) {
+				throw new BadRequestError('Invalid password');
+			}
+
+			// Generate a new verification token
+			const token = verfication.generateToken();
+			const tokenExpiresAt = verfication.expiry;
+
+			// Update the user with the new token
+			await this.user.findByIdAndUpdate(
+				user._id,
+				{
+					verificationToken: token,
+					verificationTokenExpiresAt: tokenExpiresAt
+				},
+				{ session }
+			);
+
+			// TODO: Implement email sending logic here
+			// await this.emailService.sendVerificationEmail(user.email, token);
+
+			return {
+				token
+			};
+		});
+	}
+
+	async changeEmail(userId: string, newEmail: string) {
+		return withTransaction(async (session) => {
+			const user = await this.user.findById(userId).session(session);
+			if (!user) {
+				throw new BadRequestError('User not found');
+			}
+
+			const existingUser = await this.user
+				.findOne({ email: newEmail })
+				.session(session);
+			if (existingUser) {
+				throw new BadRequestError('Email already in use');
+			}
+
+			const token = verfication.generateToken();
+			const tokenExpiresAt = verfication.expiry;
+
+			const newUser = await this.user.findByIdAndUpdate(
+				user._id,
+				{
+					pendingEmail: newEmail,
+					verificationToken: token,
+					verificationTokenExpiresAt: tokenExpiresAt
+				},
+				{ new: true, session }
+			);
+
+			return { token, newUser };
+		});
+	}
+	async changePassword(
+		userId: string,
+		oldPassword: string,
+		newPassword: string
+	) {
+		return withTransaction(async (session) => {
+			const user = await this.user.findById(userId).session(session);
+			if (!user) {
+				throw new BadRequestError('User not found');
+			}
+
+			const isPasswordValid = await user.comparePassword(oldPassword);
+			if (!isPasswordValid) {
+				throw new BadRequestError('Invalid old password');
+			}
+			if (
+				user.lastPasswordChange &&
+				user.lastPasswordChange >
+					new Date(new Date().getTime() - 1000 * 60 * 60 * 24)
+			) {
+				throw new BadRequestError(
+					'You must wait 24 hours before changing your password again'
+				);
+			}
+
+			user.password = newPassword;
+			user.lastPasswordChange = new Date();
+			await user.save({ session });
 		});
 	}
 }

@@ -1,3 +1,4 @@
+import { withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
 import { ClassModel, IClass } from '../classes/class.model';
 import { Student } from './student.interface';
@@ -70,7 +71,7 @@ class Service {
 				'status.remarks': remarks
 			}
 		};
-		const student = await this.student.findByIdAndUpdate(
+		const student: Student | null = await this.student.findByIdAndUpdate(
 			studentId,
 			update,
 			{
@@ -82,6 +83,58 @@ class Service {
 			throw new Error('Student not found');
 		}
 		return student;
+	}
+	async deactivateStudent(studentId: string) {
+		return withTransaction(async (session) => {
+			const student = await this.student.findByIdAndUpdate(
+				studentId,
+				{
+					$set: {
+						status: {
+							isActive: false,
+							hasLeft: true
+						}
+					},
+					$push: {
+						'status.remarks': 'Student has left the school'
+					}
+				},
+				{
+					new: true,
+					runValidators: true,
+					session
+				}
+			);
+			if (!student) {
+				throw new BadRequestError('Student not found');
+			}
+			return student;
+		});
+	}
+	async reactivateStudent(studentId: string) {
+		return withTransaction(async (session) => {
+			const student = await this.student.findByIdAndUpdate(
+				studentId,
+				{
+					$set: {
+						status: {
+							isActive: true,
+							hasLeft: false,
+							remarks: []
+						}
+					}
+				},
+				{
+					new: true,
+					runValidators: true,
+					session
+				}
+			);
+			if (!student) {
+				throw new BadRequestError('Student not found');
+			}
+			return student;
+		});
 	}
 }
 

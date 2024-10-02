@@ -1,6 +1,6 @@
 import { Roles } from '@/lib/constants';
 import { validate } from '@/lib/handlers/validate';
-import { setRouter } from '@/lib/utils/utils';
+import { Routes, setRouter } from '@/lib/utils/utils';
 import { authentication } from '@/middleware/authMiddleware';
 import { authorize } from '@/middleware/authorize';
 import type { RouteMap } from '@/types/routes';
@@ -9,6 +9,7 @@ import * as verfication from '../verification';
 import verify from '../verification/verification.schema';
 import * as controller from './user.controller';
 import schema, { register, updateProfile } from './user.schema';
+
 
 const router = Router();
 
@@ -59,7 +60,8 @@ function getRouteMap(): RouteMap[] {
 		{
 			path: '/change-password',
 			method: 'post',
-			validations: [authentication, validate(schema.changePassword)],
+			// validations: [authentication, validate(schema.changePassword)],
+			validations: [authentication],
 			handler: controller.changePassword
 		},
 		/*<!-- 7. Update  ---------------------------( x )->*/
@@ -68,6 +70,13 @@ function getRouteMap(): RouteMap[] {
 			method: 'patch',
 			validations: [authentication, updateProfile],
 			handler: controller.updateUser
+		},
+		/*<!-- 8. Registered User Verification  ---------------------------( x )->*/
+		{
+			path: '/verify-user',
+			method: 'post',
+			validations: [validate(schema.registeredUserVerification)],
+			handler: verfication.registeredUserVerification
 		},
 		{
 			path: '/aux',
@@ -123,6 +132,16 @@ function getRouteMap(): RouteMap[] {
 	];
 }
 
-setRouter(router, getRouteMap());
+// const routes = (): Routes => [
+// 	{
+// 		path: '/',
+// 		methods: ['GET','POST'],
+// 		handlers: [controller.getUsers,controller.register],
+// 		'POST': [controller.register]
+		
+// 	}
+// ]
+	
+	setRouter(router, getRouteMap());
 
 export default router;

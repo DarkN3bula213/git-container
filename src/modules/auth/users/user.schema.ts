@@ -47,6 +47,10 @@ export default {
 		userId: JoiObjectId().required(),
 		oldPassword: Joi.string().required(),
 		newPassword: Joi.string().required()
+	}),
+	registeredUserVerification: Joi.object({
+		email: Joi.string().required(),
+		password: Joi.string().required()
 	})
 };
 

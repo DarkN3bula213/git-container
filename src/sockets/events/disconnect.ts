@@ -3,7 +3,8 @@ import { Logger } from '@/lib/logger';
 import { Server, type Socket } from 'socket.io';
 import { addSaveSessionJob } from '../../modules/auth/sessions/session.processor';
 import { calculateTimeSpent } from '../../modules/auth/sessions/socket.utils';
-import { getStartTimeFromCache } from './socket.events';
+import { getStartTimeFromCache } from '../utils/getStartTimeFromCache';
+
 
 const logger = new Logger(__filename);
 

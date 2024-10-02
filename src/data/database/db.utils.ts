@@ -1,5 +1,5 @@
 import { Logger } from '@/lib/logger';
-import mongoose, { type ClientSession } from 'mongoose';
+import mongoose, { Types, type ClientSession } from 'mongoose';
 
 type TransactionCallback<T> = (session: ClientSession) => Promise<T>;
 const logger = new Logger(__filename);
@@ -23,17 +23,6 @@ export async function withTransaction<T>(
 		session.endSession();
 	}
 }
-
-/**
-  public async handleIssueReply(
-    parentIssueId: string,
-    replyId: string
-  ): Promise<void> {
-    await withTransaction(async (session) => {
-      // Get the parent issue by ID within the transaction
-      await this.getIssueById(parentIssueId, session);
-
-      // Call the updateIssueWithReply method within the transaction
-      await this.updateIssueWithReply(parentIssueId, replyId, session);
-    });
-*/
+export const  convertToObjectId = (id: string): Types.ObjectId => {
+		return new Types.ObjectId(id);
+	};

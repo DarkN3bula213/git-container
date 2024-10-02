@@ -1,153 +1,119 @@
+import { withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
+import { Request } from 'express';
 import { Types } from 'mongoose';
-import IssueModel, { Issue, Reply } from './issue.model';
+import Issue, { IIssue, IReply, Reply } from './issue.model';
 
 class IssueService {
-	// Create a new issue
-	static async createIssue(issueData: Partial<Issue>) {
-		const issue = new IssueModel(issueData);
-		await issue.save();
-		return issue;
-	}
-	static async addReplyToIssue(issueId: string, replyData: Partial<Reply>) {
-		const issue = await IssueModel.findById(issueId);
-		if (!issue) throw new Error('Issue not found');
+	public static async createIssue(
+		issueData: Partial<IIssue>,
+		userId: Types.ObjectId
+	): Promise<IIssue> {
 
-		issue.replies.push(replyData as Reply);
-		await issue.save();
-		return issue;
-	}
-	static async deleteIssueOrReply(
-		userId: string,
-		issueId: string,
-		replyId?: string
-	) {
-		if (replyId) {
-			// Delete a reply if replyId is provided
-			const issue = await IssueModel.findById(issueId);
-			if (!issue) throw new Error('Issue not found');
-			const replyIndex = issue.replies.findIndex(
-				(reply) =>
-					reply._id.toString() === replyId &&
-					reply.author.toString() === userId
-			);
-			if (replyIndex > -1) {
-				issue.replies.splice(replyIndex, 1);
-				await issue.save();
-				return {
-					message: 'Reply deleted successfully'
-				};
+		return await withTransaction(async (session) => {
+			try {
+				const newIssue = new Issue({
+					...issueData,
+					author: userId
+				});
+
+				return await newIssue.save({ session });
+			} catch (error) {
+				console.error('Failed to create issue:', error);
+				throw new BadRequestError('Unable to create the issue.');
 			}
-			throw new Error(
-				'Reply not found or user not authorized to delete this reply'
-			);
-		} else {
-			// Delete the whole issue if only issueId is provided
-			const deletionResult = await IssueModel.deleteOne({
-				_id: issueId,
-				author: userId
-			});
-			if (deletionResult.deletedCount === 0) {
-				throw new Error(
-					'Issue not found or user not authorized to delete this issue'
-				);
-			}
-			return { message: 'Issue deleted successfully' };
-		}
-	}
-
-	// Get a list of all issues
-	static async getAllIssues() {
-		return await IssueModel.find();
-	}
-
-	// Get a single issue by ID
-	static async getIssueById(issueId: Types.ObjectId) {
-		return await IssueModel.findById(issueId);
-	}
-
-	// Update an issue by ID
-	static async updateIssue(
-		issueId: Types.ObjectId,
-		issueData: Partial<Issue>
-	) {
-		const issue = await IssueModel.findByIdAndUpdate(issueId, issueData, {
-			new: true
 		});
-		return issue;
+	}
+	/**
+	 * Get all issues.
+	 */
+	static async getIssues(): Promise<IIssue[]> {
+		return await Issue.find()
+			.populate('author', 'name email')
+			.populate('replies')
+			.exec();
 	}
 
-	// Delete an issue by ID
+	/**
+	 * Get an issue by ID.
+	 */
+	static async getIssueById(
+		issueId: string,
+		userId: Types.ObjectId
+	): Promise<IIssue | null> {
+		// Mark issue as seen by the user
+		await Issue.findByIdAndUpdate(issueId, {
+			$addToSet: { seenBy: userId }
+		});
 
-	// Mark an issue as seen
-	static async markIssueAsSeen(issueId: Types.ObjectId) {
-		const issue = await IssueModel.findByIdAndUpdate(
+		return await Issue.findById(issueId)
+			.populate('author', 'name email')
+			.populate({
+				path: 'replies',
+				populate: { path: 'author', select: 'name email' }
+			})
+			.exec();
+	}
+
+	/**
+	 * Update an issue.
+	 */
+	static async updateIssue(
+		req: Request,
+		issueId: string
+	): Promise<IIssue | null> {
+		const { title, priority, reference, label, description, attachment } =
+			req.body;
+
+		const updatedIssue = await Issue.findByIdAndUpdate(
 			issueId,
-			{ isSeen: true },
+			{ title, priority, reference, label, description, attachment },
 			{ new: true }
 		);
-		return issue;
-	}
-	// Delete an unread reply (simplified version)
-	static async deleteUnreadReply(
-		issueId: Types.ObjectId,
-		replyIndex: number,
-		userId: Types.ObjectId
-	) {
-		const issue = await IssueModel.findById(issueId);
 
-		if (!issue) {
-			throw new Error('Issue not found');
-		}
-
-		// Verify if the requester is the author of the issue
-		if (!issue.author.equals(userId)) {
-			throw new Error('Only the author can delete replies');
-		}
-
-		// Assuming replies are simple strings and not seen individually
-		// This would be more complex with an array of objects for replies
-		if (issue.replies.length > replyIndex) {
-			issue.replies.splice(replyIndex, 1); // Remove the reply at the specified index
-			await issue.save();
-			return { message: 'Reply deleted successfully' };
-		} else {
-			throw new Error('Reply not found');
-		}
+		return updatedIssue;
 	}
 
-	// Method to delete an issue
-	static async deleteIssue(issueId: string, userId: string) {
-		const deletionResult = await IssueModel.deleteOne({
-			_id: issueId,
-			author: userId
+	/**
+	 * Delete an issue.
+	 */
+	static async deleteIssue(issueId: string): Promise<void> {
+		await Issue.findByIdAndDelete(issueId);
+		await Reply.deleteMany({ issue: issueId });
+	}
+
+	/**
+	 * Add a reply to an issue.
+	 */
+	static async addReply(req: Request, issueId: string): Promise<IReply> {
+		const { content } = req.body;
+		const author = req?.user;
+
+		const newReply = new Reply({
+			issue: issueId,
+			author,
+			content
 		});
-		if (deletionResult.deletedCount === 0) {
-			throw new BadRequestError(
-				'Issue not found or user not authorized to delete this issue'
-			);
-		}
-		return { message: 'Issue deleted successfully' };
+
+		const savedReply = await newReply.save();
+
+		await Issue.findByIdAndUpdate(issueId, {
+			$push: { replies: savedReply._id }
+		});
+
+		return savedReply;
 	}
 
-	// Method to delete a reply within an issue
-	static async deleteReply(issueId: string, replyId: string, userId: string) {
-		const issue = await IssueModel.findById(issueId);
-		if (!issue) throw new Error('Issue not found');
-
-		const replyIndex = issue.replies.findIndex(
-			(reply) =>
-				reply._id.toString() === replyId &&
-				reply.author.toString() === userId
-		);
-		if (replyIndex > -1) {
-			issue.replies.splice(replyIndex, 1);
-			await issue.save();
-			return { message: 'Reply deleted successfully' };
-		}
-		throw new BadRequestError(
-			'Reply not found or user not authorized to delete this reply'
-		);
+	/**
+	 * Mark a reply as seen.
+	 */
+	static async markReplyAsSeen(
+		replyId: string,
+		userId: Types.ObjectId
+	): Promise<void> {
+		await Reply.findByIdAndUpdate(replyId, {
+			$addToSet: { seenBy: userId }
+		});
 	}
 }
 

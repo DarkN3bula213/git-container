@@ -1,10 +1,20 @@
-import express, { type Application, Request, Response } from 'express';
-import session from 'express-session';
+import { cache } from '@/data/cache/cache.service';
+import { config, loginLimiter, morganMiddleware as morgan } from '@/lib/config';
+import { corsOptions } from '@/lib/config/cors';
+import { RequestLogger } from '@/lib/logger';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import express, { type Application, json, urlencoded } from 'express';
+import helmet from 'helmet';
+import hpp from 'hpp';
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
 import { Logger } from './lib/logger';
-import middleware from './middleware/common';
+import sanitizeInputs from './middleware/sanitizeReq';
+import apiKey from './middleware/useApiKey';
 import router from './routes';
+
 
 const logger = new Logger(__filename);
 
@@ -27,14 +37,20 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 const app: Application = express();
 
-/*
- *
- *
- *
- */ /** -----------------------------( Archieved )->*/
-
-middleware(app);
-
+app.set('trust proxy', 1);
+app.use(cookieParser());
+app.use(helmet());
+app.use(compression());
+app.use(hpp());
+app.use(sanitizeInputs);
+app.use(cors(corsOptions));
+app.use(morgan);
+app.use(RequestLogger);
+app.use(urlencoded(config.urlEncoded));
+app.use(json(config.json)); 
+app.use(cache.cachedSession(config.tokens.jwtSecret));
+app.use(apiKey);
+app.use(loginLimiter);
 handleUploads(app);
 app.use('/api', router);
 

@@ -3,8 +3,9 @@ import { verifyToken } from '@/lib/utils/tokens';
 import cookie from 'cookie';
 import { Socket } from 'socket.io';
 import { v4 } from 'uuid';
-import { getOrSetStartTime } from '../events/socket.events';
+
 import { sessionStore } from '../store/session-store';
+import { getOrSetStartTime } from '../utils/getStartTimeFromCache';
 
 const logger = new Logger(__filename);
 

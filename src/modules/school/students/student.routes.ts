@@ -4,11 +4,14 @@ import { validate } from '@/lib/handlers/validate';
 import { setRouter } from '@/lib/utils/utils';
 import { type RouteMap } from '@/types/routes';
 import { Router } from 'express';
+import * as aggregations from './controllers/aggregation.controller';
+import * as mutations from './controllers/mutation.controller';
 import * as controller from './student.controller';
 import * as schema from './student.schema';
 
+
 const router = Router();
-router.route('/sorted').get(controller.rootFetch);
+router.route('/sorted').get(aggregations.fetchStudentsWithPaidStatus);
 router
 	.route('/update-fee')
 	.put(

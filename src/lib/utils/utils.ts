@@ -1,7 +1,7 @@
 import type Role from '@/modules/auth/roles/role.model';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 import type { RouteMap } from '@/types/routes';
-import type { NextFunction, Response, Router } from 'express';
+import type { NextFunction, RequestHandler, Response, Router } from 'express';
 import { IncomingMessage } from 'http';
 import Joi from 'joi';
 import { Types } from 'mongoose';
@@ -10,6 +10,7 @@ import { Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { logoutCookie } from '../config/cookies';
 import { Roles } from '../constants';
+
 
 export function setRouter(router: Router, routes: RouteMap[]): void {
 	for (const route of routes) {
@@ -135,3 +136,48 @@ export const wrapAsync =
 	) =>
 	(socket: Socket, next: NextFunction) =>
 		fn(socket, next).catch(next);
+
+
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+
+export interface Route {
+	path: string;
+	methods: Method[];
+	handlers: RequestHandler[];
+	validations?: RequestHandler[];
+	[method: string]: RequestHandler[] | string | Method[] | undefined; // For method-specific middlewares like POST, GET
+}
+
+export type Routes = Route[];
+export const registerRoutes = (router: Router, routes: Routes): void => {
+	  routes.forEach((route) => {
+    const { path, methods, handlers, validations = [] } = route;
+
+    methods.forEach((method, index) => {
+      const methodSpecificMiddlewares = route[method] as RequestHandler[] || [];
+      const allMiddlewares = [...validations, ...methodSpecificMiddlewares];
+
+      const handler = handlers[index]; // Get the corresponding handler for the method
+
+      switch (method) {
+        case 'GET':
+          router.get(path, ...allMiddlewares, handler);
+          break;
+        case 'POST':
+          router.post(path, ...allMiddlewares, handler);
+          break;
+        case 'PUT':
+          router.put(path, ...allMiddlewares, handler);
+          break;
+        case 'DELETE':
+          router.delete(path, ...allMiddlewares, handler);
+          break;
+        case 'PATCH':
+          router.patch(path, ...allMiddlewares, handler);
+          break;
+        default:
+          throw new Error(`Unsupported HTTP method: ${method}`);
+      }
+    });
+  });
+};

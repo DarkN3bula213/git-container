@@ -69,6 +69,8 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 		roles: roleCodes,
 		user: user
 	};
+
+	
 	return new SuccessResponse('Logged in user', resp).send(res);
 });
 
@@ -141,26 +143,14 @@ export const updateUser = asyncHandler(async (req, res) => {
 export const changePassword = asyncHandler(async (req, res) => {
 	const { userId, oldPassword, newPassword } = req.body;
 
-	if (!userId || !oldPassword || !newPassword) {
-		return new BadRequestError('Missing required fields');
-	}
-	if (oldPassword === newPassword) {
-		return new BadRequestError(
-			'New password cannot be the same as old password'
-		);
-	}
+	console.log('req.body', req.body);
 	const reqUser = req.user as User;
-	if (reqUser.id !== userId) {
+	if (reqUser._id !== userId) {
 		return new BadRequestError(
 			'You are not authorized to change this password'
 		);
 	}
-
-	const user = await UserModel.changePassword(
-		userId,
-		oldPassword,
-		newPassword
-	);
+	const user = await service.changePassword(userId, oldPassword, newPassword);
 	return new SuccessResponse('Password changed successfully', user).send(res);
 });
 

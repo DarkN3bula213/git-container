@@ -11,65 +11,16 @@ const getRoutesMap = (): RouteMap[] => {
 	return [
 		{
 			path: '/',
-			method: 'get',
-			handler: controller.getAllIssues
-		},
-		{
-			path: '/',
 			method: 'post',
-			validations: [authentication, validate(schema.createIssue)],
+			validations: [schema.createIssue],
 			handler: controller.createIssue
 		},
 		{
-			path: '/id/:id',
-			method: 'patch',
-
-			handler: controller.getIssueAndUpdateSeenBy
-		},
-		{
-			path: '/:id',
+			path: '/',
 			method: 'get',
-			handler: controller.getIssueById
-		},
-		{
-			path: '/reply',
-			method: 'post',
-			handler: controller.addReply,
-			validations: [authentication, validate(schema.reply)]
-		},
-		{
-			path: '/:id',
-			method: 'put',
-			handler: controller.updateIssue
-		},
-		{
-			path: '/:issueId',
-			method: 'delete',
-			handler: controller.deleteIssue,
-			validations: [
-				authentication,
-				validate(schema.deleteIssue, ValidationSource.PARAM)
-			]
-		},
-		{
-			path: '/:issueId/reply/:replyId',
-			method: 'delete',
-			handler: controller.deleteReply,
-			validations: [
-				authentication,
-				validate(schema.deleteReply, ValidationSource.PARAM)
-			]
+			validations: [],
+			handler: controller.getAllIssues
 		}
-		// {
-		//   path: '/:id',
-		//   method: 'delete',
-		//   handler: controller.deleteIssue,
-		// },
-		// {
-		//   path: '/:issueId/index/:replyIndex',
-		//   method: 'delete',
-		//   handler: controller.deleteUnreadReply,
-		// },
 	];
 };
 const router = Router();

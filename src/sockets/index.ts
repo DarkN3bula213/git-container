@@ -61,9 +61,7 @@ class SocketService {
 			logger.warn(`Socket ${socketId} not found`);
 		}
 	}
-	public broadcast(eventName: string, message: any): void {
-		this.io.emit(eventName, message);
-	}
+ 
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {
 			try {

@@ -248,3 +248,63 @@ export default router;
 
 The `socketParser` feature provides a robust, reusable, and extensible solution for broadcasting real-time events across an application. By decoupling the socket logic from individual routes and controllers, it enables clean separation of concerns and allows for asynchronous and scalable handling of real-time communication in Node.js and Express applications.
 
+ <div className="space-y-2">
+                <p className="text-sm">Key Metrics</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center justify-between border-b border-control py-1">
+                    <p className="text-xs text-foreground-light">
+                      
+                    </p>
+                    <p className="text-xs">Random </p>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-control py-1">
+                    <p className="text-xs text-foreground-light">
+                    Total Enrollments (active students)
+                      Month to Date Revenue
+                      Last Month Revenue
+                      This month week 1 2 3 4
+                      Last month week 1 2 3 4
+                      Change in student strength
+                    Last month collection target real
+                    This month collection target achieved
+                    </p>
+                    <p className="text-xs">Random</p>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-control py-1">
+                    <p className="text-xs text-foreground-light">
+                      Months Enrollments
+                    </p>
+                    <p className="text-xs">Random</p>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-control py-1">
+                    <p className="text-xs text-foreground-light">
+                      Months Revenue
+                    </p>
+                    <p className="text-xs">Random</p>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-control py-1">
+                    <p className="text-xs text-foreground-light">
+                      Past weeks Enrollments
+                    </p>
+                    <p className="text-xs">Random</p>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-control py-1">
+                    <p className="text-xs text-foreground-light">
+                      Past weeks Revenue
+                    </p>
+                    <p className="text-xs">Random</p>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-control py-1">
+                    <p className="text-xs text-foreground-light">
+                      Last months Enrollments
+                    </p>
+                    <p className="text-xs">Random</p>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-control py-1">
+                    <p className="text-xs text-foreground-light">
+                      Last months Revenue
+                    </p>
+                    <p className="text-xs">Random</p>
+                  </div>
+                </div>
+              </div>

@@ -10,6 +10,7 @@ import {
 } from './student.aggregation';
 import Student from './student.model';
 import { studentService } from './student.service';
+import { classOrder } from '@/lib/constants/classOrder';
 
 /**                      *
  *  Aggregation Methods  *
@@ -104,20 +105,7 @@ export const getStudentsWithPayments = asyncHandler(async (_req, res) => {
 
 	const key = getDynamicKey(DynamicKey.STUDENTS, payId);
 
-	const classOrder: { [key: string]: number } = {
-		Nursery: 1,
-		Prep: 2,
-		'1st': 3,
-		'2nd': 4,
-		'3rd': 5,
-		'4th': 6,
-		'5th': 7,
-		'6th': 8,
-		'7th': 9,
-		'8th': 10,
-		'9th': 11,
-		'10th': 12
-	};
+	 
 	const students = await cache.getWithFallback(key, async () => {
 		return await allStudentsWithPayments(payId, classOrder);
 	});
@@ -179,7 +167,14 @@ export const patchStudent = asyncHandler(async (req, res) => {
 
 export const removeStudent = asyncHandler(async (req, res) => {
 	const { id } = req.params;
-	const student = await Student.findByIdAndDelete(id).lean();
+	const student = await Student.findByIdAndUpdate(id, {
+		$set: {
+			status: {
+				isActive: false,
+				hasLeft: true
+			}
+		}
+	}).lean();
 	new SuccessResponse('Student deleted successfully', student).send(res);
 });
 

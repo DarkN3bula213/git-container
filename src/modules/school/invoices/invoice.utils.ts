@@ -18,9 +18,7 @@ export const generateBarcode = (
 				scale: 3, // 3x scaling factor
 				height: 10, // Bar height, in millimeters
 				includetext: true, // Show human-readable text
-				textxalign: 'center', // Align text center
-				backgroundcolor: 'FFFFFF', // White background
-				barcolor: '000000' // Black bars (you can change this to match your theme)
+				textxalign: 'center' // Align text center
 			},
 			(err: any, png: Buffer) => {
 				if (err) {

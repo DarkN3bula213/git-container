@@ -1,62 +1,57 @@
 import { Document, Schema, Types, model } from 'mongoose';
 
-export interface Reply {
-	_id: Types.ObjectId;
+
+export interface IReply extends Document {
+	issue: Types.ObjectId;
 	author: Types.ObjectId;
-	message: string;
+	content: string;
+	seenBy: Types.ObjectId[];
 	createdAt: Date;
-	isFresh: boolean;
-	seenBy?: Types.ObjectId[];
+	updatedAt: Date;
 }
 
-export interface Issue extends Document {
-	title: string;
-	description: string;
-	isSeen: boolean; // Considering for removal or repurpose
-	replies: Reply[];
-	author: Types.ObjectId;
-	addressedTo?: Types.ObjectId; // Optional, to specify if a message is targeted
-	seenBy?: Types.ObjectId[];
-}
-
-const replySchema = new Schema<Reply>({
-	author: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
-	message: { type: String, required: true },
-	createdAt: { type: Date, default: Date.now },
-	isFresh: { type: Boolean, default: true }
-});
-
-const issueSchema = new Schema<Issue>(
+const ReplySchema: Schema = new Schema(
 	{
-		title: {
-			type: String,
-			required: true
-		},
-		description: {
-			type: String,
-			required: true
-		},
-		isSeen: {
-			type: Boolean,
-			default: false
-		},
-		replies: [replySchema],
-		author: {
-			type: Schema.Types.ObjectId,
-			required: true,
-			ref: 'User'
-		},
-		addressedTo: {
-			type: Schema.Types.ObjectId,
-			ref: 'User' // Optional
-		}
+		issue: { type: Schema.Types.ObjectId, ref: 'Issue', required: true },
+		author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+		content: { type: String, required: true },
+		seenBy: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 	},
-	{
-		versionKey: false,
-		timestamps: true
-	}
+	{ timestamps: true }
 );
 
-const IssueModel = model<Issue>('Issue', issueSchema);
+export interface IIssue extends Document {
+	title: string;
+	priority: string;
+	reference?: string;
+	label?: string;
+	description: string;
+	attachment?: any;
+	author: Types.ObjectId;
+	seenBy: Types.ObjectId[];
+	replies: Types.ObjectId[];
+	createdAt: Date;
+	updatedAt: Date;
+}
+ 
+
+const issueSchema = new Schema<IIssue>(
+	{
+		title: { type: String, required: true, minlength: 3 },
+		priority: { type: String, required: true },
+		reference: { type: String },
+		label: { type: String },
+		description: { type: String, required: true, minlength: 10 },
+		attachment: { type: Schema.Types.Mixed },
+		author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+		seenBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+		replies: [{ type: Schema.Types.ObjectId, ref: 'Reply' }]
+	},
+	{ timestamps: true }
+);
+
+const IssueModel = model<IIssue>('Issue', issueSchema);
 
 export default IssueModel;
+
+export const Reply = model<IReply>('Reply', ReplySchema);
