@@ -98,12 +98,13 @@ class LinearService {
 		}
 		return issue;
 	}
-	private findIssueById(issueId: string): LinearIssue | undefined {
+	private async findIssueById(
+		issueId: string
+	): Promise<LinearIssue | undefined> {
 		// Replace with actual DB retrieval
-		const issues = LinearIssueModel.find(
+		const issues = await LinearIssueModel.find(
 			(issue: { _id: string }) => issue._id === issueId
 		);
-		// @ts-ignore
 		return issues[0];
 	}
 
@@ -111,8 +112,8 @@ class LinearService {
 		return issue.assignee === userId;
 	}
 
-	public markAsSeen(issueId: string, userId: string): void {
-		const issue = this.findIssueById(issueId);
+	public async markAsSeen(issueId: string, userId: string): Promise<void> {
+		const issue = await this.findIssueById(issueId);
 		if (issue) {
 			addToIsSeenBy(issue, userId);
 			// Persist changes to the database, replace with actual DB update call

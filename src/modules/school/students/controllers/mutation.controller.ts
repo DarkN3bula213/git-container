@@ -3,7 +3,6 @@ import asyncHandler from '@/lib/handlers/asyncHandler';
 import Student from '../student.model';
 import { studentService } from '../student.service';
 
-
 /*<!-- 1. Post ----------------------------( createStudent )>*/
 export const createStudent = asyncHandler(async (req, res) => {
 	const newStudent = new Student(req.body);
@@ -19,7 +18,6 @@ export const newAdmission = asyncHandler(async (req, res) => {
 	new SuccessResponse('Student created successfully', student).send(res);
 });
 
-
 /*<!-- 3. Patch ----------------------------( patchStudent )>*/
 export const updateStudent = asyncHandler(async (req, res) => {
 	const { id } = req.params;
@@ -30,7 +28,7 @@ export const updateStudent = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 4. Patch ----------------------------( changeStudentFee )>*/
-export const changeStudentFee= asyncHandler(async (req, res) => {
+export const changeStudentFee = asyncHandler(async (req, res) => {
 	const { studentId, amount, remarks } = req.body;
 
 	const student = await studentService.updateStudentFee(
@@ -57,7 +55,7 @@ export const changeStudentSection = asyncHandler(async (req, res) => {
 export const deactivateStudent = asyncHandler(async (req, res) => {
 	const { id } = req.body;
 	const student = await studentService.deactivateStudent(id);
-	 
+
 	new SuccessResponse('Student updated successfully', student).send(res);
 });
 

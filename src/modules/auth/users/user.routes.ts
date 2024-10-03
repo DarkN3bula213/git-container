@@ -1,6 +1,6 @@
 import { Roles } from '@/lib/constants';
 import { validate } from '@/lib/handlers/validate';
-import { Routes, setRouter } from '@/lib/utils/utils';
+import { RouterMap, mapRouter, setRouter } from '@/lib/utils/utils';
 import { authentication } from '@/middleware/authMiddleware';
 import { authorize } from '@/middleware/authorize';
 import type { RouteMap } from '@/types/routes';
@@ -9,7 +9,6 @@ import * as verfication from '../verification';
 import verify from '../verification/verification.schema';
 import * as controller from './user.controller';
 import schema, { register, updateProfile } from './user.schema';
-
 
 const router = Router();
 
@@ -88,24 +87,7 @@ function getRouteMap(): RouteMap[] {
 			],
 			handler: controller.createTempUser
 		},
-		{
-			path: '/login',
-			method: 'post',
-			validations: [validate(schema.login)],
-			handler: controller.login
-		},
-		{
-			path: '/logout',
-			method: 'post',
-			validations: [authentication],
-			handler: controller.logout
-		},
-		{
-			path: '/currentUser',
-			method: 'get',
-			validations: [authentication],
-			handler: controller.getCurrentUser
-		},
+
 		{
 			path: '/id/:id',
 			method: 'get',
@@ -117,31 +99,44 @@ function getRouteMap(): RouteMap[] {
 			path: '/:id',
 			method: 'delete',
 			handler: controller.deleteUser
-			// validations: [attachRoles(Roles.ADMIN), authentication],
 		}
-		// {
-		//   path: '/status',
-		//   method: 'get',
-		//   handler: controller.isAdmin,
-		//   validations: [
-		//     attachRoles(Roles.ADMIN),
-		//     authentication,
-		//     authorize(Roles.ADMIN),
-		//   ],
-		// },
 	];
 }
 
-// const routes = (): Routes => [
-// 	{
-// 		path: '/',
-// 		methods: ['GET','POST'],
-// 		handlers: [controller.getUsers,controller.register],
-// 		'POST': [controller.register]
-		
-// 	}
-// ]
-	
-	setRouter(router, getRouteMap());
+function authenticationRoutes(): RouterMap[] {
+	return [
+		{
+			path: '/login',
+			methods: {
+				post: {
+					handler: controller.login,
+					validations: [validate(schema.login)]
+				}
+			}
+		},
+		{
+			path: '/logout',
+			methods: {
+				post: {
+					handler: controller.logout,
+					validations: [authentication]
+				}
+			}
+		},
+		{
+			path: '/currentUser',
+			methods: {
+				get: {
+					handler: controller.getCurrentUser,
+					validations: [authentication]
+				}
+			}
+		}
+	];
+}
+
+mapRouter(router, authenticationRoutes());
+// mapRouter(router, verificationRoutes());
+setRouter(router, getRouteMap());
 
 export default router;

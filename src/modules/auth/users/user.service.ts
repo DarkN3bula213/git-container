@@ -153,8 +153,6 @@ class UserService {
 				throw new BadRequestError('User not found');
 			}
 
-		 
-
 			// Verify the password
 			const isPasswordValid = await user.comparePassword(password);
 			if (!isPasswordValid) {

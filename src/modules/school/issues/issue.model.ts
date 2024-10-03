@@ -1,6 +1,5 @@
 import { Document, Schema, Types, model } from 'mongoose';
 
-
 export interface IReply extends Document {
 	issue: Types.ObjectId;
 	author: Types.ObjectId;
@@ -33,7 +32,6 @@ export interface IIssue extends Document {
 	createdAt: Date;
 	updatedAt: Date;
 }
- 
 
 const issueSchema = new Schema<IIssue>(
 	{

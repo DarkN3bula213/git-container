@@ -128,8 +128,6 @@ const manageUserConnection = (
 		logger.info(`New socket added for User ${username}`);
 	}
 
-	const users = Array.from(connectedUsers.values());
-	// socket.broadcast.emit('userListUpdated', users);
 	return username;
 };
 

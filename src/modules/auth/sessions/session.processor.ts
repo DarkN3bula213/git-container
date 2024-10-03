@@ -1,5 +1,6 @@
 import { validateData } from '@/lib/handlers/validate';
 import { Logger } from '@/lib/logger';
+import { convertToMilliseconds } from '@/lib/utils/fns';
 import QueueFactory from '@/queues';
 import { DoneCallback, Job } from 'bull';
 import { createUserSession } from './session.model';
@@ -50,7 +51,10 @@ export async function addSaveSessionJob(
 		const job = await saveSessionQueue.add(
 			'saveUserSession',
 			{ userID, startTime, endTime, time },
-			{ jobId: `save-session-${userID}`, delay: 300000 } // 5-minute delay
+			{
+				jobId: `save-session-${userID}`,
+				delay: convertToMilliseconds('1min')
+			} // 5-minute delay
 		);
 		logger.debug(`Job ${job.id} queued for user ${userID}`);
 	} catch (error: any) {

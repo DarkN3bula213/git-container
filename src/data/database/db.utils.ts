@@ -1,5 +1,5 @@
 import { Logger } from '@/lib/logger';
-import mongoose, { Types, type ClientSession } from 'mongoose';
+import mongoose, { type ClientSession, Types } from 'mongoose';
 
 type TransactionCallback<T> = (session: ClientSession) => Promise<T>;
 const logger = new Logger(__filename);
@@ -23,6 +23,6 @@ export async function withTransaction<T>(
 		session.endSession();
 	}
 }
-export const  convertToObjectId = (id: string): Types.ObjectId => {
-		return new Types.ObjectId(id);
-	};
+export const convertToObjectId = (id: string): Types.ObjectId => {
+	return new Types.ObjectId(id);
+};

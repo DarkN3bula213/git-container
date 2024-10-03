@@ -14,27 +14,15 @@ const sanitizeInputs = (req: Request, _res: Response, next: NextFunction) => {
 		}
 	};
 
-	// @ts-ignore
-	let sanitized = false;
-
 	if (req.body) {
 		sanitizeObject(req.body);
-		sanitized = true;
 	}
 	if (req.query) {
 		sanitizeObject(req.query);
-		sanitized = true;
 	}
 	if (req.params) {
 		sanitizeObject(req.params);
-		sanitized = true;
 	}
-
-	// if (sanitized) {
-	//   logger.info(
-	//     `Request sanitized at ${new Date().toISOString()}: ${req.method} ${req.url}`,
-	//   );
-	// }
 
 	next();
 };

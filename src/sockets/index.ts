@@ -61,12 +61,14 @@ class SocketService {
 			logger.warn(`Socket ${socketId} not found`);
 		}
 	}
- 
+
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {
 			try {
-
-				const authResult = await handleAuth(socket);
+				const authResult = await handleAuth(
+					socket,
+					this.connectedUsers
+				);
 				if (!authResult) return;
 				await removeSaveSessionJob(socket.data.userId);
 				await handleUsers(socket, this.connectedUsers);

@@ -15,7 +15,6 @@ import sanitizeInputs from './middleware/sanitizeReq';
 import apiKey from './middleware/useApiKey';
 import router from './routes';
 
-
 const logger = new Logger(__filename);
 
 process.on('uncaughtException', (e) => {
@@ -47,7 +46,7 @@ app.use(cors(corsOptions));
 app.use(morgan);
 app.use(RequestLogger);
 app.use(urlencoded(config.urlEncoded));
-app.use(json(config.json)); 
+app.use(json(config.json));
 app.use(cache.cachedSession(config.tokens.jwtSecret));
 app.use(apiKey);
 app.use(loginLimiter);

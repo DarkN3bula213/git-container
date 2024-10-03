@@ -4,7 +4,6 @@ import { BadRequestError, SuccessResponse } from '@/lib/api';
  *
  ** -----------------------------( login )->
  */
-import { config } from '@/lib/config';
 import { accessCookie, logoutCookie } from '@/lib/config/cookies';
 import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
@@ -70,7 +69,6 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 		user: user
 	};
 
-	
 	return new SuccessResponse('Logged in user', resp).send(res);
 });
 
@@ -202,6 +200,8 @@ export const login = asyncHandler(async (req, res) => {
 
 	const role = normalizeRoles(user.roles);
 	const isAdmin = await isAdminRolePresent(role);
+	console.log('isAdmin', isAdmin);
+
 	const roleCodes = (await fetchUserPermissions(role)) as string[];
 
 	return new SuccessResponse('Login successful', {

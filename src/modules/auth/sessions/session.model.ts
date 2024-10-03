@@ -9,6 +9,8 @@ export interface UserSession extends Document {
 	endTime: Date;
 	timeSpent: string;
 	lastLoggedIn?: Date;
+	userAgent: string;
+	ipAddress: string;
 }
 
 const UserSessionSchema: Schema = new Schema<UserSession>({

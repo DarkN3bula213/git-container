@@ -2,11 +2,9 @@ import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { startOfMonth, subMonths } from 'date-fns';
 import paymentModel from '../payments/payment.model';
 import StudentModel from '../students/student.model';
 import { getSchoolStatisticsForBillingCycle } from './stat.aggregations';
-
 
 export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 	const { payId } = req.params;
@@ -55,62 +53,59 @@ export const getTodaysCollection = asyncHandler(async (_req, res) => {
                     This month collection target achieved
  */
 
-
-export const keyMetrics = asyncHandler(async (_req, res) => {
-	const today = new Date();
-	const startOfBillingCycle = startOfMonth(today);
-	// previous month
-	const previousMonth = subMonths(today, 1);
-	const startOfPreviousMonth = startOfMonth(previousMonth);
+export const keyMetrics = asyncHandler(async (_req, _res) => {
+	// const today = new Date();
+	// const startOfBillingCycle = startOfMonth(today);
+	// // previous month
+	// const previousMonth = subMonths(today, 1);
+	// const startOfPreviousMonth = startOfMonth(previousMonth);
 	//Month to Date Revenue can be calculated by sum of all payments from start of previous month to start of current month
-	const monthToDateRevenue = await paymentModel.aggregate([
-		{
-			$match: {
-				paymentDate: {
-					$gte: startOfPreviousMonth,
-					$lte: startOfBillingCycle
-				}
-			}
-		},
-		{
-			$group: {
-				_id: null,
-				totalAmount: { $sum: '$amount' }
-			}
-		}
-	]);	
-
-	const lastMonthRevenue = await paymentModel.aggregate([
-		{
-			$match: {
-				paymentDate: {
-					$gte: startOfPreviousMonth,
-					$lte: startOfBillingCycle
-				}
-			}
-		},
-		{
-			$group: {
-				_id: null,
-				totalAmount: { $sum: '$amount' }
-			}
-		}
-	]);	
-
-	const thisMonthWeek1 = await paymentModel.aggregate([
-		{
-			$match: {
-				paymentDate: {
-					$gte: startOfBillingCycle,
-					$lte: startOfBillingCycle
-				}
-			}
-		},
-		{
-			$group: {
-				_id: null,
-				totalAmount: { $sum: '$amount' }
-			}
-		}
-	]);
+	// const monthToDateRevenue = await paymentModel.aggregate([
+	// 	{
+	// 		$match: {
+	// 			paymentDate: {
+	// 				$gte: startOfPreviousMonth,
+	// 				$lte: startOfBillingCycle
+	// 			}
+	// 		}
+	// 	},
+	// 	{
+	// 		$group: {
+	// 			_id: null,
+	// 			totalAmount: { $sum: '$amount' }
+	// 		}
+	// 	}
+	// ]);
+	// const lastMonthRevenue = await paymentModel.aggregate([
+	// 	{
+	// 		$match: {
+	// 			paymentDate: {
+	// 				$gte: startOfPreviousMonth,
+	// 				$lte: startOfBillingCycle
+	// 			}
+	// 		}
+	// 	},
+	// 	{
+	// 		$group: {
+	// 			_id: null,
+	// 			totalAmount: { $sum: '$amount' }
+	// 		}
+	// 	}
+	// ]);
+	// const thisMonthWeek1 = await paymentModel.aggregate([
+	// 	{
+	// 		$match: {
+	// 			paymentDate: {
+	// 				$gte: startOfBillingCycle,
+	// 				$lte: startOfBillingCycle
+	// 			}
+	// 		}
+	// 	},
+	// 	{
+	// 		$group: {
+	// 			_id: null,
+	// 			totalAmount: { $sum: '$amount' }
+	// 		}
+	// 	}
+	// ]);
 });

@@ -11,7 +11,6 @@ import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { logoutCookie } from '../config/cookies';
 import { Roles } from '../constants';
 
-
 export function setRouter(router: Router, routes: RouteMap[]): void {
 	for (const route of routes) {
 		const { path, method, handler, validations } = route;
@@ -137,7 +136,6 @@ export const wrapAsync =
 	(socket: Socket, next: NextFunction) =>
 		fn(socket, next).catch(next);
 
-
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 export interface Route {
@@ -150,34 +148,66 @@ export interface Route {
 
 export type Routes = Route[];
 export const registerRoutes = (router: Router, routes: Routes): void => {
-	  routes.forEach((route) => {
-    const { path, methods, handlers, validations = [] } = route;
+	routes.forEach((route) => {
+		const { path, methods, handlers, validations = [] } = route;
 
-    methods.forEach((method, index) => {
-      const methodSpecificMiddlewares = route[method] as RequestHandler[] || [];
-      const allMiddlewares = [...validations, ...methodSpecificMiddlewares];
+		methods.forEach((method, index) => {
+			const methodSpecificMiddlewares =
+				(route[method] as RequestHandler[]) || [];
+			const allMiddlewares = [
+				...validations,
+				...methodSpecificMiddlewares
+			];
 
-      const handler = handlers[index]; // Get the corresponding handler for the method
+			const handler = handlers[index]; // Get the corresponding handler for the method
 
-      switch (method) {
-        case 'GET':
-          router.get(path, ...allMiddlewares, handler);
-          break;
-        case 'POST':
-          router.post(path, ...allMiddlewares, handler);
-          break;
-        case 'PUT':
-          router.put(path, ...allMiddlewares, handler);
-          break;
-        case 'DELETE':
-          router.delete(path, ...allMiddlewares, handler);
-          break;
-        case 'PATCH':
-          router.patch(path, ...allMiddlewares, handler);
-          break;
-        default:
-          throw new Error(`Unsupported HTTP method: ${method}`);
-      }
-    });
-  });
+			switch (method) {
+				case 'GET':
+					router.get(path, ...allMiddlewares, handler);
+					break;
+				case 'POST':
+					router.post(path, ...allMiddlewares, handler);
+					break;
+				case 'PUT':
+					router.put(path, ...allMiddlewares, handler);
+					break;
+				case 'DELETE':
+					router.delete(path, ...allMiddlewares, handler);
+					break;
+				case 'PATCH':
+					router.patch(path, ...allMiddlewares, handler);
+					break;
+				default:
+					throw new Error(`Unsupported HTTP method: ${method}`);
+			}
+		});
+	});
 };
+
+interface RouteMethod {
+	handler: RequestHandler;
+	validations?: RequestHandler[];
+}
+type Verbs = 'get' | 'post' | 'put' | 'delete' | 'patch';
+
+export interface RouterMap {
+	path: string;
+	methods: {
+		[key in Verbs]?: RouteMethod;
+	};
+}
+export function mapRouter(router: Router, routes: RouterMap[]): void {
+	for (const route of routes) {
+		const { path, methods } = route;
+
+		for (const method of Object.keys(methods) as Verbs[]) {
+			const { handler, validations } = methods[method]!;
+
+			if (validations?.length) {
+				router[method](path, ...validations, handler);
+			} else {
+				router[method](path, handler);
+			}
+		}
+	}
+}

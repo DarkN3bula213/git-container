@@ -43,7 +43,7 @@ interface UserMethods {
 	comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-interface UserModel extends Model<User, {}, UserMethods> {
+interface UserModel extends Model<User, object, UserMethods> {
 	customId: { type: number; unique: true };
 	findUserByEmail(email: string): Promise<User | null>;
 	findUserById(id: string): Promise<User | null>;
@@ -169,7 +169,6 @@ schema.index(
 		}
 	}
 );
-type compoarePassword = (password: string) => Promise<boolean>;
 
 schema.methods.isDuplicateEmail = async (email: string) => {
 	const user = await UserModel.findOne({ email });

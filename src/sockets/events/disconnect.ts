@@ -5,7 +5,6 @@ import { addSaveSessionJob } from '../../modules/auth/sessions/session.processor
 import { calculateTimeSpent } from '../../modules/auth/sessions/socket.utils';
 import { getStartTimeFromCache } from '../utils/getStartTimeFromCache';
 
-
 const logger = new Logger(__filename);
 
 export const handleDisconnect = async (

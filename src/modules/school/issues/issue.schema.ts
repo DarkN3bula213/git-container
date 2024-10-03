@@ -1,7 +1,6 @@
 import { JoiObjectId, validateReq } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
-
 export default {
 	createIssue: validateReq({
 		body: Joi.object({
@@ -11,7 +10,7 @@ export default {
 			label: Joi.string().required(),
 			isSeen: Joi.boolean().optional(),
 			replies: Joi.array().items(Joi.string()),
-			attachment:Joi.any().optional()
+			attachment: Joi.any().optional()
 		})
 	}),
 	reply: Joi.object({

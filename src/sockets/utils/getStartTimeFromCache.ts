@@ -1,11 +1,10 @@
-import { cache } from "@/data/cache/cache.service";
-import { Logger } from "@/lib/logger";
-import { Socket } from "socket.io";
+import { cache } from '@/data/cache/cache.service';
+import { Logger } from '@/lib/logger';
+import { Socket } from 'socket.io';
 
+const logger = new Logger(__filename);
 
-const logger = new Logger(__filename)
-
-  const getStartTimeFromCache = async (
+const getStartTimeFromCache = async (
 	userID: string,
 	socket: Socket
 ): Promise<Date | null> => {
@@ -21,7 +20,6 @@ const logger = new Logger(__filename)
 
 	return new Date(startTime);
 };
-
 
 const getOrSetStartTime = async (userID: string, socket: Socket) => {
 	const redisKey = `user:${userID}:startTime`;
@@ -40,7 +38,4 @@ const getOrSetStartTime = async (userID: string, socket: Socket) => {
 	}
 };
 
-export {
-    getOrSetStartTime,
-    getStartTimeFromCache
-}
+export { getOrSetStartTime, getStartTimeFromCache };

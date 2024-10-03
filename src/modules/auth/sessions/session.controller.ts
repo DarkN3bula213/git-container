@@ -49,7 +49,7 @@ export const getAggregateSessions = asyncHandler(async (_req, res) => {
 				lastLogin: '$userDetails.lastLogin'
 			}
 		}
-	])) as {}[];
+	])) as object[];
 
 	res.status(200).json(sessions);
 });

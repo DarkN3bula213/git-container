@@ -9,7 +9,6 @@ class IssueService {
 		issueData: Partial<IIssue>,
 		userId: Types.ObjectId
 	): Promise<IIssue> {
-
 		return await withTransaction(async (session) => {
 			try {
 				const newIssue = new Issue({
