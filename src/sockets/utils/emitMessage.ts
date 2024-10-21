@@ -16,3 +16,18 @@ export const emitMessage = (
 		io.to(receiverId).emit(event, payload);
 	});
 };
+
+export const getSocketIdByUserId = (
+	connectedUsers: Map<
+		string,
+		{ userId: string; username: string; socketId: string }
+	>,
+	userId: string
+): string | undefined => {
+	for (const [, user] of connectedUsers) {
+		if (user.userId === userId) {
+			return user.socketId;
+		}
+	}
+	return undefined;
+};

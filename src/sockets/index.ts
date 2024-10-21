@@ -11,6 +11,7 @@ import {
 	handleMessages,
 	handleUsers
 } from './events';
+import { handleWebRTC } from './events/webRTC';
 
 const logger = new Logger(__filename);
 export let socketParser: SocketIOServer;
@@ -65,29 +66,44 @@ class SocketService {
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {
 			try {
-				const authResult = await handleAuth(
-					socket,
-					this.connectedUsers
-				);
+				const authResult = await handleAuth(socket);
 				if (!authResult) return;
 				await removeSaveSessionJob(socket.data.userId);
 				await handleUsers(socket, this.connectedUsers);
 				await handleMessages(socket, this.io, this.connectedUsers);
+				handleWebRTC(socket, this.io);
 
 				socket.onAny((event, ...args) => {
-					logger.warn({
-						event: event,
-						arguments: JSON.stringify(args, null, 2)
-					});
+					if (
+						event !== 'joinConversation' ||
+						event !== 'leaveConversation' ||
+						event !== 'init' ||
+						event !== 'userListUpdated'
+					) {
+						logger.warn({
+							all: event,
+							arguments: JSON.stringify(args, null, 2)
+						});
+					}
 				});
 
 				socket.onAnyOutgoing((event, ...args) => {
-					console.log(JSON.stringify(args, null, 2));
-					logger.debug({
-						outgoing: `Outgoing ${event}`,
-						arguments: JSON.stringify(args, null, 2)
-					});
+					if (
+						event !== 'init' ||
+						event !== 'joinConversation' ||
+						event !== 'userListUpdated'
+					) {
+						logger.debug({
+							outgoing: `Outgoing ${event}`,
+							arguments: JSON.stringify(args, null, 2)
+						});
+					} else {
+						logger.debug({
+							outgoing: `Outgoing ${event}`
+						});
+					}
 				});
+
 				socket.on('disconnect', async () => {
 					try {
 						await handleDisconnect(

@@ -87,6 +87,12 @@ function getRouteMap(): RouteMap[] {
 			],
 			handler: controller.createTempUser
 		},
+		{
+			path: '/approve/:userId',
+			method: 'patch',
+			validations: [authentication],
+			handler: verfication.toggleApproval
+		},
 
 		{
 			path: '/id/:id',

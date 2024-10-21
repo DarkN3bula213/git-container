@@ -9,6 +9,7 @@ import { getConversationId } from '../utils/getConversationId';
 
 const logger = new Logger(__filename);
 
+// Main handler function for messages and calls
 export const handleMessages = async (
 	socket: Socket,
 	io: Server,
@@ -17,6 +18,7 @@ export const handleMessages = async (
 		{ userId: string; username: string; socketId: string }
 	>
 ) => {
+	// Set up event listeners
 	socket.on('requestConversationId', handleRequestConversationId(socket));
 	socket.on('privateMessage', handlePrivateMessage(socket, io));
 	socket.on('typing', handleTyping(socket, io));
@@ -25,14 +27,25 @@ export const handleMessages = async (
 		'joinConversation',
 		async () => await handleJoinConversation(socket, connectedUsers)
 	);
+	socket.on('callUser', handleCallUser(socket, io));
+	socket.on('answerCall', handleAnswerCall(socket, io));
 };
 
+// Handle request for conversation ID
 const handleRequestConversationId =
 	(socket: Socket) => async (userId: string) => {
-		const conversationId = await getConversationId(userId, socket);
-		socket.emit('conversationId', conversationId || null);
+		try {
+			const conversationId = await getConversationId(userId, socket);
+			socket.emit('conversationId', conversationId || null);
+		} catch (error) {
+			logger.error('Error fetching conversation ID', error);
+			socket.emit('messageError', {
+				message: 'Failed to fetch conversation ID'
+			});
+		}
 	};
 
+// Handle sending a private message
 const handlePrivateMessage =
 	(socket: Socket, io: Server) =>
 	async ({
@@ -78,6 +91,7 @@ const handlePrivateMessage =
 		}
 	};
 
+// Handle typing event
 const handleTyping =
 	(socket: Socket, io: Server) =>
 	({
@@ -94,6 +108,7 @@ const handleTyping =
 		});
 	};
 
+// Handle stopped typing event
 const handleStoppedTyping =
 	(socket: Socket, io: Server) =>
 	({
@@ -110,6 +125,7 @@ const handleStoppedTyping =
 		});
 	};
 
+// Handle joining a conversation
 const handleJoinConversation = async (
 	socket: Socket,
 	connectedUsers: Map<
@@ -117,20 +133,60 @@ const handleJoinConversation = async (
 		{ userId: string; username: string; socketId: string }
 	>
 ) => {
-	const userId = socket.data.userId as string;
-	socket.join(userId);
-	const conversations = await getAllConversationsForUser(userId);
-	const onlineUsers = Array.from(connectedUsers.values()).map((user) => ({
-		userId: user.userId,
-		username: user.username
-	}));
-	socket.emit('init', {
-		currentUser: {
-			userId,
-			username: socket.data.username,
-			socketId: socket.id
-		},
-		onlineUsers,
-		conversations
-	});
+	try {
+		const userId = socket.data.userId as string;
+		socket.join(userId);
+
+		const conversations = await getAllConversationsForUser(userId);
+		const onlineUsers = Array.from(connectedUsers.values()).map((user) => ({
+			userId: user.userId,
+			username: user.username
+		}));
+
+		socket.emit('init', {
+			currentUser: {
+				userId,
+				username: socket.data.username,
+				socketId: socket.id
+			},
+			onlineUsers,
+			conversations
+		});
+	} catch (error) {
+		logger.error('Error joining conversation', error);
+		socket.emit('messageError', { message: 'Failed to join conversation' });
+	}
 };
+
+// Handle call initiation
+const handleCallUser =
+	(socket: Socket, io: Server) =>
+	async ({ toUserId, signalData }: { toUserId: string; signalData: any }) => {
+		const fromUserId = socket.data.userId as string;
+
+		emitMessage(io, {
+			receivers: [toUserId],
+			event: 'callUser',
+			payload: {
+				signalData,
+				fromUserId
+			}
+		});
+		logger.info(
+			`Call initiated from user ${fromUserId} to user ${toUserId}`
+		);
+	};
+
+// Handle answering a call
+const handleAnswerCall =
+	(socket: Socket, io: Server) =>
+	async ({ toUserId, signalData }: { toUserId: string; signalData: any }) => {
+		const fromUserId = socket.data.userId as string;
+
+		emitMessage(io, {
+			receivers: [toUserId],
+			event: 'answerCall',
+			payload: { signalData, fromUserId }
+		});
+		logger.info(`Call answered by user ${fromUserId} for user ${toUserId}`);
+	};

@@ -1,3 +1,4 @@
+import { convertToObjectId } from '@/data/database/db.utils';
 import {
 	BadRequestError,
 	BadRequestResponse,
@@ -13,7 +14,7 @@ import {
 	sendResetSuccessEmail,
 	sendVerifyEmail
 } from '@/services/mail/mailTrap';
-import { UserModel } from '../users/user.model';
+import { User, UserModel } from '../users/user.model';
 import { service } from '../users/user.service';
 
 const logger = new Logger(__filename);
@@ -123,4 +124,17 @@ export const registeredUserVerification = asyncHandler(async (req, res) => {
 	const data = await service.generateVerificationToken(email, password);
 	await sendVerifyEmail(user.username, email, data.token);
 	return new SuccessResponse('Email verification sent', data).send(res);
+});
+
+export const toggleApproval = asyncHandler(async (req, res) => {
+	const userId = req.params.userId;
+	const id = convertToObjectId(userId);
+
+	const user = await UserModel.findById(id);
+	if (!user) {
+		throw new BadRequestError('Bad request');
+	}
+	user.isApproved = !user.isApproved;
+	await user.save();
+	return new SuccessResponse('Status changed', {}).send(res);
 });

@@ -41,8 +41,10 @@ const getRouteMap = (): RouteMap[] => {
 			path: '/',
 			method: 'post',
 			validations: [
-				invalidate(getDynamicKey(DynamicKey.FEE, '*')),
-				invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT'))
+				invalidate([
+					getDynamicKey(DynamicKey.FEE, '*'),
+					getDynamicKey(DynamicKey.STUDENTS, '*')
+				])
 			],
 			handler: controller.createPayment
 		},
@@ -84,7 +86,12 @@ const getRouteMap = (): RouteMap[] => {
 		{
 			path: '/custom',
 			method: 'post',
-			validations: [invalidate(getDynamicKey(DynamicKey.FEE, 'all'))],
+			validations: [
+				invalidate([
+					getDynamicKey(DynamicKey.FEE, '*'),
+					getDynamicKey(DynamicKey.STUDENTS, '*')
+				])
+			],
 			handler: controller.makeCustomPayment
 		},
 		{
@@ -92,8 +99,10 @@ const getRouteMap = (): RouteMap[] => {
 			method: 'post',
 			validations: [
 				validate(schema.createPaymentsBulk),
-				invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
-				invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT'))
+				invalidate([
+					getDynamicKey(DynamicKey.FEE, '*'),
+					getDynamicKey(DynamicKey.STUDENTS, '*')
+				])
 			],
 			handler: controller.createPaymentsBulk
 		},

@@ -5,6 +5,7 @@ import { BadRequestError, SuccessResponse } from '@/lib/api';
  ** -----------------------------( login )->
  */
 import { accessCookie, logoutCookie } from '@/lib/config/cookies';
+import { Roles } from '@/lib/constants';
 import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger/logger';
@@ -15,6 +16,7 @@ import {
 	isAdminRolePresent,
 	normalizeRoles
 } from '@/lib/utils/utils';
+import Role, { RoleModel } from '@/modules/auth/roles/role.model';
 import { sendVerifyEmail } from '@/services/mail/mailTrap';
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
@@ -33,8 +35,25 @@ declare module 'express-session' {
 }
 /*<!-- 1. Read  ---------------------------( getUsers )-> */
 export const getUsers = asyncHandler(async (_req, res) => {
-	const users = await UserModel.find().populate('roles').exec();
-	if (!users) return new BadRequestError('No users found');
+	// const users = await UserModel.find().populate('roles').exec();
+	// if (!users) return new BadRequestError('No users found');
+	// Map the admin roles to admins
+	// Example context: Inside a controller or service function
+	const adminRole = (await RoleModel.findOne({
+		code: Roles.ADMIN
+	})) as Role;
+	if (!adminRole) {
+		throw new BadRequestError('No admin roles found');
+	}
+
+	const users = (await UserModel.find().populate<{ roles: Role[] }>({
+		path: 'roles',
+		select: 'code'
+	})) as unknown as User[];
+	if (!users) {
+		throw new BadRequestError('No users found');
+	}
+
 	return new SuccessResponse('Users found', users).send(res);
 });
 
@@ -141,7 +160,6 @@ export const updateUser = asyncHandler(async (req, res) => {
 export const changePassword = asyncHandler(async (req, res) => {
 	const { userId, oldPassword, newPassword } = req.body;
 
-	console.log('req.body', req.body);
 	const reqUser = req.user as User;
 	if (reqUser._id !== userId) {
 		return new BadRequestError(

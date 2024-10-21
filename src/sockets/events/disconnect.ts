@@ -22,7 +22,10 @@ export const handleDisconnect = async (
 	if (!startTime) return; // If start time is missing, return early
 
 	// Calculate the time spent in the session
-
+	const rooms = io.sockets.adapter.rooms;
+	rooms.forEach((sockets, room) => {
+		console.log(`Room: ${room}, Sockets: ${Array.from(sockets)}`);
+	});
 	let session;
 	try {
 		session = calculateTimeSpent(new Date(startTime));

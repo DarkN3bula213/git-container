@@ -20,13 +20,9 @@ export const studentFeeAggregated = asyncHandler(async (req, res) => {
 
 /*<!-- 2. Aggregation ----------------------------( Return with Paid Status )*/
 export const fetchStudentsWithPaidStatus = asyncHandler(async (_req, res) => {
-	const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
-
 	const payId = getPayId();
 
-	const students = await cache.getWithFallback(key, async () => {
-		return await rootStudentAggregation(payId);
-	});
+	const students = await rootStudentAggregation(payId);
 
 	new SuccessResponse('Students fetched successfully', students).send(res);
 });

@@ -5,17 +5,10 @@ import { Socket } from 'socket.io';
 import { v4 } from 'uuid';
 import { sessionStore } from '../store/session-store';
 import { getOrSetStartTime } from '../utils/getStartTimeFromCache';
-import { handleJoinConversation } from '../utils/handleJoinConversation';
 
 const logger = new Logger(__filename);
 
-export const handleAuth = async (
-	socket: Socket,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
-): Promise<boolean> => {
+export const handleAuth = async (socket: Socket): Promise<boolean> => {
 	const cookies = cookie.parse(socket.handshake.headers.cookie || '');
 	const authToken = cookies.access;
 
@@ -23,6 +16,7 @@ export const handleAuth = async (
 		logger.warn(
 			`No auth token provided, disconnecting socket ${socket.id}`
 		);
+		socket.emit('logout');
 		socket.disconnect();
 		return false;
 	}
@@ -46,12 +40,7 @@ export const handleAuth = async (
 
 	await getOrSetStartTime(userId, socket);
 
-	const sessionId = await handleSession(
-		socket,
-		userId,
-		username,
-		connectedUsers
-	);
+	const sessionId = await handleSession(socket, userId, username);
 
 	// Attach session data to socket
 	socket.data.sessionId = sessionId;
@@ -69,11 +58,7 @@ export const handleAuth = async (
 const handleSession = async (
 	socket: Socket,
 	userId: string,
-	username: string,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
+	username: string
 ): Promise<string> => {
 	let sessionId = getSessionId(socket);
 
@@ -84,9 +69,6 @@ const handleSession = async (
 			sessionId = v4();
 			await sessionStore.saveSession(sessionId, { userId, username });
 			logger.info(`New session created with sessionId: ${sessionId}`);
-		} else {
-			logger.warn(`Session ${sessionId} found`);
-			handleJoinConversation(socket, userId, connectedUsers);
 		}
 	} else {
 		sessionId = v4();

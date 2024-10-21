@@ -211,3 +211,10 @@ export function mapRouter(router: Router, routes: RouterMap[]): void {
 		}
 	}
 }
+// This function is now designed to fetch all admin roles once
+export const fetchAdminRoles = async (): Promise<Types.ObjectId | null> => {
+	const adminRoles = await RoleModel.findOne({ code: Roles.ADMIN }).select(
+		'_id'
+	);
+	return adminRoles?._id || null;
+};

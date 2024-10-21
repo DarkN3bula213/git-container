@@ -37,6 +37,7 @@ export interface User extends Document {
 	lastLogin: Date;
 	pendingEmail?: string;
 	lastPasswordChange: Date | null;
+	isApproved: boolean;
 }
 
 interface UserMethods {
@@ -63,6 +64,10 @@ interface UserModel extends Model<User, object, UserMethods> {
 export const schema = new Schema<User>(
 	{
 		temporary: { type: Date, required: false },
+		isApproved: {
+			type: Boolean,
+			default: false
+		},
 		username: {
 			type: String,
 			unique: true,
