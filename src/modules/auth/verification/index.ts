@@ -136,5 +136,6 @@ export const toggleApproval = asyncHandler(async (req, res) => {
 	}
 	user.isApproved = !user.isApproved;
 	await user.save();
-	return new SuccessResponse('Status changed', {}).send(res);
+	console.log(user);
+	return new SuccessResponse('Status changed', { user }).send(res);
 });

@@ -8,6 +8,7 @@ export const corsOptions: cors.CorsOptions = {
 	origin: [
 		'https://hps-admin.com',
 		'http://localhost:5173',
+		'https://localhost:5173',
 		'http://192.168.100.149:5173',
 		'http://localhost:3030'
 	],

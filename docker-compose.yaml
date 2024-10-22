@@ -1,83 +1,105 @@
 version: '3.3'
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile.production
-    env_file:
-      - .env
-    container_name: hps-api
-    environment:
-      - NODE_ENV=docker
-      - PORT=3000
-      - REDIS_URL=redis://redis
-    volumes:
-      - ./logs:/usr/src/app/logs
-      - uploads_volume:/usr/src/app/uploads
-    depends_on:
-      - redis
-      - mongo
-    restart: always
-    ports:
-      - '3000:3000'
-    links:
-      - redis
-      - mongo
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      - app-network
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile.production
+        env_file:
+            - .env
+        container_name: hps-api
+        environment:
+            - NODE_ENV=docker
+            - PORT=3000
+            - REDIS_URL=redis://redis
+        volumes:
+            - ./logs:/usr/src/app/logs
+            - uploads_volume:/usr/src/app/uploads
+        depends_on:
+            - redis
+            - mongo
+        restart: always
+        ports:
+            - '3000:3000'
+        links:
+            - redis
+            - mongo
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        networks:
+            - app-network
 
-  mongo:
-    image: mongo:latest
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
-    container_name: mongo
-    ports:
-      - 27017:27017
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    restart: always
-    healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
-      interval: 5s
-      timeout: 30s
-      retries: 30
-    volumes:
-      - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
-      - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
-      - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
-    networks:
-      - app-network
+    # mongo:
+    #   image: mongo:latest
+    #   command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    #   container_name: mongo
+    #   ports:
+    #     - 27017:27017
+    #   extra_hosts:
+    #     - "host.docker.internal:host-gateway"
+    #   restart: always
+    #   healthcheck:
+    #     test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+    #     interval: 5s
+    #     timeout: 30s
+    #     retries: 30
+    #   volumes:
+    #     - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+    #     - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
+    #     - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
+    #   networks:
+    #     - app-network
 
-  nginx:
-    image: nginx:alpine
-    ports:
-      - '80:80'
-      - '443:443'
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt/live/api.hps-admin.com/fullchain.pem:/etc/ssl/certs/api_fullchain.pem
-      - /etc/letsencrypt/live/api.hps-admin.com/privkey.pem:/etc/ssl/private/api_privkey.pem
-      - /etc/letsencrypt/live/file.hps-admin.com/fullchain.pem:/etc/ssl/certs/file_fullchain.pem
-      - /etc/letsencrypt/live/file.hps-admin.com/privkey.pem:/etc/ssl/private/file_privkey.pem
-    depends_on:
-      - app
-    networks:
-      - app-network
+    mongo:
+        image: mongo:latest
+        command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
+        container_name: mongo
+        ports:
+            - 27017:27017
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        restart: always
+        healthcheck:
+            test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+            interval: 5s
+            timeout: 30s
+            retries: 30
+        volumes:
+            - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+            - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
+            - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
+        environment:
+            - TZ=Asia/Karachi # Set the timezone to Pakistan Standard Time (PST)
+        networks:
+            - app-network
+    nginx:
+        image: nginx:alpine
+        ports:
+            - '80:80'
+            - '443:443'
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+            - /etc/letsencrypt/live/api.hps-admin.com/fullchain.pem:/etc/ssl/certs/api_fullchain.pem
+            - /etc/letsencrypt/live/api.hps-admin.com/privkey.pem:/etc/ssl/private/api_privkey.pem
+            - /etc/letsencrypt/live/file.hps-admin.com/fullchain.pem:/etc/ssl/certs/file_fullchain.pem
+            - /etc/letsencrypt/live/file.hps-admin.com/privkey.pem:/etc/ssl/private/file_privkey.pem
+        depends_on:
+            - app
+        networks:
+            - app-network
 
-  redis:
-    image: redis:alpine
-    container_name: redis
-    command: redis-server --appendonly no
-    networks:
-      - app-network
+    redis:
+        image: redis:alpine
+        container_name: redis
+        command: redis-server --appendonly no
+        networks:
+            - app-network
 
 networks:
-  app-network:
-    driver: bridge
+    app-network:
+        driver: bridge
 
 volumes:
-  dbdata:
-  uploads_volume:
-  dbdata_config:
+    dbdata:
+    uploads_volume:
+    dbdata_config:

@@ -34,8 +34,9 @@ morgan.format('myFormat', (tokens, req, res) => {
 	const status = tokens.status(req, res);
 	const responseTime = tokens['response-time'](req, res);
 	const authStatus = tokens.auth(req, res);
+	const ip = req.socket.remoteAddress;
 
-	return `${timestamp} [${method}]: ${url} - ${authStatus} - Status: ${status} - ${responseTime} ms`;
+	return `${timestamp} [${method}]: ${url} - ${authStatus} - Status: ${status} - ${responseTime} ms IP: ${ip}`;
 });
 
 export const morganMiddleware = morgan('myFormat');

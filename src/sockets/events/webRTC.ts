@@ -3,7 +3,6 @@ import { Server, Socket } from 'socket.io';
 import { Logger } from '../../lib/logger';
 import { emitMessage } from '../utils/emitMessage';
 
-
 const logger = new Logger(__filename);
 
 export const handleWebRTC = (socket: Socket, io: Server) => {
@@ -22,35 +21,35 @@ export const handleWebRTC = (socket: Socket, io: Server) => {
 			stack: error.stack
 		});
 	};
-	 socket.on('startCall', ({ to }) => {
-			console.log(`startCall event received. Target user ID: ${to}`);
-			io.to(to).emit('incomingCallNotification', {
-				from: socket.data.userId
-			});
+	socket.on('startCall', ({ to }) => {
+		console.log(`startCall event received. Target user ID: ${to}`);
+		io.to(to).emit('incomingCallNotification', {
+			from: socket.data.userId
 		});
+	});
 
-		socket.on('acceptCall', ({ from }) => {
-			console.log(`Call accepted by ${socket.data.userId} from ${from}`);
-			io.to(from).emit('callAccepted', {
-				by: socket.data.userId
-			});
+	socket.on('acceptCall', ({ from }) => {
+		console.log(`Call accepted by ${socket.data.userId} from ${from}`);
+		io.to(from).emit('callAccepted', {
+			by: socket.data.userId
 		});
+	});
 
-		socket.on('video-offer', ({ to, signal }) => {
-			console.log('Sending video offer to:', to);
-			io.to(to).emit('video-answer', {
-				from: socket.data.userId,
-				signal
-			});
+	socket.on('video-offer', ({ to, signal }) => {
+		console.log('Sending video offer to:', to);
+		io.to(to).emit('video-answer', {
+			from: socket.data.userId,
+			signal
 		});
+	});
 
-		socket.on('endCall', ({ to }) => {
-			console.log(`Call ended between ${socket.data.userId} and ${to}`);
-			io.to(to).emit('callEnded', { by: socket.data.userId });
-		});
+	socket.on('endCall', ({ to }) => {
+		console.log(`Call ended between ${socket.data.userId} and ${to}`);
+		io.to(to).emit('callEnded', { by: socket.data.userId });
+	});
 	socket.on(
 		'video-offer',
-		({ 
+		({
 			toUserId,
 			sdp
 		}: {
@@ -75,7 +74,7 @@ export const handleWebRTC = (socket: Socket, io: Server) => {
 			}
 		}
 	);
- 
+
 	socket.on(
 		'video-answer',
 		({
