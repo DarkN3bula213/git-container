@@ -130,3 +130,5 @@ dist
 .pnp.*
 # Docker compose file
 docker-compose.yaml
+# Sentry Config File
+.sentryclirc

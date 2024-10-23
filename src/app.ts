@@ -2,6 +2,8 @@ import { cache } from '@/data/cache/cache.service';
 import { config, loginLimiter, morganMiddleware as morgan } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
 import { RequestLogger } from '@/lib/logger';
+import * as Sentry from '@sentry/node';
+// Import with `import * as Sentry from "@sentry/node"` if you are using ESM
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -10,32 +12,34 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
-import { Logger } from './lib/logger';
+// import { Logger } from './lib/logger';
 import sanitizeInputs from './middleware/sanitizeReq';
 import apiKey from './middleware/useApiKey';
 import router from './routes';
 
-const logger = new Logger(__filename);
+// const logger = new Logger(__filename);
 
-process.on('uncaughtException', (e) => {
-	logger.error({
-		event: 'Uncaught Exception',
-		message: e.message,
-		stack: e.stack
-	});
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-	logger.error({
-		event: 'Unhandled Rejection Occured',
-		reason: reason,
-		promise: promise
-	});
-	console.error(`Reason: ${reason}`);
-	console.dir(promise);
-});
+// process.on('uncaughtException', (e) => {
+// 	logger.error({
+// 		event: 'Uncaught Exception',
+// 		message: e.message,
+// 		stack: e.stack
+// 	});
+// });
+// process.on('unhandledRejection', (reason, promise) => {
+// 	logger.error({
+// 		event: 'Unhandled Rejection Occured',
+// 		reason: reason,
+// 		promise: promise
+// 	});
+// 	console.error(`Reason: ${reason}`);
+// 	console.dir(promise);
+// });
 const app: Application = express();
 
+Sentry.init({
+	dsn: 'https://349efc47f436153d8795636c8c3bf15e@o4507312123478016.ingest.de.sentry.io/4508169275441232'
+});
 app.set('trust proxy', 1);
 app.use(cookieParser());
 app.use(helmet());
@@ -52,7 +56,7 @@ app.use(apiKey);
 app.use(loginLimiter);
 handleUploads(app);
 app.use('/api', router);
-
+Sentry.setupExpressErrorHandler(app);
 handleErrors(app);
 
 export { app };

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "pnpm clear && tsc && tsc-alias",
+    "build": "pnpm clear && tsc && tsc-alias && pnpm sentry:sourcemaps",
     "build-ts": "tsc",
     "clear": "rm -rf dist",
     "dev": "nodemon -e ts,js --exec ts-node -r tsconfig-paths/register ./src/index.ts",
@@ -20,7 +20,8 @@
     "test": "jest  --verbose --runInBand --detectOpenHandles",
     "test:watch": "jest  --no-cache --detectOpenHandles",
     "watch-ts": "tsc -w",
-    "prepush-check": "pnpm serve"
+    "prepush-check": "pnpm serve",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org hps-l1 --project node-express ./dist && sentry-cli sourcemaps upload --org hps-l1 --project node-express ./dist"
   },
   "jest": {
     "preset": "ts-jest",
@@ -38,6 +39,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/cli": "^2.38.0",
+    "@sentry/node": "^8.35.0",
+    "@sentry/profiling-node": "^8.35.0",
     "@supabase/supabase-js": "^2.42.5",
     "@types/bcrypt": "^5.0.2",
     "@types/compression": "^1.7.5",
