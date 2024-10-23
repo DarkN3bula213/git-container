@@ -1,6 +1,7 @@
 import { cache } from '@/data/cache/cache.service';
 import { config, loginLimiter, morganMiddleware as morgan } from '@/lib/config';
-// Import with `import * as Sentry from "@sentry/node"` if you are using ESM
+import { corsOptions } from '@/lib/config/cors';
+import { RequestLogger } from '@/lib/logger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -8,14 +9,31 @@ import express, { type Application, json, urlencoded } from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import { handleUploads } from './lib/config';
-import { corsOptions } from './lib/config/cors';
 import handleErrors from './lib/handlers/errorHandler';
-import { RequestLogger } from './lib/logger';
-// import { Logger } from './lib/logger';
+import { Logger } from './lib/logger';
 import sanitizeInputs from './middleware/sanitizeReq';
 import apiKey from './middleware/useApiKey';
 import router from './routes';
 
+const logger = new Logger(__filename);
+
+process.on('uncaughtException', (e) => {
+	logger.error({
+		event: 'Uncaught Exception',
+		message: e.message,
+		stack: e.stack
+	});
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+	logger.error({
+		event: 'Unhandled Rejection Occured',
+		reason: reason,
+		promise: promise
+	});
+	console.error(`Reason: ${reason}`);
+	console.dir(promise);
+});
 const app: Application = express();
 
 app.set('trust proxy', 1);
@@ -34,6 +52,7 @@ app.use(apiKey);
 app.use(loginLimiter);
 handleUploads(app);
 app.use('/api', router);
+
 handleErrors(app);
 
 export { app };
