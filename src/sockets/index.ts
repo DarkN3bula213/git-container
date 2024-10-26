@@ -97,10 +97,6 @@ class SocketService {
 							outgoing: `Outgoing ${event}`,
 							arguments: JSON.stringify(args, null, 2)
 						});
-					} else {
-						logger.debug({
-							outgoing: `Outgoing ${event}`
-						});
 					}
 				});
 

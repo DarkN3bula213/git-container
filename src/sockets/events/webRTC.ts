@@ -4,7 +4,15 @@ import { Logger } from '../../lib/logger';
 import { emitMessage } from '../utils/emitMessage';
 
 const logger = new Logger(__filename);
-
+//offers will contain {}
+const offers: {
+	offererUserName: string;
+	offer: RTCSessionDescriptionInit;
+	offerIceCandidates: RTCIceCandidateInit[];
+	answererUserName: string;
+	answer: RTCSessionDescriptionInit;
+	answererIceCandidates: RTCIceCandidateInit[];
+}[] = [];
 export const handleWebRTC = (socket: Socket, io: Server) => {
 	const logEvent = (event: string, fromUserId: string, toUserId: string) => {
 		// Log to console as well for now
@@ -21,12 +29,9 @@ export const handleWebRTC = (socket: Socket, io: Server) => {
 			stack: error.stack
 		});
 	};
-	socket.on('startCall', ({ to }) => {
-		console.log(`startCall event received. Target user ID: ${to}`);
-		io.to(to).emit('incomingCallNotification', {
-			from: socket.data.userId
-		});
-	});
+	if (offers.length) {
+		socket.emit('availableOffers', offers);
+	}
 
 	socket.on('acceptCall', ({ from }) => {
 		console.log(`Call accepted by ${socket.data.userId} from ${from}`);
@@ -35,9 +40,10 @@ export const handleWebRTC = (socket: Socket, io: Server) => {
 		});
 	});
 
-	socket.on('video-offer', ({ to, signal }) => {
-		console.log('Sending video offer to:', to);
-		io.to(to).emit('video-answer', {
+	socket.on('video-offer', ({ toUserId, signal }) => {
+		console.log('Sending video offer to:', toUserId);
+		console.log(signal, 'signal');
+		io.to(toUserId).emit('video-answer', {
 			from: socket.data.userId,
 			signal
 		});
@@ -47,54 +53,59 @@ export const handleWebRTC = (socket: Socket, io: Server) => {
 		console.log(`Call ended between ${socket.data.userId} and ${to}`);
 		io.to(to).emit('callEnded', { by: socket.data.userId });
 	});
-	socket.on(
-		'video-offer',
-		({
-			toUserId,
-			sdp
-		}: {
-			toUserId: string;
-			sdp: RTCSessionDescriptionInit;
-		}) => {
-			try {
-				// Log a message when the video offer is received
-				console.log('Received video-offer event');
+	// socket.on(
+	// 	'video-offer',
+	// 	({
+	// 		toUserId,
+	// 		sdp
+	// 	}: {
+	// 		toUserId: string;
+	// 		sdp: RTCSessionDescriptionInit;
+	// 	}) => {
+	// 		try {
+	// 			// Log a message when the video offer is received
+	// 			console.log('Received video-offer event');
 
-				const fromUserId = socket.data.userId as string;
+	// 			const fromUserId = socket.data.userId as string;
 
-				emitMessage(io, {
-					receivers: [toUserId],
-					event: 'video-offer',
-					payload: { fromUserId, sdp }
-				});
+	// 			emitMessage(io, {
+	// 				receivers: [toUserId],
+	// 				event: 'video-offer',
+	// 				payload: { fromUserId, sdp }
+	// 			});
 
-				logEvent('Video offer sent', fromUserId, toUserId);
-			} catch (error) {
-				handleError('video-offer', error as Error);
-			}
-		}
-	);
+	// 			logEvent('Video offer sent', fromUserId, toUserId);
+	// 		} catch (error) {
+	// 			handleError('video-offer', error as Error);
+	// 		}
+	// 	}
+	// );
 
+	// socket.on(
+	// 	'video-answer',
+	// 	({ toUserId, signal }: { toUserId: string; signal: any }) => {
+	// 		try {
+	// 			const fromUserId = socket.data.userId as string;
+	// 			emitMessage(io, {
+	// 				receivers: [toUserId],
+	// 				event: 'video-answer',
+	// 				payload: { fromUserId, signal }
+	// 			});
+	// 			logEvent('Video answer sent', fromUserId, toUserId);
+	// 		} catch (error) {
+	// 			handleError('video-answer', error as Error);
+	// 		}
+	// 	}
+	// );
 	socket.on(
 		'video-answer',
-		({
-			toUserId,
-			sdp
-		}: {
-			toUserId: string;
-			sdp: RTCSessionDescriptionInit;
-		}) => {
-			try {
-				const fromUserId = socket.data.userId as string;
-				emitMessage(io, {
-					receivers: [toUserId],
-					event: 'video-answer',
-					payload: { fromUserId, sdp }
-				});
-				logEvent('Video answer sent', fromUserId, toUserId);
-			} catch (error) {
-				handleError('video-answer', error as Error);
-			}
+		({ toUserId, signal }: { toUserId: string; signal: any }) => {
+			emitMessage(io, {
+				receivers: [toUserId],
+				event: 'video-answer',
+				payload: { fromUserId: socket.data.userId, signal }
+			});
+			logEvent('Video answer sent', socket.data.userId, toUserId);
 		}
 	);
 
