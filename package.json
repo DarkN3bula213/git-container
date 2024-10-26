@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "pnpm clear && tsc && tsc-alias && pnpm sentry:sourcemaps",
+    "build": "pnpm clear && tsc && tsc-alias",
     "build-ts": "tsc",
     "clear": "rm -rf dist",
     "dev": "nodemon -e ts,js --exec ts-node -r tsconfig-paths/register ./src/index.ts",
