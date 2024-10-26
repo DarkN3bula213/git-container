@@ -10,8 +10,6 @@ import { banner, signals } from './lib/constants';
 import { setupCronJobs } from './services/cron';
 import SocketService from './sockets';
 
-// import './services/reporting/daily-fees';
-
 const logger = new Logger(__filename);
 const server = http.createServer(app);
 const socketService = SocketService.getInstance(server);
