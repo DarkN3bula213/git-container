@@ -1,6 +1,6 @@
 import { Logger as log } from '@/lib/logger';
 import { type Model, Schema, Types, model } from 'mongoose';
-import { ClassModel } from '../classes/class.model';
+import { ClassModel, IClass } from '../classes/class.model';
 import type { Student } from './student.interface';
 import { generateUniqueId } from './student.utils';
 
@@ -182,9 +182,9 @@ const studentSchema = new Schema<Student>(
 // Define a static method on the studentSchema
 studentSchema.statics.bulkInsert = async function (students) {
 	for (const student of students) {
-		const classDoc = await ClassModel.findOne({
+		const classDoc = (await ClassModel.findOne({
 			className: student.className
-		});
+		})) as IClass;
 		if (!classDoc) {
 			throw new Error(
 				`Invalid class name provided: ${student.className}`
@@ -233,37 +233,7 @@ studentSchema.pre('save', async function (next) {
 		next(error);
 	}
 });
-/**
- * 
-  try {
-      const student = this;
-      const populatedStudent = await student
-        .populate('classId', 'className fee')
-           if (!populatedStudent.classId) {
-             throw new Error(`Invalid classId provided`);
-           }
-        const classSections = populatedStudent.classId.section;
-        if (!classSections.includes(this.section)) {
-          throw new Error(
-            `Section ${this.section} does not exist for the specified class`,
-          );
-        }
-           this.className = populatedStudent.classId.className;
-           this.tuition_fee = populatedStudent.classId.fee;
 
-           next();
-    
-  } catch (error:any) {
-    Logger.error({
-      error: error.message,
-    });
-    next(error)
-    
-  }
- * @returns 
- */
-
-// Implement the static method
 const getClassIdByName: IStudentStaticMethods['getClassIdByName'] = async (
 	className
 ) => {

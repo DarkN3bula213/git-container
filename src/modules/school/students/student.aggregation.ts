@@ -151,7 +151,43 @@ export const rootStudentAggregation = async (payId: string) => {
 		},
 		{
 			$project: {
-				payments: 0 // Remove the payments field if not needed in the final output
+				payments: 0
+			}
+		}
+	]);
+};
+
+export const studentPaidAggregation = async (payId: string) => {
+	return await StudentModel.aggregate([
+		{
+			$lookup: {
+				from: 'payments',
+				let: { studentId: '$_id' }, // Create a variable for the student ID
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$and: [
+									{ $eq: ['$studentId', '$$studentId'] }, // Match student ID
+									{ $eq: ['$payId', payId] } // Match exact payId
+								]
+							}
+						}
+					}
+				],
+				as: 'payments'
+			}
+		},
+		{
+			$addFields: {
+				paid: {
+					$gt: [{ $size: '$payments' }, 0]
+				}
+			}
+		},
+		{
+			$project: {
+				payments: 0
 			}
 		}
 	]);

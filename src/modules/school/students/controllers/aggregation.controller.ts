@@ -5,9 +5,9 @@ import { classOrder } from '@/lib/constants/classOrder';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { getPayId } from '../../payments/payment.utils';
 import {
-	allStudentsWithPayments,
-	rootStudentAggregation,
-	studentDetailsWithPayments
+	allStudentsWithPayments, // rootStudentAggregation,
+	studentDetailsWithPayments,
+	studentPaidAggregation
 } from '../student.aggregation';
 
 /*<!-- 1. Aggregation ----------------------------( getStudents )*/
@@ -22,7 +22,7 @@ export const studentFeeAggregated = asyncHandler(async (req, res) => {
 export const fetchStudentsWithPaidStatus = asyncHandler(async (_req, res) => {
 	const payId = getPayId();
 
-	const students = await rootStudentAggregation(payId);
+	const students = await studentPaidAggregation(payId);
 
 	new SuccessResponse('Students fetched successfully', students).send(res);
 });

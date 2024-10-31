@@ -212,87 +212,6 @@ class PaymentService {
 
 			return paymentDocs;
 		});
-
-		// const session: ClientSession = await startSession();
-		// session.startTransaction();
-		// try {
-		// 	const payId = getPayId();
-		// 	const studentData: Student[] = [];
-
-		// 	for (const id of studentIds) {
-		// 		const student = (await StudentModel.findById(id).session(
-		// 			session
-		// 		)) as Student;
-		// 		if (!student)
-		// 			throw new BadRequestError(`Student not found: ${id}`);
-		// 		studentData.push(student);
-		// 	}
-
-		// 	// Pre-generate invoice numbers for all payments
-		// 	const invoiceIds = [] as string[];
-		// 	for (let i = 0; i < studentData.length; i++) {
-		// 		invoiceIds.push(await this.getNextInvoiceId());
-		// 	}
-
-		// 	const payments = studentData.map((student, index) => ({
-		// 		studentId: student._id,
-		// 		studentName: student.name,
-		// 		classId: student.classId,
-		// 		className: student.className,
-		// 		section: student.section,
-		// 		amount: student.tuition_fee,
-		// 		paymentDate: new Date(),
-		// 		createdBy: userId,
-		// 		paymentType: student.feeType,
-		// 		invoiceId: invoiceIds[index],
-		// 		payId: payId
-		// 	}));
-
-		// 	const paymentDocs = await Payments.insertMany(payments, {
-		// 		session
-		// 	});
-
-		// 	// Other database operations...
-		// 	// Push Entry into Student's Payment History
-		// 	await StudentModel.updateMany(
-		// 		{ _id: { $in: studentIds } },
-		// 		{
-		// 			$push: {
-		// 				paymentHistory: {
-		// 					$each: paymentDocs.map((payment) => ({
-		// 						paymentId: payment._id,
-		// 						payId: payment.payId,
-		// 						amount: payment.amount,
-		// 						date: payment.paymentDate
-		// 					}))
-		// 				}
-		// 			}
-		// 		},
-		// 		{ session }
-		// 	);
-
-		// 	await session.commitTransaction();
-
-		// 	// Calculate total amount for this transaction
-		// 	const totalAmount = payments.reduce(
-		// 		(sum, payment) => sum + payment.amount,
-		// 		0
-		// 	);
-
-		// 	// Update the money flow in Redis
-		// 	const key = Key.DAILYTOTAL;
-		// 	await cache.incrBy(key, totalAmount);
-		// 	logger.debug(
-		// 		`Calculated total amount for this transaction: ${totalAmount}`
-		// 	);
-
-		// 	return paymentDocs;
-		// } catch (error) {
-		// 	await session.abortTransaction();
-		// 	throw error;
-		// } finally {
-		// 	session.endSession();
-		// }
 	}
 
 	/*===============( DELETE SINGLE PAYMENT )==============================*/
@@ -320,43 +239,6 @@ class PaymentService {
 
 			return { message: 'Payment deleted successfully' };
 		});
-		// const session: ClientSession = await startSession();
-		// session.startTransaction();
-		// try {
-		// 	// Find the payment document
-		// 	const payment = await Payments.findById(paymentId).session(session);
-		// 	if (!payment) {
-		// 		throw new BadRequestError('Payment not found');
-		// 	}
-
-		// 	// Delete the payment document
-		// 	await Payments.findByIdAndDelete(paymentId).session(session);
-
-		// 	// Remove the entry from the student's payment history
-		// 	await StudentModel.findByIdAndUpdate(
-		// 		payment.studentId,
-		// 		{
-		// 			$pull: {
-		// 				paymentHistory: {
-		// 					paymentId: paymentId
-		// 				}
-		// 			}
-		// 		},
-		// 		{ session }
-		// 	);
-
-		// 	await session.commitTransaction();
-
-		// 	// Update the money flow in Redis
-		// 	const key = Key.DAILYTOTAL;
-		// 	await cache.decrBy(key, payment.amount);
-		// 	return { message: 'Payment deleted successfully' };
-		// } catch (error) {
-		// 	await session.abortTransaction();
-		// 	throw error;
-		// } finally {
-		// 	session.endSession();
-		// }
 	}
 
 	/*===============( DELETE MULTIPLE PAYMENTS )==============================*/
