@@ -37,6 +37,13 @@ const getRouteMap = (): RouteMap[] => {
 			validations: [schema.schoolStats],
 			handler: controller.getSchoolStatsBySession
 		},
+		/*<!-- 2. Get  ---------------------------( Get by Date Range )->*/
+		{
+			path: '/date-range',
+			method: 'get',
+			// validations: [schema.schoolStats],
+			handler: controller.getPaymentsByDateRange
+		},
 		{
 			path: '/',
 			method: 'post',

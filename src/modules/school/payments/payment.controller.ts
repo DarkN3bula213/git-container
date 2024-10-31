@@ -59,9 +59,9 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
 			studentId: student._id,
 			studentName: student.name,
 			classId: student.classId,
-			className: grade.className,
+			className: grade?.className,
 			section: student.section,
-			amount: grade.fee,
+			amount: grade?.fee,
 			paymentDate: new Date(),
 			createdBy: user._id,
 			paymentType: student.feeType,
@@ -95,9 +95,9 @@ export const makeCustomPayment = asyncHandler(async (req, res) => {
 /*<!-- 1. Read  ---------------------------( Get All )-> */
 export const getPayments = asyncHandler(async (_req, res) => {
 	const key = getDynamicKey(DynamicKey.FEE, 'all');
-	const cachedPayments = await cache.getWithFallback(key, async () => {
+	const cachedPayments = (await cache.getWithFallback(key, async () => {
 		return await Payments.find({}).lean().exec();
-	});
+	})) as IPayment[];
 	return new SuccessResponse(
 		'Payments fetched successfully',
 		cachedPayments
@@ -144,6 +144,93 @@ export const getMonthsPayments = asyncHandler(async (req, res) => {
 	return new SuccessResponse(
 		'Payment fetched successfully',
 		cachedPayment
+	).send(res);
+});
+
+/*<!-- 3. Read  ---------------------------( Get Payments By Date Range )-> */
+export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
+	const { startDate, endDate } = req.query;
+
+	// Create start date object and set to start of day
+	const start = new Date(startDate as string);
+	start.setHours(0, 0, 0, 0);
+
+	// If no end date provided, set to end of start date
+	// Otherwise, set to end of end date
+	const end = endDate
+		? (() => {
+				const date = new Date(endDate as string);
+				date.setHours(23, 59, 59, 999);
+				return date;
+			})()
+		: (() => {
+				const date = new Date(startDate as string);
+				date.setHours(23, 59, 59, 999);
+				return date;
+			})();
+
+	const payments = await Payments.find({
+		createdAt: {
+			$gte: start,
+			$lte: end
+		}
+	}).sort({ createdAt: -1 });
+
+	if (!payments.length) {
+		throw new BadRequestError(
+			'No payments found for the specified date range'
+		);
+	}
+
+	// Calculate total amount for the period
+	const totalAmount = payments.reduce(
+		(sum, payment) => sum + payment.amount,
+		0
+	);
+
+	// Group payments by class and section
+	const groupedPayments = payments.reduce(
+		(acc, payment) => {
+			const key = `${payment.className}-${payment.section}`;
+			if (!acc[key]) {
+				acc[key] = {
+					className: payment.className,
+					section: payment.section,
+					payments: [],
+					totalAmount: 0
+				};
+			}
+			acc[key].payments.push(payment);
+			acc[key].totalAmount += payment.amount;
+			return acc;
+		},
+		{} as Record<
+			string,
+			{
+				className: string;
+				section: string;
+				payments: typeof payments;
+				totalAmount: number;
+			}
+		>
+	);
+
+	const responseData = {
+		payments,
+		summary: {
+			totalPayments: payments.length,
+			totalAmount,
+			dateRange: {
+				from: start,
+				to: end
+			}
+		},
+		groupedPayments: Object.values(groupedPayments)
+	};
+
+	return new SuccessResponse(
+		'Payments fetched successfully',
+		responseData
 	).send(res);
 });
 

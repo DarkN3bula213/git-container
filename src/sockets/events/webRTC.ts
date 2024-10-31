@@ -23,8 +23,6 @@ export const handleWebRTC = (socket: Socket, io: Server) => {
 	};
 
 	socket.on('video-offer', ({ toUserId, signal }) => {
-		console.log('Sending video offer to:', toUserId);
-		console.log(signal, 'signal');
 		io.to(toUserId).emit('video-answer', {
 			from: socket.data.userId,
 			signal
