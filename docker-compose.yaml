@@ -38,7 +38,6 @@ services:
             '--replSet', 'rs0',
             '--port', '27017',
             '--bind_ip', 'localhost,mongo', # Only bind to localhost and container name
-            '--auth'  # Enable authentication
         ]
         container_name: mongo
         ports:
