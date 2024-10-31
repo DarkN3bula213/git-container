@@ -42,6 +42,16 @@ const createDirectories = async () => {
 };
 
 const startServer = async () => {
+	const date = new Date();
+	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+	// Get time in Pakistan
+	const pkTime = new Intl.DateTimeFormat('en-US', {
+		timeZone: 'Asia/Karachi',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hour12: false
+	}).format(date);
 	try {
 		// Connect to cache and database
 		await cache.connect();
@@ -52,7 +62,10 @@ const startServer = async () => {
 		server.listen(PORT, () => {
 			logger.info({
 				server: `Server instance instantiated and listening on port ${PORT}.`,
-				node: banner
+				node: banner,
+				date: date,
+				timeZone: timeZone,
+				pkTime: pkTime
 			});
 		});
 	} catch (error: any) {
