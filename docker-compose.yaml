@@ -12,14 +12,12 @@ services:
             - NODE_ENV=docker
             - PORT=3000
             - REDIS_URL=redis://redis
-            - TZ=Asia/Karachi
         volumes:
             - ./logs:/usr/src/app/logs
             - uploads_volume:/usr/src/app/uploads
         depends_on:
             - redis
             - mongo
-
         restart: always
         ports:
             - '3000:3000'
@@ -34,14 +32,10 @@ services:
  
     mongo:
         image: mongo:latest
-        command: [
-            '--replSet', 'rs0',
-            '--port', '27017',
-            '--bind_ip', 'localhost,mongo', # Only bind to localhost and container name
-        ]
+        command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
         container_name: mongo
         ports:
-            - 27017
+            - 27017:27017
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         restart: always
@@ -55,7 +49,7 @@ services:
             - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
             - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
         environment:
-            - TZ=Asia/Karachi
+            - TZ=Asia/Karachi # Set the timezone to Pakistan Standard Time (PST)
         networks:
             - app-network
     nginx:
@@ -83,7 +77,6 @@ services:
 
 networks:
     app-network:
-        internal: true
         driver: bridge
 
 volumes:
