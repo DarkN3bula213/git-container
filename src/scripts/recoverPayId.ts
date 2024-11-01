@@ -13,117 +13,208 @@ interface Summary {
 	updatedStudents: number;
 	errorCount: number;
 }
-
 async function rebuildPaymentHistories() {
-	const session = await mongoose.startSession();
-	session.startTransaction();
+	const session = await mongoose.startSession({
+		defaultTransactionOptions: {
+			readPreference: 'primary',
+			readConcern: { level: 'local' },
+			writeConcern: { w: 'majority' },
+			maxTimeMS: 30000 // 30 second timeout
+		}
+	});
+
+	const BATCH_SIZE = 100;
+	const MAX_RETRIES = 3;
+	const RETRY_DELAY = 5000;
+
+	const sleep = (ms: number) =>
+		new Promise((resolve) => setTimeout(resolve, ms));
+
+	const retryOperation = async <T>(
+		operation: () => Promise<T>,
+		operationName: string
+	): Promise<T> => {
+		for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+			try {
+				return await operation();
+			} catch (error) {
+				const isLockError =
+					error instanceof Error &&
+					error.message.includes('Unable to acquire') &&
+					error.message.includes('lock');
+
+				if (isLockError && attempt < MAX_RETRIES) {
+					Logger.warn({
+						message: `${operationName} failed due to lock, retrying...`,
+						attempt,
+						error:
+							error instanceof Error
+								? error.message
+								: String(error)
+					});
+					await sleep(RETRY_DELAY * attempt);
+					continue;
+				}
+				throw error;
+			}
+		}
+		throw new Error(
+			`${operationName} failed after ${MAX_RETRIES} attempts`
+		);
+	};
 
 	try {
+		await session.startTransaction();
 		Logger.info('Starting payment history rebuild process...');
 
-		// Step 1: Clear all existing payment histories
-		const clearResult = await StudentModel.updateMany(
-			{},
-			{ $unset: { paymentHistory: '' } },
-			{ session }
-		);
+		// Step 1: Clear all existing payment histories in batches
+		let clearedCount = 0;
+		const studentsCursor = StudentModel.find({}).cursor();
+		let studentBatch: mongoose.Types.ObjectId[] = [];
+
+		for await (const student of studentsCursor) {
+			studentBatch.push(student._id);
+
+			if (studentBatch.length === BATCH_SIZE) {
+				await retryOperation(async () => {
+					const result = await StudentModel.updateMany(
+						{ _id: { $in: studentBatch } },
+						{ $unset: { paymentHistory: '' } },
+						{ session }
+					);
+					clearedCount += result.modifiedCount;
+				}, 'Clear payment histories batch');
+
+				Logger.info({
+					message: 'Cleared batch of payment histories',
+					clearedCount
+				});
+
+				studentBatch = [];
+			}
+		}
+
+		// Clear remaining students
+		if (studentBatch.length > 0) {
+			await retryOperation(async () => {
+				const result = await StudentModel.updateMany(
+					{ _id: { $in: studentBatch } },
+					{ $unset: { paymentHistory: '' } },
+					{ session }
+				);
+				clearedCount += result.modifiedCount;
+			}, 'Clear final payment histories batch');
+		}
 
 		Logger.info({
-			message: 'Cleared existing payment histories',
-			clearedCount: clearResult.modifiedCount
+			message: 'Cleared all existing payment histories',
+			clearedCount
 		});
 
-		// Step 2: Get all payments and group them by studentId
-		const payments = await PaymentModel.find({}, null, { session })
-			.sort({ createdAt: 1 }) // Ensure consistent ordering
-			.lean();
-
-		Logger.info(`Found ${payments.length} payments to process`);
-
-		// Group payments by studentId
+		// Step 2: Get and process payments in batches
 		const paymentsByStudent = new Map<
 			string,
 			Array<{ paymentId: mongoose.Types.ObjectId; payId: string }>
 		>();
+		let processedPayments = 0;
+		const paymentsCursor = PaymentModel.find({})
+			.sort({ createdAt: 1 })
+			.cursor();
 
-		for (const payment of payments) {
-			const studentId = payment.studentId.toString();
-			if (!paymentsByStudent.has(studentId)) {
-				paymentsByStudent.set(studentId, []);
-			}
-
-			// Only add if payId exists
-			if (payment.payId) {
+		for await (const payment of paymentsCursor) {
+			if (payment.studentId && payment.payId) {
+				const studentId = payment.studentId.toString();
+				if (!paymentsByStudent.has(studentId)) {
+					paymentsByStudent.set(studentId, []);
+				}
 				paymentsByStudent.get(studentId)?.push({
 					paymentId: payment._id,
 					payId: payment.payId
 				});
 			}
-		}
 
-		Logger.info(`Grouped payments for ${paymentsByStudent.size} students`);
-
-		// Step 3: Update each student with their payment history
-		let successCount = 0;
-		let errorCount = 0;
-
-		for (const [studentId, payments] of paymentsByStudent) {
-			try {
-				// Update student with the new payment history
-				const result = await StudentModel.findByIdAndUpdate(
-					studentId,
-					{
-						$set: {
-							paymentHistory: payments
-						}
-					},
-					{
-						session,
-						new: true // Return the updated document
-					}
-				);
-
-				if (result) {
-					successCount++;
-					if (successCount % 100 === 0) {
-						Logger.info(`Processed ${successCount} students...`);
-					}
-				} else {
-					Logger.warn({
-						message: 'Student not found for payments',
-						studentId
-					});
-					errorCount++;
-				}
-			} catch (error) {
-				errorCount++;
-				Logger.error({
-					message: 'Error updating student payment history',
-					studentId,
-					error:
-						error instanceof Error ? error.message : String(error)
-				});
+			processedPayments++;
+			if (processedPayments % 1000 === 0) {
+				Logger.info(`Processed ${processedPayments} payments...`);
 			}
 		}
 
-		// Commit the transaction
-		await session.commitTransaction();
+		Logger.info(
+			`Grouped ${processedPayments} payments for ${paymentsByStudent.size} students`
+		);
+
+		// Step 3: Update students in batches
+		let successCount = 0;
+		let errorCount = 0;
+		let studentBatchCount = 0;
+		const studentEntries = Array.from(paymentsByStudent.entries());
+
+		for (let i = 0; i < studentEntries.length; i += BATCH_SIZE) {
+			const batch = studentEntries.slice(i, i + BATCH_SIZE);
+			studentBatchCount++;
+
+			await retryOperation(async () => {
+				await Promise.all(
+					batch.map(async ([studentId, payments]) => {
+						try {
+							const result = await StudentModel.findByIdAndUpdate(
+								studentId,
+								{ $set: { paymentHistory: payments } },
+								{ session, new: true }
+							);
+
+							if (result) {
+								successCount++;
+							} else {
+								Logger.warn({
+									message: 'Student not found for payments',
+									studentId
+								});
+								errorCount++;
+							}
+						} catch (error) {
+							errorCount++;
+							Logger.error({
+								message:
+									'Error updating student payment history',
+								studentId,
+								error:
+									error instanceof Error
+										? error.message
+										: String(error)
+							});
+						}
+					})
+				);
+			}, `Update students batch ${studentBatchCount}`);
+
+			Logger.info({
+				message: 'Batch progress',
+				processedStudents: successCount,
+				totalStudents: studentEntries.length,
+				progress: `${((successCount / studentEntries.length) * 100).toFixed(2)}%`,
+				currentBatch: studentBatchCount
+			});
+		}
+
+		await retryOperation(async () => {
+			await session.commitTransaction();
+		}, 'Commit transaction');
 
 		const summary = {
-			totalPayments: payments.length,
+			totalPayments: processedPayments,
 			totalStudentsProcessed: paymentsByStudent.size,
 			successfulUpdates: successCount,
 			errorCount
 		};
 
 		Logger.info({
-			message: 'Payment ID recovery completed',
+			message: 'Payment history rebuild completed',
 			summary: JSON.stringify(summary, null, 2)
 		});
 
 		return summary;
 	} catch (error) {
-		// Abort transaction on error
 		await session.abortTransaction();
 		Logger.error({
 			message: 'Payment history rebuild failed',
