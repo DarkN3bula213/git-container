@@ -73,7 +73,8 @@ export class CacheClientService {
 	}
 	cachedSession(secret: string) {
 		const RedisSessionStore = new RedisStore({
-			client: this.client
+			client: this.client,
+			ttl: 30000
 		});
 
 		return session({

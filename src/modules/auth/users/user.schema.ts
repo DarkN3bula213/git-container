@@ -89,7 +89,7 @@ export const updateProfile = validateReq({
 		cnic_issued_date: Joi.date().optional(),
 		cnic_expiry_date: Joi.date().optional(),
 		address: Joi.string().optional(),
-
+		username: Joi.string().optional(),
 		phone: Joi.string().optional().min(11).max(11)
 	})
 });

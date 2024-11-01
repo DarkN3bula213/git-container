@@ -58,7 +58,9 @@ export const getStudentByClass = asyncHandler(async (req, res) => {
 
 export const getStudentsById = asyncHandler(async (req, res) => {
 	const { id } = req.params;
-	const students = await Student.findById(id).lean().exec();
+	const students = await Student.findById(id)
+		.populate('paymentHistory.paymentId')
+		.exec();
 
 	new SuccessResponse('Students fetched successfully', students).send(res);
 });

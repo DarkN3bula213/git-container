@@ -1,6 +1,7 @@
 import { Logger as log } from '@/lib/logger';
 import { type Model, Schema, Types, model } from 'mongoose';
 import { ClassModel, IClass } from '../classes/class.model';
+import paymentModel from '../payments/payment.model';
 import type { Student } from './student.interface';
 import { generateUniqueId } from './student.utils';
 
@@ -142,7 +143,10 @@ const studentSchema = new Schema<Student>(
 		},
 		paymentHistory: [
 			{
-				paymentId: Types.ObjectId,
+				paymentId: {
+					type: Schema.Types.ObjectId,
+					ref: paymentModel.modelName
+				},
 				payID: String,
 				payId: String
 			}

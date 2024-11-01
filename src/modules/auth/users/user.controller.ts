@@ -1,3 +1,5 @@
+import { cache } from '@/data/cache/cache.service';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 
 /** -----------------------------( Authentication )->
@@ -74,7 +76,15 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 	if (!user) {
 		throw new BadRequestError('No user found');
 	}
-	const roles = normalizeRoles(user.roles);
+	const key = getDynamicKey(DynamicKey.USER, user._id);
+	const userCache = await cache.getWithFallback(key, async () => {
+		return await UserModel.findById(user._id).lean().exec();
+	});
+
+	if (!userCache) {
+		throw new BadRequestError('No user found');
+	}
+	const roles = normalizeRoles(userCache.roles);
 
 	const roleCodes = await fetchRoleCodes(roles);
 
@@ -85,7 +95,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 	const resp: { status: boolean; roles: string[]; user: User } = {
 		status: true,
 		roles: roleCodes,
-		user: user
+		user: userCache
 	};
 
 	return new SuccessResponse('Logged in user', resp).send(res);

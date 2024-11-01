@@ -3,6 +3,7 @@ import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import type { User } from '@/modules/auth/users/user.model';
+import { endOfMonth, parse, startOfMonth } from 'date-fns';
 import { Types } from 'mongoose';
 import { ClassModel } from '../classes/class.model';
 import type { Student } from '../students/student.interface';
@@ -263,10 +264,8 @@ export const getFeesByCycle = asyncHandler(async (req, res) => {
 		});
 	}
 
-	const key = getDynamicKey(DynamicKey.FEE, `billing-cycle-${payID}`);
-	const cachedPayments: any = await cache.getWithFallback(key, async () => {
-		return await Payments.find({ payId: payID }).lean().exec();
-	});
+	// const key = getDynamicKey(DynamicKey.FEE, `billing-cycle-${payID}`);
+	const cachedPayments: any = await getPaymentsForBillingCycle(payID);
 
 	if (cachedPayments.length === 0) {
 		return res.status(404).json({
@@ -274,22 +273,9 @@ export const getFeesByCycle = asyncHandler(async (req, res) => {
 		});
 	}
 
-	// Fetch and append student names to the payments
-	const paymentsWithStudentNames = await Promise.all(
-		cachedPayments.map(async (payment: any) => {
-			const student = await StudentModel.findById(payment.studentId)
-				.lean()
-				.exec();
-			return {
-				...payment,
-				studentName: student ? student.name : 'Unknown Student'
-			};
-		})
-	);
-
 	return new SuccessResponse(
 		`Payments for billing cycle ${payID} fetched successfully`,
-		paymentsWithStudentNames
+		cachedPayments
 	).send(res);
 });
 /*<!-- 1. Update  ---------------------------( Update by ID )-> */
@@ -487,3 +473,21 @@ export const deleteCommittedTransactions = asyncHandler(async (req, res) => {
 		res
 	);
 });
+
+// Helper to convert payId to Date object
+const parsePayId = (payId: string) => {
+	// Parse MMYY format to a Date object
+	return parse(payId, 'MMyy', new Date());
+};
+export const getPaymentsForBillingCycle = async (payId: string) => {
+	const billingDate = parsePayId(payId);
+	const start = startOfMonth(billingDate);
+	const end = endOfMonth(billingDate);
+
+	return await Payments.find({
+		createdAt: {
+			$gte: start,
+			$lte: end
+		}
+	}).sort({ createdAt: 1 });
+};

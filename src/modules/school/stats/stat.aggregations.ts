@@ -537,31 +537,10 @@ export const getSchoolStatisticsForBillingCycle = async (payId: string) => {
 			}
 		},
 
-		// Step 3: Filter payments within the billing cycle and classify them
+		// Step 3: Filter and classify payments based on payId and creation date
 		{
 			$addFields: {
-				paymentsWithinBillingCycle: {
-					$filter: {
-						input: '$paymentInfo',
-						as: 'payment',
-						cond: {
-							$and: [
-								{
-									$gte: [
-										'$$payment.createdAt',
-										startOfBillingCycle
-									]
-								},
-								{
-									$lte: [
-										'$$payment.createdAt',
-										endOfBillingCycle
-									]
-								}
-							]
-						}
-					}
-				},
+				// Current billing payments: matches payId exactly
 				currentBillingPayments: {
 					$filter: {
 						input: '$paymentInfo',
@@ -569,13 +548,14 @@ export const getSchoolStatisticsForBillingCycle = async (payId: string) => {
 						cond: { $eq: ['$$payment.payId', payId] }
 					}
 				},
-				// Only include out-of-cycle payments made within the billing cycle (incorrect payId but within billing dates)
+				// Out of cycle payments: different payId but payment made within billing cycle
 				outOfCyclePayments: {
 					$filter: {
 						input: '$paymentInfo',
 						as: 'payment',
 						cond: {
 							$and: [
+								// Payment was made within this billing cycle
 								{
 									$gte: [
 										'$$payment.createdAt',
@@ -588,6 +568,7 @@ export const getSchoolStatisticsForBillingCycle = async (payId: string) => {
 										endOfBillingCycle
 									]
 								},
+								// But has a different payId (indicating it's for a different month)
 								{ $ne: ['$$payment.payId', payId] }
 							]
 						}
@@ -633,12 +614,10 @@ export const getSchoolStatisticsForBillingCycle = async (payId: string) => {
 			}
 		},
 
-		// Step 6: Sort sections alphabetically by the section field
+		// Rest of the pipeline remains the same
 		{
 			$sort: { '_id.section': 1 }
 		},
-
-		// Step 7: Group by class and accumulate sorted sections
 		{
 			$group: {
 				_id: '$_id.className',
@@ -659,13 +638,9 @@ export const getSchoolStatisticsForBillingCycle = async (payId: string) => {
 				}
 			}
 		},
-
-		// Step 8: Sort classes alphabetically by className
 		{
 			$sort: { _id: 1 }
 		},
-
-		// Step 9: Group by the entire school to calculate school-wide stats, including out-of-cycle stats
 		{
 			$group: {
 				_id: null,
@@ -687,8 +662,6 @@ export const getSchoolStatisticsForBillingCycle = async (payId: string) => {
 				}
 			}
 		},
-
-		// Step 10: Project the final output, exclude _id
 		{
 			$project: {
 				_id: 0,

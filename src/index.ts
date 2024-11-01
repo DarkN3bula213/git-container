@@ -7,7 +7,6 @@ import { app } from './app';
 import { cache } from './data/cache/cache.service';
 import { db } from './data/database';
 import { banner, signals } from './lib/constants';
-import recoverPaymentIds from './scripts/recoverPayId';
 import { setupCronJobs } from './services/cron';
 import SocketService from './sockets';
 
@@ -58,7 +57,7 @@ const startServer = async () => {
 		await cache.connect();
 		await db.connect();
 		setupCronJobs();
-		await recoverPaymentIds();
+
 		// Start the server and listen on all network interfaces
 		server.listen(PORT, () => {
 			logger.info({
