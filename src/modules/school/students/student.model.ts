@@ -143,7 +143,8 @@ const studentSchema = new Schema<Student>(
 		paymentHistory: [
 			{
 				paymentId: Types.ObjectId,
-				payID: String
+				payID: String,
+				payId: String
 			}
 		]
 	},

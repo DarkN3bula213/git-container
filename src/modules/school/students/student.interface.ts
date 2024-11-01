@@ -41,4 +41,5 @@ export type Student = Document & {
 type Payments = {
 	paymentId: ObjectId;
 	payID: string;
+	payId: string;
 };

@@ -88,7 +88,7 @@ class PaymentService {
 					$push: {
 						paymentHistory: {
 							paymentId: paymentDocument._id,
-							payID: paymentDocument.payId
+							payId: paymentDocument.payId
 						}
 					}
 				},
@@ -129,7 +129,7 @@ class PaymentService {
 					$push: {
 						paymentHistory: {
 							paymentId: paymentDocument._id,
-							payID: paymentDocument.payId
+							payId: paymentDocument.payId
 						}
 					}
 				},
@@ -190,9 +190,7 @@ class PaymentService {
 						paymentHistory: {
 							$each: paymentDocs.map((payment) => ({
 								paymentId: payment._id,
-								payId: payment.payId,
-								amount: payment.amount,
-								date: payment.paymentDate
+								payId: payment.payId
 							}))
 						}
 					}
