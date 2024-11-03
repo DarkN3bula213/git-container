@@ -22,6 +22,11 @@ const routes = (): Routes => [
 		path: '/collection',
 		methods: ['GET'],
 		handlers: [controller.getTodaysCollection]
+	},
+	{
+		path: '/monthly-status',
+		methods: ['GET'],
+		handlers: [controller.getMonthlyStatus]
 	}
 ];
 

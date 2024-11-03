@@ -1,4 +1,5 @@
 import IPayment from '@/modules/school/payments/payment.model';
+import { endOfDay, startOfDay } from 'date-fns';
 
 export interface PaymentAggregation {
 	className: string;
@@ -14,22 +15,22 @@ export interface PaymentAggregation {
 export async function getPaymentsForDate(
 	date: Date
 ): Promise<PaymentAggregation[]> {
-	const startOfDay = new Date(date.setHours(0, 0, 0, 0));
-	const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+	const dayStart = startOfDay(date);
+	const dayEnd = endOfDay(date);
 
 	const payments = await IPayment.aggregate([
 		{
 			$match: {
 				paymentDate: {
-					$gte: startOfDay,
-					$lte: endOfDay
+					$gte: dayStart,
+					$lte: dayEnd
 				},
-				paymentStatus: 'success' // Match with the status used in the schema
+				paymentStatus: 'success'
 			}
 		},
 		{
 			$lookup: {
-				from: 'students', // Assuming your students collection is named 'students'
+				from: 'students',
 				localField: 'studentId',
 				foreignField: '_id',
 				as: 'studentDetails'
@@ -38,16 +39,30 @@ export async function getPaymentsForDate(
 		{
 			$unwind: '$studentDetails'
 		},
+		// Add a $group stage to eliminate duplicates at student level first
 		{
 			$group: {
 				_id: {
 					className: '$className',
-					section: '$section'
+					section: '$section',
+					studentId: '$studentId' // Group by studentId to eliminate duplicates
+				},
+				studentName: { $first: '$studentDetails.name' },
+				payId: { $first: '$studentDetails.registration_no' },
+				amount: { $sum: '$amount' } // Sum amounts for the same student
+			}
+		},
+		// Then group by class and section
+		{
+			$group: {
+				_id: {
+					className: '$_id.className',
+					section: '$_id.section'
 				},
 				students: {
 					$push: {
-						studentName: '$studentDetails.name', // Replace with the actual field name in the student schema
-						payId: '$studentDetails.registration_no',
+						studentName: '$studentName',
+						payId: '$payId',
 						amount: '$amount'
 					}
 				},

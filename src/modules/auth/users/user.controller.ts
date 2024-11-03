@@ -87,18 +87,17 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 	const roles = normalizeRoles(userCache.roles);
 
 	const roleCodes = await fetchRoleCodes(roles);
-
+	const isAdmin = await isAdminRolePresent(roles);
 	if (!roleCodes) {
 		throw new BadRequestError('No user found');
 	}
 
-	const resp: { status: boolean; roles: string[]; user: User } = {
-		status: true,
-		roles: roleCodes,
-		user: userCache
-	};
-
-	return new SuccessResponse('Logged in user', resp).send(res);
+	return new SuccessResponse('Logged in user', {
+		user: userCache,
+		isAdmin,
+		isVerified: userCache.isVerified || false,
+		permissions: roleCodes
+	}).send(res);
 });
 
 /*<!-- 4. Read  ---------------------------( getUserById )-> */
@@ -209,6 +208,7 @@ export const login = asyncHandler(async (req, res) => {
 	const payload = {
 		user: {
 			...verifiedUser,
+
 			isPremium: verifiedUser.isPrime || false
 		}
 	};
@@ -235,6 +235,7 @@ export const login = asyncHandler(async (req, res) => {
 	return new SuccessResponse('Login successful', {
 		user: verifiedUser,
 		isAdmin,
+		isVerified: verifiedUser.isVerified || false,
 		permissions: roleCodes
 	}).send(res);
 });

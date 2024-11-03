@@ -21,11 +21,6 @@ export const handleDisconnect = async (
 	const startTime = await getStartTimeFromCache(userID, socket);
 	if (!startTime) return; // If start time is missing, return early
 
-	// Calculate the time spent in the session
-	const rooms = io.sockets.adapter.rooms;
-	rooms.forEach((sockets, room) => {
-		console.log(`Room: ${room}, Sockets: ${Array.from(sockets)}`);
-	});
 	let session;
 	try {
 		session = calculateTimeSpent(new Date(startTime));
@@ -67,7 +62,7 @@ export const handleDisconnect = async (
 	const matchingSockets = await io.in(userId).fetchSockets();
 	const isDisconnected = matchingSockets.length === 0;
 
-	console.log(`Status disconnected: ${isDisconnected}`);
+	logger.info(`Status disconnected: ${isDisconnected}`);
 
 	if (isDisconnected) {
 		// User is fully disconnected

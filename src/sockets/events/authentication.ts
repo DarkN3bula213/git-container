@@ -24,6 +24,7 @@ export const handleAuth = async (socket: Socket): Promise<boolean> => {
 	const verificationResult = verifyToken(authToken, 'access');
 	if (!verificationResult.valid) {
 		logger.warn(`Invalid auth token, disconnecting socket ${socket.id}`);
+		socket.emit('logout');
 		socket.disconnect();
 		return false;
 	}

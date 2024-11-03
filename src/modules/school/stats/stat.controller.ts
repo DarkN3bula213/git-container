@@ -2,9 +2,18 @@ import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
+import { Logger } from '@/lib/logger';
+import {
+	generateMonthlyFeeStatusEmail,
+	getMonthlyFeeStatus
+} from '@/services/cron/monthly-student-status';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import paymentModel from '../payments/payment.model';
 import StudentModel from '../students/student.model';
 import { getSchoolStatisticsForBillingCycle } from './stat.aggregations';
+
+const logger = new Logger(__filename);
 
 export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 	const { payId } = req.params;
@@ -109,3 +118,59 @@ export const keyMetrics = asyncHandler(async (_req, _res) => {
 	// 	}
 	// ]);
 });
+
+export const getMonthlyStatus = asyncHandler(async (req, res) => {
+	const dateStr = req.query.date as string;
+	const date = dateStr ? new Date(dateStr) : new Date();
+
+	if (isNaN(date.getTime())) {
+		throw new BadRequestError(
+			'Invalid date format. Please use ISO date string'
+		);
+	}
+
+	const feeStatus = await getMonthlyFeeStatus(date);
+
+	const emailHtml = await generateMonthlyFeeStatusEmail(date);
+	const previewPath = join(process.cwd(), 'temp', 'fee-status-previews');
+	const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+	const fileName = `fee-status-${date.toISOString().slice(0, 7)}-preview-${timestamp}.html`;
+	const fullPath = join(previewPath, fileName);
+
+	safeWriteFileSync(fullPath, emailHtml);
+	logger.info(`Preview saved to: ${fullPath}`);
+
+	const response = {
+		date: date.toISOString(),
+
+		data: feeStatus
+	};
+
+	return new SuccessResponse('Monthly Records', response).send(res);
+});
+function ensureDirectoryExists(dirPath: string): void {
+	if (!existsSync(dirPath)) {
+		try {
+			mkdirSync(dirPath, { recursive: true });
+			logger.info(`Created directory: ${dirPath}`);
+		} catch (error) {
+			logger.error(`Error creating directory: ${dirPath}`, error);
+			throw new Error(`Failed to create directory: ${dirPath}`);
+		}
+	}
+}
+
+function safeWriteFileSync(filePath: string, content: string): void {
+	try {
+		// Ensure the directory exists
+		const dirPath = join(filePath, '..');
+		ensureDirectoryExists(dirPath);
+
+		// Write the file
+		writeFileSync(filePath, content);
+		logger.info(`File written successfully: ${filePath}`);
+	} catch (error) {
+		logger.error(`Error writing file: ${filePath}`, error);
+		throw new Error(`Failed to write file: ${filePath}`);
+	}
+}

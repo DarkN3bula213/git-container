@@ -89,13 +89,19 @@ class SocketService {
 
 				socket.onAnyOutgoing((event, ...args) => {
 					if (
-						event !== 'init' ||
-						event !== 'joinConversation' ||
-						event !== 'userListUpdated'
+						event !== 'init' &&
+						event !== 'joinConversation' &&
+						event !== 'userListUpdated' &&
+						event !== 'video-offer' &&
+						event !== 'video-answer'
 					) {
 						logger.debug({
 							outgoing: `Outgoing ${event}`,
 							arguments: JSON.stringify(args, null, 2)
+						});
+					} else {
+						logger.debug({
+							outgoing: `Outgoing ${event}`
 						});
 					}
 				});

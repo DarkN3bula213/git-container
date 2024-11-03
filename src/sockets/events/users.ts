@@ -22,15 +22,13 @@ export const handleUsers = async (
 	logger.info(`Managing connection for user ${username} (${userId})`);
 
 	handleExistingConnection(connectedUsers, sessionId, socket.id);
-	joinUserRoom(socket);
+	joinUserRoom(socket, connectedUsers);
 	// Add/update the user in connectedUsers map
 	connectedUsers.set(sessionId, {
 		userId,
 		username,
 		socketId: socket.id
 	});
-
-	broadcastUserList(socket, connectedUsers);
 };
 
 const handleExistingConnection = (
@@ -62,11 +60,17 @@ const broadcastUserList = (
 	const onlineUsers = Array.from(connectedUsers.values());
 	socket.broadcast.emit('userListUpdated', onlineUsers);
 };
-const joinUserRoom = (socket: Socket) => {
+const joinUserRoom = (
+	socket: Socket,
+	connectedUsers: Map<
+		string,
+		{ userId: string; username: string; socketId: string }
+	>
+) => {
 	const userId = socket.data.userId as string;
 	if (userId) {
 		socket.join(userId);
-		logger.info(`User ${userId} joined room user:${userId}`);
+		broadcastUserList(socket, connectedUsers);
 	} else {
 		logger.warn(
 			`Unable to join user room: userId not found in socket.data`
