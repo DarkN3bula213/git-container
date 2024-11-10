@@ -10,6 +10,7 @@ export const corsOptions: cors.CorsOptions = {
 		'http://localhost:5173',
 		'https://localhost:5173',
 		'http://192.168.100.149:5173',
+		'http://192.168.100.86:5173',
 		'http://localhost:3030'
 	],
 	credentials: true,

@@ -2,8 +2,10 @@ import { cache } from '@/data/cache/cache.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
+import { Logger } from '@/lib/logger';
+import { sortStudentsByClassAndSection } from '@/lib/utils/utils';
 import type { User } from '@/modules/auth/users/user.model';
-import { endOfMonth, parse, startOfMonth } from 'date-fns';
+import { endOfDay, isAfter, isValid, parseISO, startOfDay } from 'date-fns';
 import { Types } from 'mongoose';
 import { ClassModel } from '../classes/class.model';
 import type { Student } from '../students/student.interface';
@@ -19,7 +21,7 @@ import paymentQueue from './payment.queue';
 import { addJobsToQueue, formatBillingCycle, getPayId } from './payment.utils';
 import paymentsService from './payments.service';
 
-// const logger = new Logger(__filename);
+const logger = new Logger(__filename);
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
 export const createPayment = asyncHandler(async (req, res) => {
@@ -82,7 +84,7 @@ export const makeCustomPayment = asyncHandler(async (req, res) => {
 	const user = req.user as User;
 	if (!user) throw new BadRequestError('User not found');
 
-	const payment = await paymentsService.createOffBillCyclePayment(
+	const payment: IPayment = await paymentsService.createOffBillCyclePayment(
 		studentId,
 		payId,
 		paymentType,
@@ -152,30 +154,40 @@ export const getMonthsPayments = asyncHandler(async (req, res) => {
 export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
 	const { startDate, endDate } = req.query;
 
-	// Create start date object and set to start of day
-	const start = new Date(startDate as string);
-	start.setHours(0, 0, 0, 0);
+	if (!startDate) {
+		throw new BadRequestError('Start date is required');
+	}
 
-	// If no end date provided, set to end of start date
-	// Otherwise, set to end of end date
+	// Parse and validate dates using date-fns
+	const start = startOfDay(parseISO(startDate as string));
 	const end = endDate
-		? (() => {
-				const date = new Date(endDate as string);
-				date.setHours(23, 59, 59, 999);
-				return date;
-			})()
-		: (() => {
-				const date = new Date(startDate as string);
-				date.setHours(23, 59, 59, 999);
-				return date;
-			})();
+		? endOfDay(parseISO(endDate as string))
+		: endOfDay(start);
 
+	if (!isValid(start) || !isValid(end)) {
+		throw new BadRequestError('Invalid date format');
+	}
+
+	if (isAfter(start, end)) {
+		throw new BadRequestError('Start date cannot be after end date');
+	}
+
+	logger.debug({
+		dateRange: {
+			start,
+			end
+		}
+	});
+
+	// Find payments within date range
 	const payments = await Payments.find({
 		createdAt: {
 			$gte: start,
 			$lte: end
 		}
-	}).sort({ createdAt: -1 });
+	})
+		.sort({ createdAt: -1 })
+		.lean();
 
 	if (!payments.length) {
 		throw new BadRequestError(
@@ -183,13 +195,7 @@ export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
 		);
 	}
 
-	// Calculate total amount for the period
-	const totalAmount = payments.reduce(
-		(sum, payment) => sum + payment.amount,
-		0
-	);
-
-	// Group payments by class and section
+	// Group payments by class and section with enhanced statistics
 	const groupedPayments = payments.reduce(
 		(acc, payment) => {
 			const key = `${payment.className}-${payment.section}`;
@@ -198,11 +204,20 @@ export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
 					className: payment.className,
 					section: payment.section,
 					payments: [],
-					totalAmount: 0
+					totalAmount: 0,
+					studentCount: new Set(), // Use Set to count unique students
+					paymentTypes: new Set(), // Track different payment types
+					averagePayment: 0
 				};
 			}
+
 			acc[key].payments.push(payment);
 			acc[key].totalAmount += payment.amount;
+			acc[key].studentCount.add(payment.studentId.toString());
+			acc[key].paymentTypes.add(payment.paymentType);
+			acc[key].averagePayment =
+				acc[key].totalAmount / acc[key].payments.length;
+
 			return acc;
 		},
 		{} as Record<
@@ -212,21 +227,51 @@ export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
 				section: string;
 				payments: typeof payments;
 				totalAmount: number;
+				studentCount: Set<string>;
+				paymentTypes: Set<string>;
+				averagePayment: number;
 			}
 		>
 	);
+
+	// Convert grouped data for response
+	const formattedGroups = Object.entries(groupedPayments).map(
+		([_, group]) => ({
+			className: group.className,
+			section: group.section,
+			payments: group.payments,
+			totalAmount: group.totalAmount,
+			studentCount: group.studentCount.size,
+			paymentTypes: Array.from(group.paymentTypes),
+			averagePayment: Math.round(group.averagePayment * 100) / 100
+		})
+	);
+
+	// Sort groups by class name and section
+	const sortedGroups = sortStudentsByClassAndSection(formattedGroups);
 
 	const responseData = {
 		payments,
 		summary: {
 			totalPayments: payments.length,
-			totalAmount,
+			totalAmount: payments.reduce((sum, p) => sum + p.amount, 0),
+			uniqueStudents: new Set(payments.map((p) => p.studentId.toString()))
+				.size,
 			dateRange: {
-				from: start,
-				to: end
-			}
+				start,
+				end
+			},
+			averagePayment:
+				Math.round(
+					(payments.reduce((sum, p) => sum + p.amount, 0) /
+						payments.length) *
+						100
+				) / 100,
+			paymentTypes: Array.from(
+				new Set(payments.map((p) => p.paymentType))
+			)
 		},
-		groupedPayments: Object.values(groupedPayments)
+		groupedPayments: sortedGroups
 	};
 
 	return new SuccessResponse(
@@ -258,20 +303,10 @@ export const getFeesByCycle = asyncHandler(async (req, res) => {
 	const { billingCycle } = req.params;
 	const payID = billingCycle;
 
-	if (!payID || payID.length !== 4) {
-		return res.status(400).json({
-			message: 'Invalid payID format. Expected MMYY.'
-		});
-	}
+	const cachedPayments: any =
+		await paymentsService.getPaymentsForCycle(payID);
 
-	// const key = getDynamicKey(DynamicKey.FEE, `billing-cycle-${payID}`);
-	const cachedPayments: any = await getPaymentsForBillingCycle(payID);
-
-	if (cachedPayments.length === 0) {
-		return res.status(404).json({
-			message: 'No payments found for the specified billing cycle'
-		});
-	}
+	console.log(JSON.stringify(cachedPayments, null, 2));
 
 	return new SuccessResponse(
 		`Payments for billing cycle ${payID} fetched successfully`,
@@ -388,9 +423,9 @@ export const getStudentPaymentsByClass = asyncHandler(async (req, res) => {
 /*<!-- 2. Aggregation Functions  ----------------( School Stats ) */
 export const getSchoolStats = asyncHandler(async (_req, res) => {
 	const key = getDynamicKey(DynamicKey.FEE, 'STATCURRENT');
-	const cachedStats = await cache.getWithFallback(key, async () => {
+	const cachedStats = (await cache.getWithFallback(key, async () => {
 		return await schoolAggregation();
-	});
+	})) as any;
 	if (!cachedStats) throw new BadRequestError('Stats not found');
 	return new SuccessResponse('Stats fetched successfully', cachedStats).send(
 		res
@@ -401,9 +436,9 @@ export const getSchoolStats = asyncHandler(async (_req, res) => {
 export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 	const { payId } = req.params;
 	const key = getDynamicKey(DynamicKey.FEE, payId);
-	const cachedStats = await cache.getWithFallback(key, async () => {
+	const cachedStats = (await cache.getWithFallback(key, async () => {
 		return await schoolAggregationBySession(payId);
-	});
+	})) as any;
 	if (!cachedStats) throw new BadRequestError('Stats not found');
 	return new SuccessResponse('Stats fetched successfully', cachedStats).send(
 		res
@@ -420,30 +455,10 @@ export const getStudentPaymentHistory = asyncHandler(async (req, res) => {
 });
 
 export const customSorting = asyncHandler(async (_req, res) => {
-	// const key = getDynamicKey(DynamicKey.STUDENTS, 'sorted');
-	// Custom sorting order for class names
-	const classOrder: { [key: string]: number } = {
-		Nursery: 1,
-		Prep: 2,
-		'1st': 3,
-		'2nd': 4,
-		'3rd': 5,
-		'4th': 6,
-		'5th': 7,
-		'6th': 8,
-		'7th': 9,
-		'8th': 10,
-		'9th': 11,
-		'10th': 12
-	};
-	const students = await StudentModel.find({});
-
-	students.sort((a, b) => {
-		const classDiff = classOrder[a.className] - classOrder[b.className];
-		if (classDiff !== 0) return classDiff;
-		return a.section.localeCompare(b.section);
-	});
-	new SuccessResponse('Students fetched successfully', students).send(res);
+	const students = await paymentsService.customSorting();
+	return new SuccessResponse('Students fetched successfully', students).send(
+		res
+	);
 });
 
 export const commitTransaction = asyncHandler(async (req, res) => {
@@ -473,21 +488,3 @@ export const deleteCommittedTransactions = asyncHandler(async (req, res) => {
 		res
 	);
 });
-
-// Helper to convert payId to Date object
-const parsePayId = (payId: string) => {
-	// Parse MMYY format to a Date object
-	return parse(payId, 'MMyy', new Date());
-};
-export const getPaymentsForBillingCycle = async (payId: string) => {
-	const billingDate = parsePayId(payId);
-	const start = startOfMonth(billingDate);
-	const end = endOfMonth(billingDate);
-
-	return await Payments.find({
-		createdAt: {
-			$gte: start,
-			$lte: end
-		}
-	}).sort({ createdAt: 1 });
-};

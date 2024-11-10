@@ -132,3 +132,5 @@ dist
 docker-compose.yaml
 # Sentry Config File
 .sentryclirc
+
+uploads

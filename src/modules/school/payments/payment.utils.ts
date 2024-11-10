@@ -117,3 +117,32 @@ export function formatBillingCycle(
 		};
 	});
 }
+
+export const isPayIdGreaterThanCurrent = (payId: string): boolean => {
+	const currentPayId = getPayId(); // Get current period's payId
+
+	// Convert both to dates using existing parsePayId utility
+	const payIdDate = parsePayId(payId);
+	const currentPayIdDate = parsePayId(currentPayId);
+
+	return payIdDate > currentPayIdDate;
+};
+
+export function generateClassSectionKey(
+	className: string,
+	section: string
+): string {
+	return `${className}-${section}`;
+}
+
+export function parsePayId(payId: string): Date {
+	const monthStr = payId.slice(0, 2);
+	const yearStr = payId.slice(2, 4);
+	const month = parseInt(monthStr, 10) - 1; // JavaScript months are 0-based
+	const year = 2000 + parseInt(yearStr, 10); // Assuming years are in the 2000s
+	return new Date(year, month);
+}
+
+export function getBillingMonthDate(payId: string): Date {
+	return parsePayId(payId);
+}

@@ -22,13 +22,18 @@ export const handleUsers = async (
 	logger.info(`Managing connection for user ${username} (${userId})`);
 
 	handleExistingConnection(connectedUsers, sessionId, socket.id);
-	joinUserRoom(socket, connectedUsers);
+
+	joinUserRoom(socket);
 	// Add/update the user in connectedUsers map
 	connectedUsers.set(sessionId, {
 		userId,
 		username,
 		socketId: socket.id
 	});
+	// console.dir(connectedUsers, {
+	// 	depth: Infinity
+	// });
+	broadcastUserList(socket, connectedUsers);
 };
 
 const handleExistingConnection = (
@@ -57,20 +62,17 @@ const broadcastUserList = (
 		{ userId: string; username: string; socketId: string }
 	>
 ) => {
-	const onlineUsers = Array.from(connectedUsers.values());
+	const onlineUsers = Array.from(connectedUsers.values()).map((user) => ({
+		socketId: user.socketId,
+		userId: user.userId,
+		username: user.username
+	}));
 	socket.broadcast.emit('userListUpdated', onlineUsers);
 };
-const joinUserRoom = (
-	socket: Socket,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
-) => {
+const joinUserRoom = (socket: Socket) => {
 	const userId = socket.data.userId as string;
 	if (userId) {
 		socket.join(userId);
-		broadcastUserList(socket, connectedUsers);
 	} else {
 		logger.warn(
 			`Unable to join user room: userId not found in socket.data`

@@ -1,3 +1,5 @@
+import { NotFoundResponse } from '@/lib/api/ApiResponse';
+import { SuccessResponse } from '@/lib/api/ApiResponse';
 import { singleUpload } from '@/lib/config/multer';
 import { uploadsDir } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
@@ -51,7 +53,10 @@ export const listFiles = asyncHandler(async (_req, res) => {
 
 export const uploadDocument = asyncHandler(
 	async (req: Request, res: Response, next) => {
-		singleUpload(req, res, async (err) => {
+		const upload = singleUpload; // Get the middleware
+
+		// Use the middleware first to parse the multipart form data
+		upload(req, res, async (err) => {
 			if (err instanceof MulterError) {
 				logger.error('Error uploading file:', err);
 				return res.status(500).json({ error: err.message });
@@ -60,22 +65,42 @@ export const uploadDocument = asyncHandler(
 				return next(err);
 			}
 
-			// Assuming the rest of the form data is available in req.body
-			// and the file path is available in req.file.path
+			// Now req.body will be populated
+			console.log('Request body after upload:', req.body);
+			const { customName, title, amount, vendor, date } = req.body;
+
 			if (req.file) {
-				const { title, amount, vendor, date } = req.body;
-				const filePath = req.file.path; // The path where the file is saved
+				// If you need to rename the file after upload based on customName
+				if (customName) {
+					const fileExt = path.extname(req.file.originalname);
+					const newFileName = `${customName}${fileExt}`;
+					const oldPath = req.file.path;
+					const newPath = path.join(
+						path.dirname(oldPath),
+						newFileName
+					);
+
+					// Rename the file
+					fs.renameSync(oldPath, newPath);
+					req.file.filename = newFileName;
+					req.file.path = newPath;
+				}
 
 				try {
-					// Create a new document in the Expense collection
-					const newExpense = await Files.create({
+					const newExpense: any = await Files.create({
 						title,
 						amount,
 						vendor,
 						date,
-						filePath
+						filePath: req.file.path,
+						fileName: req.file.filename
 					});
-					logger.debug(newExpense);
+
+					logger.debug({
+						event: 'file_uploaded',
+						data: JSON.stringify(newExpense, null, 2)
+					});
+
 					res.status(201).json(newExpense);
 				} catch (error: any) {
 					res.status(400).json({
@@ -96,7 +121,9 @@ export const deleteFile = asyncHandler(async (req: Request, res: Response) => {
 	const filePath = path.join(uploadsDir, folder, fileName);
 	if (fs.existsSync(filePath)) {
 		fs.unlinkSync(filePath);
-		res.status(200).send('File deleted successfully.');
+		return new SuccessResponse('File deleted successfully.', null).send(
+			res
+		);
 	}
-	res.status(404).send('File not found.');
+	return new NotFoundResponse('File not found.').send(res);
 });

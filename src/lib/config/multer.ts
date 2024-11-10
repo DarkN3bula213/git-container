@@ -32,6 +32,7 @@ export const supaUpload = multer({
 /**
  * Disk storage configuration for uploading files to specific directories based on file type (e.g., documents and images).
  */
+
 const diskStorage: StorageEngine = multer.diskStorage({
 	destination: (_req, file, cb) => {
 		// Define paths for different file types
@@ -55,14 +56,10 @@ const diskStorage: StorageEngine = multer.diskStorage({
 		ensureDirectoryExists(destinationPath);
 		cb(null, destinationPath);
 	},
-	filename: (req, file, cb) => {
-		// Generate filename with suffix and date
-		const suffix = req.body.suffix || '-'; // Fallback suffix
-		const dateSuffix = new Date()
-			.toLocaleDateString('en-GB')
-			.replace(/\//g, '-');
-		const filename = `${path.basename(file.originalname, path.extname(file.originalname))}-${dateSuffix}-${suffix}${path.extname(file.originalname)}`;
-		cb(null, filename);
+	filename: function (_req, file, cb) {
+		// Use a timestamp for initial save
+		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+		cb(null, `temp-${uniqueSuffix}${path.extname(file.originalname)}`);
 	}
 });
 
@@ -116,4 +113,51 @@ export const fieldsUpload = fileUpload.fields([
 export const handleUploads = (app: Application) => {
 	ensureDirectoryExists(uploadsDir);
 	app.use(static_(`${process.cwd()}/uploads`));
+};
+
+export const customFileName = (customName?: string) => {
+	const storage = multer.diskStorage({
+		destination: function (_req, file, cb) {
+			// Define paths for different file types
+			const documentsPath = path.join(STORAGE_BASE_PATH, 'documents');
+			const imagesPath = path.join(STORAGE_BASE_PATH, 'images');
+
+			// Set default to documents, unless file is an image
+			let destinationPath = documentsPath;
+			const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+
+			// Check the file extension to determine destination
+			if (
+				imageExtensions.includes(
+					path.extname(file.originalname).toLowerCase()
+				)
+			) {
+				destinationPath = imagesPath;
+			}
+
+			// Ensure the destination directory exists
+			ensureDirectoryExists(destinationPath);
+			cb(null, destinationPath);
+		},
+		filename: function (_req, file, cb) {
+			if (customName) {
+				// Use the custom name while preserving the file extension
+				const fileExt = path.extname(file.originalname);
+				cb(null, `${customName}${fileExt}`);
+			} else {
+				// Fallback to default naming if no custom name provided
+				const uniqueSuffix =
+					Date.now() + '-' + Math.round(Math.random() * 1e9);
+				cb(
+					null,
+					file.fieldname +
+						'-' +
+						uniqueSuffix +
+						path.extname(file.originalname)
+				);
+			}
+		}
+	});
+
+	return multer({ storage: storage }).single('file');
 };

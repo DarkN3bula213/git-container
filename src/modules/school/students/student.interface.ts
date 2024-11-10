@@ -36,6 +36,7 @@ export type Student = Document & {
 		remarks: string[];
 	};
 	paymentHistory: Payments[];
+	version: number;
 };
 
 type Payments = {

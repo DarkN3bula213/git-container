@@ -12,14 +12,22 @@ const router = Router();
 router
 	.route('/')
 	.get(controller.findClasses)
-	.post(validate(schema.singleClass), controller.addClass)
-	.delete(controller.deleteAll);
+	.post(
+		validate(schema.singleClass),
+		invalidate([DynamicKey.CLASS, '*']),
+		controller.addClass
+	)
+	.delete(invalidate([DynamicKey.CLASS, '*']), controller.deleteAll);
 
 router
 	.route('/:id')
 	.get(controller.findClassById)
-	.put(validate(schema.singleClass), controller.updateClass)
-	.delete(controller.deleteClass);
+	.put(
+		validate(schema.singleClass),
+		invalidate([DynamicKey.CLASS, '*']),
+		controller.updateClass
+	)
+	.delete(invalidate([DynamicKey.CLASS, '*']), controller.deleteClass);
 
 router.get('/name/:name', controller.findClassByName);
 
@@ -34,19 +42,19 @@ const routes = (): RouteMap[] => {
 		{
 			path: '/subject/:classId',
 			method: 'post',
-			validations: [invalidate(DynamicKey.CLASS)],
+			validations: [invalidate([DynamicKey.CLASS, '*'])],
 			handler: controller.addSubjectToClass
 		},
 		{
 			path: '/subject/:classId',
 			method: 'put',
-			validations: [invalidate(DynamicKey.CLASS)],
+			validations: [invalidate([DynamicKey.CLASS, '*'])],
 			handler: controller.removeSubjectFromClass
 		},
 		{
 			path: '/teacher/:classId',
 			method: 'post',
-			validations: [invalidate(DynamicKey.CLASS)],
+			validations: [invalidate([DynamicKey.CLASS, '*'])],
 			handler: controller.addClassTeacher
 		}
 	];

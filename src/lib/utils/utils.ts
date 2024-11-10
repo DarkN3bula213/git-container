@@ -218,3 +218,58 @@ export const fetchAdminRoles = async (): Promise<Types.ObjectId | null> => {
 	);
 	return adminRoles?._id || null;
 };
+// Define valid class names as a const array
+const VALID_CLASS_NAMES = [
+	'Nursery',
+	'Prep',
+	'1st',
+	'2nd',
+	'3rd',
+	'4th',
+	'5th',
+	'6th',
+	'7th',
+	'8th',
+	'9th',
+	'10th'
+] as const;
+
+// Create type from valid class names
+type ClassName = (typeof VALID_CLASS_NAMES)[number];
+
+// Type-safe class order mapping
+const classOrder: Record<ClassName, number> = {
+	Nursery: 1,
+	Prep: 2,
+	'1st': 3,
+	'2nd': 4,
+	'3rd': 5,
+	'4th': 6,
+	'5th': 7,
+	'6th': 8,
+	'7th': 9,
+	'8th': 10,
+	'9th': 11,
+	'10th': 12
+} as const;
+
+// Type guard to check if a string is a valid class name
+function isValidClassName(className: string): className is ClassName {
+	return VALID_CLASS_NAMES.includes(className as ClassName);
+}
+
+// Type-safe sorting function
+export function sortStudentsByClassAndSection<
+	T extends { className: string; section: string }
+>(students: T[]): T[] {
+	return [...students].sort((a, b) => {
+		// Validate class names
+		if (!isValidClassName(a.className) || !isValidClassName(b.className)) {
+			throw new Error('Invalid class name encountered');
+		}
+
+		const classDiff = classOrder[a.className] - classOrder[b.className];
+		if (classDiff !== 0) return classDiff;
+		return a.section.localeCompare(b.section);
+	});
+}

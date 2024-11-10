@@ -17,9 +17,12 @@ export interface IPayment extends mongoose.Document {
 	createdBy: mongoose.Schema.Types.ObjectId;
 	updatedBy: mongoose.Schema.Types.ObjectId;
 	invoiceId: string;
+	version: number;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-const schema = new Schema<IPayment>(
+const schema: Schema<IPayment> = new Schema<IPayment>(
 	{
 		invoiceId: { type: String, required: false, unique: true },
 		studentId: {
@@ -58,11 +61,12 @@ const schema = new Schema<IPayment>(
 			ref: 'User',
 			required: true
 		},
-		updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+		updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+		version: { type: Number, default: 1 }
 	},
 	{
 		timestamps: true,
-		versionKey: false
+		versionKey: 'version'
 	}
 );
 
@@ -120,5 +124,7 @@ export async function deleteMoneyFlow(
 }
 
 schema.index({ studentId: 1, payId: 1 }, { unique: true });
+schema.index({ studentId: 1, paymentDate: 1 });
+schema.index({ payId: 1, studentId: 1 });
 
 export default mongoose.model<IPayment>('Payment', schema);

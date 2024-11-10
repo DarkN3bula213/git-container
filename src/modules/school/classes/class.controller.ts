@@ -1,5 +1,5 @@
 import { cache } from '@/data/cache/cache.service';
-import { DynamicKey } from '@/data/cache/keys';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { ClassModel } from './class.model';
@@ -38,7 +38,10 @@ export const deleteClass = asyncHandler(async (req, res) => {
 	new SuccessResponse(' Class deleted successfully', data).send(res);
 });
 export const findClassById = asyncHandler(async (req, res) => {
-	const data = await ClassModel.findById(req.params.id).lean().exec();
+	const key = getDynamicKey(DynamicKey.CLASS, req.params.id);
+	const data = await cache.getWithFallback(key, async () => {
+		return await ClassModel.findById(req.params.id).lean().exec();
+	});
 	new SuccessResponse(' Class', data).send(res);
 });
 

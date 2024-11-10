@@ -1,5 +1,6 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
+import { convertToMilliseconds } from '@/lib/utils/fns';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import { RedisClientType } from 'redis';
@@ -74,6 +75,7 @@ export class CacheClientService {
 	cachedSession(secret: string) {
 		const RedisSessionStore = new RedisStore({
 			client: this.client,
+			prefix: 'cached:',
 			ttl: 30000
 		});
 
@@ -84,7 +86,7 @@ export class CacheClientService {
 			saveUninitialized: false,
 			cookie: {
 				secure: config.isProduction, // Use secure cookies in production
-				maxAge: 1000 * 60 * 60 * 24 // 1 day session expiration
+				maxAge: convertToMilliseconds('120m')
 			}
 		});
 	}
@@ -94,11 +96,17 @@ export class CacheClientService {
 	): Promise<T> {
 		const cachedData = await this.get<T>(key);
 		if (cachedData) {
-			logger.debug('Data fetched from cache');
+			logger.debug({
+				message: 'Data in cache',
+				key
+			});
 			return cachedData;
 		}
 
-		logger.debug('Data not in cache - fetching from source');
+		logger.debug({
+			message: 'Data not in cache - fetching from source',
+			key
+		});
 		const freshData = await fetchFunction();
 		await this.setExp(key, freshData, 60000); // Assuming 60 seconds expiration for demonstration
 		return freshData;

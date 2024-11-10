@@ -134,6 +134,7 @@ const studentSchema = new Schema<Student>(
 
 			default: Date.now
 		},
+		version: { type: Number, default: 1 },
 		status: {
 			isActive: Boolean,
 			hasLeft: Boolean,
@@ -148,12 +149,16 @@ const studentSchema = new Schema<Student>(
 					ref: paymentModel.modelName
 				},
 				payID: String,
-				payId: String
+				payId: String,
+				invoiceId: {
+					type: String
+				}
 			}
 		]
 	},
 	{
 		timestamps: true,
+		versionKey: 'version',
 		statics: {
 			async insertManyWithId(docs: Student[]) {
 				const documentsWithIds = await Promise.all(
@@ -251,7 +256,15 @@ const getClassIdByName: IStudentStaticMethods['getClassIdByName'] = async (
 
 // Attach the static method to the schema
 studentSchema.statics.getClassIdByName = getClassIdByName;
-studentSchema.index({ registration_no: 1 }, { unique: true });
+
+// Add these indexes before creating the model
+studentSchema.index({ registration_no: 1 }, { unique: true }); // Already exists
+studentSchema.index({ name: 1 }); // For student name searches
+studentSchema.index({ classId: 1, section: 1 }); // For finding students by class and section
+studentSchema.index({ classId: 1 }); // For finding students by className and section
+studentSchema.index({ father_cnic: 1 }); // For searching by father's CNIC
+studentSchema.index({ 'status.isActive': 1 }); // For querying active/inactive students
+studentSchema.index({ admission_date: -1 }); // For sorting by admission date, descending
 
 const StudentModel = model<Student, IStudentModel>('Student', studentSchema);
 export default StudentModel;

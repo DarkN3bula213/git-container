@@ -139,14 +139,32 @@ export const handleWebRTC = (socket: Socket, io: Server) => {
 		}
 	});
 
-	// Handle disconnection cleanup
-	socket.on('disconnect', () => {
+	socket.on('audio_message', async ({ toUserId, audio, timestamp }) => {
 		try {
 			const userId = socket.data.userId as string;
-			io.emit('user-disconnect', { userId });
-			logEvent('Socket disconnected', userId);
+
+			// Validate the audio data
+			if (!audio.startsWith('data:audio')) {
+				throw new Error('Invalid audio format');
+			}
+
+			// Emit to the recipient
+			io.to(toUserId).emit('audio_message', {
+				fromUserId: userId,
+				audio,
+				timestamp
+			});
+
+			// Acknowledge the sender
+			socket.emit('audio_message_sent', {
+				success: true,
+				timestamp
+			});
 		} catch (error) {
-			handleError('disconnect', error as Error);
+			console.error('Error handling audio message:', error);
+			socket.emit('audio_message_error', {
+				message: 'Failed to send audio message'
+			});
 		}
 	});
 };

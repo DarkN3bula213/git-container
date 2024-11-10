@@ -1,11 +1,17 @@
 {
-  "nodemonConfig": {
-    "ignore": ["**/*.test.ts", "**/*.spec.ts", ".git", "node_modules"],
-    "watch": ["src"],
-    "exec": "node -r tsconfig-paths/register -r ts-node/register ./src/server.ts",
-    "ext": "ts, js"
-  },
-  "scripts": {
-    "dev": "nodemon"
-  }
+	"nodemonConfig": {
+		"ignore": [
+			"**/*.test.ts",
+			"**/*.spec.ts",
+			".git",
+			"node_modules",
+			"uploads"
+		],
+		"watch": ["src"],
+		"exec": "node -r tsconfig-paths/register -r ts-node/register ./src/server.ts",
+		"ext": "ts, js"
+	},
+	"scripts": {
+		"dev": "nodemon"
+	}
 }

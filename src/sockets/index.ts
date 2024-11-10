@@ -11,6 +11,7 @@ import {
 	handleMessages,
 	handleUsers
 } from './events';
+import { handleImageTransfer } from './events/imageTransfer';
 import { handleWebRTC } from './events/webRTC';
 
 const logger = new Logger(__filename);
@@ -72,6 +73,7 @@ class SocketService {
 				await handleUsers(socket, this.connectedUsers);
 				await handleMessages(socket, this.io, this.connectedUsers);
 				handleWebRTC(socket, this.io);
+				handleImageTransfer(socket, this.io);
 
 				socket.onAny((event, ...args) => {
 					if (

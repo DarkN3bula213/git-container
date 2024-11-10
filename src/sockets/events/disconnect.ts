@@ -109,7 +109,7 @@ export const handleDisconnect = async (
 
 	if (connectedUsers && connectedUsers.has(userId)) {
 		io.emit('systemMessage', {
-			message: `User ${socket.data.username} disconnected`,
+			message: `User ${userId} disconnected`,
 			timestamp: new Date().toISOString()
 		});
 		connectedUsers.delete(userId);
