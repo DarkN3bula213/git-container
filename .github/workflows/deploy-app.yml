@@ -30,7 +30,6 @@
 #             docker compose up --build --force-recreate -d
 #           EOF
 #         shell: bash
-
 name: Deploy Application
 
 on:
@@ -55,14 +54,6 @@ jobs:
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
         shell: bash
 
-      - name: Validate Nginx Configuration
-        run: |
-          ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
-            echo "Validating Nginx configuration..."
-            docker exec nginx nginx -t
-          EOF
-        shell: bash
-
       - name: Redeploy application
         run: |
           ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
@@ -70,6 +61,12 @@ jobs:
             docker-compose down
             docker-compose up --build --force-recreate -d
           EOF
+        shell: bash
+
+      - name: Wait for Nginx to Start
+        run: |
+          echo "Waiting for Nginx container to start..."
+          sleep 10
         shell: bash
 
       - name: Reload Nginx

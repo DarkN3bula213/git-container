@@ -3,7 +3,7 @@ name: Test SSH Connection
 on:
   push:
     branches:
-      - cidi
+      - main
 
 jobs:
   test-ssh:
