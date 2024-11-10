@@ -30,7 +30,7 @@
 #             docker compose up --build --force-recreate -d
 #           EOF
 #         shell: bash
-name: Deploy Application
+name: Consolidated Deployment
 
 on:
   push:
