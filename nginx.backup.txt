@@ -1,0 +1,54 @@
+events {}
+
+http {
+    # Rate Limiting
+
+    include mime.types;
+        limit_req_zone $request_uri zone=one:10m rate=1r/s;
+
+    # Redirect HTTP traffic to HTTPS
+    server {
+        listen 80;
+        server_name api.hps-admin.com file.hps-admin.com; # Add file.hps-admin.com here
+        return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        server_name api.hps-admin.com;
+
+        ssl_certificate /etc/ssl/certs/api_fullchain.pem;   
+        ssl_certificate_key /etc/ssl/private/api_privkey.pem; 
+         
+        client_max_body_size 50M;
+        # Security Headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'none'; frame-src 'none'; font-src 'self'; connect-src 'self';";
+
+        location ~ /\.env {
+            deny all;
+            return 403;
+        }
+
+        location / {
+            limit_req zone=one burst=10 nodelay;
+            proxy_pass http://app:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+            proxy_set_header X-Api-Key $http_x_api_key;
+            proxy_set_header X-Access-Token $http_x_access_token;
+            proxy_set_header X-Refresh-Token $http_x_refresh_token;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            
+        }
+    }
+ 
+}
