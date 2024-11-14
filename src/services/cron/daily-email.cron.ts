@@ -1,6 +1,6 @@
+import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 import cron from 'node-cron';
-import { client } from '../mail';
 import { sendPaymentSummaryEmail } from '../mail/mailTrap';
 
 const logger = new Logger(__filename);
@@ -26,13 +26,16 @@ export const setupPaymentSummaryJob = () => {
 };
 // Execute payment summary job immediately if not in development
 const executeInitialPaymentSummary = async () => {
-	client.verify(function (error, _success) {
-		if (error) {
-			logger.error(error);
-		} else {
-			logger.debug('Mailtrap connection successful');
+	if (config.isProduction || config.isDocker) {
+		logger.info('Sending daily payment report...');
+		try {
+			const date = new Date();
+			await sendPaymentSummaryEmail('a.ateeb@proton.me', date);
+			logger.info('Daily payment report sent successfully.');
+		} catch (error) {
+			logger.error('Error sending daily payment report:', error);
 		}
-	});
+	}
 };
 
 executeInitialPaymentSummary();

@@ -182,4 +182,4 @@ export const sendPaymentSummaryEmail = async (email: string, date: Date) => {
 		throw new Error(`Error sending email: ${error}`);
 	}
 };
-sendPaymentSummaryEmail('a.ateeb@proton.me', new Date());
+// sendPaymentSummaryEmail('a.ateeb@proton.me', new Date());

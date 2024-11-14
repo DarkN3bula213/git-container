@@ -20,6 +20,26 @@ export const client = Nodemailer.createTransport(
 		debug: true
 	}
 );
+
+client.verify(function (error, _success) {
+	if (error) {
+		console.error(error, {
+			config: {
+				token: config.mail.token ? 'exists' : 'missing',
+				address: config.mail.address
+			}
+		});
+		logger.error('Mailtrap verification failed:', {
+			error: error,
+			config: {
+				token: config.mail.token ? 'exists' : 'missing',
+				address: config.mail.address
+			}
+		});
+	} else {
+		logger.info('Mailtrap server is ready to take our messages');
+	}
+});
 client.on('error', (err) => {
 	console.error(err);
 	logger.error('Mailtrap transport error:', err);
@@ -73,13 +93,19 @@ const sendEmail = async (props: SendEmailProps) => {
 	};
 
 	try {
+		logger.debug({
+			event: 'sendEmail',
+			from: request.from,
+			to: request.to,
+			subject: request.subject
+		});
 		// Use send() instead of sendMail()
 		await client.sendMail(request);
 		logger.info('Email sent successfully');
 	} catch (error) {
-		console.dir(error, { depth: null });
+		console.log(JSON.stringify(error, null, 2), { request });
 		logger.error('Error sending email:', error);
-		throw new Error(`Error sending email: ${error}`);
+		throw error;
 	}
 };
 
