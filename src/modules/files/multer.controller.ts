@@ -66,7 +66,7 @@ export const uploadDocument = asyncHandler(
 			}
 
 			// Now req.body will be populated
-			console.log('Request body after upload:', req.body);
+
 			const { customName, title, amount, vendor, date } = req.body;
 
 			if (req.file) {

@@ -1,17 +1,23 @@
 import { cache } from '@/data/cache/cache.service';
+import { Logger } from '@/lib/logger';
 import { Types } from 'mongoose';
 import mongoose from 'mongoose';
-import ConversationModel, { MessageModel } from './conversation.model';
+import ConversationModel, {
+	IConversation,
+	MessageModel
+} from './conversation.model';
+
+const logger = new Logger(__filename);
 
 export const getOrCreateConversation = async (
 	userId: string,
 	recipientId: string
 ) => {
-	let conversation = await ConversationModel.findOne({
+	let conversation = (await ConversationModel.findOne({
 		participants: {
 			$all: [new Types.ObjectId(userId), new Types.ObjectId(recipientId)]
 		}
-	});
+	})) as IConversation;
 
 	if (!conversation) {
 		conversation = new ConversationModel({
@@ -57,7 +63,6 @@ export const getAllConversationsForUser = async (userId: string) => {
 		})
 		.exec();
 
-	// console.log(conversations);
 	// Transform the participants and lastMessage fields for frontend consumption
 	const transformedConversations = conversations.map((conversation) => ({
 		...conversation.toObject(),
@@ -119,7 +124,9 @@ export const saveMessageInConversation = async ({
 		const savedMessage = await message.save();
 
 		// Log for debugging purposes
-		console.log(`Message saved with ID: ${savedMessage._id}`);
+		logger.info({
+			message: `Message saved with ID: ${savedMessage._id}`
+		});
 
 		// Update the conversation with the new message and set it as the lastMessage
 		await ConversationModel.findByIdAndUpdate(
@@ -134,7 +141,10 @@ export const saveMessageInConversation = async ({
 		return savedMessage;
 	} catch (error) {
 		// Handle errors appropriately
-		console.error('Error saving message or updating conversation:', error);
+		logger.error({
+			message: 'Error saving message or updating conversation:',
+			error: error
+		});
 		throw error;
 	}
 };

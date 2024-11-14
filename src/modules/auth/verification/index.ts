@@ -14,7 +14,7 @@ import {
 	sendResetSuccessEmail,
 	sendVerifyEmail
 } from '@/services/mail/mailTrap';
-import { User, UserModel } from '../users/user.model';
+import { UserModel } from '../users/user.model';
 import { service } from '../users/user.service';
 
 const logger = new Logger(__filename);
@@ -136,6 +136,6 @@ export const toggleApproval = asyncHandler(async (req, res) => {
 	}
 	user.isApproved = !user.isApproved;
 	await user.save();
-	console.log(user);
+
 	return new SuccessResponse('Status changed', { user }).send(res);
 });

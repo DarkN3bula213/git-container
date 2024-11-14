@@ -1,4 +1,7 @@
+import { Logger } from '@/lib/logger';
 import mongoose from 'mongoose';
+
+const logger = new Logger(__filename);
 
 const schema = new mongoose.Schema({
 	date: { type: Date, required: true, default: Date.now, unique: true },
@@ -16,9 +19,15 @@ export async function saveMoneyFlowToMongo(totalAmount: number): Promise<void> {
 		});
 
 		await flowData.save();
-		console.log(`Money flow for the day saved to MongoDB: ${totalAmount}`);
+		logger.info({
+			message: 'Money flow for the day saved to MongoDB',
+			total: totalAmount
+		});
 	} catch (err) {
-		console.error('Error saving money flow to MongoDB:', err);
+		logger.error({
+			message: 'Error saving money flow to MongoDB:',
+			error: err
+		});
 		throw err;
 	}
 }

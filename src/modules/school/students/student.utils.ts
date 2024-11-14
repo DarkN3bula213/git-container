@@ -1,3 +1,4 @@
+import { Logger } from '@/lib/logger';
 import {
 	IDTrackerModel,
 	IIDTracker
@@ -5,6 +6,8 @@ import {
 import dayjs from 'dayjs';
 import { ClassModel } from '../classes/class.model';
 import StudentModel from './student.model';
+
+const logger = new Logger(__filename);
 
 export const generateUniqueId = async (): Promise<string> => {
 	const today = dayjs().format('YYMMDD');
@@ -68,12 +71,17 @@ export async function updateStudentClassIds() {
 			await student.save();
 			count++;
 
-			console.log('found', Date.now());
+			logger.info({
+				message: 'found',
+				date: Date.now()
+			});
 		} else {
-			console.log(
-				`No class found with name ${student.classId} for student ${student._id}`
-			);
+			logger.info({
+				message: `No class found with name ${student.classId} for student ${student._id}`
+			});
 		}
 	}
-	console.log(`"All student classIds updated successfully" ${count}`);
+	logger.info({
+		message: `All student classIds updated successfully ${count}`
+	});
 }

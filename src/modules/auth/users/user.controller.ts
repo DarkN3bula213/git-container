@@ -86,7 +86,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 	}
 	const roles = normalizeRoles(userCache.roles);
 
-	const roleCodes = await fetchRoleCodes(roles);
+	const roleCodes = (await fetchRoleCodes(roles)) as string[];
 	const isAdmin = await isAdminRolePresent(roles);
 	if (!roleCodes) {
 		throw new BadRequestError('No user found');
@@ -228,7 +228,10 @@ export const login = asyncHandler(async (req, res) => {
 
 	const role = normalizeRoles(user.roles);
 	const isAdmin = await isAdminRolePresent(role);
-	console.log('isAdmin', isAdmin);
+	logger.info({
+		message: 'isAdmin',
+		isAdmin: isAdmin
+	});
 
 	const roleCodes = (await fetchUserPermissions(role)) as string[];
 

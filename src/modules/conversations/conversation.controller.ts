@@ -2,8 +2,11 @@ import { cache } from '@/data/cache/cache.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
+import { Logger } from '@/lib/logger';
 import { User } from '../auth/users/user.model';
 import ConversationModel, { MessageModel } from './conversation.model';
+
+const logger = new Logger(__filename);
 
 export const getConversations = asyncHandler(async (req, res) => {
 	const user = req.user as User;
@@ -61,7 +64,10 @@ export const getOrCreateConversationId = asyncHandler(async (req, res) => {
 
 	const checkcache = await cache.get<string>(key);
 	if (checkcache) {
-		console.log('Cache hit');
+		logger.info({
+			message: 'Cache hit',
+			key: key
+		});
 		return new SuccessResponse(
 			'Conversation retrieved',
 			JSON.parse(checkcache)

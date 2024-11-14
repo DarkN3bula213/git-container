@@ -1,5 +1,8 @@
 import { cache } from '@/data/cache/cache.service';
+import { Logger } from '@/lib/logger';
 import mongoose, { Schema } from 'mongoose';
+
+const logger = new Logger(__filename);
 
 export interface IPayment extends mongoose.Document {
 	studentId: mongoose.Schema.Types.ObjectId;
@@ -86,11 +89,17 @@ async function updateMoneyFlow(
 			.getClient()
 			.hIncrBy(redisKey, 'totalAmount', amount);
 
-		console.log(
-			`Updated Redis for ${className}-${section}: New total amount is ${result}`
-		);
+		logger.info({
+			message: `Updated Redis for ${className}-${section}: New total amount is ${result}`,
+			className: className,
+			section: section,
+			amount: amount
+		});
 	} catch (err) {
-		console.error('Error updating class-section money flow in Redis:', err);
+		logger.error({
+			message: 'Error updating class-section money flow in Redis:',
+			error: err
+		});
 	}
 
 	next();
@@ -113,11 +122,17 @@ export async function deleteMoneyFlow(
 			.getClient()
 			.hIncrBy(redisKey, 'totalAmount', -amount);
 
-		console.log(
-			`Updated Redis for ${className}-${section}: New total amount is ${result}`
-		);
+		logger.info({
+			message: `Updated Redis for ${className}-${section}: New total amount is ${result}`,
+			className: className,
+			section: section,
+			amount: amount
+		});
 	} catch (err) {
-		console.error('Error updating class-section money flow in Redis:', err);
+		logger.error({
+			message: 'Error updating class-section money flow in Redis:',
+			error: err
+		});
 	}
 
 	next();

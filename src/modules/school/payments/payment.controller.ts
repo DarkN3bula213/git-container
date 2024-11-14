@@ -306,8 +306,6 @@ export const getFeesByCycle = asyncHandler(async (req, res) => {
 	const cachedPayments: any =
 		await paymentsService.getPaymentsForCycle(payID);
 
-	console.log(JSON.stringify(cachedPayments, null, 2));
-
 	return new SuccessResponse(
 		`Payments for billing cycle ${payID} fetched successfully`,
 		cachedPayments

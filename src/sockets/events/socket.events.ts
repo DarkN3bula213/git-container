@@ -32,7 +32,6 @@ const authenticateUser = (
 
 	const user = verificationResult.decoded?.user;
 	const userID = user?._id;
-	console.log(user);
 
 	getOrSetStartTime(userID, socket);
 	return { user, userID };
@@ -99,7 +98,6 @@ const manageUserConnection = (
 
 	if (connectedUsers.has(userId)) {
 		const existingUser = connectedUsers.get(userId);
-		console.log('existingUser', existingUser);
 		// Update only the socket ID, don't trigger a disconnection
 		if (existingUser) {
 			logger.info(
