@@ -67,6 +67,7 @@ services:
             - /etc/letsencrypt/live/file.hps-admin.com/fullchain.pem:/etc/ssl/certs/file_fullchain.pem:ro
             - /etc/letsencrypt/live/file.hps-admin.com/privkey.pem:/etc/ssl/private/file_privkey.pem:ro
             - /var/www/certbot:/var/www/certbot
+            - /etc/nginx/ssl:/etc/nginx/ssl:ro
         depends_on:
             - app
         networks:

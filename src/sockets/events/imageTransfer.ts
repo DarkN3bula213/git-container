@@ -103,13 +103,14 @@ const handleCompleteImageTransfer =
 		toUserId: string;
 		conversationId: string;
 	}) => {
+		const fromUserId = socket.data.userId as string;
+
 		try {
 			// Notify the recipient that the transfer is complete
 			emitMessage(io, {
-				// Use io instead of socket
 				receivers: [toUserId],
 				event: socketEvents.completeImageTransfer,
-				payload: { conversationId }
+				payload: { conversationId, senderId: fromUserId }
 			});
 
 			logger.info(`Image transfer complete to user ${toUserId}`);
