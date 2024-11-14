@@ -93,14 +93,8 @@ const sendEmail = async (props: SendEmailProps) => {
 	};
 
 	try {
-		logger.debug({
-			event: 'sendEmail',
-			from: request.from,
-			to: request.to,
-			subject: request.subject
-		});
 		// Use send() instead of sendMail()
-		logger.debug('Mailtrap Configuration:', {
+		logger.debug({
 			tokenLength: config.mail.token?.length,
 			mailHost: config.mail.host,
 			senderEmail: config.mail.address,
