@@ -25,14 +25,16 @@ process.on('uncaughtException', (e) => {
 	});
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason: any, promise) => {
 	logger.error({
-		event: 'Unhandled Rejection Occured',
-		reason: reason,
+		event: 'Unhandled Rejection Occurred',
+		error: {
+			message: reason?.message,
+			stack: reason?.stack,
+			name: reason?.name
+		},
 		promise: promise
 	});
-	console.error(`Reason: ${reason}`);
-	console.dir(promise);
 });
 const app: Application = express();
 

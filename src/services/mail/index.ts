@@ -100,6 +100,12 @@ const sendEmail = async (props: SendEmailProps) => {
 			subject: request.subject
 		});
 		// Use send() instead of sendMail()
+		logger.debug('Mailtrap Configuration:', {
+			tokenLength: config.mail.token?.length,
+			mailHost: config.mail.host,
+			senderEmail: config.mail.address,
+			isConfigured: !!config.mail.token && !!config.mail.address
+		});
 		await client.sendMail(request);
 		logger.info('Email sent successfully');
 	} catch (error) {
