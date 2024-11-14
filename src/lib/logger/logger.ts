@@ -31,7 +31,7 @@ type levelColorMap = {
 	[key: string]: string;
 };
 
-const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
+// const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
 
 const customTimestampFormat = winston.format((info, _opts) => {
 	info.timestamp = dayjs().format('| [+] | MM-DD HH:mm:ss');
@@ -71,34 +71,35 @@ const dailyRotateFile = new DailyRotateFile({
 	handleExceptions: true,
 	maxSize: '20m',
 	maxFiles: '14d',
-	format: winston.format.combine(
-		winston.format.errors({ stack: false }),
-		winston.format.splat(),
-		winston.format.timestamp(),
-		winston.format.prettyPrint()
-	)
+	format: config.isProduction
+		? winston.format.combine(
+				winston.format.timestamp(),
+				winston.format.errors({ stack: true }),
+				winston.format.json()
+			)
+		: winston.format.combine(
+				customTimestampFormat,
+				winston.format.errors({ stack: true }),
+				customPrintf
+			)
 });
-
-/**
- *
- *
- *
- *
- *
- *
- */
 
 export class Logger {
 	public static DEFAULT_SCOPE = 'app';
 
 	private static logger = winston.createLogger({
 		level: 'debug',
-		format: winston.format.combine(
-			customTimestampFormat,
-			winston.format.errors({ stack: false }),
-			customPrintf
-		),
-
+		format: config.isProduction
+			? winston.format.combine(
+					winston.format.timestamp(),
+					winston.format.errors({ stack: true }),
+					winston.format.json() // Use JSON format in production
+				)
+			: winston.format.combine(
+					customTimestampFormat,
+					winston.format.errors({ stack: true }),
+					customPrintf // Use custom printf in development
+				),
 		transports: [new winston.transports.Console(), dailyRotateFile],
 		exceptionHandlers: [dailyRotateFile],
 		exitOnError: false
@@ -139,30 +140,27 @@ export class Logger {
 		this.log('error', message, args);
 	}
 	private log(level: string, message: string | object, _args: any[]): void {
+		const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
+
 		if (typeof message === 'object') {
-			// Start with the scope line
 			let formattedMessage = `${this.scope} \n`;
 			if (!config.isProduction) {
 				const lines = Object.entries(message).map(([key, value]) => {
-					// Apply a color to the key. For example, using blue for keys
 					const coloredKey = colors.cyan(key);
 					return `${timestamp} ${colors.cyan(':-----:')} ${coloredKey}: ${value}`;
 				});
 				formattedMessage += lines.join('\n');
 			} else {
-				// Production logging: simpler and without colors
-				// Optionally, consider using JSON.stringify for structured logging
 				const messageString = JSON.stringify(message);
 				formattedMessage += `| + | ${messageString}`;
 			}
-
 			Logger.logger.log(level, formattedMessage);
 		} else {
-			// Handle regular logging
 			const formattedMessage = `${message}`;
 			Logger.logger.log({
 				level,
-				message: formattedMessage
+				message: formattedMessage,
+				timestamp: dayjs().format('| [+] | MM-DD HH:mm:ss')
 			});
 		}
 	}
