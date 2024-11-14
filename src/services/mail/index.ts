@@ -7,13 +7,23 @@ import Nodemailer from 'nodemailer';
 import templates from './mailTemplates';
 
 const logger = new Logger('Mailtrap');
+logger.debug({
+	message: 'Initializing Mailtrap with token:',
+	token: config.mail.token ? 'Token exists' : 'No token found'
+});
 
 export const client = Nodemailer.createTransport(
 	MailtrapTransport({
 		token: config.mail.token
-	})
+	}),
+	{
+		debug: true
+	}
 );
-
+client.on('error', (err) => {
+	console.error(err);
+	logger.error('Mailtrap transport error:', err);
+});
 interface SendEmailWithTemplate {
 	to: string;
 	subject: string;
@@ -63,9 +73,9 @@ const sendEmail = async (props: SendEmailProps) => {
 	};
 
 	try {
-		await client.sendMail(request).then(() => {
-			logger.info('Email sent successfully');
-		});
+		// Use send() instead of sendMail()
+		await client.sendMail(request);
+		logger.info('Email sent successfully');
 	} catch (error) {
 		console.dir(error, { depth: null });
 		logger.error('Error sending email:', error);
