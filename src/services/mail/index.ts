@@ -7,10 +7,6 @@ import Nodemailer from 'nodemailer';
 import templates from './mailTemplates';
 
 const logger = new Logger('Mailtrap');
-logger.debug({
-	message: 'Initializing Mailtrap with token:',
-	token: config.mail.token ? 'Token exists' : 'No token found'
-});
 
 export const client = Nodemailer.createTransport(
 	MailtrapTransport({
@@ -21,25 +17,6 @@ export const client = Nodemailer.createTransport(
 	}
 );
 
-client.verify(function (error, _success) {
-	if (error) {
-		console.error(error, {
-			config: {
-				token: config.mail.token ? 'exists' : 'missing',
-				address: config.mail.address
-			}
-		});
-		logger.error('Mailtrap verification failed:', {
-			error: error,
-			config: {
-				token: config.mail.token ? 'exists' : 'missing',
-				address: config.mail.address
-			}
-		});
-	} else {
-		logger.info('Mailtrap server is ready to take our messages');
-	}
-});
 client.on('error', (err) => {
 	console.error(err);
 	logger.error('Mailtrap transport error:', err);
@@ -93,13 +70,6 @@ const sendEmail = async (props: SendEmailProps) => {
 	};
 
 	try {
-		// Use send() instead of sendMail()
-		logger.debug({
-			tokenLength: config.mail.token?.length,
-			mailHost: config.mail.host,
-			senderEmail: config.mail.address,
-			isConfigured: !!config.mail.token && !!config.mail.address
-		});
 		await client.sendMail(request);
 		logger.info('Email sent successfully');
 	} catch (error) {

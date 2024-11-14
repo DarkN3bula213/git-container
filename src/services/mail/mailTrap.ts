@@ -176,7 +176,6 @@ export const sendPaymentSummaryEmail = async (email: string, date: Date) => {
 			subject: 'Payment Summary',
 			html: emailHtml
 		});
-		logger.info('Email sent successfully');
 	} catch (error) {
 		logger.error('Error sending email:', error);
 		throw new Error(`Error sending email: ${error}`);
