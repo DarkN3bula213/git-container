@@ -1,8 +1,10 @@
 import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger';
+import { ConnectedUser } from '@/types/connectedUsers';
 import { Server, type Socket } from 'socket.io';
 import { addSaveSessionJob } from '../../modules/auth/sessions/session.processor';
 import { calculateTimeSpent } from '../../modules/auth/sessions/socket.utils';
+import { sendAdminMessage } from '../utils/emitMessage';
 import { getStartTimeFromCache } from '../utils/getStartTimeFromCache';
 
 const logger = new Logger(__filename);
@@ -10,10 +12,7 @@ const logger = new Logger(__filename);
 export const handleDisconnect = async (
 	socket: Socket,
 	io: Server,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
+	connectedUsers: Map<string, ConnectedUser>
 ) => {
 	const userID = socket.data.userId;
 	const redisKey = `user:${userID}:startTime`;
@@ -116,6 +115,11 @@ export const handleDisconnect = async (
 		const updatedUsers = Array.from(connectedUsers.values());
 		socket.broadcast.emit('userListUpdated', updatedUsers);
 		socket.disconnect();
+		sendAdminMessage(
+			socket,
+			connectedUsers,
+			`User ${username} disconnected`
+		);
 	} else {
 		logger.info(
 			`User ${socket.data.username} disconnected but not found in connectedUsers`

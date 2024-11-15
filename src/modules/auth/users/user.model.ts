@@ -1,4 +1,6 @@
 import { InternalError } from '@/lib/api';
+import { normalizeRoles } from '@/lib/utils/utils';
+import { isAdminRolePresent } from '@/lib/utils/utils';
 import bcrypt from 'bcrypt';
 import {
 	ClientSession,
@@ -271,3 +273,15 @@ export const findUserById = async (id: string) => {
 };
 
 schema.index({ temporary: 1 }, { expireAfterSeconds: 86400 });
+
+export async function isUserAdmin(userId: Types.ObjectId): Promise<boolean> {
+	// Fetch the user with roles populated
+	const user = await UserModel.findById(userId);
+
+	if (!user) return false;
+
+	const roles = normalizeRoles(user?.roles);
+
+	const isAdmin = await isAdminRolePresent(roles);
+	return isAdmin;
+}

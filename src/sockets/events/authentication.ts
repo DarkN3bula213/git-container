@@ -1,5 +1,6 @@
 import { Logger } from '@/lib/logger';
 import { verifyToken } from '@/lib/utils/tokens';
+import { isUserAdmin } from '@/modules/auth/users/user.model';
 import cookie from 'cookie';
 import { Socket } from 'socket.io';
 import { v4 } from 'uuid';
@@ -42,6 +43,9 @@ export const handleAuth = async (socket: Socket): Promise<boolean> => {
 	await getOrSetStartTime(userId, socket);
 
 	const sessionId = await handleSession(socket, userId, username);
+	const isAdmin = await isUserAdmin(userId);
+	logger.info(`User ${username} is admin: ${isAdmin}`);
+	socket.data.isAdmin = isAdmin;
 
 	// Attach session data to socket
 	socket.data.sessionId = sessionId;

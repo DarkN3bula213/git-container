@@ -129,7 +129,7 @@ export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
 	const cachedPayments = await Payments.find({
 		studentId
 	});
-
+	console.log(JSON.stringify(cachedPayments, null, 2));
 	if (!cachedPayments) throw new BadRequestError('Payments not found');
 	return new SuccessResponse(
 		'Payments fetched successfully',

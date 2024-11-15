@@ -1,14 +1,13 @@
 import { Logger } from '@/lib/logger';
+import { ConnectedUser } from '@/types/connectedUsers';
 import { Socket } from 'socket.io';
+import { sendAdminMessage } from '../utils/emitMessage';
 
 const logger = new Logger(__filename);
 
 export const handleUsers = async (
 	socket: Socket,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
+	connectedUsers: Map<string, ConnectedUser>
 ) => {
 	const userId = socket.data.userId as string;
 	const username = socket.data.username as string;
@@ -34,6 +33,8 @@ export const handleUsers = async (
 	// 	depth: Infinity
 	// });
 	broadcastUserList(socket, connectedUsers);
+
+	sendAdminMessage(socket, connectedUsers, `${username} connected`);
 };
 
 const handleExistingConnection = (

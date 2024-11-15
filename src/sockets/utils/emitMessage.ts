@@ -1,4 +1,5 @@
-import { Server } from 'socket.io';
+import { ConnectedUser } from '@/types/connectedUsers';
+import { Server, Socket } from 'socket.io';
 
 export const emitMessage = (
 	io: Server,
@@ -18,10 +19,7 @@ export const emitMessage = (
 };
 
 export const getSocketIdByUserId = (
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>,
+	connectedUsers: Map<string, ConnectedUser>,
 	userId: string
 ): string | undefined => {
 	for (const [, user] of connectedUsers) {
@@ -30,4 +28,22 @@ export const getSocketIdByUserId = (
 		}
 	}
 	return undefined;
+};
+
+export const sendAdminMessage = (
+	socket: Socket,
+	connectedUsers: Map<string, ConnectedUser>,
+	message: string,
+	excludeUserId?: string
+) => {
+	// Iterate over connected users
+	connectedUsers.forEach((user) => {
+		if (user.isAdmin && user.userId !== excludeUserId) {
+			// Send 'adminMessage' to the admin user's socket
+			socket.to(user.socketId).emit('adminMessage', {
+				message,
+				timestamp: new Date().toISOString()
+			});
+		}
+	});
 };

@@ -13,7 +13,8 @@ export const client = Nodemailer.createTransport(
 		token: config.mail.token
 	}),
 	{
-		debug: true
+		debug: true,
+		logger: true
 	}
 );
 

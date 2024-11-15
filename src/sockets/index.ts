@@ -3,6 +3,7 @@ import { config } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
 import { Logger } from '@/lib/logger';
 import { removeSaveSessionJob } from '@/modules/auth/sessions/session.processor';
+import { ConnectedUser } from '@/types/connectedUsers';
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
 import {
@@ -18,10 +19,7 @@ const logger = new Logger(__filename);
 export let socketParser: SocketIOServer;
 class SocketService {
 	private io: SocketIOServer;
-	connectedUsers = new Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>();
+	connectedUsers = new Map<string, ConnectedUser>();
 	private static instance: SocketService;
 
 	constructor(httpServer: HttpServer) {
