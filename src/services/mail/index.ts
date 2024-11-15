@@ -43,6 +43,7 @@ type SendEmailProps = SendEmailWithTemplate | SendEmailWithHtml;
 
 const sendEmail = async (props: SendEmailProps) => {
 	let htmlTemplate: string;
+	logger.info(`Sending email to ${config.mail.token}`);
 
 	if ('html' in props) {
 		// If `html` is provided, use it directly
@@ -71,7 +72,7 @@ const sendEmail = async (props: SendEmailProps) => {
 	};
 
 	try {
-		await client.sendMail(request);
+		await client.sendMail(request).then(console.log).catch(console.error);
 		logger.info('Email sent successfully');
 	} catch (error) {
 		console.log(JSON.stringify(error, null, 2), { request });
