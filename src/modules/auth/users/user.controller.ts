@@ -11,6 +11,7 @@ import { Roles } from '@/lib/constants';
 import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger/logger';
+import { notify } from '@/lib/utils/socketParser';
 import { signToken } from '@/lib/utils/tokens';
 import {
 	fetchRoleCodes,
@@ -234,6 +235,10 @@ export const login = asyncHandler(async (req, res) => {
 	});
 
 	const roleCodes = (await fetchUserPermissions(role)) as string[];
+	notify({
+		event: 'incomingNotification',
+		message: `${verifiedUser.username} logged in`
+	});
 
 	return new SuccessResponse('Login successful', {
 		user: verifiedUser,

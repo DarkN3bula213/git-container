@@ -30,6 +30,11 @@ export const verifyUser = asyncHandler(async (req, res) => {
 		return new BadRequestResponse('Invalid or expired verification code');
 	}
 
+	// Check if user is already verified
+	if (user.isVerified) {
+		return new BadRequestResponse('User already verified');
+	}
+
 	user.isVerified = true;
 	user.verificationToken = null;
 	user.verificationTokenExpiresAt = null;
@@ -121,6 +126,12 @@ export const registeredUserVerification = asyncHandler(async (req, res) => {
 	if (!user) {
 		throw new BadRequestError('User not found');
 	}
+
+	// Check if user is already verified
+	if (user.isVerified) {
+		throw new BadRequestError('User already verified');
+	}
+
 	const data = await service.generateVerificationToken(email, password);
 	await sendVerifyEmail(user.username, email, data.token);
 	return new SuccessResponse('Email verification sent', data).send(res);

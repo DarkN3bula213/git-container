@@ -3,9 +3,11 @@ import {
 	getAllConversationsForUser,
 	saveMessageInConversation
 } from '@/modules/conversations/conversation.utils';
+import { ConnectedUser } from '@/types/connectedUsers';
 import { Server, Socket } from 'socket.io';
 import { emitMessage } from '../utils/emitMessage';
 import { getConversationId } from '../utils/getConversationId';
+import { broadcastUserList } from './users';
 
 const logger = new Logger(__filename);
 
@@ -126,32 +128,58 @@ const handleStoppedTyping =
 	};
 
 // Handle joining a conversation
+// Handle joining a conversation
 const handleJoinConversation = async (
 	socket: Socket,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
+	connectedUsers: Map<string, ConnectedUser>
 ) => {
 	try {
 		const userId = socket.data.userId as string;
+		const sessionId = socket.data.sessionId as string;
 		socket.join(userId);
 
+		// Get user's conversations
 		const conversations = await getAllConversationsForUser(userId);
-		const onlineUsers = Array.from(connectedUsers.values()).map((user) => ({
-			userId: user.userId,
-			username: user.username
-		}));
 
+		// Update user's availability when joining conversation
+		const currentUser = connectedUsers.get(sessionId);
+		if (currentUser) {
+			currentUser.isAvailable = true;
+			connectedUsers.set(sessionId, currentUser);
+		}
+
+		// Get available users (excluding self)
+		const availableUsers = Array.from(connectedUsers.values())
+			.filter(
+				(user) =>
+					user.isAvailable && // Only include available users
+					user.userId !== userId // Exclude current user
+			)
+			.map(({ userId, username, socketId }) => ({
+				userId,
+				username,
+				socketId,
+				isAvailable: true
+			}));
+
+		// Send initial data to the user
 		socket.emit('init', {
 			currentUser: {
 				userId,
 				username: socket.data.username,
-				socketId: socket.id
+				socketId: socket.id,
+				isAvailable: true
 			},
-			onlineUsers,
+			onlineUsers: availableUsers,
 			conversations
 		});
+
+		// Broadcast updated user list to all clients
+		broadcastUserList(socket, connectedUsers);
+
+		logger.info(
+			`User ${socket.data.username} (${userId}) joined conversation and is now available`
+		);
 	} catch (error) {
 		logger.error('Error joining conversation', error);
 		socket.emit('messageError', { message: 'Failed to join conversation' });

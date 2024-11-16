@@ -2,14 +2,17 @@ import { Logger } from '@/lib/logger';
 import { verifyToken } from '@/lib/utils/tokens';
 import { isUserAdmin } from '@/modules/auth/users/user.model';
 import cookie from 'cookie';
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
 import { sessionStore } from '../store/session-store';
 import { getOrSetStartTime } from '../utils/getStartTimeFromCache';
 
 const logger = new Logger(__filename);
 
-export const handleAuth = async (socket: Socket): Promise<boolean> => {
+export const handleAuth = async (
+	socket: Socket,
+	io: Server
+): Promise<boolean> => {
 	const cookies = cookie.parse(socket.handshake.headers.cookie || '');
 	const authToken = cookies.access;
 
@@ -53,8 +56,11 @@ export const handleAuth = async (socket: Socket): Promise<boolean> => {
 	socket.data.username = username;
 
 	// Send the sessionId back to the client
-	socket.emit('session', { sessionId, userId, username });
-
+	socket.emit('session', { sessionId, userId, username, isAdmin });
+	io.emit('systemMessage', {
+		message: `User ${username} connected`,
+		timestamp: new Date().toISOString()
+	});
 	logger.info(`User ${username} authenticated with sessionId ${sessionId}`);
 
 	return true;

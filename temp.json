@@ -1,0 +1,423 @@
+{
+	"json": [
+		{
+			"schoolTotalStrength": 1373,
+			"totalPaidStudents": 16,
+			"totalRevenueTarget": 2139661,
+			"totalAmountCollected": 17211,
+			"totalOutOfCyclePayments": 1,
+			"totalOutOfCycleAmount": 11,
+			"classes": [
+				{
+					"class": "10th",
+					"students_strength": 70,
+					"paidStudents": 0,
+					"revenueTarget": 181400,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 41,
+							"paidStudents": 0,
+							"revenueTarget": 106000,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 29,
+							"paidStudents": 0,
+							"revenueTarget": 75400,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "1st",
+					"students_strength": 133,
+					"paidStudents": 5,
+					"revenueTarget": 170240,
+					"amountCollected": 6400,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 27,
+							"paidStudents": 1,
+							"revenueTarget": 34560,
+							"amountCollected": 1280
+						},
+						{
+							"section": "B",
+							"students_strength": 33,
+							"paidStudents": 4,
+							"revenueTarget": 42240,
+							"amountCollected": 5120
+						},
+						{
+							"section": "C",
+							"students_strength": 40,
+							"paidStudents": 0,
+							"revenueTarget": 51200,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 33,
+							"paidStudents": 0,
+							"revenueTarget": 42240,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "2nd",
+					"students_strength": 140,
+					"paidStudents": 0,
+					"revenueTarget": 185370,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 35,
+							"paidStudents": 0,
+							"revenueTarget": 45720,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 38,
+							"paidStudents": 0,
+							"revenueTarget": 50540,
+							"amountCollected": 0
+						},
+						{
+							"section": "C",
+							"students_strength": 33,
+							"paidStudents": 0,
+							"revenueTarget": 43890,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 34,
+							"paidStudents": 0,
+							"revenueTarget": 45220,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "3rd",
+					"students_strength": 137,
+					"paidStudents": 0,
+					"revenueTarget": 189060,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 33,
+							"paidStudents": 0,
+							"revenueTarget": 45540,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 33,
+							"paidStudents": 0,
+							"revenueTarget": 45540,
+							"amountCollected": 0
+						},
+						{
+							"section": "C",
+							"students_strength": 37,
+							"paidStudents": 0,
+							"revenueTarget": 51060,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 34,
+							"paidStudents": 0,
+							"revenueTarget": 46920,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "4th",
+					"students_strength": 128,
+					"paidStudents": 0,
+					"revenueTarget": 183040,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 27,
+							"paidStudents": 0,
+							"revenueTarget": 38610,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 23,
+							"paidStudents": 0,
+							"revenueTarget": 32890,
+							"amountCollected": 0
+						},
+						{
+							"section": "C",
+							"students_strength": 38,
+							"paidStudents": 0,
+							"revenueTarget": 54340,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 40,
+							"paidStudents": 0,
+							"revenueTarget": 57200,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "5th",
+					"students_strength": 121,
+					"paidStudents": 0,
+					"revenueTarget": 177770,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 26,
+							"paidStudents": 0,
+							"revenueTarget": 37900,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 26,
+							"paidStudents": 0,
+							"revenueTarget": 38480,
+							"amountCollected": 0
+						},
+						{
+							"section": "C",
+							"students_strength": 34,
+							"paidStudents": 0,
+							"revenueTarget": 50320,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 35,
+							"paidStudents": 0,
+							"revenueTarget": 51070,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "6th",
+					"students_strength": 139,
+					"paidStudents": 0,
+					"revenueTarget": 233520,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 35,
+							"paidStudents": 0,
+							"revenueTarget": 58800,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 33,
+							"paidStudents": 0,
+							"revenueTarget": 55440,
+							"amountCollected": 0
+						},
+						{
+							"section": "C",
+							"students_strength": 37,
+							"paidStudents": 0,
+							"revenueTarget": 62160,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 34,
+							"paidStudents": 0,
+							"revenueTarget": 57120,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "7th",
+					"students_strength": 113,
+					"paidStudents": 0,
+					"revenueTarget": 197750,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 31,
+							"paidStudents": 0,
+							"revenueTarget": 54250,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 25,
+							"paidStudents": 0,
+							"revenueTarget": 43750,
+							"amountCollected": 0
+						},
+						{
+							"section": "C",
+							"students_strength": 28,
+							"paidStudents": 0,
+							"revenueTarget": 49000,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 29,
+							"paidStudents": 0,
+							"revenueTarget": 50750,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "8th",
+					"students_strength": 96,
+					"paidStudents": 0,
+					"revenueTarget": 182400,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 48,
+							"paidStudents": 0,
+							"revenueTarget": 91200,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 48,
+							"paidStudents": 0,
+							"revenueTarget": 91200,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "9th",
+					"students_strength": 85,
+					"paidStudents": 0,
+					"revenueTarget": 194300,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 42,
+							"paidStudents": 0,
+							"revenueTarget": 96000,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 43,
+							"paidStudents": 0,
+							"revenueTarget": 98300,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "Nursery",
+					"students_strength": 91,
+					"paidStudents": 11,
+					"revenueTarget": 97211,
+					"amountCollected": 10811,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 25,
+							"paidStudents": 10,
+							"revenueTarget": 25931,
+							"amountCollected": 9731
+						},
+						{
+							"section": "B",
+							"students_strength": 20,
+							"paidStudents": 1,
+							"revenueTarget": 21600,
+							"amountCollected": 1080
+						},
+						{
+							"section": "C",
+							"students_strength": 15,
+							"paidStudents": 0,
+							"revenueTarget": 16200,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 20,
+							"paidStudents": 0,
+							"revenueTarget": 21600,
+							"amountCollected": 0
+						},
+						{
+							"section": "E",
+							"students_strength": 11,
+							"paidStudents": 0,
+							"revenueTarget": 11880,
+							"amountCollected": 0
+						}
+					]
+				},
+				{
+					"class": "Prep",
+					"students_strength": 120,
+					"paidStudents": 0,
+					"revenueTarget": 147600,
+					"amountCollected": 0,
+					"sections": [
+						{
+							"section": "A",
+							"students_strength": 25,
+							"paidStudents": 0,
+							"revenueTarget": 30750,
+							"amountCollected": 0
+						},
+						{
+							"section": "B",
+							"students_strength": 36,
+							"paidStudents": 0,
+							"revenueTarget": 44280,
+							"amountCollected": 0
+						},
+						{
+							"section": "C",
+							"students_strength": 29,
+							"paidStudents": 0,
+							"revenueTarget": 35670,
+							"amountCollected": 0
+						},
+						{
+							"section": "D",
+							"students_strength": 30,
+							"paidStudents": 0,
+							"revenueTarget": 36900,
+							"amountCollected": 0
+						}
+					]
+				}
+			]
+		}
+	]
+}

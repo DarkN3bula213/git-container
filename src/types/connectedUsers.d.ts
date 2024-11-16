@@ -3,4 +3,5 @@ export interface ConnectedUser {
 	username: string;
 	socketId: string;
 	isAdmin?: boolean;
+	isAvailable?: boolean;
 }

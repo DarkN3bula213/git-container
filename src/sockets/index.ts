@@ -65,10 +65,11 @@ class SocketService {
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {
 			try {
-				const authResult = await handleAuth(socket);
+				const authResult = await handleAuth(socket, this.io);
 				if (!authResult) return;
 				await removeSaveSessionJob(socket.data.userId);
 				await handleUsers(socket, this.connectedUsers);
+				// console.log(JSON.stringify(this.connectedUsers, null, 2));
 				await handleMessages(socket, this.io, this.connectedUsers);
 				handleWebRTC(socket, this.io);
 				handleImageTransfer(socket, this.io);
@@ -91,7 +92,7 @@ class SocketService {
 					if (
 						event !== 'init' &&
 						event !== 'joinConversation' &&
-						event !== 'userListUpdated' &&
+						// event !== 'userListUpdated' &&
 						event !== 'video-offer' &&
 						event !== 'video-answer'
 					) {
