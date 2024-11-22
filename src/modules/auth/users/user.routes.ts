@@ -1,4 +1,6 @@
+import { DynamicKey } from '@/data/cache/keys';
 import { Roles } from '@/lib/constants';
+import { invalidate } from '@/lib/handlers/cache.handler';
 import { validate } from '@/lib/handlers/validate';
 import { RouterMap, mapRouter, setRouter } from '@/lib/utils/utils';
 import { authentication } from '@/middleware/authMiddleware';
@@ -67,7 +69,11 @@ function getRouteMap(): RouteMap[] {
 		{
 			path: '/:id',
 			method: 'patch',
-			validations: [authentication, updateProfile],
+			validations: [
+				authentication,
+				updateProfile,
+				invalidate([DynamicKey.USER, '*'])
+			],
 			handler: controller.updateUser
 		},
 		/*<!-- 8. Registered User Verification  ---------------------------( x )->*/

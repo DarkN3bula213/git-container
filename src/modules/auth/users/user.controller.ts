@@ -21,6 +21,7 @@ import {
 } from '@/lib/utils/utils';
 import Role, { RoleModel } from '@/modules/auth/roles/role.model';
 import { sendVerifyEmail } from '@/services/mail/mailTrap';
+import userSettingsService from '../settings/settings.service';
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
 
@@ -79,24 +80,31 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 	}
 	const key = getDynamicKey(DynamicKey.USER, user._id);
 	const userCache = await cache.getWithFallback(key, async () => {
-		return await UserModel.findById(user._id).lean().exec();
+		return await UserModel.findById(user._id)
+			.select('-password') // Method 1: Exclude password at query level
+			.lean()
+			.exec();
 	});
 
 	if (!userCache) {
 		throw new BadRequestError('No user found');
 	}
-	const roles = normalizeRoles(userCache.roles);
 
+	// Method 2: Destructure to omit password
+	const { password, ...userWithoutPassword } = userCache;
+
+	const roles = normalizeRoles(userWithoutPassword.roles);
 	const roleCodes = (await fetchRoleCodes(roles)) as string[];
 	const isAdmin = await isAdminRolePresent(roles);
+
 	if (!roleCodes) {
 		throw new BadRequestError('No user found');
 	}
 
 	return new SuccessResponse('Logged in user', {
-		user: userCache,
+		user: userWithoutPassword, // Send user without password
 		isAdmin,
-		isVerified: userCache.isVerified || false,
+		isVerified: userWithoutPassword.isVerified || false,
 		permissions: roleCodes
 	}).send(res);
 });
@@ -229,6 +237,8 @@ export const login = asyncHandler(async (req, res) => {
 
 	const role = normalizeRoles(user.roles);
 	const isAdmin = await isAdminRolePresent(role);
+	const userSettings = await userSettingsService.getSettings(user._id);
+
 	logger.info({
 		message: 'isAdmin',
 		isAdmin: isAdmin
@@ -240,12 +250,17 @@ export const login = asyncHandler(async (req, res) => {
 		message: `${verifiedUser.username} logged in`
 	});
 
-	return new SuccessResponse('Login successful', {
+	const dataObject = {
 		user: verifiedUser,
 		isAdmin,
 		isVerified: verifiedUser.isVerified || false,
-		permissions: roleCodes
-	}).send(res);
+		permissions: roleCodes,
+		settings: userSettings
+	};
+
+	console.dir(dataObject, { depth: null });
+
+	return new SuccessResponse('Login successful', dataObject).send(res);
 });
 
 /** -----------------------------( Authentication )->
@@ -254,6 +269,11 @@ export const login = asyncHandler(async (req, res) => {
  */
 
 export const logout = asyncHandler(async (req, res) => {
+	const user = req.user as User;
+	notify({
+		event: 'incomingNotification',
+		message: `${user.username} logged out`
+	});
 	res.clearCookie('access');
 	res.cookie('access', '', logoutCookie);
 	req.session.destroy((err) => {

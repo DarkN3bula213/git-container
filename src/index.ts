@@ -1,5 +1,6 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
+import { format } from 'date-fns';
 import fs from 'fs-extra';
 import http from 'node:http';
 import path from 'node:path';
@@ -9,6 +10,7 @@ import { db } from './data/database';
 import { banner, signals } from './lib/constants';
 import { setupCronJobs } from './services/cron';
 import SocketService from './sockets';
+
 
 const logger = new Logger(__filename);
 const server = http.createServer(app);
@@ -63,7 +65,7 @@ const startServer = async () => {
 			logger.info({
 				server: `Server instance instantiated and listening on port ${PORT}.`,
 				node: banner,
-				date: date,
+				date: format(date, 'PPP'),
 				timeZone: timeZone,
 				pkTime: pkTime
 			});

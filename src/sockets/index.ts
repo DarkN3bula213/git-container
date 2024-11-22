@@ -43,6 +43,13 @@ class SocketService {
 		return SocketService.instance;
 	}
 	public emit(eventName: string, message: any, roomId?: string): void {
+		logger.debug({
+			message: 'Emitting event',
+			eventName,
+			connectedClients: this.io.sockets.sockets.size,
+			roomId: roomId || 'broadcast'
+		});
+
 		if (roomId) {
 			this.io.to(roomId).emit(eventName, message);
 		} else {

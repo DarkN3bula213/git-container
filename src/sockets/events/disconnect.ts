@@ -5,6 +5,7 @@ import { Server, type Socket } from 'socket.io';
 import { addSaveSessionJob } from '../../modules/auth/sessions/session.processor';
 import { calculateTimeSpent } from '../../modules/auth/sessions/socket.utils';
 import { sendAdminMessage } from '../utils/emitMessage';
+import { getOnlineUsers } from '../utils/getOnlineUsers';
 import { getStartTimeFromCache } from '../utils/getStartTimeFromCache';
 
 const logger = new Logger(__filename);
@@ -61,6 +62,8 @@ export const handleDisconnect = async (
 	const matchingSockets = await io.in(userId).fetchSockets();
 	const isDisconnected = matchingSockets.length === 0;
 
+	console.dir(matchingSockets, { depth: null });
+
 	logger.info(`Status disconnected: ${isDisconnected}`);
 
 	if (isDisconnected) {
@@ -88,7 +91,7 @@ export const handleDisconnect = async (
 		);
 
 		// Broadcast updated user list
-		const onlineUsers = Array.from(connectedUsers.values());
+		const onlineUsers = getOnlineUsers(connectedUsers, userId);
 		socket.broadcast.emit('userListUpdated', onlineUsers);
 		logger.debug('Broadcasted updated user list after disconnect', {
 			onlineUsers

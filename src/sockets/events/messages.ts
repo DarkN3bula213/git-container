@@ -7,6 +7,7 @@ import { ConnectedUser } from '@/types/connectedUsers';
 import { Server, Socket } from 'socket.io';
 import { emitMessage } from '../utils/emitMessage';
 import { getConversationId } from '../utils/getConversationId';
+import { getOnlineUsers } from '../utils/getOnlineUsers';
 import { broadcastUserList } from './users';
 
 const logger = new Logger(__filename);
@@ -15,10 +16,7 @@ const logger = new Logger(__filename);
 export const handleMessages = async (
 	socket: Socket,
 	io: Server,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
+	connectedUsers: Map<string, ConnectedUser>
 ) => {
 	// Set up event listeners
 	socket.on('requestConversationId', handleRequestConversationId(socket));
@@ -149,18 +147,7 @@ const handleJoinConversation = async (
 		}
 
 		// Get available users (excluding self)
-		const availableUsers = Array.from(connectedUsers.values())
-			.filter(
-				(user) =>
-					user.isAvailable && // Only include available users
-					user.userId !== userId // Exclude current user
-			)
-			.map(({ userId, username, socketId }) => ({
-				userId,
-				username,
-				socketId,
-				isAvailable: true
-			}));
+		const availableUsers = getOnlineUsers(connectedUsers, userId);
 
 		// Send initial data to the user
 		socket.emit('init', {

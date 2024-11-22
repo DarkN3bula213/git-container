@@ -2,6 +2,7 @@ import { Logger } from '@/lib/logger';
 import { ConnectedUser } from '@/types/connectedUsers';
 import { Socket } from 'socket.io';
 import { sendAdminMessage } from '../utils/emitMessage';
+import { getOnlineUsers } from '../utils/getOnlineUsers';
 
 const logger = new Logger(__filename);
 
@@ -98,14 +99,7 @@ export const broadcastUserList = (
 	socket: Socket,
 	connectedUsers: Map<string, ConnectedUser>
 ) => {
-	const onlineUsers = Array.from(connectedUsers.values())
-		.filter((user) => user.isAvailable)
-		.map((user) => ({
-			socketId: user.socketId,
-			userId: user.userId,
-			username: user.username,
-			isAvailable: user.isAvailable
-		}));
+	const onlineUsers = getOnlineUsers(connectedUsers);
 
 	socket.broadcast.emit('userListUpdated', onlineUsers);
 };

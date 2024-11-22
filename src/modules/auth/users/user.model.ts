@@ -162,7 +162,13 @@ export const schema = new Schema<User>(
 
 	{
 		timestamps: true,
-		versionKey: false
+		versionKey: false,
+		toJSON: {
+			transform: function (_doc, ret) {
+				delete ret.password;
+				return ret;
+			}
+		}
 	}
 );
 const exclusionDate = new Date('2024-08-01'); // Example exclusion date

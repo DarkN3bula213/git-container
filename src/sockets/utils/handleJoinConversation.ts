@@ -1,6 +1,7 @@
 import { Logger } from '@/lib/logger';
 import { getAllConversationsForUser } from '@/modules/conversations/conversation.utils';
 import { Socket } from 'socket.io';
+import { getOnlineUsers } from './getOnlineUsers';
 
 const logger = new Logger(__filename);
 
@@ -13,10 +14,7 @@ export const handleJoinConversation = async (
 	>
 ) => {
 	const conversations = await getAllConversationsForUser(userId);
-	const onlineUsers = Array.from(connectedUsers.values()).map((user) => ({
-		userId: user.userId,
-		username: user.username
-	}));
+	const onlineUsers = getOnlineUsers(connectedUsers, userId);
 	socket.emit('init', {
 		currentUser: {
 			userId,
