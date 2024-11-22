@@ -19,8 +19,8 @@ services:
             - redis
             - mongo
         restart: always
-        ports:
-            - '3000:3000'
+        expose:
+            - '3000'
         links:
             - redis
             - mongo
@@ -29,7 +29,6 @@ services:
         networks:
             - app-network
 
- 
     mongo:
         image: mongo:latest
         command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
@@ -52,7 +51,6 @@ services:
             - TZ=Asia/Karachi # Set the timezone to Pakistan Standard Time (PST)
         networks:
             - app-network
-
 
     nginx:
         image: nginx:alpine
