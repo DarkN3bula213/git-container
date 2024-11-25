@@ -1,11 +1,15 @@
+import { SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { User } from '../auth/users/user.model';
-import { NotificationModel } from './notification.model';
+import { NotificationDocument, NotificationModel } from './notification.model';
 
 export const getNotifications = asyncHandler(async (req, res) => {
 	const user = req.user as User;
-	const userId = user._id;
-	const notifications = await NotificationModel.find().lean();
+	const userId = user._id.toString();
+	// Get notifications with that are not deleted by the user
+	const notifications = await NotificationModel.find({
+		isDeleted: { $nin: [userId] }
+	}).lean();
 	const notificationsWithSeen = notifications.map((notification) => ({
 		...notification,
 		seen: notification.seenBy.includes(userId.toString())
@@ -121,11 +125,16 @@ export const getSeenNotificationCount = asyncHandler(async (req, res) => {
 	res.status(200).json({ count });
 });
 
-export const getNotificationCountByType = asyncHandler(async (req, res) => {
+export const markAsDeleted = asyncHandler(async (req, res) => {
 	const user = req.user as User;
 	const userId = user._id;
-	const count = await NotificationModel.countDocuments({
-		seenBy: { $nin: [userId] }
-	});
-	res.status(200).json({ count });
+	const notificationId = req.params.id;
+	const notification = (await NotificationModel.markAsDeleted(
+		notificationId,
+		userId
+	)) as NotificationDocument;
+	return new SuccessResponse(
+		'Notification marked as deleted',
+		notification
+	).send(res);
 });

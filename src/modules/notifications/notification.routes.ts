@@ -35,8 +35,9 @@ const getRouteMap = (): RouteMap[] => {
 			handler: controller.createNotification
 		},
 		{
-			path: '/:id',
+			path: '/:id/read',
 			method: 'put',
+			validations: [invalidate('notifications'), schema.markAsDeleted],
 			handler: controller.markAsRead
 		},
 		{
@@ -55,6 +56,12 @@ const getRouteMap = (): RouteMap[] => {
 			method: 'delete',
 			validations: [attachRoles(Roles.ADMIN), authorize(Roles.ADMIN)],
 			handler: controller.deleteAllNotifications
+		},
+		{
+			path: '/:id/delete',
+			method: 'put',
+			validations: [invalidate('notifications'), schema.markAsDeleted],
+			handler: controller.markAsDeleted
 		}
 	];
 };

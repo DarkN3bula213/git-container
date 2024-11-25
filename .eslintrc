@@ -14,11 +14,17 @@
 		"es6": true
 	},
 	"rules": {
+		"no-unused-vars": "off", // Turn off base rule
 		"@typescript-eslint/no-unused-vars": [
 			"error",
-			{ "argsIgnorePattern": "^_" }
+			{
+				"argsIgnorePattern": "^_",
+				"varsIgnorePattern": "^ignored"
+			}
 		],
 		"@typescript-eslint/explicit-function-return-type": "off",
-		"@typescript-eslint/no-explicit-any": "off"
-	}
+		"@typescript-eslint/no-explicit-any": "off",
+		"no-console": ["error", { "allow": ["warn", "error"] }]
+	},
+	"plugins": ["prettier"]
 }

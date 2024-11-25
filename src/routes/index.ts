@@ -5,6 +5,7 @@ import files from '@/modules/files/file.routes';
 import NotifcationRoutes from '@/modules/notifications/notification.routes';
 import schoolRoutes from '@/routes/school.routes';
 import { Router } from 'express';
+import settings from '../modules/auth/settings/settings.routes';
 import users from '../modules/auth/users/user.routes';
 import invoices from '../modules/school/invoices/invoice.routes';
 import { health } from './health';
@@ -18,7 +19,7 @@ router.get('/health', health);
 /* -----------------------------------------------------------------------------------*/
 router.use('/users', users);
 /* -----------------------------------------------------------------------------------*/
-
+router.use('/settings', settings);
 /* -----------------------------------------------------------------------------------*/
 router.use(authentication);
 /* -----------------------------------------------------------------------------------*/

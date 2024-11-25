@@ -1,5 +1,6 @@
 import { cache } from '@/data/cache/cache.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
+import { convertToObjectId } from '@/data/database/db.utils';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 
 /** -----------------------------( Authentication )->
@@ -89,11 +90,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 	if (!userCache) {
 		throw new BadRequestError('No user found');
 	}
-
-	// Method 2: Destructure to omit password
-	const { password, ...userWithoutPassword } = userCache;
-
-	const roles = normalizeRoles(userWithoutPassword.roles);
+	const roles = normalizeRoles(userCache.roles);
 	const roleCodes = (await fetchRoleCodes(roles)) as string[];
 	const isAdmin = await isAdminRolePresent(roles);
 
@@ -102,9 +99,9 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 	}
 
 	return new SuccessResponse('Logged in user', {
-		user: userWithoutPassword, // Send user without password
+		user: userCache, // Send user without password
 		isAdmin,
-		isVerified: userWithoutPassword.isVerified || false,
+		isVerified: userCache.isVerified || false,
 		permissions: roleCodes
 	}).send(res);
 });
@@ -237,7 +234,9 @@ export const login = asyncHandler(async (req, res) => {
 
 	const role = normalizeRoles(user.roles);
 	const isAdmin = await isAdminRolePresent(role);
-	const userSettings = await userSettingsService.getSettings(user._id);
+	const userSettings = await userSettingsService.getSettings(
+		convertToObjectId(verifiedUser._id)
+	);
 
 	logger.info({
 		message: 'isAdmin',
@@ -258,7 +257,8 @@ export const login = asyncHandler(async (req, res) => {
 		settings: userSettings
 	};
 
-	console.dir(dataObject, { depth: null });
+	// eslint-disable-next-line no-console
+	console.log(dataObject, { depth: null });
 
 	return new SuccessResponse('Login successful', dataObject).send(res);
 });

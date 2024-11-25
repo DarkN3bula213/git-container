@@ -1,4 +1,4 @@
-import mongoose, { Model, Schema, Types } from 'mongoose';
+import mongoose, { InferSchemaType, Schema } from 'mongoose';
 
 interface BaseSettings {
 	updatedAt: Date;
@@ -28,17 +28,7 @@ export interface Settings extends BaseSettings {
 	appSettings: AppSettings;
 	privacySettings: PrivacySettings;
 }
-
-interface UserSettingsModel extends Settings, Document {
-	findByIdAndDelete(userId: string | Types.ObjectId, arg1: unknown): unknown;
-	updateSetting<K extends keyof Settings>(
-		path: K,
-		value: Settings[K]
-	): Promise<void>;
-	findOrCreateSettings(userId: mongoose.Types.ObjectId): Promise<Settings>;
-}
-
-const schema = new mongoose.Schema<Settings>(
+const schema = new mongoose.Schema(
 	{
 		userId: {
 			type: Schema.Types.ObjectId,
@@ -78,7 +68,7 @@ const schema = new mongoose.Schema<Settings>(
 		statics: {
 			findOrCreateSettings: async function (
 				userId: mongoose.Types.ObjectId
-			): Promise<Settings> {
+			): Promise<any> {
 				let settings = await this.findOne({ userId });
 				if (!settings) {
 					settings = await this.create({ userId });
@@ -99,15 +89,16 @@ const schema = new mongoose.Schema<Settings>(
 		}
 	}
 );
-
+type SettingsModel = InferSchemaType<typeof schema> & {
+	findOrCreateSettings(
+		userId: mongoose.Types.ObjectId
+	): Promise<InferSchemaType<typeof schema>>;
+};
 schema.pre('save', function (next) {
 	this.updatedAt = new Date();
 	next();
 });
 
-const UserSettings = mongoose.model<Settings, UserSettingsModel>(
-	'UserSettings',
-	schema
-);
+const UserSettings = mongoose.model<SettingsModel>('UserSettings', schema);
 
 export default UserSettings;

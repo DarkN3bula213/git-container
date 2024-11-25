@@ -2,6 +2,7 @@ import type Role from '@/modules/auth/roles/role.model';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 import type { RouteMap } from '@/types/routes';
 import type { NextFunction, RequestHandler, Response, Router } from 'express';
+import type { Request } from 'express';
 import { IncomingMessage } from 'http';
 import Joi from 'joi';
 import { Types } from 'mongoose';
@@ -272,4 +273,32 @@ export function sortStudentsByClassAndSection<
 		if (classDiff !== 0) return classDiff;
 		return a.section.localeCompare(b.section);
 	});
+}
+
+export function getCleanIp(req: Request): string {
+	const forwardedFor = req.headers['x-forwarded-for'];
+	const realIp = req.headers['x-real-ip'];
+
+	if (typeof forwardedFor === 'string') {
+		const firstIp = forwardedFor.split(',')[0].trim();
+		return firstIp || 'Unknown IP';
+	}
+
+	if (typeof realIp === 'string') {
+		return realIp;
+	}
+
+	const ip = req.socket.remoteAddress || 'Unknown IP';
+
+	// Make localhost IPs more readable
+	if (ip === '::1' || ip === '::ffff:127.0.0.1') {
+		return 'localhost';
+	}
+
+	// Handle IPv4 mapped to IPv6
+	if (ip?.startsWith('::ffff:')) {
+		return ip.substring(7);
+	}
+
+	return ip;
 }

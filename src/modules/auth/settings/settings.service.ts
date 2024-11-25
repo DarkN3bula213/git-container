@@ -1,8 +1,6 @@
 import { withTransaction } from '@/data/database/db.utils';
-import { BadRequestError } from '@/lib/api';
 import { Logger } from '@/lib/logger';
 import settings, { Settings } from '@/modules/auth/settings/settings.model';
-import { UserSettings } from '@/modules/settings/settings.model';
 import { Types } from 'mongoose';
 
 const logger = new Logger('UserSettingsService');
@@ -17,20 +15,27 @@ export class UserSettingsService {
 		}
 		return UserSettingsService.instance;
 	}
-	async getSettings(userId: string | Types.ObjectId): Promise<Settings> {
+	async getSettings(userId: Types.ObjectId): Promise<any> {
 		try {
-			const userSettings = await settings.findOrCreateSettings(
-				new Types.ObjectId(userId)
-			);
+			const userSettings = await settings.findOne({ userId });
+			logger.info({
+				message: 'userSettings',
+				userSettings: JSON.stringify(userSettings)
+			});
+			if (!userSettings) {
+				return await settings.create({
+					userId: userId
+				});
+			}
 			return userSettings;
 		} catch (error) {
 			logger.error('Error fetching user settings:', error);
-			throw new Error('Failed to fetch user settings');
+			throw new Error(error as string);
 		}
 	}
 
 	async updateSetting(
-		userId: string | Types.ObjectId,
+		userId: Types.ObjectId,
 		path: string,
 		value: unknown
 	): Promise<Settings> {
