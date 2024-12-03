@@ -146,9 +146,3 @@ export function parsePayId(payId: string): Date {
 export function getBillingMonthDate(payId: string): Date {
 	return parsePayId(payId);
 }
-
-const testArr = [
-	'0120', // Should return Jan 2020
-	'0222', // Should return Feb 2022
-	'0323' // Should return March 2023
-];

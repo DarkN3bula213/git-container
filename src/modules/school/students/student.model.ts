@@ -264,7 +264,9 @@ studentSchema.index({ classId: 1, section: 1 }); // For finding students by clas
 studentSchema.index({ classId: 1 }); // For finding students by className and section
 studentSchema.index({ father_cnic: 1 }); // For searching by father's CNIC
 studentSchema.index({ 'status.isActive': 1 }); // For querying active/inactive students
-studentSchema.index({ admission_date: -1 }); // For sorting by admission date, descending
-
+// For class/section based filtering
+studentSchema.index({ className: 1, section: 1, name: 1 });
+// For admission date based calculations
+studentSchema.index({ admission_date: 1 });
 const StudentModel = model<Student, IStudentModel>('Student', studentSchema);
 export default StudentModel;

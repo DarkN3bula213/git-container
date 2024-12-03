@@ -9,11 +9,9 @@ export const updateSetting = asyncHandler(async (req, res) => {
 	if (!user) {
 		return new BadRequestError('User not found');
 	}
-	const { settingPath, value: settingValue } = req.body;
 	const settings = await settingsService.updateSetting(
 		user._id,
-		settingPath,
-		settingValue
+		req.body // Pass the entire settings object directly
 	);
 
 	return new SuccessResponse('Setting updated successfully', settings).send(

@@ -142,4 +142,6 @@ schema.index({ studentId: 1, payId: 1 }, { unique: true });
 schema.index({ studentId: 1, paymentDate: 1 });
 schema.index({ payId: 1, studentId: 1 });
 
-export default mongoose.model<IPayment>('Payment', schema);
+const paymentModel = mongoose.model<IPayment>('Payment', schema);
+
+export default paymentModel;

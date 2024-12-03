@@ -41,21 +41,29 @@ function getRouteMap(): RouteMap[] {
 			],
 			handler: controller.newAdmission
 		},
+		/*-------------{Payments Aggregations}---------------*/
 		{
 			path: '/with-payments',
 			method: 'get',
 			handler: controller.getStudentsWithPayments
 		},
 		{
-			path: '/sortedByClassName',
-			method: 'get',
-			handler: controller.sortedByClassName
-		},
-		{
 			path: '/payments/:id',
 			method: 'get',
 			handler: controller.studentFeeAggregated
 		},
+		{
+			path: '/monthly-aggregated',
+			method: 'get',
+			handler: aggregations.monthlyAggregatedStudentsController
+		},
+		/*--------------------------------------------------*/
+		// {
+		// 	path: '/sortedByClassName',
+		// 	method: 'get',
+		// 	handler: controller.sortedByClassName
+		// },
+
 		{
 			path: '/class/:classId',
 			method: 'get',

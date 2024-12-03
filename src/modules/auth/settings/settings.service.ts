@@ -34,20 +34,43 @@ export class UserSettingsService {
 		}
 	}
 
+	// ... existing code ...
+
 	async updateSetting(
 		userId: Types.ObjectId,
-		path: string,
-		value: unknown
+		data: Partial<Settings>
 	): Promise<Settings> {
 		try {
-			const settings = await this.getSettings(userId);
-			await settings.updateSetting(path, value);
-			return settings;
+			const userSettings = await this.getSettings(userId);
+
+			// Handle each possible settings category
+			if (data.appSettings) {
+				Object.entries(data.appSettings).forEach(([key, value]) => {
+					userSettings.appSettings[
+						key as keyof typeof userSettings.appSettings
+					] = value;
+				});
+			}
+
+			if (data.notificationSettings) {
+				Object.entries(data.notificationSettings).forEach(
+					([key, value]) => {
+						userSettings.notificationSettings[
+							key as keyof typeof userSettings.notificationSettings
+						] = value;
+					}
+				);
+			}
+
+			await userSettings.save();
+			return userSettings;
 		} catch (error) {
 			logger.error('Error updating user setting:', error);
 			throw new Error('Failed to update user setting');
 		}
 	}
+
+	// ... existing code ...
 
 	async resetSettings(userId: string | Types.ObjectId) {
 		return withTransaction(async (session) => {

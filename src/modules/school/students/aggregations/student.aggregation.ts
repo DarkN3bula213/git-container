@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import StudentModel from './student.model';
+import StudentModel from '../student.model';
 
 export const studentDetailsWithPayments = async (studentId: string) => {
 	const result = await StudentModel.aggregate([

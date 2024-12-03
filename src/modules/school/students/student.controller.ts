@@ -8,7 +8,7 @@ import {
 	allStudentsWithPayments,
 	rootStudentAggregation,
 	studentDetailsWithPayments
-} from './student.aggregation';
+} from './aggregations/student.aggregation';
 import Student from './student.model';
 import { studentService } from './student.service';
 

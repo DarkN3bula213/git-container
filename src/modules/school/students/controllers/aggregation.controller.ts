@@ -3,12 +3,15 @@ import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { classOrder } from '@/lib/constants/classOrder';
 import asyncHandler from '@/lib/handlers/asyncHandler';
+import { sortStudentsByClassAndSection } from '@/lib/utils/utils';
 import { getPayId } from '../../payments/payment.utils';
+import { getStudentsWithPaymentHistory } from '../aggregations/24month.aggregation';
 import {
 	allStudentsWithPayments, // rootStudentAggregation,
 	studentDetailsWithPayments,
 	studentPaidAggregation
-} from '../student.aggregation';
+} from '../aggregations/student.aggregation';
+import { Student } from '../student.interface';
 
 /*<!-- 1. Aggregation ----------------------------( getStudents )*/
 export const studentFeeAggregated = asyncHandler(async (req, res) => {
@@ -31,11 +34,26 @@ export const fetchStudentsWithPaidStatus = asyncHandler(async (_req, res) => {
 export const getStudentsWithPayments = asyncHandler(async (_req, res) => {
 	const payId = getPayId();
 	const key = getDynamicKey(DynamicKey.STUDENTS, payId);
-	const students = await cache.getWithFallback(key, async () => {
+	const students = (await cache.getWithFallback(key, async () => {
 		return await allStudentsWithPayments(payId, classOrder);
-	});
+	})) as Student[];
 	return new SuccessResponse(
 		'Students with payment status fetched successfully',
 		students
 	).send(res);
 });
+
+export const monthlyAggregatedStudentsController = asyncHandler(
+	async (_req, res) => {
+		const key = getDynamicKey(DynamicKey.STUDENTS, 'monthly');
+
+		const students = (await cache.getWithFallback(key, async () => {
+			return await getStudentsWithPaymentHistory();
+		})) as Student[];
+		if (!students) return new BadRequestError('No students found');
+		new SuccessResponse(
+			'Students fetched successfully',
+			sortStudentsByClassAndSection(students)
+		).send(res);
+	}
+);
