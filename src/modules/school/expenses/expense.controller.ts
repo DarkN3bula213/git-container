@@ -63,6 +63,7 @@ export const createExpense = asyncHandler(async (req, res) => {
 					});
 					logger.debug(newExpense);
 					res.status(201).json(newExpense);
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				} catch (error: any) {
 					res.status(400).json({
 						error: error.message

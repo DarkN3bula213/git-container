@@ -1,4 +1,5 @@
 import IPayment from '@/modules/school/payments/payment.model';
+import { Student } from '@/modules/school/students/student.interface';
 import StudentModel from '@/modules/school/students/student.model';
 import { endOfMonth, startOfMonth } from 'date-fns';
 
@@ -121,7 +122,12 @@ export async function getMonthlyFeeStatus(date: Date) {
 			`${p._id.className}-${p._id.section}`,
 			{
 				paidStudents: new Map(
-					p.paidStudents.map((s: any) => [s.studentId.toString(), s])
+					p.paidStudents.map(
+						(s: { studentId: { toString: () => string } }) => [
+							s.studentId.toString(),
+							s
+						]
+					)
 				),
 				paidCount: p.paidCount,
 				collectedAmount: p.collectedAmount
@@ -132,7 +138,11 @@ export async function getMonthlyFeeStatus(date: Date) {
 	// Combine the data
 	const classSummaries: ClassSummary[] = allStudents.map((classData) => {
 		const sections: SectionSummary[] = classData.sections.map(
-			(section: { section: any; students: any[]; totalCount: any }) => {
+			(section: {
+				section: string;
+				students: Student[];
+				totalCount: number;
+			}) => {
 				const paymentInfo = paymentMap.get(
 					`${classData._id}-${section.section}`
 				) || {
@@ -144,11 +154,11 @@ export async function getMonthlyFeeStatus(date: Date) {
 				const students: StudentFeeStatus[] = section.students
 					.map((student) => {
 						const payment = paymentInfo.paidStudents.get(
-							student._id.toString()
+							student._id?.toString()
 						);
 						return {
 							studentName: student.name,
-							registrationNo: student.registrationNo,
+							registrationNo: student.registration_no,
 							hasPaid: !!payment,
 							amount: payment?.amount,
 							paidDate: payment?.paidDate,
@@ -332,7 +342,7 @@ export async function generateMonthlyFeeStatusEmail(
 								.replace(
 									'{amount}',
 									student.hasPaid
-										? `Rs. ${student.amount!.toLocaleString()}/-`
+										? `Rs. ${student.amount?.toLocaleString()}/-`
 										: '-'
 								)
 								.replace(
@@ -345,7 +355,7 @@ export async function generateMonthlyFeeStatusEmail(
 									'{paidDate}',
 									student.hasPaid
 										? new Date(
-												student.paidDate!
+												student.paidDate || new Date()
 											).toLocaleDateString('en-US', {
 												day: '2-digit',
 												month: 'short',

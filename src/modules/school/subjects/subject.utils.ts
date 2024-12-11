@@ -70,7 +70,7 @@ export function validateSubjectData(subject: Partial<ISubject>): void {
 
 	// Validate type code matches
 	const typePrefix = subject.code.slice(0, 2);
-	if (TYPE_CODES[subject.type!] !== typePrefix) {
+	if (!subject.type || TYPE_CODES[subject.type] !== typePrefix) {
 		throw new Error(
 			`Subject code ${subject.code} doesn't match type ${subject.type}`
 		);
@@ -78,7 +78,7 @@ export function validateSubjectData(subject: Partial<ISubject>): void {
 
 	// Validate class number matches
 	const codeClassNum = parseInt(subject.code.slice(2, 4));
-	if (codeClassNum !== classOrder[subject.className!]) {
+	if (codeClassNum !== classOrder[subject.className || '']) {
 		throw new Error(
 			`Subject code ${subject.code} doesn't match class ${subject.className}`
 		);

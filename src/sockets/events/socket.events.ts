@@ -1,6 +1,7 @@
 import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger';
 import { verifyToken } from '@/lib/utils/tokens';
+import { User } from '@/modules/auth/users/user.model';
 import { getOrCreateConversation } from '@/modules/conversations/conversation.model';
 import cookie from 'cookie';
 import { Socket } from 'socket.io';
@@ -11,7 +12,7 @@ const logger = new Logger(__filename);
 // Utility functions to handle token verification, Redis, etc.
 const authenticateUser = (
 	socket: Socket
-): { user: any; userID: string } | null => {
+): { user: User; userID: string } | null => {
 	const cookies = cookie.parse(socket.handshake.headers.cookie || '');
 	const authToken = cookies.access;
 
@@ -38,8 +39,11 @@ const authenticateUser = (
 		return null;
 	}
 
-	getOrSetStartTime(userID.toString(), socket);
-	return { user, userID: userID.toString() };
+	// Convert ObjectId to string if needed
+	const userIDString = userID.toString();
+
+	getOrSetStartTime(userIDString, socket);
+	return { user, userID: userIDString };
 };
 
 const getOrSetStartTime = async (userID: string, socket: Socket) => {
@@ -156,7 +160,10 @@ const getConversationId = async (userId: string, socket: Socket) => {
 // Handle message sending and receiving
 const handleMessageEvents = (
 	socket: Socket,
-	connectedUsers: Map<string, any>
+	connectedUsers: Map<
+		string,
+		{ userId: string; username: string; socketId: string }
+	>
 ) => {
 	socket.on('privateMessage', async ({ toUserId, message }) => {
 		const userId = socket.data.userId;

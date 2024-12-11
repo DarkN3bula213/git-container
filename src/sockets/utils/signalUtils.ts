@@ -4,7 +4,7 @@ import { emitMessage } from '../utils/emitMessage';
 
 interface PendingOffer {
 	fromUserId: string;
-	signal: any;
+	signal: RTCSessionDescriptionInit;
 	timestamp: number;
 }
 
@@ -18,7 +18,11 @@ export class WebRTCSignalingService {
 		this.startOfferCleanup();
 	}
 
-	public addPendingOffer(toUserId: string, fromUserId: string, signal: any) {
+	public addPendingOffer(
+		toUserId: string,
+		fromUserId: string,
+		signal: RTCSessionDescriptionInit
+	) {
 		if (!this.pendingOffers.has(toUserId)) {
 			this.pendingOffers.set(toUserId, []);
 		}

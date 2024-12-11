@@ -25,6 +25,7 @@ process.on('uncaughtException', (e) => {
 	});
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on('unhandledRejection', (reason: any, promise) => {
 	logger.error({
 		event: 'Unhandled Rejection Occurred',

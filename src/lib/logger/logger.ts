@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import colors from 'colors';
 import dayjs from 'dayjs';
 import fs from 'node:fs';

@@ -50,11 +50,11 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
 	const classIds = students.map((student) => student.classId);
 	const classes = await ClassModel.find({ _id: { $in: classIds } });
 	const classInfoMap = new Map(
-		classes.map((cls) => [cls._id!.toString(), cls])
+		classes.map((cls) => [cls._id?.toString(), cls])
 	);
 
 	const records = students.map((student) => {
-		const grade = classInfoMap.get(student.classId!.toString());
+		const grade = classInfoMap.get(student.classId?.toString());
 		if (!grade) throw new BadRequestError('Grade not found for a student');
 
 		return {
@@ -273,7 +273,7 @@ export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
 			)
 		},
 		groupedPayments: sortedGroups
-	} as any;
+	} as unknown as Record<string, unknown>;
 
 	return new SuccessResponse(
 		'Payments fetched successfully',
@@ -304,8 +304,7 @@ export const getFeesByCycle = asyncHandler(async (req, res) => {
 	const { billingCycle } = req.params;
 	const payID = billingCycle;
 
-	const cachedPayments: any =
-		await paymentsService.getPaymentsForCycle(payID);
+	const cachedPayments = await paymentsService.getPaymentsForCycle(payID);
 
 	return new SuccessResponse(
 		`Payments for billing cycle ${payID} fetched successfully`,
@@ -426,7 +425,7 @@ export const getSchoolStats = asyncHandler(async (_req, res) => {
 	const key = getDynamicKey(DynamicKey.FEE, 'STATCURRENT');
 	const cachedStats = (await cache.getWithFallback(key, async () => {
 		return await schoolAggregation();
-	})) as any;
+	})) as unknown as Record<string, unknown>;
 	if (!cachedStats) throw new BadRequestError('Stats not found');
 	return new SuccessResponse('Stats fetched successfully', cachedStats).send(
 		res
@@ -439,7 +438,7 @@ export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 	const key = getDynamicKey(DynamicKey.FEE, payId);
 	const cachedStats = (await cache.getWithFallback(key, async () => {
 		return await schoolAggregationBySession(payId);
-	})) as any;
+	})) as unknown as Record<string, unknown>;
 	if (!cachedStats) throw new BadRequestError('Stats not found');
 	return new SuccessResponse('Stats fetched successfully', cachedStats).send(
 		res
@@ -451,12 +450,19 @@ export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 export const getStudentPaymentHistory = asyncHandler(async (req, res) => {
 	const { studentId } = req.params;
 	const id = new Types.ObjectId(studentId);
-	const history = (await getStudentHistory(id)) as any;
+	const history = (await getStudentHistory(id)) as unknown as Record<
+		string,
+		unknown
+	>;
 	return new SuccessResponse('Student payment history', history).send(res);
 });
 
 export const customSorting = asyncHandler(async (_req, res) => {
-	const students = (await paymentsService.customSorting()) as any;
+	const students =
+		(await paymentsService.customSorting()) as unknown as Record<
+			string,
+			unknown
+		>;
 	return new SuccessResponse('Students fetched successfully', students).send(
 		res
 	);

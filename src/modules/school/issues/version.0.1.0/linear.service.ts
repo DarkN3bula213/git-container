@@ -155,6 +155,7 @@ class LinearService {
 		for (const field of this.allowedFields) {
 			if (body[field] !== undefined) {
 				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				updateFields[field] = body[field] as any;
 			}
 		}
@@ -168,6 +169,8 @@ class LinearService {
 		for (const field of this.adminResponse) {
 			if (body[field] !== undefined) {
 				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				updateFields[field] = body[field] as any;
 			}
 		}

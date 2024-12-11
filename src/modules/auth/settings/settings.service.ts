@@ -15,6 +15,7 @@ export class UserSettingsService {
 		}
 		return UserSettingsService.instance;
 	}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async getSettings(userId: Types.ObjectId): Promise<any> {
 		try {
 			const userSettings = await settings.findOne({ userId });

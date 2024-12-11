@@ -273,6 +273,7 @@ schema.statics.createUser = async function (
 				roles: role._id
 			};
 			return this.create(user, { session });
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			throw new InternalError(err.message);
 		}

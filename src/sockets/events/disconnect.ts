@@ -24,6 +24,7 @@ export const handleDisconnect = async (
 	let session;
 	try {
 		session = calculateTimeSpent(new Date(startTime));
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		logger.error(
 			`Error calculating time spent for user ${userID} on socket ${socket.id}: ${error.message}`
@@ -38,6 +39,7 @@ export const handleDisconnect = async (
 			session.endTime,
 			session.time
 		);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		logger.error(
 			`Failed to add job for user ${userID} on socket ${socket.id}: ${error.message}`
@@ -62,7 +64,7 @@ export const handleDisconnect = async (
 	const matchingSockets = await io.in(userId).fetchSockets();
 	const isDisconnected = matchingSockets.length === 0;
 
-	console.dir(matchingSockets, { depth: null });
+	// console.dir(matchingSockets, { depth: null });
 
 	logger.info(`Status disconnected: ${isDisconnected}`);
 

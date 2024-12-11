@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-dynamic-delete */
 import { Response } from 'express';
 
 // Helper code for the API consumer to understand the error and handle is accordingly
@@ -48,6 +49,7 @@ abstract class ApiResponse {
 		// eslint-disable-next-line
 		//@ts-ignore
 		delete clone.status;
+
 		for (const i in clone)
 			if (typeof clone[i] === 'undefined') delete clone[i];
 		return clone;

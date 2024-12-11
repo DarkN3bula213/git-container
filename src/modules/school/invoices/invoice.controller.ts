@@ -23,7 +23,7 @@ export const generateInvoice = asyncHandler(async (req, res) => {
 	const invoiceDoc = (await Invoice.findOne({
 		studentId,
 		'feeDetails.paymentId': paymentId
-	})) as any;
+	})) as unknown as Record<string, unknown>;
 
 	if (invoiceDoc) {
 		return new SuccessResponse('Invoice already exists', invoiceDoc).send(
@@ -69,7 +69,8 @@ export const generateInvoice = asyncHandler(async (req, res) => {
 	);
 
 	// Step 4: Create a new Invoice
-	const resData = new Invoice({
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const invoice = new Invoice({
 		studentId,
 		feeDetails: {
 			...invoiceData
@@ -78,13 +79,13 @@ export const generateInvoice = asyncHandler(async (req, res) => {
 		barcode: barcode,
 		qrCode: qrCode,
 		jwtToken: compressedQrCode
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	}) as any;
-
 	// Step 5: Save the invoice in the database
-	await resData.save();
+	await invoice.save();
 
 	// Step 6: Return the new invoice
-	return new SuccessResponse('Invoice generated successfully', resData).send(
+	return new SuccessResponse('Invoice generated successfully', invoice).send(
 		res
 	);
 });
@@ -95,9 +96,11 @@ export const deleteInvoice = asyncHandler(async (req, res) => {
 	if (!invoice) {
 		throw new BadRequestError('Invoice not found');
 	}
-	const deletedInvoice = (await Invoice.findByIdAndDelete(id)) as any;
+	const deletedInvoice = (await Invoice.findByIdAndDelete(
+		id
+	)) as unknown as Record<string, unknown>;
 	return new SuccessResponse(
 		'Invoice deleted successfully',
 		deletedInvoice
-	).send(res) as any;
+	).send(res);
 });

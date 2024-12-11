@@ -78,6 +78,7 @@ const schema = new mongoose.Schema(
 		statics: {
 			findOrCreateSettings: async function (
 				userId: mongoose.Types.ObjectId
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			): Promise<any> {
 				let settings = await this.findOne({ userId });
 				if (!settings) {

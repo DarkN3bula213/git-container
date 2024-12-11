@@ -4,7 +4,8 @@ import xss from 'xss';
 // Generic middleware to sanitize all strings in req.body, req.query, and req.params
 const sanitizeInputs = (req: Request, _res: Response, next: NextFunction) => {
 	// Function to recursively sanitize all strings in an object
-	const sanitizeObject = (obj: any) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const sanitizeObject = (obj: Record<string, any>) => {
 		for (const key in obj) {
 			if (typeof obj[key] === 'string') {
 				obj[key] = xss(obj[key]);

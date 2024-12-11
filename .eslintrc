@@ -3,10 +3,13 @@
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
-		"plugin:prettier/recommended"
+		"plugin:prettier/recommended",
+		"plugin:@typescript-eslint/strict"
 	],
 	"parserOptions": {
 		"ecmaVersion": 2020,
+		"project": "./tsconfig.json",
+		"tsconfigRootDir": "./",
 		"sourceType": "module"
 	},
 	"env": {
@@ -15,6 +18,10 @@
 	},
 	"rules": {
 		"no-unused-vars": "off", // Turn off base rule
+		"@typescript-eslint/no-explicit-any": "warn",
+		"@typescript-eslint/explicit-function-return-type": "off",
+		"@typescript-eslint/strict-boolean-expressions": "off",
+
 		"@typescript-eslint/no-unused-vars": [
 			"error",
 			{
@@ -22,9 +29,9 @@
 				"varsIgnorePattern": "^ignored"
 			}
 		],
-		"@typescript-eslint/explicit-function-return-type": "off",
-		"@typescript-eslint/no-explicit-any": "off",
+		// "@typescript-eslint/explicit-function-return-type": "off",
+		// "@typescript-eslint/no-explicit-any": "off",
 		"no-console": ["error", { "allow": ["warn", "error"] }]
 	},
-	"plugins": ["prettier"]
+	"plugins": ["prettier", "@typescript-eslint"]
 }

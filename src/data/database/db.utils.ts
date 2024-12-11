@@ -92,6 +92,7 @@ export async function ensureAllIndexes(): Promise<void> {
 }
 
 export async function needsIndexRebuild(
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	model: mongoose.Model<any>,
 	indexName: string
 ): Promise<boolean> {

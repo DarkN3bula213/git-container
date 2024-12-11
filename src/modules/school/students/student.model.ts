@@ -236,6 +236,7 @@ studentSchema.pre('save', async function (next) {
 		this.tuition_fee = populatedStudent.fee;
 
 		next();
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		Logger.error({
 			error: error.message

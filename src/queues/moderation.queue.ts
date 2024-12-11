@@ -58,6 +58,7 @@ const sessionProcessor = {
 			logger.debug(`Session cache invalidated for user ${invalidate}`);
 
 			done();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			logger.error(
 				`Error processing saveUserSession job for user ${userID}: ${error}`

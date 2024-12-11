@@ -42,7 +42,7 @@ class SocketService {
 		}
 		return SocketService.instance;
 	}
-	public emit(eventName: string, message: any, roomId?: string): void {
+	public emit(eventName: string, message: string, roomId?: string): void {
 		logger.debug({
 			message: 'Emitting event',
 			eventName,
@@ -59,7 +59,7 @@ class SocketService {
 	public emitToSocket(
 		socketId: string,
 		eventName: string,
-		message: any
+		message: string
 	): void {
 		const socket = this.io.sockets.sockets.get(socketId);
 		if (socket) {
@@ -121,12 +121,14 @@ class SocketService {
 							this.io,
 							this.connectedUsers
 						);
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					} catch (error: any) {
 						logger.error(
 							`Error in handleDisconnect for socket ${socket.id}: ${error.message}`
 						);
 					}
 				});
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} catch (error: any) {
 				logger.error(
 					`Error during connection setup for socket ${socket.id}: ${error.message}`

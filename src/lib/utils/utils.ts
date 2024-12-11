@@ -88,6 +88,7 @@ export async function generateQRCode(token: string): Promise<string> {
 	try {
 		const qrCodeDataURL = await QRCode.toDataURL(token);
 		return qrCodeDataURL;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (err: any) {
 		throw new Error('Error generating QR Code: ' + err.message);
 	}
@@ -118,7 +119,7 @@ export const wrap =
 			arg0: IncomingMessage,
 			arg1: object,
 			arg2: NextFunction
-		) => any
+		) => unknown
 	) =>
 	(socket: Socket, next: NextFunction) =>
 		middleware(socket.request, {}, next);
@@ -129,10 +130,10 @@ export const wrapAsync =
 				DefaultEventsMap,
 				DefaultEventsMap,
 				DefaultEventsMap,
-				any
+				unknown
 			>,
 			arg1: NextFunction
-		) => Promise<any>
+		) => Promise<unknown>
 	) =>
 	(socket: Socket, next: NextFunction) =>
 		fn(socket, next).catch(next);
@@ -202,7 +203,8 @@ export function mapRouter(router: Router, routes: RouterMap[]): void {
 		const { path, methods } = route;
 
 		for (const method of Object.keys(methods) as Verbs[]) {
-			const { handler, validations } = methods[method]!;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const { handler, validations } = methods[method] as any;
 
 			if (validations?.length) {
 				router[method](path, ...validations, handler);

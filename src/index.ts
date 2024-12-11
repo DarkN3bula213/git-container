@@ -83,6 +83,7 @@ const startServer = async () => {
 						: 'Development'
 			});
 		});
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		logger.error(
 			`Error occurred while trying to start server: ${error.message}`

@@ -8,6 +8,7 @@ import { Server, Socket } from 'socket.io';
 import { emitMessage } from '../utils/emitMessage';
 import { getConversationId } from '../utils/getConversationId';
 import { getOnlineUsers } from '../utils/getOnlineUsers';
+import { SignalData } from './room-manager';
 import { broadcastUserList } from './users';
 
 const logger = new Logger(__filename);
@@ -176,7 +177,13 @@ const handleJoinConversation = async (
 // Handle call initiation
 const handleCallUser =
 	(socket: Socket, io: Server) =>
-	async ({ toUserId, signalData }: { toUserId: string; signalData: any }) => {
+	async ({
+		toUserId,
+		signalData
+	}: {
+		toUserId: string;
+		signalData: SignalData;
+	}) => {
 		const fromUserId = socket.data.userId as string;
 
 		emitMessage(io, {
@@ -195,7 +202,13 @@ const handleCallUser =
 // Handle answering a call
 const handleAnswerCall =
 	(socket: Socket, io: Server) =>
-	async ({ toUserId, signalData }: { toUserId: string; signalData: any }) => {
+	async ({
+		toUserId,
+		signalData
+	}: {
+		toUserId: string;
+		signalData: SignalData;
+	}) => {
 		const fromUserId = socket.data.userId as string;
 
 		emitMessage(io, {

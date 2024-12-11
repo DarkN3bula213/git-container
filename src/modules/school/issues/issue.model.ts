@@ -25,7 +25,7 @@ export interface IIssue extends Document {
 	reference?: string;
 	label?: string;
 	description: string;
-	attachment?: any;
+	attachment?: unknown;
 	author: Types.ObjectId;
 	seenBy: Types.ObjectId[];
 	replies: Types.ObjectId[];

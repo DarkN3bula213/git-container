@@ -19,7 +19,7 @@ interface StudentResultInput {
 	studentId: string;
 	subjects: SubjectMarksInput[];
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-extraneous-class
 class ResultService {
 	/**
 	 * Add or update results for multiple students for a single class/exam combination.
@@ -193,7 +193,7 @@ class ResultService {
 					) {
 						throw new BadRequestError('Invalid max marks');
 					}
-					(subjectEntry as any).maxMarks = updates.maxMarks;
+					subjectEntry.maxMarks = updates.maxMarks;
 				}
 			}
 
@@ -260,8 +260,7 @@ class ResultService {
 				}
 				result.subjects[existingIdx].statusReason = s.statusReason;
 				result.subjects[existingIdx].remarks = s.remarks;
-				(result.subjects[existingIdx] as any).maxMarks =
-					s.maxMarks || 100; // default to 100 if not provided
+				result.subjects[existingIdx].maxMarks = s.maxMarks || 100; // default to 100 if not provided
 			} else {
 				// Add new subject
 				const examStatus = s.examStatus || ExamStatus.COMPLETED;

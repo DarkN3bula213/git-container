@@ -87,7 +87,7 @@ export const uploadDocument = asyncHandler(
 				}
 
 				try {
-					const newExpense: any = await Files.create({
+					const newExpense: unknown = await Files.create({
 						title,
 						amount,
 						vendor,
@@ -102,6 +102,7 @@ export const uploadDocument = asyncHandler(
 					});
 
 					res.status(201).json(newExpense);
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				} catch (error: any) {
 					res.status(400).json({
 						error: error.message

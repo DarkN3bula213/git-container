@@ -5,6 +5,7 @@ export interface Room {
 
 export interface SignalData {
 	type: 'offer' | 'answer' | 'candidate';
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	payload: any;
 	from: string;
 	to: string;

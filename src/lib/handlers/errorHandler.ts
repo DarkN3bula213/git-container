@@ -25,6 +25,7 @@ export const errorHandler = (
 	}
 
 	// Duplicate Key
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	if ((err as any).code === 11000) {
 		const message = `Duplicate field value entered`;
 		error = new InternalError(message);
@@ -32,8 +33,16 @@ export const errorHandler = (
 
 	// Validation Error
 	if (err.name === 'ValidationError') {
-		const message = Object.values((err as any).errors)
-			.map((val: any) => val.message)
+		const message = Object.values(
+			(err as mongoose.Error.ValidationError).errors
+		)
+			.map(
+				(
+					val:
+						| mongoose.Error.ValidatorError
+						| mongoose.Error.CastError
+				) => val.message
+			)
 			.join(', ');
 		error = new InternalError(message);
 	}

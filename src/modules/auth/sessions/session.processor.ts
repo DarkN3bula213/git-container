@@ -23,6 +23,7 @@ const sessionProcessor = {
 			await createUserSession(userID, startTime, endTime, time);
 			logger.info(`Session saved for user ${userID}`);
 			done();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			logger.error(
 				`Error saving session for user ${job.data.userID}: ${error.message}`
@@ -57,6 +58,7 @@ export async function addSaveSessionJob(
 			} // 5-minute delay
 		);
 		logger.debug(`Job ${job.id} queued for user ${userID}`);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		logger.error(
 			`Failed to add save session job for user ${userID}: ${error.message}`
@@ -78,6 +80,7 @@ export async function removeSaveSessionJob(userID: string) {
 				`No queued job found for user ${userID} on reconnection.`
 			);
 		}
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		logger.error(
 			`Failed to remove save session job for user ${userID}: ${error.message}`

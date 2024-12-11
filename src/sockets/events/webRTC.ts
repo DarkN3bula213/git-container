@@ -32,7 +32,13 @@ export const handleWebRTC = (socket: Socket, io: Server) => {
 
 	socket.on(
 		'video-answer',
-		({ toUserId, signal }: { toUserId: string; signal: any }) => {
+		({
+			toUserId,
+			signal
+		}: {
+			toUserId: string;
+			signal: RTCSessionDescriptionInit;
+		}) => {
 			emitMessage(io, {
 				receivers: [toUserId],
 				event: 'video-answer',

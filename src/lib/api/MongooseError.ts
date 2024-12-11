@@ -20,6 +20,7 @@ export const handleMongooseError = (
 		res.status(404).json({ error: 'Document not found' });
 	} else if (err instanceof mongoose.Error.MongooseServerSelectionError) {
 		throw new MongooseGeneralError(err.message);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} else if (err.name === 'MongoServerError' && (err as any).code === 11000) {
 		throw new MongooseDuplicateKeyError('Duplicate key error');
 	} else {

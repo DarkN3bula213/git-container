@@ -55,6 +55,8 @@ export function verifyToken(
 			expired: false,
 			decoded: decoded as TokenPayload
 		};
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (e: any) {
 		let expired = false;
 		let errorMessage = 'Invalid token';

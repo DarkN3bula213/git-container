@@ -20,6 +20,7 @@ export const generateBarcode = (
 				includetext: true, // Show human-readable text
 				textxalign: 'center' // Align text center
 			},
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			(err: any, png: Buffer) => {
 				if (err) {
 					return reject(
@@ -57,6 +58,7 @@ export const generateQRCode = async (
 			errorCorrectionLevel: 'H'
 		}); // Generate QR as base64
 		return qrCodeUrl;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (err: any) {
 		throw new BadRequestError('Error generating QR code');
 	}

@@ -10,6 +10,7 @@ type ProcessorMap<T> = {
 	[key: string]: ProcessorFunction<T>;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class QueueFactory {
 	static createQueue<T>(
 		name: string,
@@ -78,6 +79,7 @@ class QueueFactory {
 			} else {
 				logger.warn(`Job ${jobId} not found in queue ${queueName}.`);
 			}
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			logger.error(
 				`Failed to remove job ${jobId} from queue ${queueName}: ${error.message}`

@@ -5,6 +5,7 @@ const logger = new Logger('db.rollback');
 
 interface IndexBackup {
 	modelName: string;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	indexes: any[];
 	timestamp: Date;
 }
@@ -163,7 +164,7 @@ class IndexRollbackManager {
 			return false;
 		}
 	}
-
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private compareIndexes(backup: any[], current: any[]): boolean {
 		if (backup.length !== current.length) return false;
 

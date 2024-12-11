@@ -7,7 +7,10 @@ import { NextFunction, Request, Response } from 'express';
 
 const logger = new Logger(__filename);
 
-const broadcast = (eventName: string, getMessage: any) => {
+const broadcast = (
+	eventName: string,
+	getMessage: (req: Request, res: Response) => Promise<unknown>
+) => {
 	return (req: Request, res: Response, next: NextFunction) => {
 		res.on('finish', async () => {
 			try {
@@ -66,7 +69,7 @@ export const broadcastRevenueChange = async (
 };
 export const broadcastOnResponseFinish = (
 	event: string,
-	generateMessage: (req: Request, res: Response) => Promise<any>
+	generateMessage: (req: Request, res: Response) => Promise<unknown>
 ) => {
 	return (req: Request, res: Response, next: NextFunction) => {
 		res.on('finish', async () => {

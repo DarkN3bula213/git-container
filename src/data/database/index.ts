@@ -46,6 +46,7 @@ const connect = async () => {
 				logger.info('Mongoose default connection closed');
 			});
 			// mongoose.set('debug', true);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			logger.error(`Database connection error: ${err.message}`);
 

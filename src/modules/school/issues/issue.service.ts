@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { Types } from 'mongoose';
 import Issue, { IIssue, IReply, Reply } from './issue.model';
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class IssueService {
 	public static async createIssue(
 		issueData: Partial<IIssue>,

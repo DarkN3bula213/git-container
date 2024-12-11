@@ -73,6 +73,8 @@ class PaymentService {
 			const qrCode = await generateQRCode(token);
 
 			return { token, qrCode };
+
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			logger.error(error);
 			throw new BadRequestError('Error generating invoice');
@@ -275,17 +277,11 @@ class PaymentService {
 				{
 					$push: {
 						paymentHistory: {
-							$each: paymentDocs.map(
-								(payment: {
-									_id: any;
-									payId: any;
-									invoiceId: string;
-								}) => ({
-									paymentId: payment._id,
-									payId: payment.payId,
-									invoiceId: payment.invoiceId
-								})
-							)
+							$each: paymentDocs.map((payment) => ({
+								paymentId: payment._id?.toString(),
+								payId: payment.payId,
+								invoiceId: payment.invoiceId
+							}))
 						}
 					}
 				},
@@ -422,10 +418,12 @@ class PaymentService {
 					paidStudents: new Set()
 				});
 			}
-			const stats = classSectionStats.get(key)!;
-			stats.expectedRevenue += student.tuition_fee;
-			totalExpectedRevenue += student.tuition_fee;
-			stats.students.add(student._id.toString());
+			const stats = classSectionStats.get(key);
+			if (stats) {
+				stats.expectedRevenue += student.tuition_fee;
+				totalExpectedRevenue += student.tuition_fee;
+				stats.students.add(student._id.toString());
+			}
 		}
 
 		// **2. Fetch and enhance payments**
@@ -456,11 +454,17 @@ class PaymentService {
 				});
 			}
 
+			const billingMonthData = billingMonthCache.get(payment.payId);
+			if (!billingMonthData) {
+				throw new Error(
+					`Billing month data not found for payId: ${payment.payId}`
+				);
+			}
 			const { start: billingMonthStart, end: billingMonthEnd } =
-				billingMonthCache.get(payment.payId)!;
+				billingMonthData;
 
 			return {
-				...(payment as unknown as Record<string, any>),
+				...(payment as unknown as Record<string, unknown>),
 				isOffCycle:
 					payment.payId !== payId ||
 					createdAtDate < cycleStart ||
