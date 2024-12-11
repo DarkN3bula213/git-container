@@ -1,56 +1,91 @@
-name: Consolidated Deployment
+# name: Consolidated Deployment
+
+# on:
+#   push:
+#     branches:
+#       - cidi
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Setup SSH
+#         uses: webfactory/ssh-agent@v0.5.3
+#         with:
+#           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+#       - name: Copy project files
+#         run: |
+#           rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
+#         shell: bash
+
+#       - name: Cleanup and Rebuild
+#         run: |
+#           ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
+#             cd /var/www/app/git-container/
+#             docker-compose down
+#             docker system prune -af
+#             # Verbose build with debugging
+#             DOCKER_BUILDKIT=0 docker-compose build --progress=plain
+#             docker-compose up -d
+#           EOF
+#         shell: bash
+
+#       - name: Wait for Nginx to Start
+#         run: |
+#           echo "Waiting for Nginx container to start..."
+#           sleep 10
+#         shell: bash
+
+#       - name: Reload Nginx
+#         run: |
+#           ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
+#             echo "Reloading Nginx to apply new configuration..."
+#             docker exec nginx nginx -s reload
+#           EOF
+#         shell: bash
+name: Build and Deploy
 
 on:
-  push:
-    branches:
-      - cidi
+    push:
+        branches:
+            - cidi
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+            - name: Build Docker images
+              run: |
+                  docker-compose build
 
-      - name: Copy project files
-        run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
-        shell: bash
+            - name: Save images
+              run: |
+                  docker save -o app.tar $(docker images -q)
 
-      - name: Cleanup and Rebuild
-        run: |
-          ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
-            cd /var/www/app/git-container/
-            docker-compose down
-            docker system prune -af
-            # Remove all build artifacts and caches
-            find . -name "node_modules" -type d -prune -exec rm -rf '{}' +
-            find . -name "dist" -type d -prune -exec rm -rf '{}' +
-            rm -rf .tsbuildinfo
-            # Verbose build with debugging
-            DOCKER_BUILDKIT=0 docker-compose build --progress=plain --no-cache
-            docker-compose up -d
-            # Print typescript version and compile output for debugging
-            docker exec \$(docker ps -qf "name=app") pnpm tsc --version
-            docker exec \$(docker ps -qf "name=app") pnpm tsc --listFiles
-          EOF
-        shell: bash
+            - name: Setup SSH
+              uses: webfactory/ssh-agent@v0.5.3
+              with:
+                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Wait for Nginx to Start
-        run: |
-          echo "Waiting for Nginx container to start..."
-          sleep 10
-        shell: bash
+            - name: Transfer and deploy images
+              run: |
+                  # Transfer the image file
+                  scp -o StrictHostKeyChecking=no app.tar root@24.199.76.209:/tmp/
 
-      - name: Reload Nginx
-        run: |
-          ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
-            echo "Reloading Nginx to apply new configuration..."
-            docker exec nginx nginx -s reload
-          EOF
-        shell: bash
+                  ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
+                    cd /var/www/app/git-container
+                    docker-compose down
+                    # Load the new images
+                    docker load -i /tmp/app.tar
+                    # Clean up
+                    rm /tmp/app.tar
+                    # Start with new images
+                    docker-compose up -d
+                  EOF
