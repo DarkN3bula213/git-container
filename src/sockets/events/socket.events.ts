@@ -31,16 +31,41 @@ const authenticateUser = (
 		return null;
 	}
 
+	// const user = verificationResult.decoded?.user;
+	// const userID = user?._id;
+	// if (!userID) {
+	// 	logger.warn(`No user ID found, disconnecting socket ${socket.id}`);
+	// 	socket.disconnect();
+	// 	return null;
+	// }
+
+	// // Convert ObjectId to string if needed
+	// const userIDString = (userID.toString() as string) || '';
 	const user = verificationResult.decoded?.user;
 	const userID = user?._id;
-	if (!userID) {
-		logger.warn(`No user ID found, disconnecting socket ${socket.id}`);
+	if (!userID || typeof userID.toString !== 'function') {
+		logger.warn(
+			`No valid user ID found, disconnecting socket ${socket.id}`
+		);
 		socket.disconnect();
 		return null;
 	}
 
-	// Convert ObjectId to string if needed
-	const userIDString = userID.toString();
+	// Force type narrowing with multiple safeguards
+	const userIDString: string =
+		typeof userID === 'object'
+			? userID.toString()
+			: typeof userID === 'string'
+				? userID
+				: String(userID);
+
+	if (!userIDString) {
+		logger.warn(
+			`Failed to convert user ID to string, disconnecting socket ${socket.id}`
+		);
+		socket.disconnect();
+		return null;
+	}
 
 	getOrSetStartTime(userIDString, socket);
 	return { user, userID: userIDString };
