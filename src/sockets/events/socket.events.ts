@@ -1,10 +1,8 @@
 import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger';
 import { verifyToken } from '@/lib/utils/tokens';
-import { User } from '@/modules/auth/users/user.model';
 import { getOrCreateConversation } from '@/modules/conversations/conversation.model';
 import cookie from 'cookie';
-import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 import { saveSessionQueue } from '../../modules/auth/sessions/session.processor';
 import { Message, messageSingleton } from '../store/messgageStore';
@@ -13,7 +11,7 @@ const logger = new Logger(__filename);
 // Utility functions to handle token verification, Redis, etc.
 const authenticateUser = (
 	socket: Socket
-): { user: User; userID: string } | null => {
+): { user: any; userID: string } | null => {
 	const cookies = cookie.parse(socket.handshake.headers.cookie || '');
 	const authToken = cookies.access;
 
@@ -32,33 +30,15 @@ const authenticateUser = (
 		return null;
 	}
 
-	// const user = verificationResult.decoded?.user;
-	// const userID = user?._id;
-	// if (!userID) {
-	// 	logger.warn(`No user ID found, disconnecting socket ${socket.id}`);
-	// 	socket.disconnect();
-	// 	return null;
-	// }
-
-	// // Convert ObjectId to string if needed
-	// const userIDString = (userID.toString() as string) || '';
 	const user = verificationResult.decoded?.user;
-	if (!user) {
-		logger.warn(`No user found, disconnecting socket ${socket.id}`);
-		socket.disconnect();
-		return null;
-	}
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	const userID = user!._id as Types.ObjectId;
-	if (!userID || !(userID instanceof Types.ObjectId)) {
-		logger.warn(
-			`No valid user ID found, disconnecting socket ${socket.id}`
-		);
+	const userID = user?._id;
+	if (!userID) {
+		logger.warn(`No user ID found, disconnecting socket ${socket.id}`);
 		socket.disconnect();
 		return null;
 	}
 
-	// Now TypeScript knows userID is definitely an ObjectId
+	// Convert ObjectId to string if needed
 	const userIDString = userID.toString();
 
 	getOrSetStartTime(userIDString, socket);
@@ -179,10 +159,7 @@ const getConversationId = async (userId: string, socket: Socket) => {
 // Handle message sending and receiving
 const handleMessageEvents = (
 	socket: Socket,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
+	connectedUsers: Map<string, any>
 ) => {
 	socket.on('privateMessage', async ({ toUserId, message }) => {
 		const userId = socket.data.userId;
