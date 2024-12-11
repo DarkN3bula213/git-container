@@ -22,12 +22,22 @@ jobs:
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
         shell: bash
 
-      - name: Redeploy application
+      - name: Cleanup and Rebuild
         run: |
           ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
             cd /var/www/app/git-container/
             docker-compose down
-            docker-compose up --build --force-recreate -d
+            docker system prune -af
+            # Remove all build artifacts and caches
+            find . -name "node_modules" -type d -prune -exec rm -rf '{}' +
+            find . -name "dist" -type d -prune -exec rm -rf '{}' +
+            rm -rf .tsbuildinfo
+            # Verbose build with debugging
+            DOCKER_BUILDKIT=0 docker-compose build --progress=plain --no-cache
+            docker-compose up -d
+            # Print typescript version and compile output for debugging
+            docker exec \$(docker ps -qf "name=app") pnpm tsc --version
+            docker exec \$(docker ps -qf "name=app") pnpm tsc --listFiles
           EOF
         shell: bash
 

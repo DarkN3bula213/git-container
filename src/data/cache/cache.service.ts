@@ -9,11 +9,9 @@ import redisClient from './cache.client';
 const logger = new Logger(__filename);
 
 export interface CacheService {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	set(key: string, value: any): Promise<void>;
 	get<T>(key: string): Promise<T | null>;
 	del(key: string): Promise<void>;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	setExp(key: string, value: any, seconds: number): Promise<void>;
 	delPattern(pattern: string): Promise<void>;
 	incrBy(key: string, increment: number): Promise<number>;
@@ -44,11 +42,11 @@ export class CacheClientService {
 		const cachedData = await this.client.get(key);
 		return cachedData ? JSON.parse(cachedData) : null;
 	}
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 	async set(key: string, value: any): Promise<void> {
 		await this.client.set(key, JSON.stringify(value));
 	}
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 	async setExp(key: string, value: any, seconds: number): Promise<void> {
 		await this.client.setEx(key, seconds, JSON.stringify(value));
 	}
