@@ -1,49 +1,49 @@
 import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger';
-import { verifyToken } from '@/lib/utils/tokens';
+// import { verifyToken } from '@/lib/utils/tokens';
+import { saveSessionQueue } from '@/modules/auth/sessions/session.processor';
 import { getOrCreateConversation } from '@/modules/conversations/conversation.model';
-import cookie from 'cookie';
+// import cookie from 'cookie';
 import { Socket } from 'socket.io';
-import { saveSessionQueue } from '../../modules/auth/sessions/session.processor';
 import { Message, messageSingleton } from '../store/messgageStore';
 
 const logger = new Logger(__filename);
 // Utility functions to handle token verification, Redis, etc.
-const authenticateUser = (
-	socket: Socket
-): { user: any; userID: string } | null => {
-	const cookies = cookie.parse(socket.handshake.headers.cookie || '');
-	const authToken = cookies.access;
+// const authenticateUser = (
+// 	socket: Socket
+// ): { user: any; userID: string } | null => {
+// 	const cookies = cookie.parse(socket.handshake.headers.cookie || '');
+// 	const authToken = cookies.access;
 
-	if (!authToken) {
-		logger.warn(
-			`No auth token provided, disconnecting socket ${socket.id}`
-		);
-		socket.disconnect();
-		return null;
-	}
+// 	if (!authToken) {
+// 		logger.warn(
+// 			`No auth token provided, disconnecting socket ${socket.id}`
+// 		);
+// 		socket.disconnect();
+// 		return null;
+// 	}
 
-	const verificationResult = verifyToken(authToken, 'access');
-	if (!verificationResult.valid) {
-		logger.warn(`Invalid auth token, disconnecting socket ${socket.id}`);
-		socket.disconnect();
-		return null;
-	}
+// 	const verificationResult = verifyToken(authToken, 'access');
+// 	if (!verificationResult.valid) {
+// 		logger.warn(`Invalid auth token, disconnecting socket ${socket.id}`);
+// 		socket.disconnect();
+// 		return null;
+// 	}
 
-	const user = verificationResult.decoded?.user;
-	const userID = user?._id;
-	if (!userID) {
-		logger.warn(`No user ID found, disconnecting socket ${socket.id}`);
-		socket.disconnect();
-		return null;
-	}
+// 	const user = verificationResult.decoded?.user;
+// 	const userID = user?._id;
+// 	if (!userID) {
+// 		logger.warn(`No user ID found, disconnecting socket ${socket.id}`);
+// 		socket.disconnect();
+// 		return null;
+// 	}
 
-	// Convert ObjectId to string if needed
-	const userIDString = userID.toString();
+// 	// Convert ObjectId to string if needed
+// 	const userIDString = userID.toString();
 
-	getOrSetStartTime(userIDString, socket);
-	return { user, userID: userIDString };
-};
+// 	getOrSetStartTime(userIDString, socket);
+// 	return { user, userID: userIDString };
+// };
 
 const getOrSetStartTime = async (userID: string, socket: Socket) => {
 	const redisKey = `user:${userID}:startTime`;
@@ -265,7 +265,7 @@ const handleCandidate = (socket: Socket) => {
 	});
 };
 export {
-	authenticateUser,
+	// authenticateUser,
 	getOrSetStartTime,
 	handleDelayedJobs,
 	getStartTimeFromCache,
