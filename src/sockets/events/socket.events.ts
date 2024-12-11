@@ -4,6 +4,7 @@ import { verifyToken } from '@/lib/utils/tokens';
 import { User } from '@/modules/auth/users/user.model';
 import { getOrCreateConversation } from '@/modules/conversations/conversation.model';
 import cookie from 'cookie';
+import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 import { saveSessionQueue } from '../../modules/auth/sessions/session.processor';
 import { Message, messageSingleton } from '../store/messgageStore';
@@ -42,8 +43,14 @@ const authenticateUser = (
 	// // Convert ObjectId to string if needed
 	// const userIDString = (userID.toString() as string) || '';
 	const user = verificationResult.decoded?.user;
-	const userID = user?._id;
-	if (!userID || typeof userID.toString !== 'function') {
+	if (!user) {
+		logger.warn(`No user found, disconnecting socket ${socket.id}`);
+		socket.disconnect();
+		return null;
+	}
+
+	const userID = user?._id as Types.ObjectId | undefined;
+	if (!userID || !(userID instanceof Types.ObjectId)) {
 		logger.warn(
 			`No valid user ID found, disconnecting socket ${socket.id}`
 		);
@@ -51,21 +58,8 @@ const authenticateUser = (
 		return null;
 	}
 
-	// Force type narrowing with multiple safeguards
-	const userIDString: string =
-		typeof userID === 'object'
-			? userID.toString()
-			: typeof userID === 'string'
-				? userID
-				: String(userID);
-
-	if (!userIDString) {
-		logger.warn(
-			`Failed to convert user ID to string, disconnecting socket ${socket.id}`
-		);
-		socket.disconnect();
-		return null;
-	}
+	// Now TypeScript knows userID is definitely an ObjectId
+	const userIDString = userID.toString();
 
 	getOrSetStartTime(userIDString, socket);
 	return { user, userID: userIDString };
