@@ -48,8 +48,8 @@ const authenticateUser = (
 		socket.disconnect();
 		return null;
 	}
-
-	const userID = user?._id as Types.ObjectId | undefined;
+	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+	const userID = user!._id as Types.ObjectId;
 	if (!userID || !(userID instanceof Types.ObjectId)) {
 		logger.warn(
 			`No valid user ID found, disconnecting socket ${socket.id}`
