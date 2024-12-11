@@ -32,9 +32,14 @@ const authenticateUser = (
 
 	const user = verificationResult.decoded?.user;
 	const userID = user?._id;
+	if (!userID) {
+		logger.warn(`No user ID found, disconnecting socket ${socket.id}`);
+		socket.disconnect();
+		return null;
+	}
 
-	getOrSetStartTime(userID, socket);
-	return { user, userID };
+	getOrSetStartTime(userID.toString(), socket);
+	return { user, userID: userID.toString() };
 };
 
 const getOrSetStartTime = async (userID: string, socket: Socket) => {
@@ -184,7 +189,7 @@ const handleMessageEvents = (
 				socket.emit('conversationId', conversationId);
 			}
 
-			await messageSingleton.saveMessage(msg);
+			await messageSingleton.saveMessage(msg as Message);
 
 			socket.to(recipient.socketId).emit('messageReceived', {
 				from: { userId, username, socketId: socket.id },

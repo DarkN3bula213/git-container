@@ -66,7 +66,7 @@ export async function updateStudentClassIds() {
 			className: student.classId
 		}).exec();
 		if (classDoc) {
-			student.classId = classDoc._id.toString();
+			student.classId = classDoc._id?.toString();
 			student.className = classDoc.className;
 			await student.save();
 			count++;

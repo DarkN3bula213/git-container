@@ -1,8 +1,11 @@
 import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import asyncHandler from '@/lib/handlers/asyncHandler';
+import { Logger } from '@/lib/logger';
 import { socketParser } from '@/sockets';
 import { NextFunction, Request, Response } from 'express';
+
+const logger = new Logger(__filename);
 
 const broadcast = (eventName: string, getMessage: any) => {
 	return (req: Request, res: Response, next: NextFunction) => {
@@ -14,9 +17,12 @@ const broadcast = (eventName: string, getMessage: any) => {
 				// Broadcast the event and message to all clients
 				socketParser.emit(eventName, message);
 
-				console.log(`Successfully broadcasted event: ${eventName}`);
+				logger.info(`Successfully broadcasted event: ${eventName}`);
 			} catch (error) {
-				console.error(`Error broadcasting event ${eventName}:`, error);
+				logger.error({
+					message: `Error broadcasting event: ${eventName}`,
+					error
+				});
 			}
 		});
 
@@ -70,9 +76,12 @@ export const broadcastOnResponseFinish = (
 
 				// Broadcast the event and the generated message
 				socketParser.emit(event, message);
-				console.log(`Broadcasted ${event} with data:`, message);
+				logger.info(`Broadcasted ${event} with data:${message}`);
 			} catch (error) {
-				console.error('Error broadcasting on response finish:', error);
+				logger.error({
+					message: 'Error broadcasting on response finish:',
+					error
+				});
 			}
 		});
 

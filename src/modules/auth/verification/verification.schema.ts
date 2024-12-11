@@ -20,6 +20,10 @@ const fotgotPassword = Joi.object({
 	email: Joi.string().required()
 });
 
+const verifyCode = Joi.object({
+	code: Joi.string().required().length(6).pattern(/^\d+$/) // 6 digit number
+});
+
 export default {
 	register: validateReq({
 		body: registerUser
@@ -36,12 +40,20 @@ export default {
 	reissueEmail: validateReq({
 		body: fotgotPassword
 	}),
+	verifyNewUser: validateReq({
+		body: verifyCode
+	}),
 	resetPass: validateReq({
 		body: Joi.object({
 			password: Joi.string().required()
 		}),
 		params: Joi.object({
 			token: Joi.string().required()
+		})
+	}),
+	reissueToken: validateReq({
+		body: Joi.object({
+			email: Joi.string().email().required()
 		})
 	})
 };

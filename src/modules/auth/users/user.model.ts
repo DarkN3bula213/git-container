@@ -1,4 +1,5 @@
 import { InternalError } from '@/lib/api';
+// import { convertToMilliseconds } from '@/lib/utils/fns';
 import { normalizeRoles } from '@/lib/utils/utils';
 import { isAdminRolePresent } from '@/lib/utils/utils';
 import bcrypt from 'bcrypt';
@@ -13,6 +14,7 @@ import {
 import { RoleModel } from '../roles/role.model';
 
 export interface User extends Document {
+	_id: Types.ObjectId;
 	name: string;
 	username: string;
 	father_name: string;
@@ -129,12 +131,40 @@ export const schema = new Schema<User>(
 			type: Date,
 			default: null
 		},
-		verificationToken: {
-			type: String
-		},
 		verificationTokenExpiresAt: {
-			type: Date
+			type: Date,
+			// default: function () {
+			// 	// Set verification token to expire in 15 minutes
+			// 	return new Date(Date.now() + convertToMilliseconds('15min'));
+			// }
+			default: null
 		},
+		verificationToken: {
+			type: String,
+			default: null,
+			get: function (this: User & Document, token: string | null) {
+				// Add 'this' type annotation
+				if (
+					this.verificationTokenExpiresAt &&
+					this.verificationTokenExpiresAt < new Date()
+				) {
+					return null;
+				}
+				return token;
+			},
+			set: function (this: User & Document, token: string | null) {
+				// Add type annotation for 'this'
+				if (token) {
+					this.verificationTokenExpiresAt = new Date(
+						Date.now() + 15 * 60 * 1000
+					);
+				} else {
+					this.verificationTokenExpiresAt = null;
+				}
+				return token;
+			}
+		},
+
 		isVerified: {
 			type: Boolean,
 			default: false
@@ -172,17 +202,34 @@ export const schema = new Schema<User>(
 	}
 );
 const exclusionDate = new Date('2024-08-01'); // Example exclusion date
-schema.index(
-	{ verificationTokenExpiresAt: 1 },
-	{
-		expireAfterSeconds: 0,
-		partialFilterExpression: {
-			isVerified: false,
-			createdAt: { $gte: exclusionDate } // Apply TTL only to users created after this date
-		}
+// schema.index(
+// 	{ verificationTokenExpiresAt: 1 },
+// 	{
+// 		expireAfterSeconds: 0,
+// 		partialFilterExpression: {
+// 			isVerified: false,
+// 			createdAt: { $gte: exclusionDate } // Apply TTL only to users created after this date
+// 		}
+// 	}
+// );
+// Index for clearing verification tokens after 15 minutes
+schema.path('verificationTokenExpiresAt').index({
+	expireAfterSeconds: 0,
+	partialFilterExpression: {
+		verificationToken: { $exists: true, $type: 'string' },
+		isVerified: false,
+		createdAt: { $gte: exclusionDate }
 	}
-);
-
+});
+// schema.index(
+// 	{ verificationTokenExpiresAt: 1 },
+// 	{
+// 		expireAfterSeconds: 0,
+// 		partialFilterExpression: {
+// 			verificationToken: { $ne: null }
+// 		}
+// 	}
+// );
 schema.methods.isDuplicateEmail = async (email: string) => {
 	const user = await UserModel.findOne({ email });
 	if (!user) return false;

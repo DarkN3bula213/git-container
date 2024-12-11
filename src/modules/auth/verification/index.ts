@@ -1,51 +1,46 @@
 import { convertToObjectId } from '@/data/database/db.utils';
-import {
-	BadRequestError,
-	BadRequestResponse,
-	SuccessResponse
-} from '@/lib/api';
+import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { config } from '@/lib/config';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
 import { verfication } from '@/lib/utils/tokens';
 import {
-	sendEmailVerified,
 	sendResetPasswordEmail,
 	sendResetSuccessEmail,
 	sendVerifyEmail
 } from '@/services/mail/mailTrap';
 import { UserModel } from '../users/user.model';
 import { service } from '../users/user.service';
+import verificationService from './verification.service';
 
 const logger = new Logger(__filename);
 
 export const verifyUser = asyncHandler(async (req, res) => {
 	const { code } = req.body;
-	const user = await UserModel.findOne({
-		verificationToken: code,
-		verificationTokenExpiresAt: { $gt: Date.now() }
-	});
 
-	if (!user) {
-		return new BadRequestResponse('Invalid or expired verification code');
-	}
+	await verificationService.newUserVerification(code);
+	// const user = await UserModel.findOne({
+	// 	verificationToken: code,
+	// 	verificationTokenExpiresAt: { $gt: Date.now() }
+	// });
 
-	// Check if user is already verified
-	if (user.isVerified) {
-		return new BadRequestResponse('User already verified');
-	}
+	// if (!user) {
+	// 	throw new BadRequestError('Invalid or expired verification code');
+	// }
 
-	user.isVerified = true;
-	user.verificationToken = null;
-	user.verificationTokenExpiresAt = null;
-	await user.save();
+	// // Check if user is already verified
+	// if (user.isVerified) {
+	// 	throw new BadRequestError('User already verified');
+	// }
 
-	await sendEmailVerified(user.email);
-	const userdat = {
-		...user,
-		password: undefined
-	};
-	new SuccessResponse('Email verified successfully', userdat).send(res);
+	// user.isVerified = true;
+	// user.verificationToken = null;
+	// user.verificationTokenExpiresAt = null;
+	// await user.save();
+
+	// await sendEmailVerified(user.email);
+
+	new SuccessResponse('Email verified successfully', {}).send(res);
 });
 
 export const forgotPassword = asyncHandler(async (req, res) => {
@@ -149,4 +144,14 @@ export const toggleApproval = asyncHandler(async (req, res) => {
 	await user.save();
 
 	return new SuccessResponse('Status changed', { user }).send(res);
+});
+
+export const reIssueToken = asyncHandler(async (req, res) => {
+	const { email } = req.body;
+
+	const data =
+		await verificationService.reissueExpiredVerificationToken(email);
+
+	logger.debug(data);
+	return new SuccessResponse('Email verification sent', {}).send(res);
 });

@@ -21,7 +21,6 @@ import {
 	normalizeRoles
 } from '@/lib/utils/utils';
 import Role, { RoleModel } from '@/modules/auth/roles/role.model';
-import { sendVerifyEmail } from '@/services/mail/mailTrap';
 import userSettingsService from '../settings/settings.service';
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
@@ -76,12 +75,13 @@ export const getUser = asyncHandler(async (req, res) => {
 export const getCurrentUser = asyncHandler(async (req, res) => {
 	const user = req.user as User;
 
-	if (!user) {
+	const id = user._id?.toString();
+	if (!id) {
 		throw new BadRequestError('No user found');
 	}
-	const key = getDynamicKey(DynamicKey.USER, user._id);
+	const key = getDynamicKey(DynamicKey.USER, id);
 	const userCache = await cache.getWithFallback(key, async () => {
-		return await UserModel.findById(user._id)
+		return await UserModel.findById(id)
 			.select('-password') // Method 1: Exclude password at query level
 			.lean()
 			.exec();
@@ -117,7 +117,7 @@ export const getUserById = asyncHandler(async (req, res) => {
 
 /*<!-- 1. Create  ---------------------------( createUser )-> */
 export const register = asyncHandler(async (req, res) => {
-	const { email, username, password, cnic } = req.body;
+	const { email, username, password, cnic, name } = req.body;
 
 	const roleCode = getRoleFromMap(cnic);
 	logger.info({
@@ -127,13 +127,17 @@ export const register = asyncHandler(async (req, res) => {
 		{
 			email,
 			username,
-			password
+			password,
+			name
 		},
 		roleCode
 	);
-	const { user, token } = data;
-	await sendVerifyEmail(user.name, user.email, token);
-	return new SuccessResponse('User created', user).send(res);
+	const { user } = data;
+	// await sendVerifyEmail(user.name, user.email, token);
+	return new SuccessResponse(
+		'User created',
+		user.verificationTokenExpiresAt
+	).send(res);
 });
 
 /*<!-- 3. Create  ---------------------------( createTempUser )-> */
@@ -160,7 +164,7 @@ export const createTempUser = asyncHandler(async (req, res) => {
 export const updateUser = asyncHandler(async (req, res) => {
 	const userId = req.params.id;
 	const user = req.user as User;
-	if (userId !== user._id.toString()) {
+	if (userId !== user?._id?.toString()) {
 		return new BadRequestError(
 			'You are not authorized to update this user'
 		);
@@ -222,7 +226,7 @@ export const login = asyncHandler(async (req, res) => {
 	const access = signToken(payload, 'access', { expiresIn: '120m' });
 
 	// Store user data in session
-	req.session.userId = user._id;
+	req.session.userId = user._id?.toString();
 	req.session.username = user.username;
 
 	// Optional: Update last login
@@ -283,6 +287,29 @@ export const logout = asyncHandler(async (req, res) => {
 		res.clearCookie('connect.sid'); // Clear the session cookie
 		return res.status(200).json({ message: 'Logout successful' });
 	});
+});
+
+// Controller to check availability of email | username
+export const checkAvailability = asyncHandler(async (req, res) => {
+	const { email, username } = req.query;
+
+	if (!email && !username) {
+		throw new BadRequestError('Email or username is required');
+	}
+
+	const response: { email?: boolean; username?: boolean } = {};
+
+	if (email) {
+		const emailExists = await UserModel.findOne({ email });
+		response.email = !emailExists; // true if email is available
+	}
+
+	if (username) {
+		const usernameExists = await UserModel.findOne({ username });
+		response.username = !usernameExists; // true if username is available
+	}
+
+	return new SuccessResponse('Availability checked', response).send(res);
 });
 
 /*

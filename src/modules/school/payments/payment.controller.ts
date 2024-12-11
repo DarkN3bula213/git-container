@@ -27,7 +27,7 @@ const logger = new Logger(__filename);
 export const createPayment = asyncHandler(async (req, res) => {
 	const { studentId } = req.body;
 	const user = req.user as User;
-	const userId = user._id as string;
+	const userId = user._id.toString();
 	const data = (await paymentsService.createPayment(
 		studentId,
 		userId
@@ -49,13 +49,12 @@ export const createPaymentsBulk = asyncHandler(async (req, res) => {
 
 	const classIds = students.map((student) => student.classId);
 	const classes = await ClassModel.find({ _id: { $in: classIds } });
-
 	const classInfoMap = new Map(
-		classes.map((cls) => [cls._id.toString(), cls])
+		classes.map((cls) => [cls._id!.toString(), cls])
 	);
 
 	const records = students.map((student) => {
-		const grade = classInfoMap.get(student.classId.toString());
+		const grade = classInfoMap.get(student.classId!.toString());
 		if (!grade) throw new BadRequestError('Grade not found for a student');
 
 		return {
@@ -88,7 +87,7 @@ export const makeCustomPayment = asyncHandler(async (req, res) => {
 		studentId,
 		payId,
 		paymentType,
-		user._id
+		user._id.toString()
 	);
 	return new SuccessResponse('Payment created successfully', payment).send(
 		res
@@ -112,9 +111,9 @@ export const getPaymentById = asyncHandler(async (req, res) => {
 	const { id } = req.params;
 	const key = getDynamicKey(DynamicKey.FEE, id);
 
-	const cachedPayment = await cache.getWithFallback(key, async () => {
+	const cachedPayment = (await cache.getWithFallback(key, async () => {
 		return await Payments.findById(id).lean().exec();
-	});
+	})) as IPayment;
 
 	if (!cachedPayment) throw new BadRequestError('Payment not found');
 	return new SuccessResponse(
@@ -126,10 +125,12 @@ export const getPaymentById = asyncHandler(async (req, res) => {
 /*<!-- 3. Read  ---------------------------( Get Student Payments )-> */
 export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
 	const { studentId } = req.params;
-	const cachedPayments = await Payments.find({
+	const cachedPayments = (await Payments.find({
 		studentId
-	});
-	console.log(JSON.stringify(cachedPayments, null, 2));
+	})
+		.lean()
+		.exec()) as IPayment[];
+
 	if (!cachedPayments) throw new BadRequestError('Payments not found');
 	return new SuccessResponse(
 		'Payments fetched successfully',
@@ -140,9 +141,9 @@ export const getPaymentsByStudentId = asyncHandler(async (req, res) => {
 export const getMonthsPayments = asyncHandler(async (req, res) => {
 	const { payId } = req.params;
 	const key = getDynamicKey(DynamicKey.FEE, payId);
-	const cachedPayment = await cache.getWithFallback(key, async () => {
+	const cachedPayment = (await cache.getWithFallback(key, async () => {
 		return await Payments.find({ payId }).lean().exec();
-	});
+	})) as IPayment[];
 	if (!cachedPayment) throw new BadRequestError('Payment not found');
 	return new SuccessResponse(
 		'Payment fetched successfully',
@@ -272,7 +273,7 @@ export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
 			)
 		},
 		groupedPayments: sortedGroups
-	};
+	} as any;
 
 	return new SuccessResponse(
 		'Payments fetched successfully',
@@ -315,7 +316,7 @@ export const getFeesByCycle = asyncHandler(async (req, res) => {
 export const updatePayment = asyncHandler(async (req, res) => {
 	const { id } = req.params;
 	const { studentId, classId, amount, paymentDate } = req.body;
-	const payment = await Payments.findByIdAndUpdate(
+	const payment = (await Payments.findByIdAndUpdate<IPayment>(
 		id,
 		{
 			studentId,
@@ -324,7 +325,7 @@ export const updatePayment = asyncHandler(async (req, res) => {
 			paymentDate
 		},
 		{ new: true }
-	);
+	)) as IPayment;
 	if (!payment) throw new BadRequestError('Payment not found');
 	return new SuccessResponse('Payment updated successfully', payment).send(
 		res
@@ -335,7 +336,7 @@ export const updatePayment = asyncHandler(async (req, res) => {
 
 export const deletePayment = asyncHandler(async (req, res) => {
 	const { id } = req.params;
-	const response = await Payments.findByIdAndDelete(id);
+	const response = (await Payments.findByIdAndDelete(id)) as IPayment;
 	if (!response) throw new BadRequestError('Payment not found');
 	return new SuccessResponse('Payment deleted successfully', response).send(
 		res
@@ -354,7 +355,9 @@ export const resetCollection = asyncHandler(async (_req, res) => {
 
 export const deleteManyByID = asyncHandler(async (req, res) => {
 	const { ids } = req.body;
-	const response = await Payments.deleteMany({ _id: { $in: ids } });
+	const response = (await Payments.deleteMany({
+		_id: { $in: ids }
+	})) as unknown as IPayment;
 	if (!response) throw new BadRequestError('Payments not found');
 	return new SuccessResponse('Payments deleted successfully', response).send(
 		res
@@ -403,7 +406,7 @@ export const enqueueMultiplePayments = asyncHandler(async (req, res) => {
 export const handleBatchPayments = asyncHandler(async (req, res) => {
 	const user = req.user as User;
 	const { studentIds } = req.body;
-	addJobsToQueue(studentIds, user._id, 'paymentQueue');
+	addJobsToQueue(studentIds, user._id.toString(), 'paymentQueue');
 
 	res.status(202).send('Payment processing for multiple students initiated');
 });
@@ -448,12 +451,12 @@ export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 export const getStudentPaymentHistory = asyncHandler(async (req, res) => {
 	const { studentId } = req.params;
 	const id = new Types.ObjectId(studentId);
-	const history = await getStudentHistory(id);
+	const history = (await getStudentHistory(id)) as any;
 	return new SuccessResponse('Student payment history', history).send(res);
 });
 
 export const customSorting = asyncHandler(async (_req, res) => {
-	const students = await paymentsService.customSorting();
+	const students = (await paymentsService.customSorting()) as any;
 	return new SuccessResponse('Students fetched successfully', students).send(
 		res
 	);
@@ -465,7 +468,7 @@ export const commitTransaction = asyncHandler(async (req, res) => {
 	if (!user) throw new BadRequestError('User not found');
 	const response = (await paymentsService.commitMultiInsert(
 		studentIds,
-		user._id as string
+		user._id.toString()
 	)) as IPayment[];
 	return new SuccessResponse('Payments created successfully', response).send(
 		res

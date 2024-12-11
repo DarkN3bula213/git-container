@@ -7,7 +7,9 @@ import path from 'node:path';
 import { app } from './app';
 import { cache } from './data/cache/cache.service';
 import { db } from './data/database';
+// import { ensureAllIndexes } from './data/database/db.utils';
 import { banner, signals } from './lib/constants';
+import subjectMigration from './scripts/subjectMigration';
 import { setupCronJobs } from './services/cron';
 import SocketService from './sockets';
 
@@ -59,6 +61,14 @@ const startServer = async () => {
 		await db.connect();
 		setupCronJobs();
 
+		if (config.isDocker || config.isProduction) {
+			// console.log('Starting server in production mode');
+			// await ensureAllIndexes();
+			await subjectMigration.migrate({ force: true });
+			logger.info('Subject migration completed');
+		}
+		// Dry run to check what would happen
+
 		// Start the server and listen on all network interfaces
 		server.listen(PORT, () => {
 			logger.info({
@@ -66,7 +76,11 @@ const startServer = async () => {
 				node: banner,
 				date: format(date, 'PPP'),
 				timeZone: timeZone,
-				pkTime: pkTime
+				pkTime: pkTime,
+				mode:
+					config.isDocker || config.isProduction
+						? 'Production'
+						: 'Development'
 			});
 		});
 	} catch (error: any) {

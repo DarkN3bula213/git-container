@@ -81,7 +81,7 @@ export const getAllConversationsForUser = async (userId: string) => {
 		})),
 		messages: conversation.messages
 			.map((message) => ({
-				conversationId: conversation._id.toString(),
+				conversationId: conversation._id?.toString(),
 				sender: message.sender,
 				message: message.content, // Ensure we use 'content' here
 				timestamp: message.timestamp,

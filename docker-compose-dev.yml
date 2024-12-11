@@ -10,6 +10,8 @@ services:
       - 27017:27017
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    environment:
+      - TZ=Asia/Karachi
     healthcheck:
       test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
       interval: 5s

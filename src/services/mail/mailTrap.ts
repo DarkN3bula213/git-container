@@ -46,6 +46,32 @@ export const sendVerifyEmail = async (
 	}
 };
 
+export const reissueVerificationCodeEmail = async (
+	name: string,
+	email: string,
+	token: string
+) => {
+	logger.info({ name, email, token });
+	try {
+		await sendEmail({
+			to: email,
+			subject: 'Reissue Verification Token',
+			templateName: 'reissueVerificationToken',
+			templateData: { verificationCode: token, username: name },
+			name: name
+		});
+	} catch (error) {
+		if (typeof error === 'string') {
+			logger.error(`Email delivery failed: ${error}`);
+			throw new BadRequestError(error);
+		} else {
+			throw new BadRequestError(
+				'Sending reissue verification token email failed'
+			);
+		}
+	}
+};
+
 export const sendResetPasswordEmail = async (email: string, url: string) => {
 	try {
 		const emailRes = await sendEmail({
@@ -97,7 +123,7 @@ export const sendResetSuccessEmail = async (email: string) => {
 	}
 };
 
-export const sendEmailVerified = async (email: string) => {
+export const emailVerificationSuccess = async (email: string) => {
 	try {
 		await sendEmail({
 			to: email,

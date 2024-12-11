@@ -1,118 +1,120 @@
+# Heading
 
+```ts
 export interface IClass extends Document {
-	className: string;
-	section: string[];
-	fee: number;
-	subjects: IClassSubject[];
-	classTeacher?: {
-		teacherId: Types.ObjectId;
-		teacherName: string;
-	};
+ className: string;
+ section: string[];
+ fee: number;
+ subjects: IClassSubject[];
+ classTeacher?: {
+  teacherId: Types.ObjectId;
+  teacherName: string;
+ };
 }
-
-
+ 
 export type Student = Document & {
-	//[+] Personal Information
-	name: string;
-	dob: Date;
-	 
-	//[+] School Information
-	registration_no: string;
-	classId: IClass['_id'];
-	className: IClass['className'];
-	section: IClass['section'][number];
-	tuition_fee: IClass['fee'];
-	feeType: string;
+ //[+] Personal Information
+ name: string;
+ dob: Date;
+  
+ //[+] School Information
+ registration_no: string;
+ classId: IClass['_id'];
+ className: IClass['className'];
+ section: IClass['section'][number];
+ tuition_fee: IClass['fee'];
+ feeType: string;
 
-	//[+] Financial Information
-	admission_fee: number;
-	session: string;
-	admission_date: Date;
-	status: {
-		isActive: boolean;
-		hasLeft: boolean;
-		remarks: string[];
-	};
-	version: number;
+ //[+] Financial Information
+ admission_fee: number;
+ session: string;
+ admission_date: Date;
+ status: {
+  isActive: boolean;
+  hasLeft: boolean;
+  remarks: string[];
+ };
+ version: number;
 };
 
-
 export interface IPayment extends mongoose.Document {
-	studentId: mongoose.Schema.Types.ObjectId;
-	classId: IClass['_id'];
-	studentName: string;
-	className: string;
-	section: string;
-	amount: number;
-	paymentDate: Date;
-	payId: string;
-	createdBy: mongoose.Schema.Types.ObjectId;
-	updatedBy: mongoose.Schema.Types.ObjectId;
-	invoiceId: string;
-	version: number;
-	createdAt: Date;
-	updatedAt: Date;
+ studentId: mongoose.Schema.Types.ObjectId;
+ classId: IClass['_id'];
+ studentName: string;
+ className: string;
+ section: string;
+ amount: number;
+ paymentDate: Date;
+ payId: string;
+ createdBy: mongoose.Schema.Types.ObjectId;
+ updatedBy: mongoose.Schema.Types.ObjectId;
+ invoiceId: string;
+ version: number;
+ createdAt: Date;
+ updatedAt: Date;
 }
 
 schema.index({ studentId: 1, payId: 1 }, { unique: true });
 schema.index({ studentId: 1, paymentDate: 1 });
 schema.index({ payId: 1, studentId: 1 });
+```
 
-Above are the interfaces for a school fee management application. You will notice that the payments have a field payId that has a unique index with the studentId. This is because the students every month have to deposit a monthly fee for which a payment document is created. The payId value is a string generated from the date object and has the format "MMYY". So a student depositing a fee for January 2024 then the payId "0124" would be added. The payId indicates for which month of the year the payment was made and the unique index ensure that no duplicated can be added willingly or unwillingly. Below is the schema for the classes
+Above are the interfaces for a school fee management application. You will notice that the payments have a field payId that has a unique index with the studentId. This is because the students every month have to deposit a monthly fee for which a payment document is created. The payId value is a string generated from the date object and has the format "MMYY". So a student depositing a fee for January 2024 then the payId "0124" would be added. The payId indicates for which month of the year the payment was made and the unique index ensure that no duplicated can be added willingly or unwillingly. Below is the schema for the classes.
 
-
+```ts
 const schema = new Schema<IClass>(
-	{
-		className: {
-			type: Schema.Types.String,
-			enum: [
-				'Nursery',
-				'Prep',
-				'1st',
-				'2nd',
-				'3rd',
-				'4th',
-				'5th',
-				'6th',
-				'7th',
-				'8th',
-				'9th',
-				'10th'
-			],
-			trim: true,
+ {
+  className: {
+   type: Schema.Types.String,
+   enum: [
+    'Nursery',
+    'Prep',
+    '1st',
+    '2nd',
+    '3rd',
+    '4th',
+    '5th',
+    '6th',
+    '7th',
+    '8th',
+    '9th',
+    '10th'
+   ],
+   trim: true,
 
-			unique: true,
-			required: true
-		},
-		section: {
-			type: [Schema.Types.String],
-			required: true
-		},
-		fee: {
-			type: Schema.Types.Number,
-			required: true
-		},
-		subjects: {
-			type: [classSubjectSchema],
-			required: true
-		},
-		classTeacher: {
-			type: {
-				teacherId: {
-					type: Schema.Types.ObjectId,
-					ref: 'Teacher'
-				},
-				teacherName: {
-					type: Schema.Types.String
-				}
-			}
-		}
-	},
-	{
-		timestamps: true,
-		versionKey: false
-	}
+   unique: true,
+   required: true
+  },
+  section: {
+   type: [Schema.Types.String],
+   required: true
+  },
+  fee: {
+   type: Schema.Types.Number,
+   required: true
+  },
+  subjects: {
+   type: [classSubjectSchema],
+   required: true
+  },
+  classTeacher: {
+   type: {
+    teacherId: {
+     type: Schema.Types.ObjectId,
+     ref: 'Teacher'
+    },
+    teacherName: {
+     type: Schema.Types.String
+    }
+   }
+  }
+ },
+ {
+  timestamps: true,
+  versionKey: false
+ }
 );
+```
 
 All the students are divided into classes from nursery to 10th and further into class sections. Sections for a class can be "A" - "E" where some classes might have all A - E while some might have less.
 
@@ -162,18 +164,18 @@ Now the problem at hand is that we need to be able to query for the students tha
   "__v": 0,
   "history": [
     { "0124": true },
-	{ "0224" : false }
+ { "0224" : false }
   ]
 }
 
-Now before you attempt to provide a solution you must ask for all relevant context and / or code snippets that you might require in order to generate the correct code. 
+Now before you attempt to provide a solution you must ask for all relevant context and / or code snippets that you might require in order to generate the correct code.
 
 Thank you for providing the detailed interfaces and schema. Before suggesting a solution, I need some additional context to ensure I provide the most optimal approach:
 
 1. What is the current MongoDB version being used? This matters because different versions support different aggregation features.
 
 2. How is the payment date being stored in the Payment model? Is it:
-   - The actual date of payment, or 
+   - The actual date of payment, or
    - The month/year for which the payment is meant (since payId represents MMYY)?
 
 3. For the history array in your example output:
@@ -191,12 +193,13 @@ Thank you for providing the detailed interfaces and schema. Before suggesting a 
 6. Are there any specific performance requirements or constraints we need to consider?
 
 This information will help me suggest the most efficient approach, particularly around:
+
 - Whether to use aggregation or multiple queries
 - How to structure the pipeline for optimal performance
 - Whether to consider adding additional indexes
 - Whether to consider data denormalization strategies
 
-1."mongoose": "^8.3.2", 
+1."mongoose": "^8.3.2",
 
 A sample payment document is shown below
 
@@ -226,7 +229,7 @@ A sample payment document is shown below
   "__v": 0
 }
 
--All months from admission date till current date should ideally be shown if performance doesnt take a big hit 
+-All months from admission date till current date should ideally be shown if performance doesnt take a big hit
 
 - It should display all paid and due month
 
@@ -238,56 +241,88 @@ The student strength is 1300 students with ideally every student making at least
 
 A sample aggregation could be
 
-
 export const studentDetailsWithPayments = async (studentId: string) => {
-	const result = await StudentModel.aggregate([
-		// Match the student by ID
-		{ $match: { _id: new mongoose.Types.ObjectId(studentId) } },
+ const result = await StudentModel.aggregate([
+  // Match the student by ID
+  { $match: { _id: new mongoose.Types.ObjectId(studentId) } },
 
-		// Lookup to join with payments collection
-		{
-			$lookup: {
-				from: 'payments', // the collection name in the database
-				localField: '_id', // field from the student collection
-				foreignField: 'studentId', // field from the payments collection
-				as: 'feeDocuments' // the array that will hold all the joined documents
-			}
-		},
+  // Lookup to join with payments collection
+  {
+   $lookup: {
+    from: 'payments', // the collection name in the database
+    localField: '_id', // field from the student collection
+    foreignField: 'studentId', // field from the payments collection
+    as: 'feeDocuments' // the array that will hold all the joined documents
+   }
+  },
 
-		// Unwind the feeDocuments to sort and then regroup
-		{
-			$unwind: {
-				path: '$feeDocuments',
-				preserveNullAndEmptyArrays: true
-			}
-		},
+  // Unwind the feeDocuments to sort and then regroup
+  {
+   $unwind: {
+    path: '$feeDocuments',
+    preserveNullAndEmptyArrays: true
+   }
+  },
 
-		// Sort the payments by payId within each student
-		{ $sort: { 'feeDocuments.payId': 1 } },
+  // Sort the payments by payId within each student
+  { $sort: { 'feeDocuments.payId': 1 } },
 
-		// Group back to get all feeDocuments in one array
-		{
-			$group: {
-				_id: '$_id',
-				root: { $mergeObjects: '$$ROOT' },
-				feeDocuments: { $push: '$feeDocuments' }
-			}
-		},
+  // Group back to get all feeDocuments in one array
+  {
+   $group: {
+    _id: '$_id',
+    root: { $mergeObjects: '$$ROOT' },
+    feeDocuments: { $push: '$feeDocuments' }
+   }
+  },
 
-		// Project to structure the output document
-		{
-			$replaceRoot: {
-				newRoot: {
-					$mergeObjects: ['$root', '$$ROOT']
-				}
-			}
-		},
-		{ $project: { root: 0 } } // Remove the temporary 'root' field
-	]);
+  // Project to structure the output document
+  {
+   $replaceRoot: {
+    newRoot: {
+     $mergeObjects: ['$root', '$$ROOT']
+    }
+   }
+  },
+  { $project: { root: 0 } } // Remove the temporary 'root' field
+ ]);
 
-	return result;
+ return result;
 };
 
 This should be considered as sample only and not a indictive of preference.
 
 Also note ideally we would group the students by class and further by class section so the heavy lifting is already done by the server.
+
+---
+
+```ts
+import { Logger } from '@/lib/logger';
+import mongoose, { type ClientSession, Types } from 'mongoose';
+
+type TransactionCallback<T> = (session: ClientSession) => Promise<T>;
+const logger = new Logger(__filename);
+
+export async function withTransaction<T>(
+ callback: TransactionCallback<T>
+): Promise<T> {
+ const session = await mongoose.startSession();
+ session.startTransaction();
+
+ try {
+  const result = await callback(session);
+  logger.info('Transaction Success');
+
+  await session.commitTransaction();
+  return result;
+ } catch (error) {
+  await session.abortTransaction();
+  throw error;
+ } finally {
+  session.endSession();
+ }
+}
+export const convertToObjectId = (id: string): Types.ObjectId => {
+ return new Types.ObjectId(id);
+};
+```

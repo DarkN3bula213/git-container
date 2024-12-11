@@ -97,13 +97,13 @@ export async function reIssueAccessToken({
 	}
 
 	if (decoded && decoded.user) {
-		const verifiedUser = await findUserById(decoded.user._id);
+		const verifiedUser = await findUserById(decoded.user._id.toString());
 		if (!verifiedUser) {
 			return false;
 		}
 
 		const accessToken = signToken(
-			{ user: verifiedUser },
+			{ user: verifiedUser } as TokenPayload,
 			'access',
 			{ expiresIn: config.tokens.access.ttl } // Adjust the TTL as necessary
 		);
@@ -167,4 +167,15 @@ export const verfication = {
 	resetToken: generateSecureResetToken,
 	generateToken: generateVerifyEmailToken,
 	expiry: tokenExpiryTime
+};
+
+interface GenerateTokenReturn {
+	token: string;
+	expiry: Date;
+}
+
+export const generateToken = (): GenerateTokenReturn => {
+	const token = verfication.generateToken();
+	const expiry = new Date(verfication.expiry);
+	return { token, expiry };
 };

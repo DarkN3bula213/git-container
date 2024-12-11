@@ -5,7 +5,8 @@ import { validate } from '@/lib/handlers/validate';
 import { RouterMap, mapRouter, setRouter } from '@/lib/utils/utils';
 import { authentication } from '@/middleware/authMiddleware';
 import { authorize } from '@/middleware/authorize';
-import type { RouteMap } from '@/types/routes';
+import { limitRequest } from '@/middleware/rateLimit.middleware';
+import { RouteMap } from '@/types/routes';
 import { Router } from 'express';
 import * as verfication from '../verification';
 import verify from '../verification/verification.schema';
@@ -21,40 +22,40 @@ function getRouteMap(): RouteMap[] {
 			method: 'get',
 			handler: controller.getUsers
 		},
-		/*<!-- 1. Forgot Password  ---------------------------( x )->*/
+		// /*<!-- 1. Forgot Password  ---------------------------( Verification )->*/
 
-		{
-			path: '/forgot-password',
-			method: 'post',
-			validations: [verify.forgotPass],
-			handler: verfication.forgotPassword
-		},
-		/*<!-- 2. Reset Password  ---------------------------( x )->*/
-		{
-			path: '/reset-password/:token',
-			method: 'post',
-			validations: [verify.resetPass],
-			handler: verfication.resetPassword
-		},
-		/*<!-- 3. Verify Email  ---------------------------( x )->*/
-		{
-			path: '/verify-email',
-			method: 'post',
-			validations: [verify.verfify],
-			handler: verfication.verifyUser
-		},
-		/*<!-- 4. Resend Verification  ---------------------------( x )->*/
-		{
-			path: '/reissue-email',
-			method: 'post',
-			validations: [verify.reissueEmail],
-			handler: verfication.reissueEmailVerificationToken
-		},
+		// {
+		// 	path: '/forgot-password',
+		// 	method: 'post',
+		// 	validations: [verify.forgotPass],
+		// 	handler: verfication.forgotPassword
+		// },
+		// /*<!-- 2. Reset Password  ---------------------------( Verification )->*/
+		// {
+		// 	path: '/reset-password/:token',
+		// 	method: 'post',
+		// 	validations: [verify.resetPass],
+		// 	handler: verfication.resetPassword
+		// },
+		// /*<!-- 3. Verify Email  ---------------------------( Verification )->*/
+		// {
+		// 	path: '/verify-email',
+		// 	method: 'post',
+		// 	validations: [verify.verfify],
+		// 	handler: verfication.verifyUser
+		// },
+		// /*<!-- 4. Resend Verification  -------------------( Verification )->*/
+		// {
+		// 	path: '/reissue-email',
+		// 	method: 'post',
+		// 	validations: [verify.reissueEmail],
+		// 	handler: verfication.reissueEmailVerificationToken
+		// },
 		/*<!-- 5. Register  ---------------------------( x )->*/
 		{
 			path: '/register',
 			method: 'post',
-			validations: [validate(register)],
+			validations: [validate(register), limitRequest],
 			handler: controller.register
 		},
 		/*<!-- 6. Change Password  ---------------------------( x )->*/
@@ -76,13 +77,13 @@ function getRouteMap(): RouteMap[] {
 			],
 			handler: controller.updateUser
 		},
-		/*<!-- 8. Registered User Verification  ---------------------------( x )->*/
-		{
-			path: '/verify-user',
-			method: 'post',
-			validations: [validate(schema.registeredUserVerification)],
-			handler: verfication.registeredUserVerification
-		},
+		// /*<!-- 8. Registered User Verification  ---------------------------( Verification )->*/
+		// {
+		// 	path: '/verify-user',
+		// 	method: 'post',
+		// 	validations: [validate(schema.registeredUserVerification)],
+		// 	handler: verfication.registeredUserVerification
+		// },
 		{
 			path: '/aux',
 			method: 'post',
@@ -143,12 +144,82 @@ function authenticationRoutes(): RouterMap[] {
 					validations: [authentication]
 				}
 			}
+		},
+		{
+			path: '/check-availability',
+			methods: {
+				get: { handler: controller.checkAvailability }
+			}
+		}
+	];
+}
+
+function verificationRoutes(): RouterMap[] {
+	return [
+		/*<!-- 1. Verify Email  ---------------------------( Verification )->*/
+		{
+			path: '/verify-email',
+			methods: {
+				post: {
+					handler: verfication.verifyUser,
+					validations: [verify.verfify]
+				}
+			}
+		},
+		/*<!-- 2. Forgot Password  ---------------------------( Verification )->*/
+		{
+			path: '/forgot-password',
+			methods: {
+				post: {
+					handler: verfication.forgotPassword,
+					validations: [verify.forgotPass]
+				}
+			}
+		},
+		/*<!-- 3. Reset Password  ---------------------------( Verification )->*/
+		{
+			path: '/reset-password/:token',
+			methods: {
+				post: {
+					handler: verfication.resetPassword,
+					validations: [verify.resetPass]
+				}
+			}
+		},
+		/*<!-- 4. Reissue Email Verification Token  --------( Verification )->*/
+		{
+			path: '/reissue-email',
+			methods: {
+				post: {
+					handler: verfication.reissueEmailVerificationToken,
+					validations: [verify.reissueEmail]
+				}
+			}
+		},
+		/*<!-- 5. Registered User Verification  -----------( Verification )->*/
+		{
+			path: '/verify-user',
+			methods: {
+				post: {
+					handler: verfication.registeredUserVerification,
+					validations: [validate(schema.registeredUserVerification)]
+				}
+			}
+		},
+		{
+			path: '/reissue-token',
+			methods: {
+				post: {
+					handler: verfication.reIssueToken,
+					validations: [verify.reissueToken]
+				}
+			}
 		}
 	];
 }
 
 mapRouter(router, authenticationRoutes());
-// mapRouter(router, verificationRoutes());
+mapRouter(router, verificationRoutes());
 setRouter(router, getRouteMap());
 
 export default router;

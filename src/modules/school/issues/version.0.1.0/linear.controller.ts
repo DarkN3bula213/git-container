@@ -23,9 +23,9 @@ export const createLinearIssue = asyncHandler(async (req, res) => {
 		status: status
 	};
 
-	const userId = user._id;
+	const userId = user._id.toString();
 
-	const issue = await service.createIssue(input, userId as string);
+	const issue = await service.createIssue(input, userId.toString());
 
 	return new SuccessResponse('Issue created', issue).send(res);
 });
@@ -36,7 +36,7 @@ export const getAllLinearIssues = asyncHandler(async (req, res) => {
 
 	const roles = normalizeRoles(user.roles);
 	const isAdmin = await isAdminRolePresent(roles);
-	const userId = user._id as string;
+	const userId = user._id.toString();
 	const query = isAdmin
 		? { isReply: false }
 		: { assignee: new Types.ObjectId(userId), isReply: false };
@@ -105,7 +105,7 @@ export const getLinearIssueById = asyncHandler(async (req, res) => {
 
 		// Update isSeenBy array
 		if (user) {
-			addToIsSeenBy(issue, userId);
+			addToIsSeenBy(issue, userId.toString());
 		}
 
 		// Update isSeen and status for admins
@@ -152,7 +152,7 @@ export const addReply = asyncHandler(async (req, res) => {
 	const user = req.user as User;
 
 	if (!user) return new BadRequestError('No user found');
-	const userId = new Types.ObjectId(user._id as string);
+	const userId = user._id.toString();
 
 	const roles = normalizeRoles(user.roles);
 	const isAdmin = isAdminRolePresent(roles);
@@ -198,7 +198,7 @@ export const addReply = asyncHandler(async (req, res) => {
 		issueId,
 		description,
 		isMine,
-		userId
+		user._id
 	);
 
 	return new SuccessResponse('Reply added', newReply).send(res);

@@ -7,6 +7,7 @@ import custom from '../modules/school/payments/custom.router';
 import payments from '../modules/school/payments/payment.routes';
 import stats from '../modules/school/stats/stat.routes';
 import students from '../modules/school/students/student.routes';
+import subjects from '../modules/school/subjects/subject.routes';
 import teacher from '../modules/school/teachers/teacher.routes';
 
 const router = Router();
@@ -20,5 +21,6 @@ router.use('/payments', payments);
 router.use('/custom', custom);
 router.use('/expenses', expenses);
 router.use('/stats', stats);
+router.use('/subjects', subjects);
 
 export default router;

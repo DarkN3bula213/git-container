@@ -251,7 +251,7 @@ const getClassIdByName: IStudentStaticMethods['getClassIdByName'] = async (
 	if (!classDoc) {
 		throw new Error(`Class with name ${className} not found`);
 	}
-	return classDoc._id;
+	return classDoc._id as Types.ObjectId;
 };
 
 // Attach the static method to the schema

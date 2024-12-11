@@ -6,11 +6,12 @@ import settingsService from './settings.service';
 
 export const updateSetting = asyncHandler(async (req, res) => {
 	const user = req.user as User;
-	if (!user) {
-		return new BadRequestError('User not found');
+	const userId = user._id;
+	if (!userId) {
+		return new BadRequestError('User ID is required');
 	}
 	const settings = await settingsService.updateSetting(
-		user._id,
+		userId,
 		req.body // Pass the entire settings object directly
 	);
 

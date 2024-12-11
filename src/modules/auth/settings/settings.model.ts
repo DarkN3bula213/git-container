@@ -1,4 +1,4 @@
-import mongoose, { InferSchemaType, Schema } from 'mongoose';
+import mongoose, { InferSchemaType, Schema, Types } from 'mongoose';
 
 interface BaseSettings {
 	updatedAt: Date;
@@ -28,6 +28,16 @@ export interface Settings extends BaseSettings {
 	appSettings: AppSettings;
 	privacySettings: PrivacySettings;
 }
+
+// interface UserSettingsModel extends Settings, Document {
+// 	findByIdAndDelete(userId: string | Types.ObjectId, arg1: unknown): unknown;
+// 	updateSetting<K extends keyof Settings>(
+// 		path: K,
+// 		value: Settings[K]
+// 	): Promise<void>;
+// 	findOrCreateSettings(userId: mongoose.Types.ObjectId): Promise<Settings>;
+// }
+
 const schema = new mongoose.Schema(
 	{
 		userId: {

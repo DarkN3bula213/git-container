@@ -73,7 +73,7 @@ async function rebuildPaymentHistories() {
 		let studentBatch: mongoose.Types.ObjectId[] = [];
 
 		for await (const student of studentsCursor) {
-			studentBatch.push(student._id);
+			studentBatch.push(student._id as mongoose.Types.ObjectId);
 
 			if (studentBatch.length === BATCH_SIZE) {
 				await retryOperation(async () => {
@@ -128,7 +128,7 @@ async function rebuildPaymentHistories() {
 					paymentsByStudent.set(studentId, []);
 				}
 				paymentsByStudent.get(studentId)?.push({
-					paymentId: payment._id,
+					paymentId: payment._id as mongoose.Types.ObjectId,
 					payId: payment.payId
 				});
 			}

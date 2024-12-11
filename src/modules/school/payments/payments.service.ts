@@ -460,7 +460,7 @@ class PaymentService {
 				billingMonthCache.get(payment.payId)!;
 
 			return {
-				...payment,
+				...(payment as unknown as Record<string, any>),
 				isOffCycle:
 					payment.payId !== payId ||
 					createdAtDate < cycleStart ||

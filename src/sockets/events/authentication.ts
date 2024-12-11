@@ -43,9 +43,9 @@ export const handleAuth = async (
 		return false;
 	}
 
-	await getOrSetStartTime(userId, socket);
+	await getOrSetStartTime(userId.toString(), socket);
 
-	const sessionId = await handleSession(socket, userId, username);
+	const sessionId = await handleSession(socket, userId.toString(), username);
 	const isAdmin = await isUserAdmin(userId);
 	logger.info(`User ${username} is admin: ${isAdmin}`);
 	socket.data.isAdmin = isAdmin;

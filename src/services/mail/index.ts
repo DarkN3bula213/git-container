@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 import { MailtrapTransport } from 'mailtrap';
@@ -45,10 +46,8 @@ const sendEmail = async (props: SendEmailProps) => {
 	let htmlTemplate: string;
 
 	if ('html' in props) {
-		// If `html` is provided, use it directly
 		htmlTemplate = props.html;
 	} else {
-		// If `templateName` and `templateData` are provided, use the template system
 		htmlTemplate = generateHtmlTemplate(
 			props.templateName,
 			props.templateData
@@ -57,7 +56,6 @@ const sendEmail = async (props: SendEmailProps) => {
 
 	const request: MailtrapMailOptions = {
 		text: props.message ?? '',
-
 		to: {
 			address: props.to,
 			name: props.name ?? ''
@@ -67,15 +65,16 @@ const sendEmail = async (props: SendEmailProps) => {
 			name: 'HPS Admin Support Team'
 		},
 		subject: props.subject,
-		html: htmlTemplate // Use either pre-generated or dynamically generated HTML
+		html: htmlTemplate
 	};
 
 	try {
-		await client.sendMail(request).then(console.log).catch(console.error);
+		const result = await client.sendMail(request);
+		logger.debug(JSON.stringify(result));
+		return result;
 	} catch (error) {
-		console.log(JSON.stringify(error, null, 2), { request });
 		logger.error('Error sending email:', error);
-		throw error;
+		throw error; // This will now properly propagate to the transaction
 	}
 };
 

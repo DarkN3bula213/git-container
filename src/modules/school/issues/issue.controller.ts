@@ -9,7 +9,7 @@ import IssueService from './issue.service';
 const logger = new Logger(__filename);
 export const createIssue = asyncHandler(async (req, res) => {
 	const user = req.user as User;
-	const userId = convertToObjectId(user._id);
+	const userId = convertToObjectId(user._id.toString());
 	logger.debug({
 		body: JSON.stringify(req.body)
 	});

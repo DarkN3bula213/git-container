@@ -3,7 +3,11 @@ import mongoose, { InferSchemaType, Model, Schema, Types } from 'mongoose';
 // Step 1: Define the Invoice Schema
 const invoiceSchema = new Schema(
 	{
-		invoiceId: { type: String, unique: true },
+		invoiceId: {
+			type: String,
+			unique: true,
+			partialFilterExpression: { invoiceId: { $type: 'string' } }
+		},
 		studentId: {
 			type: Types.ObjectId,
 			required: true,

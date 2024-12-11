@@ -42,6 +42,10 @@ const connect = async () => {
 			mongoose.connection.on('reconnected', () => {
 				logger.info('Mongoose default connection reconnected');
 			});
+			mongoose.connection.on('close', () => {
+				logger.info('Mongoose default connection closed');
+			});
+			// mongoose.set('debug', true);
 		} catch (err: any) {
 			logger.error(`Database connection error: ${err.message}`);
 

@@ -1,12 +1,15 @@
-import { SuccessResponse } from '@/lib/api';
+import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { User } from '../auth/users/user.model';
 import { NotificationDocument, NotificationModel } from './notification.model';
 
 export const getNotifications = asyncHandler(async (req, res) => {
 	const user = req.user as User;
-	const userId = user._id.toString();
+	const userId = user._id?.toString();
 	// Get notifications with that are not deleted by the user
+	if (!userId) {
+		return new BadRequestError('User ID is required');
+	}
 	const notifications = await NotificationModel.find({
 		isDeleted: { $nin: [userId] }
 	}).lean();
@@ -28,10 +31,14 @@ export const createNotification = asyncHandler(async (req, res) => {
 
 export const markAsRead = asyncHandler(async (req, res) => {
 	const user = req.user as User;
+	const userId = user._id?.toString();
+	if (!userId) {
+		return new BadRequestError('User ID is required');
+	}
 	const notificationId = req.params.id;
 	const notification = await NotificationModel.markAsRead(
 		notificationId,
-		user._id
+		userId
 	);
 	res.status(200).json({
 		success: true,
@@ -41,11 +48,12 @@ export const markAsRead = asyncHandler(async (req, res) => {
 
 export const checkIfRead = asyncHandler(async (req, res) => {
 	const user = req.user as User;
+	const userId = user._id?.toString();
+	if (!userId) {
+		return new BadRequestError('User ID is required');
+	}
 	const notificationId = req.params.id;
-	const isRead = await NotificationModel.checkIfRead(
-		notificationId,
-		user._id
-	);
+	const isRead = await NotificationModel.checkIfRead(notificationId, userId);
 	res.status(200).json({
 		success: true,
 		data: isRead
@@ -73,7 +81,10 @@ export const deleteAllNotifications = asyncHandler(async (_req, res) => {
 export const getNotificationById = asyncHandler(async (req, res) => {
 	const { id } = req.params;
 	const user = req.user as User;
-	const userId = user._id;
+	const userId = user._id?.toString();
+	if (!userId) {
+		return new BadRequestError('User ID is required');
+	}
 
 	const notification = await NotificationModel.findByIdAndUpdate(
 		id,
@@ -127,7 +138,10 @@ export const getSeenNotificationCount = asyncHandler(async (req, res) => {
 
 export const markAsDeleted = asyncHandler(async (req, res) => {
 	const user = req.user as User;
-	const userId = user._id;
+	const userId = user._id?.toString();
+	if (!userId) {
+		return new BadRequestError('User ID is required');
+	}
 	const notificationId = req.params.id;
 	const notification = (await NotificationModel.markAsDeleted(
 		notificationId,
