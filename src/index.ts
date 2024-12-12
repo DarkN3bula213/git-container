@@ -64,7 +64,7 @@ const startServer = async () => {
 		if (config.isDocker || config.isProduction) {
 			// console.log('Starting server in production mode');
 			// await ensureAllIndexes();
-			await subjectMigration.migrate({ force: true });
+			await subjectMigration.migrate({ dryRun: true });
 			logger.info('Subject migration completed');
 		}
 		// Dry run to check what would happen
