@@ -1,9 +1,9 @@
-name: Consolidated Deployment
+name: Push Change Workflow
 
 on:
     push:
         branches:
-            - cidi
+            - main
 
 jobs:
     deploy:
