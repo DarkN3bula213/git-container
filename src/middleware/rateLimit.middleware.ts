@@ -47,6 +47,8 @@ const signUpLimiter = rateLimit({
 	standardHeaders: true,
 	legacyHeaders: false,
 	// You can add skip conditions if needed
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
 	skip: (_req: Request) => {
 		// Example: skip if request has certain header or condition
 		// return req.headers['skip-limit'] === 'true';

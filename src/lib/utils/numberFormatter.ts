@@ -36,10 +36,24 @@ export function numberFormatter(
 			}).format(num);
 		}
 
-		// Custom separator logic
+		// Safer number formatting without regex
 		const parts = num.toFixed(decimals).split('.');
-		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
-		return parts.join('.');
+		const numberString = parts[0];
+		const result = [];
+
+		// Process digits from right to left
+		for (let i = numberString.length - 1, count = 0; i >= 0; i--) {
+			if (count === 3 && i !== 0) {
+				result.unshift(separator);
+				count = 0;
+			}
+			result.unshift(numberString[i]);
+			count++;
+		}
+
+		return parts.length > 1
+			? result.join('') + '.' + parts[1]
+			: result.join('');
 	} catch (error) {
 		return fallback;
 	}

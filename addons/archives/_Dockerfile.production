@@ -1,3 +1,39 @@
+# # Builder stage
+# FROM node:18-alpine AS builder
+# WORKDIR /usr/src/app
+# COPY package*.json pnpm-lock.yaml ./
+# RUN npm install -g pnpm && pnpm install
+# COPY . .
+# RUN pnpm build
+# RUN ls dist
+
+# # Production stage
+# FROM node:18-alpine
+# WORKDIR /usr/src/app
+
+# # Install tzdata and set timezone
+# RUN apk add --no-cache tzdata
+# ENV TZ=Asia/Karachi
+
+# # Copy built files and dependencies
+# COPY --from=builder /usr/src/app/dist ./dist
+# COPY package*.json pnpm-lock.yaml ./
+
+# # Set environment variables
+# ENV DOCKER_BUILD=true
+# ENV NODE_ENV=production
+# ENV PORT=3000
+# ENV TZ=Asia/Karachi
+
+# # Install production dependencies
+# RUN npm install -g pnpm && pnpm install --production
+# RUN ls dist
+
+# # Verify timezone setup (optional, can be removed in production)
+# RUN date
+
+# EXPOSE ${PORT}
+# CMD ["node", "dist/index.js"]
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
 

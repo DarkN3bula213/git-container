@@ -18,3 +18,10 @@ export const headers = [
 ];
 
 export const methods = 'GET, POST, PUT, DELETE, OPTIONS, PATCH';
+
+export const origins = {
+	// development
+	dev: allowedOrigins,
+	// production No HTTP access
+	prod: ['https://hps-admin.com', 'https://hps-five.vercel.app']
+};

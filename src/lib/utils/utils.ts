@@ -261,6 +261,10 @@ function isValidClassName(className: string): className is ClassName {
 	return VALID_CLASS_NAMES.includes(className as ClassName);
 }
 
+const LOCALHOST_IPV6 = '::1';
+const LOCALHOST_IPV4_MAPPED = '::ffff:127.0.0.1';
+const LOCALHOST_LABEL = 'localhost';
+
 // Type-safe sorting function
 export function sortStudentsByClassAndSection<
 	T extends { className: string; section: string }
@@ -293,8 +297,8 @@ export function getCleanIp(req: Request): string {
 	const ip = req.socket.remoteAddress || 'Unknown IP';
 
 	// Make localhost IPs more readable
-	if (ip === '::1' || ip === '::ffff:127.0.0.1') {
-		return 'localhost';
+	if (ip === LOCALHOST_IPV6 || ip === LOCALHOST_IPV4_MAPPED) {
+		return LOCALHOST_LABEL;
 	}
 
 	// Handle IPv4 mapped to IPv6

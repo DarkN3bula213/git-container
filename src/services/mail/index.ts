@@ -15,7 +15,9 @@ export const client = Nodemailer.createTransport(
 	}),
 	{
 		debug: true,
-		logger: true
+		logger: true,
+		secure: config.production,
+		requireTLS: config.production
 	}
 );
 

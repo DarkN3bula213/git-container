@@ -1,5 +1,6 @@
 import { type Application, static as static_ } from 'express';
 import multer, { MulterError, StorageEngine } from 'multer';
+import { randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { uploadsDir } from '../constants';
@@ -57,8 +58,8 @@ const diskStorage: StorageEngine = multer.diskStorage({
 		cb(null, destinationPath);
 	},
 	filename: function (_req, file, cb) {
-		// Use a timestamp for initial save
-		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+		// Use cryptographically secure random bytes instead of Math.random()
+		const uniqueSuffix = `${Date.now()}-${randomBytes(4).toString('hex')}`;
 		cb(null, `temp-${uniqueSuffix}${path.extname(file.originalname)}`);
 	}
 });
@@ -149,8 +150,7 @@ export const customFileName = (customName?: string) => {
 				cb(null, `${customName}${fileExt}`);
 			} else {
 				// Fallback to default naming if no custom name provided
-				const uniqueSuffix =
-					Date.now() + '-' + Math.round(Math.random() * 1e9);
+				const uniqueSuffix = `${Date.now()}-${randomBytes(4).toString('hex')}`;
 				cb(
 					null,
 					file.fieldname +
