@@ -30,7 +30,9 @@ services:
             - app-network
 
     mongo:
-        image: mongo:latest
+        build:
+            context: .
+            dockerfile: Dockerfile.mongo
         env_file:
             - .env.mongo
         command:
@@ -54,7 +56,6 @@ services:
             timeout: 30s
             retries: 30
         volumes:
-            - ./mongo-keyfile:/data/mongo-keyfile:ro
             - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
             - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
             - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb

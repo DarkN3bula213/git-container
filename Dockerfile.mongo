@@ -1,0 +1,8 @@
+FROM mongo:latest
+
+# Copy keyfile into container
+COPY mongo-keyfile /data/mongo-keyfile
+
+# Set proper ownership and permissions
+RUN chown 999:999 /data/mongo-keyfile && \
+    chmod 400 /data/mongo-keyfile
