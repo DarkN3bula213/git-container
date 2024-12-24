@@ -108,12 +108,12 @@ export function decodeSubjectCode(code: string) {
 
 	// Get class name from order number
 	const className = Object.entries(classOrder).find(
-		([_, order]) => order === classNum
+		([, order]) => order === classNum
 	)?.[0];
 
 	// Get subject type from type code
 	const type = Object.entries(TYPE_CODES).find(
-		([_, code]) => code === typePrefix
+		([, code]) => code === typePrefix
 	)?.[0] as SubjectType;
 
 	return {

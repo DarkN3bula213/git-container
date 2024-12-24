@@ -66,7 +66,10 @@ const diskStorage: StorageEngine = multer.diskStorage({
 /**
  * General-purpose file upload using disk storage.
  */
-export const fileUpload = multer({ storage: diskStorage });
+export const fileUpload = multer({
+	storage: diskStorage,
+	limits: { fileSize: 1024 * 1024 * 10 } // 10MB limit
+});
 
 /**
  * Single file upload configuration (field name: "document")
@@ -159,5 +162,8 @@ export const customFileName = (customName?: string) => {
 		}
 	});
 
-	return multer({ storage: storage }).single('file');
+	return multer({
+		storage: storage,
+		limits: { fileSize: 1024 * 1024 * 10 }
+	}).single('file');
 };
