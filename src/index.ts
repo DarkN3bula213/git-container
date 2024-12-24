@@ -70,7 +70,7 @@ const startServer = async () => {
 		// Dry run to check what would happen
 
 		// Start the server and listen on all network interfaces
-		server.listen(PORT, () => {
+		server.listen(PORT, '0.0.0.0' as any, () => {
 			logger.info({
 				server: `Server instance instantiated and listening on port ${PORT}.`,
 				node: banner,
@@ -83,6 +83,7 @@ const startServer = async () => {
 						: 'Development'
 			});
 		});
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		logger.error(

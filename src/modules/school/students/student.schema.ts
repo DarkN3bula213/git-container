@@ -1,4 +1,4 @@
-import { JoiObjectId } from '@/lib/handlers/validate';
+import { JoiObjectId, validateReq } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
 export const insterOne = Joi.object({
@@ -76,6 +76,12 @@ export const updateFee = Joi.object({
 export const updateSection = Joi.object({
 	id: JoiObjectId().required(),
 	section: Joi.string().required()
+});
+
+export const student = validateReq({
+	params: Joi.object({
+		id: JoiObjectId().required()
+	})
 });
 
 /**

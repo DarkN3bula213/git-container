@@ -1,18 +1,35 @@
-import { withTransaction } from '@/data/database/db.utils';
+import { cache } from '@/data/cache/cache.service';
+import { DynamicKey } from '@/data/cache/keys';
+import { getDynamicKey } from '@/data/cache/keys';
+import { convertToObjectId, withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
+import { config } from '@/lib/config';
 import { Roles } from '@/lib/constants';
 import { Logger } from '@/lib/logger';
 import { signToken, verfication } from '@/lib/utils/tokens';
 import {
 	fetchRoleCodes,
+	fetchUserPermissions,
 	isAdminRolePresent,
 	normalizeRoles
 } from '@/lib/utils/utils';
 import checkMXRecords from '@/services/dns-validation';
 import { sendVerifyEmail } from '@/services/mail/mailTrap';
 import { RoleModel } from '../roles/role.model';
+import userSettingsService from '../settings/settings.service';
 import Tokens from '../tokens/token.model';
 import { User, UserModel } from './user.model';
+
+type UserDataObject = {
+	user: User;
+
+	isAdmin: boolean;
+	isVerified: boolean;
+	permissions: string[];
+	settings: any;
+	token: string | null;
+	accessToken: string | undefined;
+};
 
 const logger = new Logger(__filename);
 class UserService {
@@ -26,50 +43,87 @@ class UserService {
 		return UserService.instance;
 	}
 
-	async getCurrentUser(user: User) {
-		if (!user) {
+	/*<!-- 1. Get Current User  ---------------------------( Auth )-> */
+	async getCurrentUser(id: string) {
+		const key = getDynamicKey(DynamicKey.USER, id);
+		const userCache = (await cache.getWithFallback(key, async () => {
+			return await this.user
+				.findById(id)
+				.select('-password') // Method 1: Exclude password at query level
+				.lean()
+				.exec();
+		})) as User;
+		if (!userCache) {
 			throw new BadRequestError('No user found');
 		}
-		const roles = normalizeRoles(user.roles);
+
+		const roles = normalizeRoles(userCache.roles);
 		const roleCodes = (await fetchRoleCodes(roles)) as string[];
 		if (!roleCodes) {
 			throw new BadRequestError('No user found');
 		}
+		const isAdmin = await isAdminRolePresent(roles);
 
-		return {
-			user: user,
-			roles: [...roleCodes]
+		const userSettings = await userSettingsService.getSettings(
+			convertToObjectId(id)
+		);
+
+		const dataObject: UserDataObject = {
+			user: userCache,
+			isAdmin,
+			isVerified: userCache.isVerified || false,
+			permissions: roleCodes,
+			settings: userSettings,
+			token: null,
+			accessToken: undefined
 		};
+
+		return dataObject;
 	}
 
+	/*<!-- 2. Login  ---------------------------( Auth )-> */
 	async login(email: string, password: string) {
-		const user = await this.user.login(email, password);
-		if (!user) {
-			throw new BadRequestError('Invalid credentials');
-		}
-		const userObj = user.toObject();
-		const roles = normalizeRoles(userObj.roles);
-		const roleCodes = await fetchRoleCodes(roles);
-		if (!roleCodes) {
-			throw new BadRequestError('No user found');
-		}
-		const data = {
-			user: user,
-			roles: [...roleCodes],
-			isPremium: user.isPrime || false,
-			isLoggedIn: true
-		};
-		const accessToken = signToken(data, 'access', {
-			expiresIn: '120m'
-		});
+		return withTransaction(async (session) => {
+			const user = await this.user.login(email, password);
+			if (!user) {
+				throw new BadRequestError('Invalid credentials');
+			}
+			const userObj = user.toObject();
+			userObj.password = undefined;
+			userObj.isPrime = user.isPrime || false;
+			const payload = {
+				user: userObj
+			};
+			const accessToken = signToken(payload, 'access', {
+				expiresIn: '120m'
+			});
+			if (!accessToken) {
+				throw new BadRequestError('Failed to generate access token');
+			}
+			user.lastLogin = new Date();
+			await user.save({ session });
+			const roles = normalizeRoles(userObj.roles);
+			const isAdmin = await isAdminRolePresent(roles);
+			const userSettings = await userSettingsService.getSettings(
+				user._id
+			);
+			const roleCodes = (await fetchUserPermissions(roles)) as string[];
+			if (!roleCodes) {
+				throw new BadRequestError('No user found');
+			}
 
-		const isAdmin = await isAdminRolePresent(roles);
-		return {
-			accessToken,
-			user: user,
-			permissions: [...roleCodes],
-			isAdmin
-		};
+			const dataObject: UserDataObject = {
+				user: user,
+				isAdmin,
+				isVerified: user.isVerified || false,
+				permissions: roleCodes,
+				settings: userSettings,
+				token: config.production ? null : accessToken,
+				accessToken: accessToken
+			};
+
+			return dataObject;
+		});
 	}
 
 	async createUser(userDetails: Partial<User>, roleCode: Roles) {

@@ -1,5 +1,6 @@
 import { eachMonthOfInterval, format, startOfMonth, subMonths } from 'date-fns';
 import mongoose, { PipelineStage } from 'mongoose';
+import { getPayId } from '../../payments/payment.utils';
 import { Student } from '../student.interface';
 import StudentModel from '../student.model';
 
@@ -24,6 +25,9 @@ export const getStudentsWithPaymentHistory = async ({
 		start: subMonths(currentDate, historyMonths - 1),
 		end: currentDate
 	}).map((date) => format(date, 'MMyy'));
+
+	// Get payId so the current paid status can be determined
+	const payId = getPayId();
 
 	const pipeline: PipelineStage[] = [
 		// Initial match
@@ -88,6 +92,31 @@ export const getStudentsWithPaymentHistory = async ({
 						}
 					}
 				}
+			}
+		},
+		// Add paid field
+		{
+			$lookup: {
+				from: 'payments',
+				let: { studentId: '$_id' }, // Create a variable for the student ID
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$and: [
+									{ $eq: ['$studentId', '$$studentId'] }, // Match student ID
+									{ $eq: ['$payId', payId] } // Match exact payId
+								]
+							}
+						}
+					}
+				],
+				as: 'paid'
+			}
+		},
+		{
+			$addFields: {
+				paid: { $gt: [{ $size: '$paid' }, 0] }
 			}
 		},
 

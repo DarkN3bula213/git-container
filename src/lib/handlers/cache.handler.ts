@@ -1,4 +1,5 @@
 import { cache } from '@/data/cache/cache.service';
+import { NextFunction, Request, Response } from 'express';
 import { RedisClientType } from 'redis';
 import { Logger } from '../logger';
 import asyncHandler from './asyncHandler';
@@ -18,33 +19,70 @@ const logger = new Logger(__filename);
 //     }
 //   })
 // }
+async function performInvalidation(keysOrPattern: string | string[]) {
+	const client = cache.getClient();
+
+	if (Array.isArray(keysOrPattern)) {
+		for (const keyOrPattern of keysOrPattern) {
+			if (keyOrPattern.includes('*')) {
+				await invalidatePattern(client, keyOrPattern);
+			} else {
+				await client.del(keyOrPattern);
+			}
+		}
+	} else if (keysOrPattern.includes('*')) {
+		await invalidatePattern(client, keysOrPattern);
+	} else {
+		await client.del(keysOrPattern);
+	}
+
+	logger.debug({
+		message: `Cache invalidated for: ${keysOrPattern}`
+	});
+}
+// export const invalidate = (keysOrPattern: string | string[]) => {
+// 	return asyncHandler(async (_req, _res, next) => {
+// 		const client = cache.getClient();
+
+// 		try {
+// 			if (Array.isArray(keysOrPattern)) {
+// 				// If an array, handle each element based on its content (could be direct keys or patterns)
+// 				for (const keyOrPattern of keysOrPattern) {
+// 					if (keyOrPattern.includes('*')) {
+// 						// Handle pattern
+// 						await invalidatePattern(client, keyOrPattern);
+// 					} else {
+// 						// Direct key invalidation
+// 						await client.del(keyOrPattern);
+// 					}
+// 				}
+// 			} else if (keysOrPattern.includes('*')) {
+// 				// Single pattern
+// 				await invalidatePattern(client, keysOrPattern);
+// 			} else {
+// 				// Single key
+// 				await client.del(keysOrPattern);
+// 			}
+
+// 			logger.debug({
+// 				message: `Cache invalidated for: ${keysOrPattern}`
+// 			});
+// 			next();
+// 		} catch (error) {
+// 			logger.error(
+// 				`Error invalidating cache for: ${keysOrPattern}`,
+// 				error
+// 			);
+// 			next(error);
+// 		}
+// 	});
+// };
+
+// Original middleware for direct cache invalidation
 export const invalidate = (keysOrPattern: string | string[]) => {
 	return asyncHandler(async (_req, _res, next) => {
-		const client = cache.getClient();
-
 		try {
-			if (Array.isArray(keysOrPattern)) {
-				// If an array, handle each element based on its content (could be direct keys or patterns)
-				for (const keyOrPattern of keysOrPattern) {
-					if (keyOrPattern.includes('*')) {
-						// Handle pattern
-						await invalidatePattern(client, keyOrPattern);
-					} else {
-						// Direct key invalidation
-						await client.del(keyOrPattern);
-					}
-				}
-			} else if (keysOrPattern.includes('*')) {
-				// Single pattern
-				await invalidatePattern(client, keysOrPattern);
-			} else {
-				// Single key
-				await client.del(keysOrPattern);
-			}
-
-			logger.debug({
-				message: `Cache invalidated for: ${keysOrPattern}`
-			});
+			await performInvalidation(keysOrPattern);
 			next();
 		} catch (error) {
 			logger.error(
@@ -55,6 +93,7 @@ export const invalidate = (keysOrPattern: string | string[]) => {
 		}
 	});
 };
+
 async function invalidatePattern(
 	client: RedisClientType,
 	pattern: string
@@ -72,3 +111,38 @@ async function invalidatePattern(
 		}
 	} while (cursor !== 0);
 }
+
+// New middleware for conditional cache invalidation based on response status
+export const invalidateOnSuccess = (keysOrPattern: string | string[]) => {
+	return asyncHandler(
+		async (req: Request, res: Response, next: NextFunction) => {
+			const originalJson = res.json;
+			const originalSend = res.send;
+
+			res.json = function (data) {
+				return handleResponse(this, data, originalJson);
+			};
+
+			res.send = function (data) {
+				return handleResponse(this, data, originalSend);
+			};
+
+			function handleResponse(
+				response: Response,
+				data: any,
+				originalFn: (body: any) => Response
+			) {
+				const statusCode = response.statusCode || 200;
+
+				if (statusCode >= 200 && statusCode < 300) {
+					performInvalidation(keysOrPattern).catch((err) => {
+						logger.error('Cache invalidation failed:', err);
+					});
+				}
+				return originalFn.call(response, data);
+			}
+
+			next();
+		}
+	);
+};

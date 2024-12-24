@@ -14,7 +14,7 @@ router
 	.route('/update-fee')
 	.put(
 		validate(schema.updateFee),
-		invalidate(DynamicKey.STUDENTS),
+		invalidate([DynamicKey.STUDENTS, '*']),
 		controller.updateStudentFees
 	);
 
@@ -22,7 +22,7 @@ router
 	.route('/update-section')
 	.put(
 		validate(schema.updateSection),
-		invalidate(DynamicKey.STUDENTS),
+		invalidate([DynamicKey.STUDENTS, '*']),
 		controller.changeStudentSection
 	);
 function getRouteMap(): RouteMap[] {
@@ -56,6 +56,12 @@ function getRouteMap(): RouteMap[] {
 			path: '/monthly-aggregated',
 			method: 'get',
 			handler: aggregations.monthlyAggregatedStudentsController
+		},
+		{
+			path: '/fee-documents/:id',
+			method: 'get',
+			validations: [schema.student],
+			handler: aggregations.getStudentsWithFeeDocuments
 		},
 		/*--------------------------------------------------*/
 		// {

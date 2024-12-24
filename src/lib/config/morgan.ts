@@ -7,7 +7,10 @@ import { config } from './config';
 
 if (!config.isTest) {
 	morgan.token('auth', (req: Request) => {
-		return req.cookies.access ? 'Auth' : 'No Auth';
+		const tokenFromCookie = req.cookies.access;
+		const tokenFromHeader = req.headers.authorization?.split(' ')[1];
+		const token = tokenFromCookie || tokenFromHeader;
+		return token ? 'Auth' : 'No Auth';
 	});
 }
 
@@ -39,7 +42,10 @@ morgan.token('colored-status', (req: Request, res: Response) => {
 
 // Add a token for colored auth status
 morgan.token('colored-auth', (req: Request) => {
-	return req.cookies.access ? colors.green('Auth') : colors.red('No Auth');
+	const tokenFromCookie = req.cookies.access;
+	const tokenFromHeader = req.headers.authorization?.split(' ')[1];
+	const token = tokenFromCookie || tokenFromHeader;
+	return token ? colors.green('Auth') : colors.red('No Auth');
 });
 
 morgan.format('myFormat', (tokens, req: Request, res: Response) => {

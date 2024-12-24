@@ -11,6 +11,7 @@ import hpp from 'hpp';
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
 import { Logger } from './lib/logger';
+import { nonProductionMiddleware } from './middleware/requestTracker';
 import sanitizeInputs from './middleware/sanitizeReq';
 import apiKey from './middleware/useApiKey';
 import router from './routes';
@@ -53,6 +54,7 @@ app.use(json(config.json));
 app.use(cache.cachedSession(config.tokens.jwtSecret));
 app.use(apiKey);
 app.use(loginLimiter);
+nonProductionMiddleware(app);
 handleUploads(app);
 app.use('/api', router);
 

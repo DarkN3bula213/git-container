@@ -237,7 +237,7 @@ export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
 
 	// Convert grouped data for response
 	const formattedGroups = Object.entries(groupedPayments).map(
-		([_, group]) => ({
+		([, group]) => ({
 			className: group.className,
 			section: group.section,
 			payments: group.payments,

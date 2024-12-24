@@ -12,6 +12,7 @@ import {
 	studentPaidAggregation
 } from '../aggregations/student.aggregation';
 import { Student } from '../student.interface';
+import { studentService } from '../student.service';
 
 /*<!-- 1. Aggregation ----------------------------( getStudents )*/
 export const studentFeeAggregated = asyncHandler(async (req, res) => {
@@ -57,3 +58,14 @@ export const monthlyAggregatedStudentsController = asyncHandler(
 		).send(res);
 	}
 );
+
+/*<!-- 5. Aggregation ----------------------------( getStudentsWithFeeDocuments )*/
+export const getStudentsWithFeeDocuments = asyncHandler(async (req, res) => {
+	const { id } = req.params;
+	const key = getDynamicKey(DynamicKey.STUDENTS, id);
+	const data = await cache.getWithFallback(key, async () => {
+		return await studentService.getWithFeeDocuments(id);
+	});
+	if (!data) return new BadRequestError('No students found');
+	new SuccessResponse('Students fetched successfully', data).send(res);
+});

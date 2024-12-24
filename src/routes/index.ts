@@ -1,3 +1,4 @@
+import { PathLoggerMiddleware } from '@/lib/logger/log-events';
 import { authentication } from '@/middleware/authMiddleware';
 import socketRoues from '@/modules/auth/sessions/session.routes';
 import Conversations from '@/modules/conversations/conversation.routes';
@@ -12,6 +13,7 @@ import { health } from './health';
 
 /* -----------------------------------------------------------------------------------*/
 const router = Router();
+router.use(PathLoggerMiddleware);
 /* -----------------------------------------------------------------------------------*/
 /* -----------------------------------------------------------------------------------*/
 router.get('/health', health);

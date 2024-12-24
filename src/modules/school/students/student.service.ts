@@ -1,6 +1,7 @@
 import { withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
 import { ClassModel, IClass } from '../classes/class.model';
+import paymentModel from '../payments/payment.model';
 import { Student } from './student.interface';
 import StudentModel from './student.model';
 
@@ -8,11 +9,16 @@ class Service {
 	private static instance: Service;
 	constructor(
 		private student: typeof StudentModel,
-		private classModel: typeof ClassModel
+		private classModel: typeof ClassModel,
+		private feeDocument: typeof paymentModel
 	) {}
 	static getInstance() {
 		if (!Service.instance) {
-			Service.instance = new Service(StudentModel, ClassModel);
+			Service.instance = new Service(
+				StudentModel,
+				ClassModel,
+				paymentModel
+			);
 		}
 		return Service.instance;
 	}
@@ -136,6 +142,28 @@ class Service {
 			return student;
 		});
 	}
+	async getWithFeeDocuments(id: string) {
+		const student = await this.student.findById(id);
+		if (!student) {
+			throw new BadRequestError('Student not found');
+		}
+		const getAllFeeDocuments = await this.feeDocument.find({
+			studentId: id
+		});
+		const classData = await this.classModel.findById(student.classId);
+		if (!classData) {
+			throw new BadRequestError('Class not found');
+		}
+		return {
+			student,
+			class: classData,
+			documents: getAllFeeDocuments
+		};
+	}
 }
 
-export const studentService = new Service(StudentModel, ClassModel);
+export const studentService = new Service(
+	StudentModel,
+	ClassModel,
+	paymentModel
+);

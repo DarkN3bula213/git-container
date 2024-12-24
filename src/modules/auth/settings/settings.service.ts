@@ -19,10 +19,10 @@ export class UserSettingsService {
 	async getSettings(userId: Types.ObjectId): Promise<any> {
 		try {
 			const userSettings = await settings.findOne({ userId });
-			logger.info({
-				message: 'userSettings',
-				userSettings: JSON.stringify(userSettings)
-			});
+			// logger.info({
+			// 	message: 'userSettings',
+			// 	userSettings: JSON.stringify(userSettings)
+			// });
 			if (!userSettings) {
 				return await settings.create({
 					userId: userId

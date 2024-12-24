@@ -1,5 +1,7 @@
 import { BadRequestError } from '@/lib/api';
+import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
+import { numberFormatter } from '@/lib/utils/numberFormatter';
 import { writeFileSync } from 'fs';
 import sendEmail, { generateHtmlTemplate } from '.';
 import { getPaymentsForDate } from '../cron/daily-fees';
@@ -167,7 +169,7 @@ export async function generatePaymentEmail(date: Date): Promise<string> {
 					template.studentRow
 						.replace('{studentName}', student.studentName)
 						.replace('{payId}', student.payId)
-						.replace('{amount}', student.amount.toFixed(2))
+						.replace('{amount}', numberFormatter(student.amount))
 				)
 				.join('');
 
@@ -175,7 +177,7 @@ export async function generatePaymentEmail(date: Date): Promise<string> {
 				.replace('{className}', payment.className)
 				.replace('{section}', payment.section)
 				.replace('{studentRows}', studentRowsHtml)
-				.replace('{totalAmount}', payment.totalAmount.toFixed(2));
+				.replace('{totalAmount}', numberFormatter(payment.totalAmount));
 		})
 		.join('');
 
@@ -183,7 +185,7 @@ export async function generatePaymentEmail(date: Date): Promise<string> {
 	const templateData = {
 		formattedDate,
 		classSections: classSectionsHtml,
-		revenue: totalRevenue.toFixed(2)
+		revenue: numberFormatter(totalRevenue)
 	};
 
 	return generateHtmlTemplate('paymentSummary', templateData);
@@ -199,7 +201,7 @@ export const sendPaymentSummaryEmail = async (email: string, date: Date) => {
 		const emailHtml = await generatePaymentEmail(date);
 		await sendEmail({
 			to: email,
-			subject: 'Payment Summary',
+			subject: config.mail.paymentSummarySubject,
 			html: emailHtml
 		});
 	} catch (error) {

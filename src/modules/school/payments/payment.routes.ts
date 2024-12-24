@@ -1,6 +1,6 @@
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { Roles } from '@/lib/constants';
-import { invalidate } from '@/lib/handlers/cache.handler';
+import { invalidate, invalidateOnSuccess } from '@/lib/handlers/cache.handler';
 import { validate } from '@/lib/handlers/validate';
 import { setRouter } from '@/lib/utils/utils';
 import attachRoles from '@/middleware/attachRoles';
@@ -48,7 +48,7 @@ const getRouteMap = (): RouteMap[] => {
 			path: '/',
 			method: 'post',
 			validations: [
-				invalidate([
+				invalidateOnSuccess([
 					getDynamicKey(DynamicKey.FEE, '*'),
 					getDynamicKey(DynamicKey.STUDENTS, '*')
 				])
@@ -148,8 +148,10 @@ const getRouteMap = (): RouteMap[] => {
 			path: '/id/:id',
 			method: 'delete',
 			validations: [
-				invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
-				invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT'))
+				invalidateOnSuccess([
+					getDynamicKey(DynamicKey.FEE, '*'),
+					getDynamicKey(DynamicKey.STUDENTS, '*')
+				])
 			],
 			handler: controller.deletePayment
 		},

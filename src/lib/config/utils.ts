@@ -67,3 +67,10 @@ export function getDecodedOsEnv(key: string): string {
 	const envVar = getOsEnv(key);
 	return decoded(envVar);
 }
+
+export const getDevelopmentEnv = (key: string, fallback: string): string => {
+	if (process.env.NODE_ENV === 'development') {
+		return getOsEnvOptional(key) || fallback;
+	}
+	return fallback;
+};

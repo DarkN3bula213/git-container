@@ -1,7 +1,20 @@
 import { Logger } from '@/lib/logger';
-import { type Document, InferSchemaType, Schema, Types, model } from 'mongoose';
+import { RequestTrackerService } from '@/services/request-tracker';
+import { type Document, InferSchemaType, Schema, model } from 'mongoose';
 
 const logger = new Logger('Session Model');
+
+export interface ActivitySummary {
+	total: number;
+	byMethod: Map<string, number>;
+	byStatus: Map<string, number>;
+	resourceAccess: {
+		path: string;
+		count: number;
+		methods: Map<string, number>;
+		lastAccessed: Date;
+	}[];
+}
 
 export interface UserSession extends Document {
 	userID: string;
@@ -11,32 +24,28 @@ export interface UserSession extends Document {
 	lastLoggedIn?: Date;
 	userAgent: string;
 	ipAddress: string;
-	paymentActivities: PaymentActivity[];
+
 	totalTransactions: number;
 	totalAmount: number;
+	activity: ActivitySummary;
 }
 
-// Interface for payment activity within a session
-interface PaymentActivity {
-	paymentId: Types.ObjectId;
-	action: 'created' | 'deleted';
-	amount: number;
-	studentId: Types.ObjectId;
-	studentName: string;
-	timestamp: Date;
-	payId?: string;
-	invoiceId?: string;
-}
-const PaymentActivitySchema = new Schema<PaymentActivity>({
-	paymentId: { type: Schema.Types.ObjectId, required: true },
-	action: { type: String, enum: ['created', 'deleted'], required: true },
-	amount: { type: Number, required: true },
-	studentId: { type: Schema.Types.ObjectId, required: true },
-	studentName: { type: String, required: true },
-	timestamp: { type: Date, default: Date.now },
-	payId: { type: String },
-	invoiceId: { type: String }
-});
+const ActivitySummarySchema = new Schema<ActivitySummary>(
+	{
+		total: { type: Number, default: 0 },
+		byMethod: { type: Map, of: Number, default: {} },
+		byStatus: { type: Map, of: Number, default: {} },
+		resourceAccess: [
+			{
+				path: { type: String, required: true },
+				count: { type: Number, default: 0 },
+				methods: { type: Map, of: Number, default: {} },
+				lastAccessed: { type: Date, default: Date.now }
+			}
+		]
+	},
+	{ _id: false }
+);
 
 const UserSessionSchema: Schema = new Schema<UserSession>(
 	{
@@ -45,9 +54,8 @@ const UserSessionSchema: Schema = new Schema<UserSession>(
 		endTime: { type: Date, required: true },
 		timeSpent: { type: String, required: true },
 		lastLoggedIn: { type: Date, default: Date.now },
-		paymentActivities: [PaymentActivitySchema],
-		totalTransactions: { type: Number, default: 0 },
-		totalAmount: { type: Number, default: 0 }
+
+		activity: { type: ActivitySummarySchema }
 	},
 	{
 		timestamps: true,
@@ -56,7 +64,12 @@ const UserSessionSchema: Schema = new Schema<UserSession>(
 	}
 );
 
-type UserSessionModelType = InferSchemaType<typeof UserSessionSchema>;
+interface UserSessionMethods {
+	updateActivity: (requestTracker: RequestTrackerService) => Promise<void>;
+}
+
+type UserSessionModelType = InferSchemaType<typeof UserSessionSchema> &
+	UserSessionMethods;
 const UserSessionModel = model<UserSessionModelType>(
 	'UserSession',
 	UserSessionSchema
@@ -87,31 +100,31 @@ export const createUserSession = async (
 	}
 };
 
-// Function to record payment activity
-export const recordPaymentActivity = async (
-	sessionId: string,
-	activity: Omit<PaymentActivity, 'timestamp'>
-) => {
-	try {
-		const session = await UserSessionModel.findById(sessionId);
-		if (!session) throw new Error('Session not found');
+// Add methods to help with activity updates
+UserSessionSchema.methods.updateActivity = async function (
+	requestTracker: RequestTrackerService
+) {
+	const today = new Date().toISOString().split('T')[0];
+	const userActivity = await requestTracker.getUserActivity(
+		this.userID,
+		today
+	);
 
-		(session.paymentActivities as PaymentActivity[]).push({
-			...activity,
-			timestamp: new Date()
-		});
+	if (!userActivity) return;
 
-		// Update totals
-		session.totalTransactions = (session.totalTransactions as number) + 1;
-		session.totalAmount =
-			(session.totalAmount as number) +
-			(activity.action === 'created'
-				? activity.amount
-				: -activity.amount);
+	this.activity = {
+		total: userActivity.total,
+		byMethod: userActivity.byMethod,
+		byStatus: userActivity.byStatus,
+		resourceAccess: Object.entries(userActivity.byPath)
+			.map(([path, data]) => ({
+				path,
+				count: data.count,
+				methods: data.methods,
+				lastAccessed: userActivity.lastAccessed
+			}))
+			.sort((a, b) => b.count - a.count)
+	};
 
-		return await session.save();
-	} catch (error: any) {
-		logger.error(`Error recording payment activity: ${error.message}`);
-		throw error;
-	}
+	return this.save();
 };

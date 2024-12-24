@@ -1,7 +1,8 @@
-import { cache } from '@/data/cache/cache.service';
-import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
-import { convertToObjectId } from '@/data/database/db.utils';
+// import { cache } from '@/data/cache/cache.service';
+// import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
+// import { convertToObjectId } from '@/data/database/db.utils';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
+// import { config } from '@/lib/config';
 
 /** -----------------------------( Authentication )->
  *
@@ -13,15 +14,13 @@ import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger/logger';
 import { notify } from '@/lib/utils/socketParser';
-import { signToken } from '@/lib/utils/tokens';
-import {
-	fetchRoleCodes,
-	fetchUserPermissions,
-	isAdminRolePresent,
-	normalizeRoles
-} from '@/lib/utils/utils';
+// import { signToken } from '@/lib/utils/tokens';
+// import {
+// 	fetchRoleCodes,
+// 	isAdminRolePresent,
+// 	normalizeRoles
+// } from '@/lib/utils/utils';
 import Role, { RoleModel } from '@/modules/auth/roles/role.model';
-import userSettingsService from '../settings/settings.service';
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
 
@@ -61,15 +60,15 @@ export const getUsers = asyncHandler(async (_req, res) => {
 	return new SuccessResponse('Users found', users).send(res);
 });
 
-/*<!-- 2. Read  ---------------------------( getUser )-> */
-export const getUser = asyncHandler(async (req, res) => {
-	const user = await UserModel.findById(req.params.id);
-	if (!user) res.status(400).json({ success: false });
-	res.status(200).json({
-		success: true,
-		data: user
-	});
-});
+// /*<!-- 2. Read  ---------------------------( getUser )-> */
+// export const getUser = asyncHandler(async (req, res) => {
+// 	const user = await UserModel.findById(req.params.id);
+// 	if (!user) res.status(400).json({ success: false });
+// 	res.status(200).json({
+// 		success: true,
+// 		data: user
+// 	});
+// });
 
 /*<!-- 3. Read  ---------------------------( getCurrentUser )-> */
 export const getCurrentUser = asyncHandler(async (req, res) => {
@@ -79,31 +78,33 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 	if (!id) {
 		throw new BadRequestError('No user found');
 	}
-	const key = getDynamicKey(DynamicKey.USER, id);
-	const userCache = await cache.getWithFallback(key, async () => {
-		return await UserModel.findById(id)
-			.select('-password') // Method 1: Exclude password at query level
-			.lean()
-			.exec();
-	});
+	const userData = await service.getCurrentUser(id);
+	// const key = getDynamicKey(DynamicKey.USER, id);
+	// const userCache = await cache.getWithFallback(key, async () => {
+	// 	return await UserModel.findById(id)
+	// 		.select('-password') // Method 1: Exclude password at query level
+	// 		.lean()
+	// 		.exec();
+	// });
 
-	if (!userCache) {
-		throw new BadRequestError('No user found');
-	}
-	const roles = normalizeRoles(userCache.roles);
-	const roleCodes = (await fetchRoleCodes(roles)) as string[];
-	const isAdmin = await isAdminRolePresent(roles);
+	// if (!userCache) {
+	// 	throw new BadRequestError('No user found');
+	// }
+	// const roles = normalizeRoles(userCache.roles);
+	// const roleCodes = (await fetchRoleCodes(roles)) as string[];
+	// const isAdmin = await isAdminRolePresent(roles);
 
-	if (!roleCodes) {
-		throw new BadRequestError('No user found');
-	}
+	// if (!roleCodes) {
+	// 	throw new BadRequestError('No user found');
+	// }
 
-	return new SuccessResponse('Logged in user', {
-		user: userCache, // Send user without password
-		isAdmin,
-		isVerified: userCache.isVerified || false,
-		permissions: roleCodes
-	}).send(res);
+	// return new SuccessResponse('Logged in user', {
+	// 	user: userCache, // Send user without password
+	// 	isAdmin,
+	// 	isVerified: userCache.isVerified || false,
+	// 	permissions: roleCodes
+	// }).send(res);
+	return new SuccessResponse('Logged in user', userData).send(res);
 });
 
 /*<!-- 4. Read  ---------------------------( getUserById )-> */
@@ -206,65 +207,66 @@ export const deleteUser = asyncHandler(async (req, res) => {
 // Login Controller
 export const login = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
-	const user = await UserModel.login(email, password);
+	// const user = await UserModel.login(email, password);
 
-	if (!user) {
+	const data = await service.login(email, password);
+
+	if (!data) {
 		throw new BadRequestError('Invalid credentials');
 	}
 
-	const verifiedUser = user.toObject();
-	verifiedUser.password = undefined;
+	// const verifiedUser = user.toObject();
+	// verifiedUser.password = undefined;
 
-	const payload = {
-		user: {
-			...verifiedUser,
+	// const payload = {
+	// 	user: {
+	// 		...verifiedUser,
 
-			isPremium: verifiedUser.isPrime || false
-		}
-	};
+	// 		isPremium: verifiedUser.isPrime || false
+	// 	}
+	// };
 
-	const access = signToken(payload, 'access', { expiresIn: '120m' });
+	// const access = signToken(payload, 'access', { expiresIn: '120m' });
 
-	// Store user data in session
-	req.session.userId = user._id?.toString();
-	req.session.username = user.username;
+	// // Store user data in session
+	// req.session.userId = user._id?.toString();
+	// req.session.username = user.username;
 
-	// Optional: Update last login
-	user.lastLogin = new Date();
-	await user.save();
+	// // Optional: Update last login
+	// user.lastLogin = new Date();
+	// await user.save();
 
 	// Send back JWT as an additional security layer if needed
+	const access = data.accessToken;
 	res.cookie('access', access, accessCookie);
 
-	const role = normalizeRoles(user.roles);
-	const isAdmin = await isAdminRolePresent(role);
-	const userSettings = await userSettingsService.getSettings(
-		convertToObjectId(verifiedUser._id)
-	);
+	// const role = normalizeRoles(user.roles);
+	// const isAdmin = await isAdminRolePresent(role);
+	// const userSettings = await userSettingsService.getSettings(
+	// 	convertToObjectId(verifiedUser._id)
+	// );
 
 	logger.info({
 		message: 'isAdmin',
-		isAdmin: isAdmin
+		isAdmin: data.isAdmin
 	});
 
-	const roleCodes = (await fetchUserPermissions(role)) as string[];
+	// const roleCodes = (await fetchUserPermissions(role)) as string[];
 	notify({
 		event: 'incomingNotification',
-		message: `${verifiedUser.username} logged in`
+		message: `${data.user.username} logged in`
 	});
 
-	const dataObject = {
-		user: verifiedUser,
-		isAdmin,
-		isVerified: verifiedUser.isVerified || false,
-		permissions: roleCodes,
-		settings: userSettings
-	};
+	// const dataObject = {
+	// 	user: verifiedUser,
+	// 	isAdmin,
+	// 	isVerified: verifiedUser.isVerified || false,
+	// 	permissions: roleCodes,
+	// 	settings: userSettings,
+	// 	token: config.production ? null : access
+	// };
 
-	// eslint-disable-next-line no-console
-	console.log(dataObject, { depth: null });
-
-	return new SuccessResponse('Login successful', dataObject).send(res);
+	return new SuccessResponse('Login successful', data).send(res);
 });
 
 /** -----------------------------( Authentication )->

@@ -92,7 +92,8 @@ export class CacheClientService {
 	}
 	async getWithFallback<T>(
 		key: string,
-		fetchFunction: () => Promise<T>
+		fetchFunction: () => Promise<T>,
+		ttl: number = 60000
 	): Promise<T> {
 		const cachedData = await this.get<T>(key);
 		if (cachedData) {
@@ -108,7 +109,11 @@ export class CacheClientService {
 			key
 		});
 		const freshData = await fetchFunction();
-		await this.setExp(key, freshData, 60000); // Assuming 60 seconds expiration for demonstration
+
+		// if the data is an array and has length then set the cache
+		if (Array.isArray(freshData) && freshData.length > 0) {
+			await this.setExp(key, freshData, ttl);
+		}
 		return freshData;
 	}
 

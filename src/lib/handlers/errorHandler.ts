@@ -1,8 +1,18 @@
 import type { Application, NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MulterError } from 'multer';
-import { ApiError, ErrorType, InternalError, NotFoundError } from '../api';
-import { handleMongooseError } from '../api/MongooseError';
+import {
+	ApiError,
+	BadRequestError,
+	ErrorType,
+	InternalError,
+	NotFoundError
+} from '../api';
+import {
+	formatDuplicateKeyError,
+	handleMongooseError
+} from '../api/MongooseError';
+import { isDuplicateKeyError } from '../api/MongooseError';
 import { config } from '../config';
 import { Logger } from '../logger';
 
@@ -11,6 +21,7 @@ export const errorHandler = (
 	err: Error,
 	req: Request,
 	res: Response,
+	// eslint-disable-next-line no-unused-vars
 	_next: NextFunction
 ) => {
 	let error = { ...err };
@@ -24,13 +35,31 @@ export const errorHandler = (
 		error = new NotFoundError(message);
 	}
 
-	// Duplicate Key
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	if ((err as any).code === 11000) {
-		const message = `Duplicate field value entered`;
-		error = new InternalError(message);
+	// if (isDuplicateKeyError(err)) {
+	// 	const field = Object.keys(err.keyPattern)[0];
+	// 	const value = err.keyValue[field];
+	// 	const message = `Duplicate value '${value}' for field '${field}'`;
+	// 	error = new BadRequestError(message); // Consider using a more specific error type
+	// }
+	if (isDuplicateKeyError(err)) {
+		// Since we're now doing async operations, we need to handle the error asynchronously
+		formatDuplicateKeyError(err)
+			.then((message) => {
+				const formattedError = new BadRequestError(message);
+				ApiError.handle(formattedError, res);
+			})
+			.catch((formatError) => {
+				logger.error(
+					'Error formatting duplicate key error:',
+					formatError
+				);
+				const fallbackError = new BadRequestError(
+					'A duplicate entry was detected'
+				);
+				ApiError.handle(fallbackError, res);
+			});
+		return; // Important: return here since we're handling the response asynchronously
 	}
-
 	// Validation Error
 	if (err.name === 'ValidationError') {
 		const message = Object.values(

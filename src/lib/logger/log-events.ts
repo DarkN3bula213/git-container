@@ -4,6 +4,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import fs, { promises } from 'node:fs';
 import path from 'node:path';
+import winston from 'winston';
 import { config } from '../config';
 
 type LogEventProps = {
@@ -37,3 +38,51 @@ export async function RequestLogger(
 	});
 	next();
 }
+export const PathLogger = winston.createLogger({
+	level: 'info',
+	format: winston.format.combine(
+		winston.format.timestamp(),
+		winston.format.json()
+	),
+	transports: [
+		new winston.transports.File({
+			filename: path.join(__dirname, '../../../logs/path.log'),
+			dirname: path.join(__dirname, '../../../logs')
+		})
+	]
+});
+
+export const PathLoggerMiddleware = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	const originalJson = res.json;
+	const originalSend = res.send;
+	// Capture the start time
+	const start = Date.now();
+
+	res.json = function (data) {
+		return handleResponse(this, data, originalJson);
+	};
+
+	res.send = function (data) {
+		return handleResponse(this, data, originalSend);
+	};
+	// const originalEnd = res.end;
+	function handleResponse(
+		response: Response,
+		data: any,
+		originalFn: (body: any) => Response
+	) {
+		const statusCode = response.statusCode || 200;
+		PathLogger.info('Route accessed', {
+			path: req.originalUrl,
+			method: req.method,
+			statusCode,
+			responseTime: `${Date.now() - start}ms`
+		});
+		return originalFn.call(response, data);
+	}
+	next();
+};

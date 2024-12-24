@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'node:path';
 import {
 	getDecodedOsEnv,
+	getDevelopmentEnv,
 	getOsEnv,
 	getOsEnvOptional,
 	normalizePort,
@@ -23,6 +24,10 @@ export const config = {
 	disengage: process.env.DISENGAGE || 'false',
 	isDocker: process.env.NODE_ENV === 'docker',
 	isDevelopment: process.env.NODE_ENV === 'development',
+	production: Boolean(
+		process.env.NODE_ENV === 'production' ||
+			process.env.NODE_ENV === 'docker'
+	),
 	app: {
 		port: normalizePort(process.env.PORT || getOsEnv('PORT'))
 	},
@@ -111,7 +116,11 @@ export const config = {
 		auth: {
 			user: getOsEnv('EMAIL_USER'),
 			pass: getOsEnv('EMAIL_PASS')
-		}
+		},
+		paymentSummarySubject: getDevelopmentEnv(
+			'PAYMENT_SUMMARY_SUBJECT',
+			'Payment Summary'
+		)
 	},
 	cnic: {
 		numberOne: getOsEnv('CNIC_ONE'),
