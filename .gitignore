@@ -136,3 +136,9 @@ docker-compose.yaml
 .sentryclirc
 
 uploads
+
+*.env*
+.env.mongo
+mongo-keyfile
+.env.travis
+# End of Selection
