@@ -41,11 +41,7 @@ export class ProductionLogger {
 		const transports: winston.transport[] = [
 			// Console Transport
 			new winston.transports.Console({
-<<<<<<< HEAD
 				format: config.isProduction ? prodFormat : devFormat
-=======
-				format: !config.isProduction ? devFormat : prodFormat
->>>>>>> feature/logger-improvements
 			})
 		];
 
