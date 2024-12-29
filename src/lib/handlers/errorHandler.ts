@@ -1,3 +1,4 @@
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import type { Application, NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MulterError } from 'multer';
@@ -10,13 +11,12 @@ import {
 } from '../api';
 import {
 	formatDuplicateKeyError,
-	handleMongooseError
+	handleMongooseError,
+	isDuplicateKeyError
 } from '../api/MongooseError';
-import { isDuplicateKeyError } from '../api/MongooseError';
 import { config } from '../config';
-import { Logger } from '../logger';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 export const errorHandler = (
 	err: Error,
 	req: Request,

@@ -1,9 +1,8 @@
-import { NotFoundResponse } from '@/lib/api/ApiResponse';
-import { SuccessResponse } from '@/lib/api/ApiResponse';
+import { NotFoundResponse, SuccessResponse } from '@/lib/api/ApiResponse';
 import { singleUpload } from '@/lib/config/multer';
 import { uploadsDir } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { getFileMetadata } from '@/lib/utils/getFileMetaData';
 import { Request, Response } from 'express';
 import fs from 'fs-extra';
@@ -11,15 +10,12 @@ import { MulterError } from 'multer';
 import path from 'path';
 import Files from './file.model';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const downloadFile = asyncHandler(async (req, res) => {
 	const { fileName, folder } = req.params;
 	const filePath = path.join(uploadsDir, folder, fileName);
-	logger.info({
-		path: filePath,
-		params: req.params
-	});
+	logger.info(`Downloading file ${fileName} from ${folder}`);
 
 	if (!fs.existsSync(filePath)) {
 		res.status(404).send('File not found.');
@@ -94,11 +90,6 @@ export const uploadDocument = asyncHandler(
 						date,
 						filePath: req.file.path,
 						fileName: req.file.filename
-					});
-
-					logger.debug({
-						event: 'file_uploaded',
-						data: JSON.stringify(newExpense, null, 2)
 					});
 
 					res.status(201).json(newExpense);

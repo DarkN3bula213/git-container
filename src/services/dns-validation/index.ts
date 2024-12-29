@@ -1,21 +1,21 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { validate } from 'deep-email-validator';
 import dns from 'dns';
 import { promisify } from 'util';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 const resolveMx = promisify(dns.resolveMx);
 
 async function checkMXRecords(email: string): Promise<boolean> {
 	if (!isEmailValid(email)) {
-		logger.error({ email: 'Invalid email' });
+		logger.error(`Invalid email: ${email}`);
 		return false;
 	}
 
 	// Validate the email
 	const validationResult = await validate(email);
 	if (!validationResult.valid) {
-		logger.error({ email: 'Invalid email' });
+		logger.error(`Validation failed for email: ${email}`);
 		return false;
 	}
 

@@ -2,11 +2,14 @@ import { cache } from '@/data/cache/cache.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { User } from '../auth/users/user.model';
-import ConversationModel, { MessageModel } from './conversation.model';
+import ConversationModel, {
+	Conversation,
+	MessageModel
+} from './conversation.model';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const getConversations = asyncHandler(async (req, res) => {
 	const user = req.user as User;
@@ -64,23 +67,20 @@ export const getOrCreateConversationId = asyncHandler(async (req, res) => {
 
 	const checkcache = await cache.get<string>(key);
 	if (checkcache) {
-		logger.info({
-			message: 'Cache hit',
-			key: key
-		});
+		logger.info(`Cache hit for ${key}`);
 		return new SuccessResponse(
 			'Conversation retrieved',
 			JSON.parse(checkcache)
 		).send(res);
 	}
 
-	const conversation = await ConversationModel.findOne({
+	const conversation = (await ConversationModel.findOne({
 		participants: { $all: [user._id, userId] }
-	});
+	})) as Conversation;
 	if (!conversation) {
 		const newConversation = new ConversationModel({
 			participants: [user._id, userId]
-		});
+		}) as any;
 		await newConversation.save();
 		cache.setExp(key, JSON.stringify(newConversation), 60 * 60 * 24);
 

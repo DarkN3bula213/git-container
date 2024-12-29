@@ -34,7 +34,7 @@ type levelColorMap = {
 
 // const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
 
-const customTimestampFormat = winston.format((info, _opts) => {
+const customTimestampFormat = winston.format((info) => {
 	info.timestamp = dayjs().format('| [+] | MM-DD HH:mm:ss');
 
 	return info;
@@ -86,9 +86,9 @@ const dailyRotateFile = new DailyRotateFile({
 });
 
 export class Logger {
-	public static DEFAULT_SCOPE = 'app';
+	public static readonly DEFAULT_SCOPE = 'app';
 
-	private static logger = winston.createLogger({
+	private static readonly logger = winston.createLogger({
 		level: 'debug',
 		format: config.isProduction
 			? winston.format.combine(
@@ -118,12 +118,10 @@ export class Logger {
 		return parsedPath;
 	}
 
-	private scope: string;
+	private readonly scope: string;
 
 	constructor(scope?: string) {
-		this.scope = Logger.parsePathToScope(
-			scope ? scope : Logger.DEFAULT_SCOPE
-		);
+		this.scope = Logger.parsePathToScope(scope ?? Logger.DEFAULT_SCOPE);
 	}
 	public debug(message: string | object, ...args: any[]): void {
 		this.log('debug', message, args);
@@ -140,6 +138,7 @@ export class Logger {
 	public error(message: string | object, ...args: any[]): void {
 		this.log('error', message, args);
 	}
+	// eslint-disable-next-line no-unused-vars
 	private log(level: string, message: string | object, _args: any[]): void {
 		const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
 

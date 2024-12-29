@@ -18,7 +18,9 @@ dotenv.config({
 
 export const config = {
 	node: process.env.NODE_ENV || 'development',
-	isProduction: process.env.NODE_ENV === 'production',
+	isProduction:
+		process.env.NODE_ENV === 'production' ||
+		process.env.NODE_ENV === 'docker',
 	isTest: process.env.NODE_ENV === 'test',
 	isJest: process.env.NODE_ENV === 'jest',
 	disengage: process.env.DISENGAGE || 'false',

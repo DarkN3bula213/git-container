@@ -1,7 +1,7 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import mongoose from 'mongoose';
 
-const logger = new Logger('db.health');
+const logger = new ProductionLogger('db.health');
 
 export interface HealthCheckResult {
 	model: string;
@@ -75,7 +75,7 @@ export async function scanModelHealth(
 
 		// Check for required fields
 		const requiredFields = Object.entries(model.schema.paths)
-			.filter(([_, path]) => path.isRequired)
+			.filter(([, path]) => path.isRequired)
 			.map(([field]) => field);
 
 		for (const field of requiredFields) {
@@ -100,7 +100,7 @@ export async function scanModelHealth(
 		// Check reference integrity
 		const refFields = Object.entries(model.schema.paths)
 			.filter(
-				([_, path]) => path.instance === 'ObjectID' && path.options.ref
+				([, path]) => path.instance === 'ObjectID' && path.options.ref
 			)
 			.map(([field, path]) => ({ field, ref: path.options.ref }));
 

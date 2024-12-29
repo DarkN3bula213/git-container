@@ -11,7 +11,7 @@ export type AddSubjectsToClassRequestBody = {
 	teacherName: string;
 };
 
-// const logger = new Logger('Class Service');
+// const logger = new ProductionLogger('Class Service');
 class ClassService {
 	private static _instance: ClassService;
 	constructor(private classes: typeof ClassModel) {}

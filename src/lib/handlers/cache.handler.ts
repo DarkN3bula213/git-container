@@ -1,10 +1,10 @@
 import { cache } from '@/data/cache/cache.service';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { NextFunction, Request, Response } from 'express';
 import { RedisClientType } from 'redis';
-import { Logger } from '../logger';
 import asyncHandler from './asyncHandler';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 // export const invalidate = (key: string) => {
 //   return asyncHandler(async (req, res, next) => {
 //     try {

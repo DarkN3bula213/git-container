@@ -1,4 +1,4 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { verifyToken } from '@/lib/utils/tokens';
 import { isUserAdmin } from '@/modules/auth/users/user.model';
 import cookie from 'cookie';
@@ -7,7 +7,7 @@ import { v4 } from 'uuid';
 import { sessionStore } from '../store/session-store';
 import { getOrSetStartTime } from '../utils/getStartTimeFromCache';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const handleAuth = async (
 	socket: Socket,

@@ -1,9 +1,9 @@
 import type cors from 'cors';
 import { origins } from '../constants/allowedOrigins';
-import { Logger } from '../logger';
+import { ProductionLogger } from '../logger/v1/logger';
 import { config } from './config';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 export const options = {};
 
 export const corsOptions: cors.CorsOptions = {
@@ -14,10 +14,7 @@ export const corsOptions: cors.CorsOptions = {
 		) {
 			callback(null, true);
 		} else {
-			logger.warn({
-				message: 'CORS request blocked',
-				origin: origin
-			});
+			logger.warn(`CORS request blocked: ${origin}		`);
 			callback(new Error('Not allowed by CORS'));
 		}
 	},

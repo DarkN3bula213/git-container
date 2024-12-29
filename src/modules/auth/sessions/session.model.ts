@@ -1,8 +1,8 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { RequestTrackerService } from '@/services/request-tracker';
 import { type Document, InferSchemaType, Schema, model } from 'mongoose';
 
-const logger = new Logger('Session Model');
+const logger = new ProductionLogger('Session Model');
 
 export interface ActivitySummary {
 	total: number;

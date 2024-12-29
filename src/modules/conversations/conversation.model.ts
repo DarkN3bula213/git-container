@@ -1,7 +1,5 @@
-import { Logger } from '@/lib/logger';
 import mongoose, { Document, InferSchemaType, Schema } from 'mongoose';
 
-const logger = new Logger(__filename);
 interface IMessage extends Document {
 	sender: mongoose.Types.ObjectId;
 	content: string;
@@ -64,20 +62,13 @@ export async function getOrCreateConversation(
 		participants: { $all: participants }
 	})) as IConversation;
 	if (existingConversation) {
-		logger.debug({
-			message: 'Conversation found ',
-			conversation: existingConversation._id
-		});
 		return existingConversation;
 	}
 	const newConversation = new ConversationModel({
 		participants: participants,
 		messages: []
 	});
-	logger.debug({
-		message: 'Conversation created',
-		conversation: newConversation._id
-	});
+
 	await newConversation.save();
 	return newConversation;
 }

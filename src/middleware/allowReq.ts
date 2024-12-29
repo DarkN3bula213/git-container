@@ -1,9 +1,9 @@
 import { Roles } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { User } from '@/modules/auth/users/user.model';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const allowed = (allowedRoles: Roles[]) => {
 	return asyncHandler(async (req, res, next) => {
@@ -14,25 +14,21 @@ export const allowed = (allowedRoles: Roles[]) => {
 				logger.debug('User not found in request');
 				return res.status(403).json({ message: 'Unauthorized' });
 			}
-			logger.debug({
-				user: user.id,
-				roles: user.roles,
-				allowedRoles
-			});
+			logger.debug(`User ${user._id} has roles: ${user.roles}`);
 			const userRoles = user.roles.map((role) => role.toString());
-			logger.debug('User roles:', userRoles);
+			logger.debug('User roles:' + userRoles);
 
-			logger.debug('Allowed roles:', allowedRoles);
+			logger.debug('Allowed roles:' + allowedRoles);
 			const hasRole = userRoles.some((role) =>
 				allowedRoles.includes(role as Roles)
 			);
-			logger.debug('User has required role:', hasRole);
+			logger.debug('User has required role:' + hasRole);
 			if (hasRole) {
 				logger.debug('Access granted: User has required role');
 				return next(); // Allow all HTTP methods if the user has the required role
 			}
 
-			logger.debug('Request method:', req.method);
+			logger.debug('Request method:' + req.method);
 			if (req.method !== 'GET') {
 				logger.debug(
 					'Access denied: Insufficient privileges for non-GET request'

@@ -1,7 +1,7 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { socketParser } from '@/sockets';
 
-const logger = new Logger('socketParser');
+const logger = new ProductionLogger('socketParser');
 
 interface Notification {
 	event: string;

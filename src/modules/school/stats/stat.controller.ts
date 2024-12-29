@@ -2,7 +2,7 @@ import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import {
 	generateMonthlyFeeStatusEmail,
 	getMonthlyFeeStatus
@@ -10,10 +10,11 @@ import {
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import paymentModel from '../payments/payment.model';
+import { Student } from '../students/student.interface';
 import StudentModel from '../students/student.model';
 import { getSchoolStatisticsForBillingCycle } from './stat.aggregations';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 	const { payId } = req.params;
@@ -33,7 +34,7 @@ export const getUnpaidStudentsList = asyncHandler(async (req, res) => {
 		_id: {
 			$nin: await paymentModel.distinct('studentId', { payId: payId })
 		}
-	})) as object[];
+	})) as Student[];
 	return new SuccessResponse(
 		'Stats fetched successfully',
 		unpaidStudents
@@ -62,6 +63,7 @@ export const getTodaysCollection = asyncHandler(async (_req, res) => {
                     This month collection target achieved
  */
 
+// eslint-disable-next-line no-unused-vars
 export const keyMetrics = asyncHandler(async (_req, _res) => {
 	// const today = new Date();
 	// const startOfBillingCycle = startOfMonth(today);

@@ -1,8 +1,9 @@
 import { cache } from '@/data/cache/cache.service';
 import { config } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { removeSaveSessionJob } from '@/modules/auth/sessions/session.processor';
+import { metrics } from '@/services/metrics';
 import { ConnectedUser } from '@/types/connectedUsers';
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
@@ -15,10 +16,11 @@ import {
 import { handleImageTransfer } from './events/imageTransfer';
 import { handleWebRTC } from './events/webRTC';
 
-const logger = new Logger(__filename);
-export let socketParser: SocketIOServer;
+const logger = new ProductionLogger(__filename);
+
+let socketParser: SocketIOServer;
 class SocketService {
-	private io: SocketIOServer;
+	readonly io: SocketIOServer;
 	connectedUsers = new Map<string, ConnectedUser>();
 	private static instance: SocketService;
 
@@ -43,12 +45,7 @@ class SocketService {
 		return SocketService.instance;
 	}
 	public emit(eventName: string, message: string, roomId?: string): void {
-		logger.debug({
-			message: 'Emitting event',
-			eventName,
-			connectedClients: this.io.sockets.sockets.size,
-			roomId: roomId || 'broadcast'
-		});
+		logger.debug(`Emitting event: ${eventName} to ${roomId}`);
 
 		if (roomId) {
 			this.io.to(roomId).emit(eventName, message);
@@ -72,6 +69,8 @@ class SocketService {
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {
 			try {
+				metrics.socketConnectionsTotal.inc();
+
 				const authResult = await handleAuth(socket, this.io);
 				if (!authResult) return;
 				await removeSaveSessionJob(socket.data.userId);
@@ -88,10 +87,9 @@ class SocketService {
 						event !== 'init' ||
 						event !== 'userListUpdated'
 					) {
-						logger.warn({
-							all: event,
-							arguments: JSON.stringify(args, null, 2)
-						});
+						logger.warn(
+							`Incoming ${event}, ${JSON.stringify(args, null, 2)}`
+						);
 					}
 				});
 
@@ -103,14 +101,11 @@ class SocketService {
 						event !== 'video-offer' &&
 						event !== 'video-answer'
 					) {
-						logger.debug({
-							outgoing: `Outgoing ${event}`,
-							arguments: JSON.stringify(args, null, 2)
-						});
+						logger.debug(
+							`Outgoing ${event}, ${JSON.stringify(args, null, 2)}`
+						);
 					} else {
-						logger.debug({
-							outgoing: `Outgoing ${event}`
-						});
+						logger.debug(`Outgoing ${event}`);
 					}
 				});
 
@@ -121,6 +116,7 @@ class SocketService {
 							this.io,
 							this.connectedUsers
 						);
+						metrics.socketConnectionsTotal.dec();
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					} catch (error: any) {
 						logger.error(
@@ -137,5 +133,7 @@ class SocketService {
 		});
 	}
 }
+
+export { socketParser };
 
 export default SocketService;

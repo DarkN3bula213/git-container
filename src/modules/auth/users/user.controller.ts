@@ -12,7 +12,7 @@ import { accessCookie, logoutCookie } from '@/lib/config/cookies';
 import { Roles } from '@/lib/constants';
 import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { notify } from '@/lib/utils/socketParser';
 // import { signToken } from '@/lib/utils/tokens';
 // import {
@@ -24,7 +24,7 @@ import Role, { RoleModel } from '@/modules/auth/roles/role.model';
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 // import session from 'express-session';
 
 declare module 'express-session' {
@@ -121,9 +121,7 @@ export const register = asyncHandler(async (req, res) => {
 	const { email, username, password, cnic, name } = req.body;
 
 	const roleCode = getRoleFromMap(cnic);
-	logger.info({
-		role: roleCode
-	});
+	logger.info(`Creating user with role: ${roleCode}`);
 	const data = await service.createUser(
 		{
 			email,
@@ -246,10 +244,7 @@ export const login = asyncHandler(async (req, res) => {
 	// 	convertToObjectId(verifiedUser._id)
 	// );
 
-	logger.info({
-		message: 'isAdmin',
-		isAdmin: data.isAdmin
-	});
+	logger.info(`User ${data.user._id} logged in`);
 
 	// const roleCodes = (await fetchUserPermissions(role)) as string[];
 	notify({

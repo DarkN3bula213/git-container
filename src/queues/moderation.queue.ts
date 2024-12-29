@@ -1,10 +1,10 @@
 import { cache } from '@/data/cache/cache.service';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import UserActivityLogModel from '@/modules/analytics/analytics';
 import type { DoneCallback, Job } from 'bull';
 import QueueFactory from '.';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 const sessionProcessor = {
 	moderation: async (
@@ -17,10 +17,9 @@ const sessionProcessor = {
 		try {
 			const logs = await cache.getClient().lRange(sessionId, 0, -1);
 			const logEntries = logs.map((log) => JSON.parse(log));
-			logger.debug({
-				message: `Log entries for user ${userID}`,
-				data: logEntries
-			});
+			logger.debug(
+				`Found ${logEntries.length} logs for session ${sessionId}`
+			);
 
 			// Ensure all required fields are present in the log entries
 			const getRoutes = logEntries

@@ -1,12 +1,12 @@
 // migrations/subjectMigration.ts
 import { withTransaction } from '@/data/database/db.utils';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { ClassModel } from '@/modules/school/classes/class.model';
 import { generateSubjectsData } from '@/modules/school/subjects/subject.data';
 import { ISubject, Subject } from '@/modules/school/subjects/subject.model';
 import mongoose, { ClientSession } from 'mongoose';
 
-const logger = new Logger('SubjectMigration');
+const logger = new ProductionLogger('SubjectMigration');
 
 interface MigrationOptions {
 	force?: boolean; // Whether to force re-run migration
@@ -138,16 +138,10 @@ class SubjectMigration {
 				};
 			});
 
-			logger.info({
-				event: 'MIGRATION_COMPLETED',
-				result: JSON.stringify(result, null, 2)
-			});
+			logger.info(`Subjects migration completed ${result}`);
 			return result;
 		} catch (error) {
-			logger.error({
-				event: 'MIGRATION_FAILED',
-				error: error instanceof Error ? error.message : String(error)
-			});
+			logger.error(`Subjects migration failed ${error}`);
 			throw error;
 		}
 	}
@@ -168,10 +162,7 @@ class SubjectMigration {
 				};
 			});
 		} catch (error) {
-			logger.error({
-				event: 'ROLLBACK_FAILED',
-				error: error instanceof Error ? error.message : String(error)
-			});
+			logger.error(`Subjects migration rollback failed ${error}`);
 			throw error;
 		}
 	}

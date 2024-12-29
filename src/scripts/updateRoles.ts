@@ -1,8 +1,8 @@
 import { Actions, Resources, Roles } from '@/lib/constants';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const initializeOrUpdateRolesAndPermissions = async () => {
 	const allResources = Object.values(Resources);

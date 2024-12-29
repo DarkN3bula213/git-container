@@ -1,4 +1,4 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { convertToSeconds } from '@/lib/utils/fns';
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
@@ -113,7 +113,7 @@ schema.index(
 const Tokens = mongoose.model<Token, TokenModel>('Token', schema);
 export default Tokens;
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 // Log when a token is deleted
 Tokens.watch().on('change', (change) => {
 	logger.info(change.operationType);

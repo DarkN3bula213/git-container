@@ -1,5 +1,5 @@
 import { config } from '@/lib/config';
-import { Logger } from '@/lib/logger';
+// import { Logger } from '@/lib/logger';
 import { format } from 'date-fns';
 import fs from 'fs-extra';
 import http from 'node:http';
@@ -9,11 +9,12 @@ import { cache } from './data/cache/cache.service';
 import { db } from './data/database';
 // import { ensureAllIndexes } from './data/database/db.utils';
 import { banner, signals } from './lib/constants';
+import { ProductionLogger } from './lib/logger/v1/logger';
 import subjectMigration from './scripts/subjectMigration';
 import { setupCronJobs } from './services/cron';
 import SocketService from './sockets';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 const server = http.createServer(app);
 const socketService = SocketService.getInstance(server);
 
@@ -77,10 +78,7 @@ const startServer = async () => {
 				date: format(date, 'PPP'),
 				timeZone: timeZone,
 				pkTime: pkTime,
-				mode:
-					config.isDocker || config.isProduction
-						? 'Production'
-						: 'Development'
+				mode: config.production ? 'Production' : 'Development'
 			});
 		});
 

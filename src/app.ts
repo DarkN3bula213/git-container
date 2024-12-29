@@ -10,37 +10,27 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
-import { Logger } from './lib/logger';
+import { ProductionLogger } from './lib/logger/v1/logger';
+import setupMonitoring from './middleware/monitoring.middleware';
 import { nonProductionMiddleware } from './middleware/requestTracker';
 import sanitizeInputs from './middleware/sanitizeReq';
 import apiKey from './middleware/useApiKey';
 import router from './routes';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 process.on('uncaughtException', (e) => {
-	logger.error({
-		event: 'Uncaught Exception',
-		message: e.message,
-		stack: e.stack
-	});
+	logger.error(`An uncaught exception occurred: ${e.message}`, e);
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-process.on('unhandledRejection', (reason: any, promise) => {
-	logger.error({
-		event: 'Unhandled Rejection Occurred',
-		error: {
-			message: reason?.message,
-			stack: reason?.stack,
-			name: reason?.name
-		},
-		promise: promise
-	});
+process.on('unhandledRejection', (reason: any) => {
+	logger.error(`An unhandled rejection occurred: ${reason?.message}`, reason);
 });
 const app: Application = express();
 
 app.set('trust proxy', 1);
+setupMonitoring(app);
 app.use(cookieParser());
 app.use(helmet());
 app.use(compression());

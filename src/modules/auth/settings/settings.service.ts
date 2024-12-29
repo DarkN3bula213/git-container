@@ -1,9 +1,9 @@
 import { withTransaction } from '@/data/database/db.utils';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import settings, { Settings } from '@/modules/auth/settings/settings.model';
 import { Types } from 'mongoose';
 
-const logger = new Logger('UserSettingsService');
+const logger = new ProductionLogger('UserSettingsService');
 
 export class UserSettingsService {
 	private static instance: UserSettingsService;
@@ -19,10 +19,6 @@ export class UserSettingsService {
 	async getSettings(userId: Types.ObjectId): Promise<any> {
 		try {
 			const userSettings = await settings.findOne({ userId });
-			// logger.info({
-			// 	message: 'userSettings',
-			// 	userSettings: JSON.stringify(userSettings)
-			// });
 			if (!userSettings) {
 				return await settings.create({
 					userId: userId

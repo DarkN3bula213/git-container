@@ -1,12 +1,11 @@
-// Adjust import path as needed
-import { Logger as log } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import PaymentModel, {
 	IPayment
 } from '@/modules/school/payments/payment.model';
 import StudentModel from '@/modules/school/students/student.model';
 import mongoose from 'mongoose';
 
-const Logger = new log('payment-id-recovery');
+const Logger = new ProductionLogger('payment-id-recovery');
 
 interface Summary {
 	totalStudents: number;
@@ -44,14 +43,7 @@ async function rebuildPaymentHistories() {
 					error.message.includes('lock');
 
 				if (isLockError && attempt < MAX_RETRIES) {
-					Logger.warn({
-						message: `${operationName} failed due to lock, retrying...`,
-						attempt,
-						error:
-							error instanceof Error
-								? error.message
-								: String(error)
-					});
+					Logger.warn(`${operationName} failed due to lock error`);
 					await sleep(RETRY_DELAY * attempt);
 					continue;
 				}
@@ -64,7 +56,7 @@ async function rebuildPaymentHistories() {
 	};
 
 	try {
-		await session.startTransaction();
+		session.startTransaction();
 		Logger.info('Starting payment history rebuild process...');
 
 		// Step 1: Clear all existing payment histories in batches
@@ -85,11 +77,7 @@ async function rebuildPaymentHistories() {
 					clearedCount += result.modifiedCount;
 				}, 'Clear payment histories batch');
 
-				Logger.info({
-					message: 'Cleared batch of payment histories',
-					clearedCount
-				});
-
+				Logger.info(`Cleared ${clearedCount} payment histories`);
 				studentBatch = [];
 			}
 		}
@@ -106,10 +94,7 @@ async function rebuildPaymentHistories() {
 			}, 'Clear final payment histories batch');
 		}
 
-		Logger.info({
-			message: 'Cleared all existing payment histories',
-			clearedCount
-		});
+		Logger.info(`Cleared all existing payment histories ${clearedCount}`);
 
 		// Step 2: Get and process payments in batches
 		const paymentsByStudent = new Map<
@@ -123,7 +108,7 @@ async function rebuildPaymentHistories() {
 
 		for await (const payment of paymentsCursor) {
 			if (payment.studentId && payment.payId) {
-				const studentId = payment.studentId.toString();
+				const studentId = payment.studentId?.toString();
 				if (!paymentsByStudent.has(studentId)) {
 					paymentsByStudent.set(studentId, []);
 				}
@@ -166,35 +151,28 @@ async function rebuildPaymentHistories() {
 							if (result) {
 								successCount++;
 							} else {
-								Logger.warn({
-									message: 'Student not found for payments',
-									studentId
-								});
+								Logger.warn(
+									`No result found for student ${studentId} and payment ${payments}`
+								);
 								errorCount++;
 							}
 						} catch (error) {
 							errorCount++;
-							Logger.error({
-								message:
-									'Error updating student payment history',
-								studentId,
-								error:
-									error instanceof Error
-										? error.message
-										: String(error)
-							});
+							Logger.error(
+								`Error updating student payment history ${studentId}: ${error}`
+							);
 						}
 					})
 				);
 			}, `Update students batch ${studentBatchCount}`);
 
-			Logger.info({
-				message: 'Batch progress',
-				processedStudents: successCount,
-				totalStudents: studentEntries.length,
-				progress: `${((successCount / studentEntries.length) * 100).toFixed(2)}%`,
-				currentBatch: studentBatchCount
-			});
+			// Logger.info({
+			// 	message: 'Batch progress',
+			// 	processedStudents: successCount,
+			// 	totalStudents: studentEntries.length,
+			// 	progress: `${((successCount / studentEntries.length) * 100).toFixed(2)}%`,
+			// 	currentBatch: studentBatchCount
+			// });
 		}
 
 		await retryOperation(async () => {
@@ -208,18 +186,12 @@ async function rebuildPaymentHistories() {
 			errorCount
 		};
 
-		Logger.info({
-			message: 'Payment history rebuild completed',
-			summary: JSON.stringify(summary, null, 2)
-		});
+		Logger.info(`Payment history rebuild completed ${summary}`);
 
 		return summary;
 	} catch (error) {
 		await session.abortTransaction();
-		Logger.error({
-			message: 'Payment history rebuild failed',
-			error: error instanceof Error ? error.message : String(error)
-		});
+		Logger.error(`Payment history rebuild failed ${error}`);
 		throw error;
 	} finally {
 		session.endSession();
@@ -259,11 +231,9 @@ export async function recoverPaymentIds() {
 							).session(session)) as IPayment | null;
 
 							if (!paymentDoc) {
-								Logger.warn({
-									message: 'Payment document not found',
-									studentId: student._id,
-									paymentId: payment.paymentId
-								});
+								Logger.warn(
+									`Payment document not found for student ${student._id} and payment ${payment.paymentId}`
+								);
 								return payment;
 							}
 
@@ -273,15 +243,9 @@ export async function recoverPaymentIds() {
 								payId: paymentDoc.payId
 							};
 						} catch (error) {
-							Logger.error({
-								message: 'Error processing individual payment',
-								studentId: student._id,
-								paymentId: payment.paymentId,
-								error:
-									error instanceof Error
-										? error.message
-										: String(error)
-							});
+							Logger.error(
+								`Error processing individual payment for student ${student._id} and payment ${payment.paymentId}: ${error}`
+							);
 							return payment;
 						}
 					})
@@ -302,12 +266,9 @@ export async function recoverPaymentIds() {
 				}
 			} catch (error) {
 				errorCount++;
-				Logger.error({
-					message: 'Error processing student',
-					studentId: student._id,
-					error:
-						error instanceof Error ? error.message : String(error)
-				});
+				Logger.error(
+					`Error processing student ${student._id}: ${error}`
+				);
 			}
 		}
 
@@ -329,10 +290,7 @@ export async function recoverPaymentIds() {
 	} catch (error) {
 		// Abort transaction on error
 		await session.abortTransaction();
-		Logger.error({
-			message: 'Payment ID recovery failed',
-			error: error instanceof Error ? error.message : String(error)
-		});
+		Logger.error(`Payment ID recovery failed ${error}`);
 		throw error;
 	} finally {
 		session.endSession();

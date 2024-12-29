@@ -238,9 +238,7 @@ studentSchema.pre('save', async function (next) {
 		next();
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
-		Logger.error({
-			error: error.message
-		});
+		Logger.error(`Error in student model: ${error}`);
 		next(error);
 	}
 });

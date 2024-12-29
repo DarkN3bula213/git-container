@@ -2,7 +2,7 @@ import { convertToObjectId } from '@/data/database/db.utils';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import { config } from '@/lib/config';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { verfication } from '@/lib/utils/tokens';
 import {
 	sendResetPasswordEmail,
@@ -13,7 +13,7 @@ import { UserModel } from '../users/user.model';
 import { service } from '../users/user.service';
 import verificationService from './verification.service';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const verifyUser = asyncHandler(async (req, res) => {
 	const { code } = req.body;

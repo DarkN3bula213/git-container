@@ -1,5 +1,5 @@
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { Server } from 'socket.io';
-import { Logger } from '../../lib/logger';
 import { emitMessage } from '../utils/emitMessage';
 
 interface PendingOffer {
@@ -9,12 +9,13 @@ interface PendingOffer {
 }
 
 export class WebRTCSignalingService {
+	private static instance: WebRTCSignalingService;
 	private pendingOffers: Map<string, PendingOffer[]> = new Map();
 	private readonly OFFER_TIMEOUT = 30000; // 30 seconds
-	private logger: Logger;
+	private logger: ProductionLogger;
 
 	constructor(private io: Server) {
-		this.logger = new Logger('WebRTCSignalingService');
+		this.logger = new ProductionLogger('WebRTCSignalingService');
 		this.startOfferCleanup();
 	}
 

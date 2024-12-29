@@ -1,9 +1,9 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { getAllConversationsForUser } from '@/modules/conversations/conversation.utils';
 import { Socket } from 'socket.io';
 import { getOnlineUsers } from './getOnlineUsers';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const handleJoinConversation = async (
 	socket: Socket,

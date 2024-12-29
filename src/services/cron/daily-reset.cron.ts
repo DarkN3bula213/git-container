@@ -1,10 +1,10 @@
 import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import cron from 'node-cron';
 import { saveMoneyFlowToMongo } from '../../modules/moneyLog/index';
 
-const logger = new Logger('DailyPaymentCron');
+const logger = new ProductionLogger('DailyPaymentCron');
 export async function offloadAndResetTotalAmount() {
 	try {
 		const key = Key.DAILYTOTAL;
