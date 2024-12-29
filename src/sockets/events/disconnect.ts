@@ -1,5 +1,5 @@
 import { cache } from '@/data/cache/cache.service';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { ConnectedUser } from '@/types/connectedUsers';
 import { Server, type Socket } from 'socket.io';
 import { addSaveSessionJob } from '../../modules/auth/sessions/session.processor';
@@ -8,7 +8,7 @@ import { sendAdminMessage } from '../utils/emitMessage';
 import { getOnlineUsers } from '../utils/getOnlineUsers';
 import { getStartTimeFromCache } from '../utils/getStartTimeFromCache';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const handleDisconnect = async (
 	socket: Socket,
@@ -95,9 +95,7 @@ export const handleDisconnect = async (
 		// Broadcast updated user list
 		const onlineUsers = getOnlineUsers(connectedUsers, userId);
 		socket.broadcast.emit('userListUpdated', onlineUsers);
-		logger.debug('Broadcasted updated user list after disconnect', {
-			onlineUsers
-		});
+		logger.debug(`User ${username} disconnected`);
 
 		// Emit a system message if needed
 		io.emit('systemMessage', {

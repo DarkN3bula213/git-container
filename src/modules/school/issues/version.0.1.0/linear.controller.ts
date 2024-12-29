@@ -1,6 +1,6 @@
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+// import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { isAdminRolePresent, normalizeRoles } from '@/lib/utils/utils';
 import { User } from '@/modules/auth/users/user.model';
 import { Types } from 'mongoose';
@@ -8,7 +8,7 @@ import LinearIssueModel, { type LinearIssue } from './linear.model';
 import service from './linear.service';
 import addToIsSeenBy from './linear.utils';
 
-const logger = new Logger('Linear Controller');
+// const logger = new ProductionLogger('Linear Controller');
 
 export const createLinearIssue = asyncHandler(async (req, res) => {
 	const { description, title, tags, priority, status } = req.body;
@@ -186,11 +186,7 @@ export const addReply = asyncHandler(async (req, res) => {
 
 			{ new: true }
 		);
-		logger.debug({
-			issueId: issueId,
-			description: description,
-			isMine: isMine
-		});
+
 		await toggleIsSeen(issue._id as Types.ObjectId, false);
 		return new SuccessResponse('Reply added', issue).send(res);
 	}
@@ -224,7 +220,6 @@ export const changeIssueStatus = asyncHandler(async (req, res) => {
 	const { id } = req.params;
 	const { status } = req.body;
 
-	logger.debug({ id: id, status: status });
 	const issue = (await LinearIssueModel.findByIdAndUpdate(
 		id,
 		{ status: status },
@@ -270,8 +265,6 @@ export const changeIssueFields = asyncHandler(async (req, res) => {
 	if (Object.keys(updateFields).length === 0) {
 		throw new BadRequestError('No valid fields provided for update');
 	}
-
-	logger.debug({ id: id, updateFields });
 
 	const issue = (await LinearIssueModel.findByIdAndUpdate(id, updateFields, {
 		new: true

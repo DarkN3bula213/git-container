@@ -1,11 +1,11 @@
 import { singleDocumentUpload } from '@/lib/config';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { NextFunction, Request, Response } from 'express';
 import { MulterError } from 'multer';
 import { Expense, Expenses } from './expense.model';
 
-const logger = new Logger('ExpenseController');
+const logger = new ProductionLogger('ExpenseController');
 /*<!-----------  GET   --------------->*/
 export const getExpenses = asyncHandler(async (_req, res) => {
 	const expenses = await Expenses.find();

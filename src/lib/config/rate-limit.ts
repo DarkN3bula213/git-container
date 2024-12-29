@@ -1,7 +1,7 @@
-import { Logger } from '@/lib/logger';
 import rateLimit from 'express-rate-limit';
+import { ProductionLogger } from '../logger/v1/logger';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const options = {
 	windowMs: 15 * 60 * 1000,
@@ -22,11 +22,7 @@ export const loginLimiter = rateLimit({
 			'Too many login attempts from this IP, please try again after a 60 second pause'
 	},
 	handler: (_req, res, _next, options) => {
-		logger.debug({
-			message:
-				'Too many login attempts from this IP, please try again after a 60 second pause',
-			options: options
-		});
+		logger.info(options.message);
 		res.status(options.statusCode).send(options.message);
 	},
 	standardHeaders: true,

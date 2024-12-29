@@ -1,10 +1,10 @@
 import { withTransaction } from '@/data/database/db.utils';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { type ClientSession, Types, startSession } from 'mongoose';
 import LinearIssueModel, { type LinearIssue } from './linear.model';
 import addToIsSeenBy from './linear.utils';
 
-const logger = new Logger('Linear Service');
+const logger = new ProductionLogger('Linear Service');
 
 interface UpdateIssueRequestBody {
 	status?: LinearIssue['status'];
@@ -86,7 +86,7 @@ class LinearService {
 		status: string,
 		session: ClientSession
 	): Promise<LinearIssue> {
-		logger.debug({ id: id, status: status });
+		logger.debug(`Changing issue status ${id} to ${status}`);
 		const issue = (await LinearIssueModel.findByIdAndUpdate(
 			id,
 			{ status: status },

@@ -1,8 +1,8 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { DoneCallback, Job } from 'bull';
 import QueueFactory from '.';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const cookieExpirationQueue = QueueFactory.createQueue(
 	'cookieExpiration',

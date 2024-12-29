@@ -2,7 +2,7 @@ import { cache } from '@/data/cache/cache.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { sortStudentsByClassAndSection } from '@/lib/utils/utils';
 import type { User } from '@/modules/auth/users/user.model';
 import { endOfDay, isAfter, isValid, parseISO, startOfDay } from 'date-fns';
@@ -21,7 +21,7 @@ import paymentQueue from './payment.queue';
 import { addJobsToQueue, formatBillingCycle, getPayId } from './payment.utils';
 import paymentsService from './payments.service';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 /*<!-- 1. Create  ---------------------------( createPayment )-> */
 export const createPayment = asyncHandler(async (req, res) => {
@@ -173,12 +173,7 @@ export const getPaymentsByDateRange = asyncHandler(async (req, res) => {
 		throw new BadRequestError('Start date cannot be after end date');
 	}
 
-	logger.debug({
-		dateRange: {
-			start,
-			end
-		}
-	});
+	logger.debug(`Getting payments for date range ${start} to ${end}`);
 
 	// Find payments within date range
 	const payments = await Payments.find({

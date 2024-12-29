@@ -1,7 +1,7 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import mongoose from 'mongoose';
 
-const logger = new Logger('db.rollback');
+const logger = new ProductionLogger('db.rollback');
 
 interface IndexBackup {
 	modelName: string;
@@ -11,7 +11,7 @@ interface IndexBackup {
 }
 
 class IndexRollbackManager {
-	private backups: Map<string, IndexBackup[]> = new Map();
+	private readonly backups: Map<string, IndexBackup[]> = new Map();
 	private static instance: IndexRollbackManager;
 
 	private constructor() {}
@@ -48,10 +48,10 @@ class IndexRollbackManager {
 					indexCount: currentIndexes.length
 				});
 			} catch (error) {
-				logger.error({
-					message: `Failed to backup indexes for ${modelName}`,
+				logger.error(
+					`Failed to backup indexes for ${modelName}`,
 					error
-				});
+				);
 				throw error;
 			}
 		}

@@ -1,13 +1,11 @@
 import { cache } from '@/data/cache/cache.service';
-import { Logger } from '@/lib/logger';
-// import { verifyToken } from '@/lib/utils/tokens';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { saveSessionQueue } from '@/modules/auth/sessions/session.processor';
 import { getOrCreateConversation } from '@/modules/conversations/conversation.model';
-// import cookie from 'cookie';
 import { Socket } from 'socket.io';
 import { Message, messageSingleton } from '../store/messageStore';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 const getOrSetStartTime = async (userID: string, socket: Socket) => {
 	const redisKey = `user:${userID}:startTime`;

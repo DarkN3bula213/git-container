@@ -1,4 +1,4 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import QueueFactory from '@/queues';
 import type Bull from 'bull';
 import { ClassModel } from '../classes/class.model';
@@ -6,7 +6,7 @@ import StudentModel from '../students/student.model';
 import paymentModel from './payment.model';
 import { getPayId } from './payment.utils';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 const processPaymentJob = async (
 	job: Bull.Job<any>,

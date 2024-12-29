@@ -1,10 +1,10 @@
 import { CacheClientService } from '@/data/cache/cache.service';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import UserSessionModel, {
 	ActivitySummary
 } from '@/modules/auth/sessions/session.model';
 
-const logger = new Logger('RequestTrackerService');
+const logger = new ProductionLogger('RequestTrackerService');
 
 interface RequestLog {
 	userId: string;
@@ -69,10 +69,7 @@ export class RequestTrackerService {
 			});
 			this.updateSummary(summaryKey, userId, path, method, statusCode);
 		} catch (error) {
-			logger.error({
-				message: 'Error tracking request',
-				error
-			});
+			logger.error(`Error tracking request: ${error}`);
 		}
 	}
 
@@ -151,10 +148,7 @@ export class RequestTrackerService {
 			yesterday.setDate(yesterday.getDate() - 1);
 			const date = yesterday.toISOString().split('T')[0];
 
-			logger.info({
-				message: 'Starting daily request log offload',
-				date
-			});
+			logger.info(`Starting daily request log offload: ${date}`);
 
 			const [logs, summary] = await Promise.all([
 				this.getLogs(date),
@@ -215,16 +209,12 @@ export class RequestTrackerService {
 					this.cache.del(this.getSummaryKey(date))
 				]);
 
-				logger.info({
-					message: 'Successfully completed daily request log offload',
-					date
-				});
+				logger.info(`Daily request log offload completed: ${date}`);
 			}
 		} catch (error) {
-			logger.error({
-				message: 'Error during daily request log offload',
-				error
-			});
+			logger.error(
+				`Error processing daily request log offload: ${error}`
+			);
 			throw error; // Let the cron handler deal with the error
 		}
 	}

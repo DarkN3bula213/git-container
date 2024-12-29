@@ -1,9 +1,9 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import cookie from 'cookie';
 import type { Request } from 'express';
 import type { Socket } from 'socket.io';
 
-const logger = new Logger('extractToken');
+const logger = new ProductionLogger('extractToken');
 
 export const extractToken = (source: Socket | Request): string | null => {
 	try {
@@ -23,13 +23,7 @@ export const extractToken = (source: Socket | Request): string | null => {
 					? authFromHandshake.split(' ')[1]
 					: authFromHandshake);
 
-			logger.debug({
-				message: 'Token extraction attempt (Socket)',
-				fromCookie: !!cookies.access,
-				fromHeader: !!authHeader,
-				fromHandshake: !!authFromHandshake,
-				token: token ? token.substring(0, 20) + '...' : 'Not found' // Log partial token for debugging
-			});
+			logger.debug(`Token extracted: ${token}`);
 
 			return token;
 		} else {
@@ -43,12 +37,7 @@ export const extractToken = (source: Socket | Request): string | null => {
 					? authHeader.split(' ')[1]
 					: authHeader);
 
-			logger.debug({
-				message: 'Token extraction attempt (Request)',
-				fromCookie: !!cookies.access,
-				fromHeader: !!authHeader,
-				token: token ? token.substring(0, 20) + '...' : 'Not found'
-			});
+			logger.debug(`Token extracted: ${token}`);
 
 			return token || null;
 		}

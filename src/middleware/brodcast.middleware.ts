@@ -1,11 +1,11 @@
 import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { socketParser } from '@/sockets';
 import { NextFunction, Request, Response } from 'express';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 const broadcast = (
 	eventName: string,
@@ -36,6 +36,7 @@ const broadcast = (
 
 export default broadcast;
 export const notifyRevenueChange = asyncHandler(
+	// eslint-disable-next-line no-unused-vars
 	async (_req: Request, _res: Response, _next: NextFunction) => {
 		const key = Key.DAILYTOTAL;
 		const totalAmount = await cache.get<number>(key);
@@ -81,10 +82,7 @@ export const broadcastOnResponseFinish = (
 				socketParser.emit(event, message);
 				logger.info(`Broadcasted ${event} with data:${message}`);
 			} catch (error) {
-				logger.error({
-					message: 'Error broadcasting on response finish:',
-					error
-				});
+				logger.error(`Error broadcasting ${event}: ${error}`);
 			}
 		});
 

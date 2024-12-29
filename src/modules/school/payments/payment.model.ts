@@ -1,8 +1,8 @@
 import { cache } from '@/data/cache/cache.service';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import mongoose, { Schema } from 'mongoose';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export interface IPayment extends mongoose.Document {
 	studentId: mongoose.Schema.Types.ObjectId;
@@ -92,17 +92,13 @@ async function updateMoneyFlow(
 			.getClient()
 			.hIncrBy(redisKey, 'totalAmount', amount);
 
-		logger.info({
-			message: `Updated Redis for ${className}-${section}: New total amount is ${result}`,
-			className: className,
-			section: section,
-			amount: amount
-		});
+		logger.info(
+			`Updated Redis for ${className}-${section}: New total amount is ${result}`
+		);
 	} catch (err) {
-		logger.error({
-			message: 'Error updating class-section money flow in Redis:',
-			error: err
-		});
+		logger.error(
+			`Error updating class-section money flow in Redis: ${err}`
+		);
 	}
 
 	next();
@@ -125,17 +121,13 @@ export async function deleteMoneyFlow(
 			.getClient()
 			.hIncrBy(redisKey, 'totalAmount', -amount);
 
-		logger.info({
-			message: `Updated Redis for ${className}-${section}: New total amount is ${result}`,
-			className: className,
-			section: section,
-			amount: amount
-		});
+		logger.info(
+			`Updated Redis for ${className}-${section}: New total amount is ${result}`
+		);
 	} catch (err) {
-		logger.error({
-			message: 'Error updating class-section money flow in Redis:',
-			error: err
-		});
+		logger.error(
+			`Error updating class-section money flow in Redis: ${err}`
+		);
 	}
 
 	next();

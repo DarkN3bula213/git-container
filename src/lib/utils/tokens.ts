@@ -88,7 +88,7 @@ export async function reIssueAccessToken({
 	const { decoded, valid, expired } = verifyToken(refreshToken, 'refresh');
 
 	// Check for validity of the refresh token
-	if (!valid) {
+	if (!valid || !decoded) {
 		return false;
 	}
 
@@ -98,7 +98,7 @@ export async function reIssueAccessToken({
 		return false;
 	}
 
-	if (decoded && decoded.user) {
+	if (decoded.user) {
 		const verifiedUser = await findUserById(decoded.user._id.toString());
 		if (!verifiedUser) {
 			return false;
@@ -111,9 +111,7 @@ export async function reIssueAccessToken({
 		);
 
 		if (config.isDevelopment) {
-			logger.warn({
-				token: `Issues to user ${verifiedUser._id}`
-			});
+			logger.warn(`Issues to user ${verifiedUser._id}`);
 		}
 		return accessToken;
 	}
@@ -159,7 +157,7 @@ const generateSecureResetToken = (): string => {
 	const token = randomBytes(20).toString('hex');
 	const hmac = createHmac(
 		'sha256',
-		process.env.RESET_TOKEN_SECRET || 'default_secret_key'
+		process.env.RESET_TOKEN_SECRET ?? 'default_secret_key'
 	);
 	return hmac.update(token).digest('hex');
 };

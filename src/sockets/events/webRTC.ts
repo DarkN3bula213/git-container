@@ -1,16 +1,14 @@
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '../../lib/logger';
 import { emitMessage } from '../utils/emitMessage';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const handleWebRTC = (socket: Socket, io: Server) => {
 	const logEvent = (event: string, fromUserId: string, toUserId?: string) => {
-		logger.info(`WebRTC Event: ${event}`, {
-			fromUserId,
-			toUserId,
-			socketId: socket.id
-		});
+		logger.info(
+			`WebRTC Event: ${event}, fromUserId: ${fromUserId}, toUserId: ${toUserId}`
+		);
 	};
 
 	const handleError = (event: string, error: Error) => {

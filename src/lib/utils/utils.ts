@@ -1,8 +1,13 @@
 import type Role from '@/modules/auth/roles/role.model';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 import type { RouteMap } from '@/types/routes';
-import type { NextFunction, RequestHandler, Response, Router } from 'express';
-import type { Request } from 'express';
+import type {
+	NextFunction,
+	Request,
+	RequestHandler,
+	Response,
+	Router
+} from 'express';
 import { IncomingMessage } from 'http';
 import Joi from 'joi';
 import { Types } from 'mongoose';
@@ -294,7 +299,7 @@ export function getCleanIp(req: Request): string {
 		return realIp;
 	}
 
-	const ip = req.socket.remoteAddress || 'Unknown IP';
+	const ip = req.socket.remoteAddress ?? 'Unknown IP';
 
 	// Make localhost IPs more readable
 	if (ip === LOCALHOST_IPV6 || ip === LOCALHOST_IPV4_MAPPED) {

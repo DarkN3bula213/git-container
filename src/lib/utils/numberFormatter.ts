@@ -1,7 +1,7 @@
 export function numberFormatter(
 	value: number | undefined,
 	options: {
-		separator?: 'thousand' | string;
+		separator?: string;
 		decimals?: number;
 		fallback?: string;
 		locale?: string;
@@ -9,7 +9,7 @@ export function numberFormatter(
 ): string {
 	// Handle undefined/null cases
 	if (value === undefined || value === null) {
-		return options.fallback || '0';
+		return options.fallback ?? '0';
 	}
 
 	const {

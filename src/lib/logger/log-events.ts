@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-// const logger = new Logger(__filename);
+// const logger = new ProductionLogger(__filename);
 import type { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import fs, { promises } from 'node:fs';

@@ -1,12 +1,12 @@
 import { config } from '@/lib/config';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import { RedisClientType } from 'redis';
 import redisClient from './cache.client';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export interface CacheService {
 	set(key: string, value: any): Promise<void>;
@@ -20,7 +20,7 @@ export interface CacheService {
 // cache.service.ts
 
 export class CacheClientService {
-	private client: RedisClientType;
+	private readonly client: RedisClientType;
 
 	constructor(client: RedisClientType) {
 		this.client = client;
@@ -97,17 +97,11 @@ export class CacheClientService {
 	): Promise<T> {
 		const cachedData = await this.get<T>(key);
 		if (cachedData) {
-			logger.debug({
-				message: 'Data in cache',
-				key
-			});
+			logger.debug(`Data in cache: ${key}`);
 			return cachedData;
 		}
 
-		logger.debug({
-			message: 'Data not in cache - fetching from source',
-			key
-		});
+		logger.debug(`Data not in cache - fetching from source: ${key}`);
 		const freshData = await fetchFunction();
 
 		// if the data is an array and has length then set the cache

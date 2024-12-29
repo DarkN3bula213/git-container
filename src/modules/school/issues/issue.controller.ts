@@ -1,18 +1,16 @@
 import { convertToObjectId } from '@/data/database/db.utils';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { User } from '@/modules/auth/users/user.model';
 import { Request, Response } from 'express';
 import IssueService from './issue.service';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 export const createIssue = asyncHandler(async (req, res) => {
 	const user = req.user as User;
 	const userId = convertToObjectId(user._id.toString());
-	logger.debug({
-		body: JSON.stringify(req.body)
-	});
+	logger.debug(`Creating issue for user ${userId}`);
 	const issue = await IssueService.createIssue(req.body, userId);
 	return new SuccessResponse('Issue created', issue).send(res);
 });

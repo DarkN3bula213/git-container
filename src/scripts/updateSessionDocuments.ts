@@ -1,7 +1,7 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import mongoose from 'mongoose';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 const sessionSchema = new mongoose.Schema(
 	{
 		userId: { type: String }

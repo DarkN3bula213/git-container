@@ -1,4 +1,4 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import {
 	getAllConversationsForUser,
 	saveMessageInConversation
@@ -11,7 +11,7 @@ import { getOnlineUsers } from '../utils/getOnlineUsers';
 import { SignalData } from './room-manager';
 import { broadcastUserList } from './users';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 // Main handler function for messages and calls
 export const handleMessages = async (

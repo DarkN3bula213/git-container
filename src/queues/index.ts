@@ -1,8 +1,8 @@
 import { config } from '@/lib/config';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import Bull, { DoneCallback, Job, Queue } from 'bull';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 type ProcessorFunction<T> = (job: Job<T>, done: DoneCallback) => Promise<void>;
 

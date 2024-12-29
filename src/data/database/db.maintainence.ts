@@ -1,9 +1,9 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import mongoose from 'mongoose';
 import { HealthCheckResult, scanModelHealth } from './db.health';
 import { rollbackManager } from './db.rollback';
 
-const logger = new Logger('db.maintainence');
+const logger = new ProductionLogger(__filename);
 
 export const performDatabaseMaintenance = async () => {
 	try {
@@ -15,7 +15,7 @@ export const performDatabaseMaintenance = async () => {
 		for (const modelName of modelNames) {
 			const model = mongoose.model(modelName);
 			const uniqueFields = Object.entries(model.schema.paths)
-				.filter(([_, path]) => path.options.unique)
+				.filter(([, path]) => path.options.unique)
 				.map(([field]) => field);
 
 			const result = await scanModelHealth(model, uniqueFields);
@@ -56,14 +56,14 @@ export const performDatabaseMaintenance = async () => {
 		for (const modelName of modelNames) {
 			const model = mongoose.model(modelName);
 			const uniqueFields = Object.entries(model.schema.paths)
-				.filter(([_, path]) => path.options.unique)
+				.filter(([, path]) => path.options.unique)
 				.map(([field]) => field);
 
 			const result = await scanModelHealth(model, uniqueFields);
 			finalHealthCheck.push(result);
 		}
 
-		logger.info('Database maintenance completed', {
+		logger.info({
 			initialHealth: healthResults,
 			finalHealth: finalHealthCheck
 		});

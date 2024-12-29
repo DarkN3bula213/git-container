@@ -1,8 +1,8 @@
 import redisClient from '@/data/cache/cache.client';
 import { CacheClientService } from '@/data/cache/cache.service';
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 export interface Message {
 	from: UserChat;
 	to: UserChat;
@@ -45,7 +45,7 @@ const CONVERSATION_TTL = 24 * 60 * 60; // 1 day TTL for messages
 
 // Redis message store that stores messages in Redis using CacheClientService
 class RedisMessageStore extends MessageStore {
-	private cacheClient: CacheClientService;
+	private readonly cacheClient: CacheClientService;
 
 	constructor(cacheClient: CacheClientService) {
 		super();

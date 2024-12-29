@@ -1,10 +1,10 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { ConnectedUser } from '@/types/connectedUsers';
 import { Socket } from 'socket.io';
 import { sendAdminMessage } from '../utils/emitMessage';
 import { getOnlineUsers } from '../utils/getOnlineUsers';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 // Main handler function for user events
 export const handleUsers = async (

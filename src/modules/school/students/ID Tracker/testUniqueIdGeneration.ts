@@ -1,7 +1,7 @@
-import { Logger } from '@/lib/logger';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
 import { generateUniqueId } from './utils';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 async function testGenerateUniqueId(n: number) {
 	for (let i = 0; i < n; i++) {

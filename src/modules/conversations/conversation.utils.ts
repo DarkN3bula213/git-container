@@ -1,13 +1,12 @@
 import { cache } from '@/data/cache/cache.service';
-import { Logger } from '@/lib/logger';
-import { Types } from 'mongoose';
-import mongoose from 'mongoose';
+import { ProductionLogger } from '@/lib/logger/v1/logger';
+import mongoose, { Types } from 'mongoose';
 import ConversationModel, {
 	IConversation,
 	MessageModel
 } from './conversation.model';
 
-const logger = new Logger(__filename);
+const logger = new ProductionLogger(__filename);
 
 export const getOrCreateConversation = async (
 	userId: string,
@@ -124,9 +123,9 @@ export const saveMessageInConversation = async ({
 		const savedMessage = await message.save();
 
 		// Log for debugging purposes
-		logger.info({
-			message: `Message saved with ID: ${savedMessage._id}`
-		});
+		logger.info(
+			`Saved message ${savedMessage._id} to conversation ${conversationId}`
+		);
 
 		// Update the conversation with the new message and set it as the lastMessage
 		await ConversationModel.findByIdAndUpdate(
@@ -141,10 +140,7 @@ export const saveMessageInConversation = async ({
 		return savedMessage;
 	} catch (error) {
 		// Handle errors appropriately
-		logger.error({
-			message: 'Error saving message or updating conversation:',
-			error: error
-		});
+		logger.error(`Error saving message: ${error}`);
 		throw error;
 	}
 };
@@ -164,6 +160,6 @@ export const generateConversationKey = (
 	userId2: string
 ): string[] => {
 	// Sort the user IDs to ensure the same cache key for both users
-	const sortedIds = [userId1, userId2].sort();
+	const sortedIds = [userId1, userId2].sort((a, b) => a.localeCompare(b));
 	return sortedIds;
 };
