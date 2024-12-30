@@ -32,9 +32,9 @@ services:
         networks:
             - app-network
 
-    #############
+    ###############
     ### Mongo ###
-    #############
+    ###########
     mongo:
         build:
             context: .
@@ -196,7 +196,7 @@ services:
 
     #################
     ### Promtail ###
-    #################
+    ###############
     promtail:
         image: grafana/promtail:latest
         container_name: promtail
