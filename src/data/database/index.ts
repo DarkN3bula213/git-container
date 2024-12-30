@@ -68,7 +68,7 @@ const connect = async () => {
 	await attemptConnection();
 };
 
-class dBclient {
+class DBClient {
 	async connect(): Promise<void> {
 		await connect();
 	}
@@ -78,4 +78,4 @@ class dBclient {
 	}
 }
 
-export const db = new dBclient();
+export const db = new DBClient();
