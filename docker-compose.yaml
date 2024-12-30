@@ -183,6 +183,10 @@ services:
         command:
             - '-config.file=/etc/loki/local-config.yaml'
             - '-config.expand-env=true'
+        environment:
+            - JAEGER_AGENT_HOST=jaeger
+            - JAEGER_SAMPLER_TYPE=const
+            - JAEGER_SAMPLER_PARAM=1
         expose:
             - 3100
         deploy:
