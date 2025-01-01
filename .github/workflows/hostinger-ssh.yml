@@ -31,7 +31,13 @@ jobs:
         run: |
           ssh -v -i ~/.ssh/deploy_key ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connected!'"
 
-      - name: Copy project files
+      - name: Deploy with rsync
         run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }}:/var/www/hps/
-        shell: bash
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
+            --exclude '.git*' \
+            --exclude 'node_modules' \
+            --exclude 'test' \
+            --exclude '.env' \
+            --exclude 'logs' \
+            --exclude 'dist' \
+            ./ ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }}:/var/www/hps/
