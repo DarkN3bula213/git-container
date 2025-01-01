@@ -2,13 +2,13 @@
 import { ForbiddenError } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { ValidationSource, validate } from '@/lib/handlers/validate';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import express from 'express';
 import type ApiKey from '../modules/auth/apiKey/apiKey.model';
 import { findByKey } from '../modules/auth/apiKey/apiKey.model';
 import schema, { Header } from '../modules/auth/apiKey/apiKey.schema';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 declare global {
 	namespace Express {

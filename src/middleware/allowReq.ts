@@ -1,9 +1,9 @@
 import { Roles } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { User } from '@/modules/auth/users/user.model';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const allowed = (allowedRoles: Roles[]) => {
 	return asyncHandler(async (req, res, next) => {

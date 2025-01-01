@@ -11,10 +11,10 @@ export type AddSubjectsToClassRequestBody = {
 	teacherName: string;
 };
 
-// const logger = new ProductionLogger('Class Service');
+// const logger = new Logger('Class Service');
 class ClassService {
 	private static _instance: ClassService;
-	constructor(private classes: typeof ClassModel) {}
+	constructor(private readonly classes: typeof ClassModel) {}
 	static getInstance(classes: typeof ClassModel) {
 		if (!ClassService._instance) {
 			ClassService._instance = new ClassService(classes);

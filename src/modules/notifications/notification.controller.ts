@@ -1,7 +1,7 @@
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { User } from '../auth/users/user.model';
-import { NotificationDocument, NotificationModel } from './notification.model';
+import { NotificationModel } from './notification.model';
 
 export const getNotifications = asyncHandler(async (req, res) => {
 	const user = req.user as User;
@@ -146,7 +146,7 @@ export const markAsDeleted = asyncHandler(async (req, res) => {
 	const notification = (await NotificationModel.markAsDeleted(
 		notificationId,
 		userId
-	)) as NotificationDocument;
+	)) as any;
 	return new SuccessResponse(
 		'Notification marked as deleted',
 		notification

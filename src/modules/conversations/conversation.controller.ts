@@ -2,14 +2,14 @@ import { cache } from '@/data/cache/cache.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { User } from '../auth/users/user.model';
 import ConversationModel, {
 	Conversation,
 	MessageModel
 } from './conversation.model';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const getConversations = asyncHandler(async (req, res) => {
 	const user = req.user as User;

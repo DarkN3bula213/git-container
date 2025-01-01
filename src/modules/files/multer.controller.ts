@@ -2,7 +2,7 @@ import { NotFoundResponse, SuccessResponse } from '@/lib/api/ApiResponse';
 import { singleUpload } from '@/lib/config/multer';
 import { uploadsDir } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { getFileMetadata } from '@/lib/utils/getFileMetaData';
 import { Request, Response } from 'express';
 import fs from 'fs-extra';
@@ -10,7 +10,7 @@ import { MulterError } from 'multer';
 import path from 'path';
 import Files from './file.model';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const downloadFile = asyncHandler(async (req, res) => {
 	const { fileName, folder } = req.params;

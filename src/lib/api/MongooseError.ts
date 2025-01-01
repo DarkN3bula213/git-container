@@ -1,4 +1,4 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { Student } from '@/modules/school/students/student.interface';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
@@ -9,7 +9,7 @@ import {
 	MongooseValidationError
 } from '.';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 export const handleMongooseError = (
 	err: mongoose.Error,
 	_req: Request,

@@ -10,27 +10,32 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 import { handleUploads } from './lib/config';
 import handleErrors from './lib/handlers/errorHandler';
-import { ProductionLogger } from './lib/logger/v1/logger';
-import setupMonitoring from './middleware/monitoring.middleware';
+import { Logger } from './lib/logger';
+// import setupMonitoring from './middleware/monitoring.middleware';
 import { nonProductionMiddleware } from './middleware/requestTracker';
 import sanitizeInputs from './middleware/sanitizeReq';
 import apiKey from './middleware/useApiKey';
 import router from './routes';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 process.on('uncaughtException', (e) => {
-	logger.error(`An uncaught exception occurred: ${e.message}`, e);
+	logger.error(new Error(`An uncaught exception occurred: ${e.message}`), {
+		stack: e.stack
+	});
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on('unhandledRejection', (reason: any) => {
-	logger.error(`An unhandled rejection occurred: ${reason?.message}`, reason);
+	logger.error(
+		new Error(`An unhandled rejection occurred: ${reason?.message}`),
+		reason
+	);
 });
 const app: Application = express();
 
 app.set('trust proxy', 1);
-setupMonitoring(app);
+// setupMonitoring(app);
 app.use(cookieParser());
 app.use(helmet());
 app.use(compression());

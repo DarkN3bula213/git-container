@@ -9,12 +9,12 @@ import { cache } from './data/cache/cache.service';
 import { db } from './data/database';
 // import { ensureAllIndexes } from './data/database/db.utils';
 import { banner, signals } from './lib/constants';
-import { ProductionLogger } from './lib/logger/v1/logger';
+import { Logger } from './lib/logger';
 import subjectMigration from './scripts/subjectMigration';
 import { setupCronJobs } from './services/cron';
 import SocketService from './sockets';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 const server = http.createServer(app);
 const socketService = SocketService.getInstance(server);
 
@@ -72,7 +72,7 @@ const startServer = async () => {
 
 		// Start the server and listen on all network interfaces
 		server.listen(PORT, '0.0.0.0' as any, () => {
-			logger.info({
+			logger.warn({
 				server: `Server instance instantiated and listening on port ${PORT}.`,
 				node: banner,
 				date: format(date, 'PPP'),

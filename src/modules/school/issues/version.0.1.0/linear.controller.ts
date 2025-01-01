@@ -1,6 +1,6 @@
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-// import { ProductionLogger } from '@/lib/logger/v1/logger';
+// import { Logger } from '@/lib/logger';
 import { isAdminRolePresent, normalizeRoles } from '@/lib/utils/utils';
 import { User } from '@/modules/auth/users/user.model';
 import { Types } from 'mongoose';
@@ -8,7 +8,7 @@ import LinearIssueModel, { type LinearIssue } from './linear.model';
 import service from './linear.service';
 import addToIsSeenBy from './linear.utils';
 
-// const logger = new ProductionLogger('Linear Controller');
+// const logger = new Logger('Linear Controller');
 
 export const createLinearIssue = asyncHandler(async (req, res) => {
 	const { description, title, tags, priority, status } = req.body;

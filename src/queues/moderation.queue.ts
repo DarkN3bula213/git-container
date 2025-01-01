@@ -1,10 +1,10 @@
 import { cache } from '@/data/cache/cache.service';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import UserActivityLogModel from '@/modules/analytics/analytics';
 import type { DoneCallback, Job } from 'bull';
 import QueueFactory from '.';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 const sessionProcessor = {
 	moderation: async (

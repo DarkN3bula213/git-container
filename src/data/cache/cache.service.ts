@@ -1,12 +1,12 @@
 import { config } from '@/lib/config';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import { RedisClientType } from 'redis';
 import redisClient from './cache.client';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export interface CacheService {
 	set(key: string, value: any): Promise<void>;

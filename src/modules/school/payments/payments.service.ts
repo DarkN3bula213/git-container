@@ -2,7 +2,7 @@ import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import { withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { generateInvoiceToken } from '@/lib/utils/tokens';
 import {
 	generateQRCode,
@@ -36,7 +36,7 @@ import {
 	parsePayId
 } from './payment.utils';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 class PaymentService {
 	async getNextInvoiceId(): Promise<string> {

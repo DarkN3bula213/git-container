@@ -154,6 +154,19 @@ const studentSchema = new Schema<Student>(
 					type: String
 				}
 			}
+		],
+		promotionHistory: [
+			{
+				previousClassId: String,
+				previousClassName: String,
+				previousSection: String,
+				newClassId: String,
+				newClassName: String,
+				newSection: String,
+				promotionDate: Date,
+				oldTuitionFee: Number,
+				newTuitionFee: Number
+			}
 		]
 	},
 	{

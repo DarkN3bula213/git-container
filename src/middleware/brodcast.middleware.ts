@@ -1,11 +1,11 @@
 import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { socketParser } from '@/sockets';
 import { NextFunction, Request, Response } from 'express';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 const broadcast = (
 	eventName: string,

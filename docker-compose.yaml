@@ -82,6 +82,11 @@ services:
         #     timeout: 30s
         #     retries: 30
         command: redis-server --appendonly no
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 30s
+            retries: 30
         networks:
             - app-network
 
@@ -115,111 +120,111 @@ services:
         networks:
             - app-network
 
-    ###################
-    ### Prometheus ###
-    #################
-    prometheus:
-        image: prom/prometheus:latest
-        container_name: prometheus
-        volumes:
-            - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-            - prometheus_data:/prometheus
-        command:
-            - '--config.file=/etc/prometheus/prometheus.yml'
-            - '--storage.tsdb.path=/prometheus'
-            - '--storage.tsdb.retention.time=15d'
-            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-            - '--web.console.templates=/usr/share/prometheus/consoles'
+    # ###################
+    # ### Prometheus ###
+    # #################
+    # prometheus:
+    #     image: prom/prometheus:latest
+    #     container_name: prometheus
+    #     volumes:
+    #         - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    #         - prometheus_data:/prometheus
+    #     command:
+    #         - '--config.file=/etc/prometheus/prometheus.yml'
+    #         - '--storage.tsdb.path=/prometheus'
+    #         - '--storage.tsdb.retention.time=15d'
+    #         - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+    #         - '--web.console.templates=/usr/share/prometheus/consoles'
 
-        expose:
-            - 9090
-        deploy:
-            resources:
-                limits:
-                    cpus: '0.5'
-                    memory: 512M
-        restart: unless-stopped
-        networks:
-            - app-network
+    #     expose:
+    #         - 9090
+    #     deploy:
+    #         resources:
+    #             limits:
+    #                 cpus: '0.5'
+    #                 memory: 512M
+    #     restart: unless-stopped
+    #     networks:
+    #         - app-network
 
-    #################
-    ### Grafana ###
-    ##############
-    grafana:
-        image: grafana/grafana:latest
-        container_name: grafana
-        env_file:
-            - .env
-        volumes:
-            - grafana_data:/var/lib/grafana
-            - ./grafana/provisioning:/etc/grafana/provisioning
-        environment:
-            - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
-            - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-            - GF_USERS_ALLOW_SIGN_UP=false
-            - GF_SERVER_ROOT_URL=http://localhost/grafana
-            - GF_SERVER_HTTP_PORT=4000 # Add this line to change Grafana's port
-            - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
-        expose:
-            - 4000
-        deploy:
-            resources:
-                limits:
-                    cpus: '0.5'
-                    memory: 512M
-        restart: unless-stopped
-        networks:
-            - app-network
+    # #################
+    # ### Grafana ###
+    # ##############
+    # grafana:
+    #     image: grafana/grafana:latest
+    #     container_name: grafana
+    #     env_file:
+    #         - .env
+    #     volumes:
+    #         - grafana_data:/var/lib/grafana
+    #         - ./grafana/provisioning:/etc/grafana/provisioning
+    #     environment:
+    #         - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+    #         - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    #         - GF_USERS_ALLOW_SIGN_UP=false
+    #         - GF_SERVER_ROOT_URL=http://localhost/grafana
+    #         - GF_SERVER_HTTP_PORT=4000 # Add this line to change Grafana's port
+    #         - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+    #     expose:
+    #         - 4000
+    #     deploy:
+    #         resources:
+    #             limits:
+    #                 cpus: '0.5'
+    #                 memory: 512M
+    #     restart: unless-stopped
+    #     networks:
+    #         - app-network
 
-    ###############
-    ### Loki ####
-    ############
-    loki:
-        image: grafana/loki:latest
-        container_name: loki
-        volumes:
-            - ./loki:/etc/loki:ro
-            - loki_data:/loki
-        command:
-            - '-config.file=/etc/loki/local-config.yaml'
-            - '-config.expand-env=true'
-            - '-validation.allow-structured-metadata=false'
-        expose:
-            - 3100
-        deploy:
-            resources:
-                limits:
-                    cpus: '0.5'
-                    memory: 512M
-        restart: unless-stopped
-        networks:
-            - app-network
+    # ###############
+    # ### Loki ####
+    # ############
+    # loki:
+    #     image: grafana/loki:latest
+    #     container_name: loki
+    #     volumes:
+    #         - ./loki:/etc/loki:ro
+    #         - loki_data:/loki
+    #     command:
+    #         - '-config.file=/etc/loki/local-config.yaml'
+    #         - '-config.expand-env=true'
+    #         - '-validation.allow-structured-metadata=false'
+    #     expose:
+    #         - 3100
+    #     deploy:
+    #         resources:
+    #             limits:
+    #                 cpus: '0.5'
+    #                 memory: 512M
+    #     restart: unless-stopped
+    #     networks:
+    #         - app-network
 
-    #################
-    ### Promtail ###
-    ###############
-    promtail:
-        image: grafana/promtail:latest
-        container_name: promtail
-        environment:
-            - JAEGER_AGENT_HOST=jaeger
-            - JAEGER_AGENT_PORT=6831
-            - JAEGER_SAMPLER_TYPE=const
-            - JAEGER_SAMPLER_PARAM=1
-        volumes:
-            - ./promtail/config.yml:/etc/promtail/config.yml
-            - ./logs:/var/log/app
-        command: -config.file=/etc/promtail/config.yml
-        deploy:
-            resources:
-                limits:
-                    cpus: '0.3'
-                    memory: 256M
-        restart: unless-stopped
-        networks:
-            - app-network
+    # #################
+    # ### Promtail ###
+    # ###############
+    # promtail:
+    #     image: grafana/promtail:latest
+    #     container_name: promtail
+    #     environment:
+    #         - JAEGER_AGENT_HOST=jaeger
+    #         - JAEGER_AGENT_PORT=6831
+    #         - JAEGER_SAMPLER_TYPE=const
+    #         - JAEGER_SAMPLER_PARAM=1
+    #     volumes:
+    #         - ./promtail/config.yml:/etc/promtail/config.yml
+    #         - ./logs:/var/log/app
+    #     command: -config.file=/etc/promtail/config.yml
+    #     deploy:
+    #         resources:
+    #             limits:
+    #                 cpus: '0.3'
+    #                 memory: 256M
+    #     restart: unless-stopped
+    #     networks:
+    #         - app-network
 
-    # Update nginx service to include monitoring endpoints
+    # # Update nginx service to include monitoring endpoints
 
 networks:
     app-network:
@@ -229,6 +234,6 @@ volumes:
     dbdata:
     uploads_volume:
     dbdata_config:
-    prometheus_data:
-    grafana_data:
-    loki_data:
+    # prometheus_data:
+    # grafana_data:
+    # loki_data:

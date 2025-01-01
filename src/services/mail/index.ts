@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 import { config } from '@/lib/config';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { MailtrapTransport } from 'mailtrap';
 import { MailtrapMailOptions } from 'mailtrap/dist/types/transport';
 import Nodemailer from 'nodemailer';
 import templates from './mailTemplates';
 
-const logger = new ProductionLogger('Mailtrap');
+const logger = new Logger('Mailtrap');
 
 export const client = Nodemailer.createTransport(
 	MailtrapTransport({

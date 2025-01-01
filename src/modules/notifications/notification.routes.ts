@@ -1,13 +1,15 @@
 import { Roles } from '@/lib/constants';
-import { invalidate } from '@/lib/handlers/cache.handler';
+import { invalidateOnSuccess } from '@/lib/handlers/cache.handler';
 import { validate } from '@/lib/handlers/validate';
 import { setRouter } from '@/lib/utils/utils';
 import attachRoles from '@/middleware/attachRoles';
 import { authorize } from '@/middleware/authorize';
+// import { validateRouteOrder } from '@/services/route-builder/routeBuilder';
 import { RouteMap } from '@/types/routes';
 import { Router } from 'express';
 import * as controller from './notification.controller';
 import schema from './notification.schema';
+import * as v1 from './v1/notification.controller';
 
 const router = Router();
 
@@ -19,10 +21,17 @@ const getRouteMap = (): RouteMap[] => {
 			handler: controller.getNotifications
 		},
 		{
+			path: '/user',
+			method: 'get',
+			// handler: v1.getUserNotifications
+			handler: v1.getUserNotifications
+		},
+		{
 			path: '/:id',
 			method: 'get',
 			handler: controller.getNotificationById
 		},
+
 		{
 			path: '/',
 			method: 'post',
@@ -30,14 +39,17 @@ const getRouteMap = (): RouteMap[] => {
 				attachRoles(Roles.ADMIN),
 				validate(schema.create),
 				authorize(Roles.ADMIN),
-				invalidate('notifications')
+				invalidateOnSuccess(['notifications', '*'])
 			],
 			handler: controller.createNotification
 		},
 		{
 			path: '/:id/read',
 			method: 'put',
-			validations: [invalidate('notifications'), schema.markAsDeleted],
+			validations: [
+				schema.markAsDeleted,
+				invalidateOnSuccess(['notifications', '*'])
+			],
 			handler: controller.markAsRead
 		},
 		{
@@ -60,12 +72,17 @@ const getRouteMap = (): RouteMap[] => {
 		{
 			path: '/:id/delete',
 			method: 'put',
-			validations: [invalidate('notifications'), schema.markAsDeleted],
+			validations: [
+				schema.markAsDeleted,
+				invalidateOnSuccess(['notifications', '*'])
+			],
 			handler: controller.markAsDeleted
 		}
 	];
 };
 
-setRouter(router, getRouteMap());
+const routes = getRouteMap();
+// validateRouteOrder(routes);
+setRouter(router, routes);
 
 export default router;

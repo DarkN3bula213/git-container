@@ -1,7 +1,7 @@
 import { cache } from '@/data/cache/cache.service';
 import { config } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { removeSaveSessionJob } from '@/modules/auth/sessions/session.processor';
 import { metrics } from '@/services/metrics';
 import { ConnectedUser } from '@/types/connectedUsers';
@@ -16,7 +16,7 @@ import {
 import { handleImageTransfer } from './events/imageTransfer';
 import { handleWebRTC } from './events/webRTC';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 let socketParser: SocketIOServer;
 class SocketService {

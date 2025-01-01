@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-// const logger = new ProductionLogger(__filename);
+// const logger = new Logger(__filename);
 import type { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import fs, { promises } from 'node:fs';
@@ -38,6 +38,11 @@ export async function RequestLogger(
 	});
 	next();
 }
+let dir = config.log.directory;
+if (!dir) dir = path.resolve('logs');
+if (!fs.existsSync(dir)) {
+	fs.mkdirSync(dir);
+}
 export const PathLogger = winston.createLogger({
 	level: 'info',
 	format: winston.format.combine(
@@ -45,9 +50,13 @@ export const PathLogger = winston.createLogger({
 		winston.format.json()
 	),
 	transports: [
-		new winston.transports.File({
-			filename: path.join(__dirname, '../../../logs/path.log'),
-			dirname: path.join(__dirname, '../../../logs')
+		new winston.transports.DailyRotateFile({
+			filename: path.join(dir, 'path-%DATE%.log'),
+			dirname: dir,
+			datePattern: 'YYYY-MM-DD',
+			zippedArchive: true,
+			maxSize: '20m',
+			maxFiles: '14d'
 		})
 	]
 });

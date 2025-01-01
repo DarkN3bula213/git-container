@@ -1,10 +1,10 @@
 import { CacheClientService } from '@/data/cache/cache.service';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import UserSessionModel, {
 	ActivitySummary
 } from '@/modules/auth/sessions/session.model';
 
-const logger = new ProductionLogger('RequestTrackerService');
+const logger = new Logger('RequestTrackerService');
 
 interface RequestLog {
 	userId: string;

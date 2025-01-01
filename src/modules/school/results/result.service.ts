@@ -13,7 +13,7 @@
 // 	SubjectResultBase
 // } from './result.model';
 
-// const logger = new ProductionLogger('ResultService');
+// const logger = new Logger('ResultService');
 
 // // Input types for different operations
 

@@ -36,6 +36,7 @@ export type Student = Document & {
 		remarks: string[];
 	};
 	paymentHistory: Payments[];
+	promotionHistory: StudentPromotionHistory[];
 	version: number;
 };
 
@@ -43,4 +44,16 @@ type Payments = {
 	paymentId: ObjectId;
 	payID: string;
 	payId: string;
+};
+
+export type StudentPromotionHistory = {
+	previousClassId: string;
+	previousClassName: string;
+	previousSection: string;
+	newClassId: string;
+	newClassName: string;
+	newSection: string;
+	promotionDate: Date;
+	oldTuitionFee: number;
+	newTuitionFee: number;
 };

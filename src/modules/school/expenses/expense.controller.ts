@@ -1,11 +1,11 @@
 import { singleDocumentUpload } from '@/lib/config';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { NextFunction, Request, Response } from 'express';
 import { MulterError } from 'multer';
 import { Expense, Expenses } from './expense.model';
 
-const logger = new ProductionLogger('ExpenseController');
+const logger = new Logger('ExpenseController');
 /*<!-----------  GET   --------------->*/
 export const getExpenses = asyncHandler(async (_req, res) => {
 	const expenses = await Expenses.find();
@@ -54,13 +54,15 @@ export const createExpense = asyncHandler(async (req, res) => {
 
 				try {
 					// Create a new document in the Expense collection
-					const newExpense = await Expenses.create({
+					const expenseData = {
 						title,
 						amount,
 						vendor,
 						date,
 						filePath
-					});
+					};
+
+					const newExpense = await Expenses.create(expenseData);
 					logger.debug(newExpense);
 					res.status(201).json(newExpense);
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any

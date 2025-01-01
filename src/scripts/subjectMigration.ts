@@ -1,12 +1,12 @@
 // migrations/subjectMigration.ts
 import { withTransaction } from '@/data/database/db.utils';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { ClassModel } from '@/modules/school/classes/class.model';
 import { generateSubjectsData } from '@/modules/school/subjects/subject.data';
 import { ISubject, Subject } from '@/modules/school/subjects/subject.model';
 import mongoose, { ClientSession } from 'mongoose';
 
-const logger = new ProductionLogger('SubjectMigration');
+const logger = new Logger('SubjectMigration');
 
 interface MigrationOptions {
 	force?: boolean; // Whether to force re-run migration

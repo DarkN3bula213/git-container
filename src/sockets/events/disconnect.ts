@@ -1,5 +1,5 @@
 import { cache } from '@/data/cache/cache.service';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { ConnectedUser } from '@/types/connectedUsers';
 import { Server, type Socket } from 'socket.io';
 import { addSaveSessionJob } from '../../modules/auth/sessions/session.processor';
@@ -8,7 +8,7 @@ import { sendAdminMessage } from '../utils/emitMessage';
 import { getOnlineUsers } from '../utils/getOnlineUsers';
 import { getStartTimeFromCache } from '../utils/getStartTimeFromCache';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const handleDisconnect = async (
 	socket: Socket,

@@ -1,7 +1,7 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import mongoose from 'mongoose';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 const schema = new mongoose.Schema({
 	date: { type: Date, required: true, default: Date.now, unique: true },

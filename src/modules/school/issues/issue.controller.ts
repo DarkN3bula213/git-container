@@ -1,12 +1,12 @@
 import { convertToObjectId } from '@/data/database/db.utils';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { User } from '@/modules/auth/users/user.model';
 import { Request, Response } from 'express';
 import IssueService from './issue.service';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 export const createIssue = asyncHandler(async (req, res) => {
 	const user = req.user as User;
 	const userId = convertToObjectId(user._id.toString());

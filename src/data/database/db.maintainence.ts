@@ -1,9 +1,9 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import mongoose from 'mongoose';
 import { HealthCheckResult, scanModelHealth } from './db.health';
 import { rollbackManager } from './db.rollback';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const performDatabaseMaintenance = async () => {
 	try {

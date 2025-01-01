@@ -1,11 +1,11 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import {
 	generateConversationKey,
 	getOrCreateConversation
 } from '@/modules/conversations/conversation.utils';
 import { Socket } from 'socket.io';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const getConversationId = async (userId: string, socket: Socket) => {
 	const user = socket.data.userId;

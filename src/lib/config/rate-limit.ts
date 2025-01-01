@@ -1,7 +1,7 @@
 import rateLimit from 'express-rate-limit';
-import { ProductionLogger } from '../logger/v1/logger';
+import { Logger } from '../logger/v1/logger';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const options = {
 	windowMs: 15 * 60 * 1000,

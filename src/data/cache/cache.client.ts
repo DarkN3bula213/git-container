@@ -1,8 +1,8 @@
 import { config } from '@/lib/config';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { type RedisClientType, createClient } from 'redis';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 const redisClient: RedisClientType = createClient({
 	url: config.isDevelopment ? 'redis://localhost:6379' : process.env.REDIS_URL

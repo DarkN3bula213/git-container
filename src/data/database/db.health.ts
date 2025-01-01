@@ -1,7 +1,7 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import mongoose from 'mongoose';
 
-const logger = new ProductionLogger('db.health');
+const logger = new Logger('db.health');
 
 export interface HealthCheckResult {
 	model: string;

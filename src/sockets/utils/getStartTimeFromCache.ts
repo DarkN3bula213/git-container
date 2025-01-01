@@ -1,8 +1,8 @@
 import { cache } from '@/data/cache/cache.service';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { Socket } from 'socket.io';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 const getStartTimeFromCache = async (
 	userID: string,

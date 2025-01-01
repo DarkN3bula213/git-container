@@ -1,12 +1,12 @@
 import { cache } from '@/data/cache/cache.service';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import mongoose, { Types } from 'mongoose';
 import ConversationModel, {
 	IConversation,
 	MessageModel
 } from './conversation.model';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const getOrCreateConversation = async (
 	userId: string,

@@ -1,8 +1,8 @@
 import { cache } from '@/data/cache/cache.service';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import mongoose, { Schema } from 'mongoose';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export interface IPayment extends mongoose.Document {
 	studentId: mongoose.Schema.Types.ObjectId;

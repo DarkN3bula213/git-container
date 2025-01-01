@@ -12,7 +12,7 @@ import { accessCookie, logoutCookie } from '@/lib/config/cookies';
 import { Roles } from '@/lib/constants';
 import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { notify } from '@/lib/utils/socketParser';
 // import { signToken } from '@/lib/utils/tokens';
 // import {
@@ -24,7 +24,7 @@ import Role, { RoleModel } from '@/modules/auth/roles/role.model';
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 // import session from 'express-session';
 
 declare module 'express-session' {

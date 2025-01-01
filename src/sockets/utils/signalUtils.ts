@@ -1,4 +1,4 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { Server } from 'socket.io';
 import { emitMessage } from '../utils/emitMessage';
 
@@ -12,10 +12,10 @@ export class WebRTCSignalingService {
 	private static instance: WebRTCSignalingService;
 	private pendingOffers: Map<string, PendingOffer[]> = new Map();
 	private readonly OFFER_TIMEOUT = 30000; // 30 seconds
-	private logger: ProductionLogger;
+	private logger: Logger;
 
 	constructor(private io: Server) {
-		this.logger = new ProductionLogger('WebRTCSignalingService');
+		this.logger = new Logger('WebRTCSignalingService');
 		this.startOfferCleanup();
 	}
 

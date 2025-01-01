@@ -1,9 +1,9 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import cookie from 'cookie';
 import type { Request } from 'express';
 import type { Socket } from 'socket.io';
 
-const logger = new ProductionLogger('extractToken');
+const logger = new Logger('extractToken');
 
 export const extractToken = (source: Socket | Request): string | null => {
 	try {

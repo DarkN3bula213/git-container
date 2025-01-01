@@ -2,7 +2,7 @@ import { cache } from '@/data/cache/cache.service';
 import { Key } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import {
 	generateMonthlyFeeStatusEmail,
 	getMonthlyFeeStatus
@@ -14,7 +14,7 @@ import { Student } from '../students/student.interface';
 import StudentModel from '../students/student.model';
 import { getSchoolStatisticsForBillingCycle } from './stat.aggregations';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const getSchoolStatsBySession = asyncHandler(async (req, res) => {
 	const { payId } = req.params;

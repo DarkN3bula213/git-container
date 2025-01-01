@@ -1,12 +1,12 @@
 import { validateData } from '@/lib/handlers/validate';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import QueueFactory from '@/queues';
 import { DoneCallback, Job } from 'bull';
 import { createUserSession } from './session.model';
 import { sessionSchema } from './session.schema';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 const sessionProcessor = {
 	saveUserSession: async (
 		job: Job<{

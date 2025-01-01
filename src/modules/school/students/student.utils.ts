@@ -1,4 +1,4 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import {
 	IDTrackerModel,
 	IIDTracker
@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import { ClassModel } from '../classes/class.model';
 import StudentModel from './student.model';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const generateUniqueId = async (): Promise<string> => {
 	const today = dayjs().format('YYMMDD');

@@ -5,7 +5,7 @@ import { normalizeRoles } from '@/lib/utils/utils';
 import { RoleModel } from '@/modules/auth/roles/role.model';
 import { User } from '@/modules/auth/users/user.model';
 
-// const logger = new ProductionLogger(__filename);
+// const logger = new Logger(__filename);
 
 export function authorize(requiredRole: Roles) {
 	return asyncHandler(async (req, res, next) => {

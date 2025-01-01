@@ -1,10 +1,10 @@
 import { cache } from '@/data/cache/cache.service';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { NextFunction, Request, Response } from 'express';
 import { RedisClientType } from 'redis';
 import asyncHandler from './asyncHandler';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 // export const invalidate = (key: string) => {
 //   return asyncHandler(async (req, res, next) => {
 //     try {
@@ -23,12 +23,16 @@ async function performInvalidation(keysOrPattern: string | string[]) {
 	const client = cache.getClient();
 
 	if (Array.isArray(keysOrPattern)) {
+		let keys = 0;
 		for (const keyOrPattern of keysOrPattern) {
 			if (keyOrPattern.includes('*')) {
 				await invalidatePattern(client, keyOrPattern);
+				keys += 1;
 			} else {
 				await client.del(keyOrPattern);
+				keys += 1;
 			}
+			logger.info(`Invalidated ${keys} keys`);
 		}
 	} else if (keysOrPattern.includes('*')) {
 		await invalidatePattern(client, keysOrPattern);
@@ -36,9 +40,7 @@ async function performInvalidation(keysOrPattern: string | string[]) {
 		await client.del(keysOrPattern);
 	}
 
-	logger.debug({
-		message: `Cache invalidated for: ${keysOrPattern}`
-	});
+	logger.debug(`Cache invalidated for: ${keysOrPattern}`);
 }
 // export const invalidate = (keysOrPattern: string | string[]) => {
 // 	return asyncHandler(async (_req, _res, next) => {
@@ -141,7 +143,7 @@ export const invalidateOnSuccess = (keysOrPattern: string | string[]) => {
 				}
 				return originalFn.call(response, data);
 			}
-
+			logger.debug(`Invalidating after success: ${keysOrPattern}`);
 			next();
 		}
 	);

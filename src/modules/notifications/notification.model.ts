@@ -18,6 +18,9 @@ interface NotificationModel extends mongoose.Model<NotificationDocument> {
 		notificationId: string,
 		userId: string
 	): Promise<NotificationDocument>;
+	getNotificationsForUser(
+		userId: string
+	): Promise<Array<NotificationDocument & { seen: boolean }>>;
 }
 
 const notificationSchema = new mongoose.Schema<NotificationDocument>(
@@ -69,6 +72,37 @@ notificationSchema.statics = {
 	}
 };
 
+// Add this static method to your schema
+notificationSchema.statics.getNotificationsForUser = async function (
+	userId: string
+) {
+	return this.aggregate([
+		{
+			$match: {
+				isDeleted: { $nin: [userId] }
+			}
+		},
+		{
+			$addFields: {
+				seen: {
+					$in: [userId, { $ifNull: ['$seenBy', []] }]
+				}
+			}
+		},
+		{
+			$project: {
+				title: 1,
+				message: 1,
+				seenBy: 1,
+				isDeleted: 1,
+				createdAt: 1,
+				updatedAt: 1,
+				seen: 1,
+				time: 1
+			}
+		}
+	]);
+};
 export const NotificationModel = mongoose.model<
 	NotificationDocument,
 	NotificationModel

@@ -1,13 +1,13 @@
 import { BadRequestError } from '@/lib/api';
 import { config } from '@/lib/config';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { numberFormatter } from '@/lib/utils/numberFormatter';
 import { writeFileSync } from 'fs';
 import sendEmail, { generateHtmlTemplate } from '.';
 import { getPaymentsForDate } from '../cron/daily-fees';
 import template from './mailTemplates';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export const sendWelcomeEmail = async (email: string, name: string) => {
 	try {

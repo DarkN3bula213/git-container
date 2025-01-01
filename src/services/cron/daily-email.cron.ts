@@ -1,8 +1,8 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import cron from 'node-cron';
 import { sendPaymentSummaryEmail } from '../mail/mailTrap';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 // Function to send the payment summary email
 export const setupPaymentSummaryJob = () => {

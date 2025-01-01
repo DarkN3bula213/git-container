@@ -1,10 +1,10 @@
 import { withTransaction } from '@/data/database/db.utils';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { type ClientSession, Types, startSession } from 'mongoose';
 import LinearIssueModel, { type LinearIssue } from './linear.model';
 import addToIsSeenBy from './linear.utils';
 
-const logger = new ProductionLogger('Linear Service');
+const logger = new Logger('Linear Service');
 
 interface UpdateIssueRequestBody {
 	status?: LinearIssue['status'];

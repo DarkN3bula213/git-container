@@ -1,9 +1,9 @@
 import { withTransaction } from '@/data/database/db.utils';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import settings, { Settings } from '@/modules/auth/settings/settings.model';
 import { Types } from 'mongoose';
 
-const logger = new ProductionLogger('UserSettingsService');
+const logger = new Logger('UserSettingsService');
 
 export class UserSettingsService {
 	private static instance: UserSettingsService;

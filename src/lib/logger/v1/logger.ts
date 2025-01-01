@@ -1,10 +1,21 @@
 import { config } from '@/lib/config';
 import { inspect } from 'util';
-import winston from 'winston';
+import winston, { format } from 'winston';
 import 'winston-daily-rotate-file';
 import LokiTransport from 'winston-loki';
+import { defaultScope } from '../loggerConfig';
 
-export class ProductionLogger {
+const jsColorMapping = {
+	debug: '\u001b[32m',
+	// Make info gray
+	info: '\u001b[37m',
+	warn: '\u001b[33m',
+	error: '\u001b[31m'
+} as const;
+
+type LogLevel = keyof typeof jsColorMapping;
+
+export class Logger {
 	private readonly logger: winston.Logger;
 	private readonly isDev: boolean;
 
@@ -23,8 +34,13 @@ export class ProductionLogger {
 
 					return `${timestamp} [${level}] ${
 						typeof message === 'object'
-							? inspect(message, { colors: true, depth: 5 })
-							: message
+							? Object.entries(message).map(
+									([key, value]) =>
+										`${jsColorMapping[level as LogLevel]}${key}: ${value}\u001b[0m`
+								)
+							: // Trim the last newline and remove the "" and +
+
+								message
 					}${metaString}`;
 				}
 			)
@@ -41,12 +57,12 @@ export class ProductionLogger {
 		const transports: winston.transport[] = [
 			// Console Transport
 			new winston.transports.Console({
-				format: config.isProduction ? prodFormat : devFormat
+				format: !config.isProduction ? devFormat : prodFormat
 			})
 		];
 
 		// Add Daily Rotate File Transport in production
-		if (!config.isProduction) {
+		if (config.isProduction) {
 			transports.push(
 				new winston.transports.DailyRotateFile({
 					filename: 'logs/app-%DATE%.log',
@@ -54,7 +70,7 @@ export class ProductionLogger {
 					zippedArchive: true,
 					maxSize: '20m',
 					maxFiles: '14d',
-					format: prodFormat
+					format: format.logstash()
 				})
 			);
 
@@ -83,38 +99,19 @@ export class ProductionLogger {
 		this.logger = winston.createLogger({
 			level: this.isDev ? 'debug' : 'info',
 			defaultMeta: {
-				service,
+				scope: defaultScope,
 				environment: config.production ? 'prod' : 'dev'
 			},
-			transports
+			transports,
+			format: format.combine(format.timestamp(), format.prettyPrint()),
+			exceptionHandlers: [
+				new winston.transports.File({ filename: 'logs/exceptions.log' })
+			],
+			rejectionHandlers: [
+				new winston.transports.File({ filename: 'logs/rejections.log' })
+			],
+			exitOnError: false
 		});
-	}
-
-	private formatMessage(message: string | object): string | object {
-		if (typeof message === 'string') return message;
-
-		try {
-			// Handle circular references and functions in objects
-			return JSON.parse(
-				JSON.stringify(message, (key, value) => {
-					if (typeof value === 'function') return '[Function]';
-					if (typeof value === 'symbol') return value.toString();
-					if (value instanceof Error) {
-						return {
-							...value, // Move spread operator first
-							message: value.message,
-							stack: value.stack
-						};
-					}
-					return value;
-				})
-			);
-		} catch (err) {
-			return {
-				error: 'Unable to serialize message',
-				originalMessage: String(message)
-			};
-		}
 	}
 
 	info(message: string | object, meta: object = {}): void {

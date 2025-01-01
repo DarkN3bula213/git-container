@@ -1,8 +1,8 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import type { Application } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 export const useProxy = (app: Application) => {
 	logger.info('Setting up proxy for /api/files');
 	app.use(

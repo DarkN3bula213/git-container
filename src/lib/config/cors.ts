@@ -1,9 +1,9 @@
 import type cors from 'cors';
 import { origins } from '../constants/allowedOrigins';
-import { ProductionLogger } from '../logger/v1/logger';
+import { Logger } from '../logger/v1/logger';
 import { config } from './config';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 export const options = {};
 
 export const corsOptions: cors.CorsOptions = {

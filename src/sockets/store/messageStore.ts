@@ -1,8 +1,8 @@
 import redisClient from '@/data/cache/cache.client';
 import { CacheClientService } from '@/data/cache/cache.service';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 export interface Message {
 	from: UserChat;
 	to: UserChat;

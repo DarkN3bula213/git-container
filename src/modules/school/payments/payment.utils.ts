@@ -1,5 +1,5 @@
 import { socketService } from '@/index';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { getDayOfYear } from 'date-fns';
 import { getNextSequence } from '../counter/counter.model';
 import paymentQueue from './payment.queue';
@@ -12,7 +12,7 @@ export const getPayId = () => {
 	return `${currentMonth}${currentYear}`;
 };
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 interface JobResult {
 	jobId: string;
 	success: boolean;

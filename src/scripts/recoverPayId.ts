@@ -1,11 +1,11 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import PaymentModel, {
 	IPayment
 } from '@/modules/school/payments/payment.model';
 import StudentModel from '@/modules/school/students/student.model';
 import mongoose from 'mongoose';
 
-const Logger = new ProductionLogger('payment-id-recovery');
+const Logger = new Logger('payment-id-recovery');
 
 interface Summary {
 	totalStudents: number;

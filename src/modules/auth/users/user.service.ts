@@ -5,7 +5,7 @@ import { convertToObjectId, withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
 import { config } from '@/lib/config';
 import { Roles } from '@/lib/constants';
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { signToken, verfication } from '@/lib/utils/tokens';
 import {
 	fetchRoleCodes,
@@ -31,7 +31,7 @@ type UserDataObject = {
 	accessToken: string | undefined;
 };
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 class UserService {
 	private static instance: UserService;
 	constructor(private user: typeof UserModel) {}

@@ -1,8 +1,8 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import mongoose, { type ClientSession, Types } from 'mongoose';
 
 type TransactionCallback<T> = (session: ClientSession) => Promise<T>;
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 
 export async function withTransaction<T>(
 	callback: TransactionCallback<T>

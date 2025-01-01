@@ -1,9 +1,9 @@
-import { ProductionLogger } from '@/lib/logger/v1/logger';
+import { Logger } from '@/lib/logger';
 import { validate } from 'deep-email-validator';
 import dns from 'dns';
 import { promisify } from 'util';
 
-const logger = new ProductionLogger(__filename);
+const logger = new Logger(__filename);
 const resolveMx = promisify(dns.resolveMx);
 
 async function checkMXRecords(email: string): Promise<boolean> {
