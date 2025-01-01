@@ -1,3 +1,48 @@
+# name: Check and copy files to Hostinger
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   test-ssh:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Setup SSH key
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "${{ secrets.HOSTINGER_DEPLOY_KEY }}" > ~/.ssh/deploy_key
+#           chmod 600 ~/.ssh/deploy_key
+#           ls -la ~/.ssh/deploy_key
+
+#       - name: Debug key format
+#         run: |
+#           head -n 1 ~/.ssh/deploy_key
+#           echo "Key length (should be >100):"
+#           wc -l ~/.ssh/deploy_key
+
+#       - name: Add known hosts
+#         run: |
+#           echo "${{ secrets.HOSTINGER_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+
+#       - name: Test connection
+#         run: |
+#           ssh -v -i ~/.ssh/deploy_key ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connected!'"
+
+#       - name: Deploy with rsync
+#         run: |
+#           rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
+#             --exclude '.git*' \
+#             --exclude 'node_modules' \
+#             --exclude 'test' \
+#             --exclude '.env' \
+#             --exclude 'logs' \
+#             --exclude 'dist' \
+#             ./ ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }}:/var/www/hps/
+
+
 name: Check and copy files to Hostinger
 
 on:
@@ -6,34 +51,37 @@ on:
       - main
 
 jobs:
-  test-ssh:
+  deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.HOSTINGER_DEPLOY_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ls -la ~/.ssh/deploy_key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.HOSTINGER_DEPLOY_KEY }}
+          known_hosts: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+          if_key_exists: replace
 
-      - name: Debug key format
+      - name: Test SSH Connection
         run: |
-          head -n 1 ~/.ssh/deploy_key
-          echo "Key length (should be >100):"
-          wc -l ~/.ssh/deploy_key
+          ssh -v -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connection test successful'"
 
-      - name: Add known hosts
+      - name: Check destination directory permissions
         run: |
-          echo "${{ secrets.HOSTINGER_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} '
+            ls -la /var/www/
+            mkdir -p /var/www/hps
+            chmod 755 /var/www/hps
+          '
 
-      - name: Test connection
+      - name: Deploy with rsync (verbose)
         run: |
-          ssh -v -i ~/.ssh/deploy_key ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connected!'"
-
-      - name: Deploy with rsync
-        run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
+          eval $(ssh-agent -s)
+          ssh-add - <<< "${{ secrets.HOSTINGER_DEPLOY_KEY }}"
+          rsync -avvz --progress -e "ssh -v -o StrictHostKeyChecking=no" \
             --exclude '.git*' \
             --exclude 'node_modules' \
             --exclude 'test' \
@@ -41,3 +89,10 @@ jobs:
             --exclude 'logs' \
             --exclude 'dist' \
             ./ ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }}:/var/www/hps/
+
+      - name: Verify files
+        if: success()
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} '
+            ls -la /var/www/hps/
+          '
