@@ -87,3 +87,12 @@ export const student = validateReq({
 /**
  * studentId, amount, remarks
  */
+export const promote = Joi.object({
+	studentIds: Joi.array().items(JoiObjectId()).required(),
+	targetId: JoiObjectId().required(),
+	section: Joi.string().required()
+});
+
+export const rollback = Joi.object({
+	studentIds: Joi.array().items(JoiObjectId()).required()
+});

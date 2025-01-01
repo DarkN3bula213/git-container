@@ -1,0 +1,32 @@
+name: Check0
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOSTINGER_DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ls -la ~/.ssh/deploy_key
+
+      - name: Debug key format
+        run: |
+          head -n 1 ~/.ssh/deploy_key
+          echo "Key length (should be >100):"
+          wc -l ~/.ssh/deploy_key
+
+      - name: Add known hosts
+        run: |
+          echo "${{ secrets.HOSTINGER_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+
+      - name: Test connection
+        run: |
+          ssh -v -i ~/.ssh/deploy_key ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connected!'"

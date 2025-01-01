@@ -1,10 +1,11 @@
 import { DynamicKey } from '@/data/cache/keys';
-import { invalidate } from '@/lib/handlers/cache.handler';
+import { invalidate, invalidateOnSuccess } from '@/lib/handlers/cache.handler';
 import { validate } from '@/lib/handlers/validate';
 import { setRouter } from '@/lib/utils/utils';
 import { type RouteMap } from '@/types/routes';
 import { Router } from 'express';
 import * as aggregations from './controllers/aggregation.controller';
+import * as promotionController from './controllers/promotion.controller';
 import * as controller from './student.controller';
 import * as schema from './student.schema';
 
@@ -25,6 +26,29 @@ router
 		invalidate([DynamicKey.STUDENTS, '*']),
 		controller.changeStudentSection
 	);
+
+function getPromotionRouteMap(): RouteMap[] {
+	return [
+		{
+			path: '/promote',
+			method: 'post',
+			validations: [
+				validate(schema.promote),
+				invalidateOnSuccess([DynamicKey.STUDENTS, '*'])
+			],
+			handler: promotionController.promoteStudents
+		},
+		{
+			path: '/rollback',
+			method: 'post',
+			validations: [
+				validate(schema.rollback),
+				invalidateOnSuccess([DynamicKey.STUDENTS, '*'])
+			],
+			handler: promotionController.rollbackPromotion
+		}
+	];
+}
 function getRouteMap(): RouteMap[] {
 	return [
 		{
@@ -97,5 +121,6 @@ function getRouteMap(): RouteMap[] {
 }
 
 setRouter(router, getRouteMap());
+setRouter(router, getPromotionRouteMap());
 
 export default router;

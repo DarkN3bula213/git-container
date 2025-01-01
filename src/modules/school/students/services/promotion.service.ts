@@ -1,4 +1,5 @@
 import { withTransaction } from '@/data/database/db.utils';
+import { ClientSession } from 'mongoose';
 import { ClassModel, IClass } from '../../classes/class.model';
 import { Student } from '../student.interface';
 import StudentModel from '../student.model';
@@ -41,7 +42,7 @@ class PromotionService {
 	private async validateClass(
 		classId: string,
 		section: string,
-		session: any
+		session: ClientSession
 	) {
 		const targetClass = await this.classModel
 			.findById(classId)
