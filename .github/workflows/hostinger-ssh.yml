@@ -1,4 +1,4 @@
-name: Check0
+name: Check and copy files to Hostinger
 
 on:
   push:
@@ -30,3 +30,8 @@ jobs:
       - name: Test connection
         run: |
           ssh -v -i ~/.ssh/deploy_key ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connected!'"
+
+      - name: Copy project files
+        run: |
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }}:/var/www/hps/
+        shell: bash
