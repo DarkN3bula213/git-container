@@ -142,3 +142,4 @@ uploads
 mongo-keyfile
 .env.travis
 # End of Selection
+.env.mongo

@@ -23,16 +23,13 @@ async function performInvalidation(keysOrPattern: string | string[]) {
 	const client = cache.getClient();
 
 	if (Array.isArray(keysOrPattern)) {
-		let keys = 0;
 		for (const keyOrPattern of keysOrPattern) {
 			if (keyOrPattern.includes('*')) {
 				await invalidatePattern(client, keyOrPattern);
-				keys += 1;
 			} else {
 				await client.del(keyOrPattern);
-				keys += 1;
 			}
-			logger.info(`Invalidated ${keys} keys`);
+			logger.info(`Invalidated ${keysOrPattern} keys`);
 		}
 	} else if (keysOrPattern.includes('*')) {
 		await invalidatePattern(client, keysOrPattern);

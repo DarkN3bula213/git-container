@@ -96,6 +96,7 @@ class PromotionService {
 					{ _id: { $in: studentIds } },
 					{
 						$set: {
+							className: targetClass.className,
 							classId: targetId,
 							section: section,
 							tuition_fee: targetClass.fee

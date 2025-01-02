@@ -12,12 +12,13 @@ interface AggregationParams {
 
 interface StudentWithPaymentHistory extends Student {
 	history: Array<{ [key: string]: boolean }>;
+	isPromoted: boolean;
 }
 
 export const getStudentsWithPaymentHistory = async ({
 	classId,
 	section,
-	historyMonths = 24
+	historyMonths = 12
 }: AggregationParams = {}): Promise<StudentWithPaymentHistory[]> => {
 	// Generate consistent months array using date-fns
 	const currentDate = startOfMonth(new Date());
@@ -40,6 +41,33 @@ export const getStudentsWithPaymentHistory = async ({
 			}
 		},
 
+		{
+			$addFields: {
+				isPromoted: {
+					$cond: {
+						if: {
+							$and: [
+								{
+									$gt: [
+										{
+											$size: {
+												$ifNull: [
+													'$promotionHistory',
+													[]
+												]
+											}
+										},
+										0
+									]
+								}
+							]
+						},
+						then: true,
+						else: false
+					}
+				}
+			}
+		},
 		// Lookup payments
 		{
 			$lookup: {
