@@ -1,5 +1,17 @@
 /* eslint-disable no-undef */
+// db = db.getSiblingDB(process.env.MONGO_DB_NAME);
 
+// db.createUser({
+// 	user: process.env.MONGO_USER,
+// 	pwd: process.env.MONGO_PASSWORD,
+// 	roles: [
+// 		{
+// 			role: 'readWrite',
+// 			db: process.env.MONGO_DB_NAME
+// 		}
+// 	]
+// });
+// Create the root user in the admin database
 db = db.getSiblingDB('admin');
 
 db.createUser({
@@ -66,7 +78,7 @@ if (db.users.countDocuments() === 0) {
 	db.users.insert({
 		name: 'Ateeb Ahmed',
 		father_name: 'Taeed Ahmed',
-		email: process.env.ADMIN_EMAIL,
+		email: 'admin@admin.hps.com',
 		gender: 'male',
 		cnic: '35201-8452114-7',
 		cnic_issued_date: '2019-11-11',
