@@ -1,9 +1,249 @@
-version: '3.3'
+# version: '3.3'
+
+# services:
+#     ############
+#     ### App ###
+#     ##########
+#     app:
+#         build:
+#             context: .
+#             dockerfile: Dockerfile.production
+#         env_file:
+#             - .env
+#         container_name: hps-api
+#         environment:
+#             - NODE_ENV=docker
+#             - PORT=3000
+#             - REDIS_URL=redis://redis
+#         volumes:
+#             - ./logs:/usr/src/app/logs
+#             - uploads_volume:/usr/src/app/uploads
+#         depends_on:
+#             - redis
+#             - mongo
+#         restart: always
+#         expose:
+#             - '3000'
+#         links:
+#             - redis
+#             - mongo
+#         extra_hosts:
+#             - 'host.docker.internal:host-gateway'
+#         networks:
+#             - app-network
+
+#     ###############
+#     ### Mongo ###
+#     ###########
+#     mongo:
+#         build:
+#             context: .
+#             dockerfile: Dockerfile.mongo
+#         env_file:
+#             - .env.mongo
+#         command:
+#             - 'mongod'
+#             - '--replSet'
+#             - 'rs0'
+#             - '--bind_ip_all'
+#             - '--port'
+#             - '27017'
+#             - '--keyFile'
+#             - '/data/mongo-keyfile'
+#             # - '--auth'
+#             - '--auth'
+#         container_name: mongo
+#         ports:
+#             - 27017:27017
+#         extra_hosts:
+#             - 'host.docker.internal:host-gateway'
+#         restart: always
+#         healthcheck:
+#             test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+#             interval: 5s
+#             timeout: 30s
+#             retries: 30
+#         volumes:
+#             # - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+#             - ./addons/seed-db.js:/docker-entrypoint-initdb.d/02-seed-db.js:ro
+#             - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
+#             - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
+#         environment:
+#             - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+#             - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+#             - TZ=Asia/Karachi
+#         networks:
+#             - app-network
+
+#     ##############
+#     ### Redis ###
+#     ###########
+#     redis:
+#         image: redis:alpine
+#         container_name: redis
+#         # healthcheck:
+#         #     test: ["CMD", "redis-cli", "ping"]
+#         #     interval: 5s
+#         #     timeout: 30s
+#         #     retries: 30
+#         command: redis-server --appendonly no
+#         healthcheck:
+#             test: ['CMD', 'redis-cli', 'ping']
+#             interval: 5s
+#             timeout: 30s
+#             retries: 30
+#         networks:
+#             - app-network
+
+#     ##############
+#     ### Nginx ###
+#     ###########
+#     nginx:
+#         image: nginx:alpine
+#         container_name: nginx
+#         healthcheck:
+#             test: ['CMD', 'nginx', '-t']
+#             interval: 30s
+#             timeout: 10s
+#             retries: 3
+#         ports:
+#             - '80:80'
+#             - '443:443'
+#         volumes:
+#             - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#             - /etc/letsencrypt/live/api.hps-admin.com/fullchain.pem:/etc/ssl/certs/api_fullchain.pem:ro
+#             - /etc/letsencrypt/live/api.hps-admin.com/privkey.pem:/etc/ssl/private/api_privkey.pem:ro
+#             - /etc/letsencrypt/live/file.hps-admin.com/fullchain.pem:/etc/ssl/certs/file_fullchain.pem:ro
+#             - /etc/letsencrypt/live/file.hps-admin.com/privkey.pem:/etc/ssl/private/file_privkey.pem:ro
+#             - /var/www/certbot:/var/www/certbot
+#             - /etc/nginx/ssl:/etc/nginx/ssl:ro
+
+#             # Monitoring
+#             - ./nginx/monitoring.conf:/etc/nginx/conf.d/monitoring.conf:ro
+#         depends_on:
+#             - app
+#         networks:
+#             - app-network
+
+#     # ###################
+#     # ### Prometheus ###
+#     # #################
+#     # prometheus:
+#     #     image: prom/prometheus:latest
+#     #     container_name: prometheus
+#     #     volumes:
+#     #         - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+#     #         - prometheus_data:/prometheus
+#     #     command:
+#     #         - '--config.file=/etc/prometheus/prometheus.yml'
+#     #         - '--storage.tsdb.path=/prometheus'
+#     #         - '--storage.tsdb.retention.time=15d'
+#     #         - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+#     #         - '--web.console.templates=/usr/share/prometheus/consoles'
+
+#     #     expose:
+#     #         - 9090
+#     #     deploy:
+#     #         resources:
+#     #             limits:
+#     #                 cpus: '0.5'
+#     #                 memory: 512M
+#     #     restart: unless-stopped
+#     #     networks:
+#     #         - app-network
+
+#     # #################
+#     # ### Grafana ###
+#     # ##############
+#     # grafana:
+#     #     image: grafana/grafana:latest
+#     #     container_name: grafana
+#     #     env_file:
+#     #         - .env
+#     #     volumes:
+#     #         - grafana_data:/var/lib/grafana
+#     #         - ./grafana/provisioning:/etc/grafana/provisioning
+#     #     environment:
+#     #         - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+#     #         - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+#     #         - GF_USERS_ALLOW_SIGN_UP=false
+#     #         - GF_SERVER_ROOT_URL=http://localhost/grafana
+#     #         - GF_SERVER_HTTP_PORT=4000 # Add this line to change Grafana's port
+#     #         - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+#     #     expose:
+#     #         - 4000
+#     #     deploy:
+#     #         resources:
+#     #             limits:
+#     #                 cpus: '0.5'
+#     #                 memory: 512M
+#     #     restart: unless-stopped
+#     #     networks:
+#     #         - app-network
+
+#     # ###############
+#     # ### Loki ####
+#     # ############
+#     # loki:
+#     #     image: grafana/loki:latest
+#     #     container_name: loki
+#     #     volumes:
+#     #         - ./loki:/etc/loki:ro
+#     #         - loki_data:/loki
+#     #     command:
+#     #         - '-config.file=/etc/loki/local-config.yaml'
+#     #         - '-config.expand-env=true'
+#     #         - '-validation.allow-structured-metadata=false'
+#     #     expose:
+#     #         - 3100
+#     #     deploy:
+#     #         resources:
+#     #             limits:
+#     #                 cpus: '0.5'
+#     #                 memory: 512M
+#     #     restart: unless-stopped
+#     #     networks:
+#     #         - app-network
+
+#     # #################
+#     # ### Promtail ###
+#     # ###############
+#     # promtail:
+#     #     image: grafana/promtail:latest
+#     #     container_name: promtail
+#     #     environment:
+#     #         - JAEGER_AGENT_HOST=jaeger
+#     #         - JAEGER_AGENT_PORT=6831
+#     #         - JAEGER_SAMPLER_TYPE=const
+#     #         - JAEGER_SAMPLER_PARAM=1
+#     #     volumes:
+#     #         - ./promtail/config.yml:/etc/promtail/config.yml
+#     #         - ./logs:/var/log/app
+#     #     command: -config.file=/etc/promtail/config.yml
+#     #     deploy:
+#     #         resources:
+#     #             limits:
+#     #                 cpus: '0.3'
+#     #                 memory: 256M
+#     #     restart: unless-stopped
+#     #     networks:
+#     #         - app-network
+
+#     # # Update nginx service to include monitoring endpoints
+
+# networks:
+#     app-network:
+#         driver: bridge
+
+# volumes:
+#     dbdata:
+#     uploads_volume:
+#     dbdata_config:
+#     # prometheus_data:
+#     # grafana_data:
+#     # loki_data:
 
 services:
-    ############
-    ### App ###
-    ##########
     app:
         build:
             context: .
@@ -32,26 +272,9 @@ services:
         networks:
             - app-network
 
-    ###############
-    ### Mongo ###
-    ###########
     mongo:
-        build:
-            context: .
-            dockerfile: Dockerfile.mongo
-        env_file:
-            - .env.mongo
-        command:
-            - 'mongod'
-            - '--replSet'
-            - 'rs0'
-            - '--bind_ip_all'
-            - '--port'
-            - '27017'
-            - '--keyFile'
-            - '/data/mongo-keyfile'
-            # - '--auth'
-            - '--auth'
+        image: mongo:latest
+        command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
         container_name: mongo
         ports:
             - 27017:27017
@@ -64,48 +287,17 @@ services:
             timeout: 30s
             retries: 30
         volumes:
-            # - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
-            - ./addons/seed-db.js:/docker-entrypoint-initdb.d/02-seed-db.js:ro
+            - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
             - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
             - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
         environment:
-            - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-            - TZ=Asia/Karachi
+            - TZ=Asia/Karachi # Set the timezone to Pakistan Standard Time (PST)
         networks:
             - app-network
 
-    ##############
-    ### Redis ###
-    ###########
-    redis:
-        image: redis:alpine
-        container_name: redis
-        # healthcheck:
-        #     test: ["CMD", "redis-cli", "ping"]
-        #     interval: 5s
-        #     timeout: 30s
-        #     retries: 30
-        command: redis-server --appendonly no
-        healthcheck:
-            test: ['CMD', 'redis-cli', 'ping']
-            interval: 5s
-            timeout: 30s
-            retries: 30
-        networks:
-            - app-network
-
-    ##############
-    ### Nginx ###
-    ###########
     nginx:
         image: nginx:alpine
         container_name: nginx
-        healthcheck:
-            test: ['CMD', 'nginx', '-t']
-            interval: 30s
-            timeout: 10s
-            retries: 3
         ports:
             - '80:80'
             - '443:443'
@@ -117,119 +309,17 @@ services:
             - /etc/letsencrypt/live/file.hps-admin.com/privkey.pem:/etc/ssl/private/file_privkey.pem:ro
             - /var/www/certbot:/var/www/certbot
             - /etc/nginx/ssl:/etc/nginx/ssl:ro
-
-            # Monitoring
-            - ./nginx/monitoring.conf:/etc/nginx/conf.d/monitoring.conf:ro
         depends_on:
             - app
         networks:
             - app-network
 
-    # ###################
-    # ### Prometheus ###
-    # #################
-    # prometheus:
-    #     image: prom/prometheus:latest
-    #     container_name: prometheus
-    #     volumes:
-    #         - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    #         - prometheus_data:/prometheus
-    #     command:
-    #         - '--config.file=/etc/prometheus/prometheus.yml'
-    #         - '--storage.tsdb.path=/prometheus'
-    #         - '--storage.tsdb.retention.time=15d'
-    #         - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-    #         - '--web.console.templates=/usr/share/prometheus/consoles'
-
-    #     expose:
-    #         - 9090
-    #     deploy:
-    #         resources:
-    #             limits:
-    #                 cpus: '0.5'
-    #                 memory: 512M
-    #     restart: unless-stopped
-    #     networks:
-    #         - app-network
-
-    # #################
-    # ### Grafana ###
-    # ##############
-    # grafana:
-    #     image: grafana/grafana:latest
-    #     container_name: grafana
-    #     env_file:
-    #         - .env
-    #     volumes:
-    #         - grafana_data:/var/lib/grafana
-    #         - ./grafana/provisioning:/etc/grafana/provisioning
-    #     environment:
-    #         - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
-    #         - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-    #         - GF_USERS_ALLOW_SIGN_UP=false
-    #         - GF_SERVER_ROOT_URL=http://localhost/grafana
-    #         - GF_SERVER_HTTP_PORT=4000 # Add this line to change Grafana's port
-    #         - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
-    #     expose:
-    #         - 4000
-    #     deploy:
-    #         resources:
-    #             limits:
-    #                 cpus: '0.5'
-    #                 memory: 512M
-    #     restart: unless-stopped
-    #     networks:
-    #         - app-network
-
-    # ###############
-    # ### Loki ####
-    # ############
-    # loki:
-    #     image: grafana/loki:latest
-    #     container_name: loki
-    #     volumes:
-    #         - ./loki:/etc/loki:ro
-    #         - loki_data:/loki
-    #     command:
-    #         - '-config.file=/etc/loki/local-config.yaml'
-    #         - '-config.expand-env=true'
-    #         - '-validation.allow-structured-metadata=false'
-    #     expose:
-    #         - 3100
-    #     deploy:
-    #         resources:
-    #             limits:
-    #                 cpus: '0.5'
-    #                 memory: 512M
-    #     restart: unless-stopped
-    #     networks:
-    #         - app-network
-
-    # #################
-    # ### Promtail ###
-    # ###############
-    # promtail:
-    #     image: grafana/promtail:latest
-    #     container_name: promtail
-    #     environment:
-    #         - JAEGER_AGENT_HOST=jaeger
-    #         - JAEGER_AGENT_PORT=6831
-    #         - JAEGER_SAMPLER_TYPE=const
-    #         - JAEGER_SAMPLER_PARAM=1
-    #     volumes:
-    #         - ./promtail/config.yml:/etc/promtail/config.yml
-    #         - ./logs:/var/log/app
-    #     command: -config.file=/etc/promtail/config.yml
-    #     deploy:
-    #         resources:
-    #             limits:
-    #                 cpus: '0.3'
-    #                 memory: 256M
-    #     restart: unless-stopped
-    #     networks:
-    #         - app-network
-
-    # # Update nginx service to include monitoring endpoints
+    redis:
+        image: redis:alpine
+        container_name: redis
+        command: redis-server --appendonly no
+        networks:
+            - app-network
 
 networks:
     app-network:
@@ -239,6 +329,3 @@ volumes:
     dbdata:
     uploads_volume:
     dbdata_config:
-    # prometheus_data:
-    # grafana_data:
-    # loki_data:
