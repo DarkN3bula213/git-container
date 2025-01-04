@@ -26,21 +26,21 @@ jobs:
               run: |
                   ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
                     cd /var/www/app/git-container/
-                    # Check current networks
-                    docker network ls
-                    # Remove any existing network if stuck
-                    docker network rm app-network || true
-                    # Down with network removal
+
+                    # Stop all containers and remove networks
                     docker-compose down --remove-orphans
+
+                    # Remove any lingering networks
+                    docker network prune -f
+
                     # Clean builder cache
                     docker builder prune -af
-                    # Rebuild without cache
-                    DOCKER_BUILDKIT=0 docker-compose build --no-cache --progress=plain
-                    # Up with network recreation
-                    docker-compose up -d
-                    # Verify networks
-                    docker network ls
-                    docker network inspect app-network
+
+                    # Start fresh
+                    docker-compose up -d --force-recreate
+                    
+                    # Verify deployment
+                    docker-compose ps
                   EOF
               shell: bash
 

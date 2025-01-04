@@ -1,4 +1,4 @@
-version: '3.8'  # Adding this line is important
+version: '3.3'
 
 services:
     app:
