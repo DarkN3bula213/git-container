@@ -1,16 +1,33 @@
+/* eslint-disable no-undef */
+// db = db.getSiblingDB(process.env.MONGO_DB_NAME);
+
+// db.createUser({
+// 	user: process.env.MONGO_USER,
+// 	pwd: process.env.MONGO_PASSWORD,
+// 	roles: [
+// 		{
+// 			role: 'readWrite',
+// 			db: process.env.MONGO_DB_NAME
+// 		}
+// 	]
+// });
+// Create the root user in the admin database
+db = db.getSiblingDB('admin');
+
+db.createUser({
+	user: process.env.MONGO_INITDB_ROOT_USERNAME,
+	pwd: process.env.MONGO_INITDB_ROOT_PASSWORD,
+	roles: [{ role: 'root', db: 'admin' }]
+});
+
+// Create the application user in the target database
 db = db.getSiblingDB(process.env.MONGO_DB_NAME);
 
 db.createUser({
 	user: process.env.MONGO_USER,
 	pwd: process.env.MONGO_PASSWORD,
-	roles: [
-		{
-			role: 'readWrite',
-			db: process.env.MONGO_DB_NAME
-		}
-	]
+	roles: [{ role: 'readWrite', db: process.env.MONGO_DB_NAME }]
 });
-
 db.createCollection('api_keys');
 db.createCollection('roles');
 db.createCollection('classes');
