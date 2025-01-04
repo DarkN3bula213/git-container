@@ -1,18 +1,8 @@
-# FROM mongo:latest
-
-# # Copy keyfile into container
-# COPY mongo-keyfile /data/mongo-keyfile
-
-# # Set proper ownership and permissions
-# RUN chown 999:999 /data/mongo-keyfile && \
-#     chmod 400 /data/mongo-keyfile
-
-# Version 2
 FROM mongo:latest
 
 # Create mongodb user and set up directories
-RUN groupadd -r mongodb && \
-    useradd -r -g mongodb mongodb && \
+RUN getent group mongodb || groupadd -r mongodb && \
+    id -u mongodb &>/dev/null || useradd -r -g mongodb mongodb && \
     mkdir -p /data/db /data/configdb && \
     chown -R mongodb:mongodb /data/db /data/configdb
 
