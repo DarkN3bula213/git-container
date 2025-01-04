@@ -58,21 +58,26 @@ jobs:
               run: |
                   ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} << EOF
                     cd /var/www/hps/
+                    
+                    # Copy .env files to correct location
+                    cp .env.mongo docker/.env.mongo
+                    cp .env docker/.env
+                    
                     # Backup current state
                     docker-compose -f docker/docker-compose-hostinger.yml ps > docker_state.txt
                     
-                    # Stop and rebuild
-                    docker-compose -f docker/docker-compose-hostinger.yml down --remove-orphans
-                    DOCKER_BUILDKIT=0 docker-compose -f docker/docker-compose-hostinger.yml build --progress=plain
-                    docker-compose -f docker/docker-compose-hostinger.yml up -d
+                    # Stop and rebuild (from correct context)
+                    cd docker
+                    docker-compose -f docker-compose-hostinger.yml down --remove-orphans
+                    DOCKER_BUILDKIT=0 docker-compose -f docker-compose-hostinger.yml build --progress=plain
+                    docker-compose -f docker-compose-hostinger.yml up -d
                     
                     # Check if containers are running
                     sleep 10
-                    if ! docker-compose -f docker/docker-compose-hostinger.yml ps | grep -q "Up"; then
+                    if ! docker-compose -f docker-compose-hostinger.yml ps | grep -q "Up"; then
                       echo "Deployment failed - rolling back"
-                      docker-compose -f docker/docker-compose-hostinger.yml down
+                      docker-compose -f docker-compose-hostinger.yml down
                       exit 1
                     fi
                   EOF
               shell: bash
- 
