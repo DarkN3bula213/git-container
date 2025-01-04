@@ -15,7 +15,7 @@ if (!config.isTest) {
 }
 
 morgan.token('colored-method', (req) => {
-	const method = req.method || 'GET';
+	const method = req.method ?? 'GET';
 	switch (method) {
 		case 'GET':
 			return colors.green(method);

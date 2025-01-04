@@ -91,17 +91,11 @@ export class Logger {
 
 	private static readonly logger = winston.createLogger({
 		level: 'debug',
-		format: config.isProduction
-			? winston.format.combine(
-					winston.format.timestamp(),
-					winston.format.errors({ stack: true }),
-					winston.format.json() // Use JSON format in production
-				)
-			: winston.format.combine(
-					customTimestampFormat,
-					winston.format.errors({ stack: true }),
-					customPrintf // Use custom printf in development
-				),
+		format: winston.format.combine(
+			customTimestampFormat,
+			winston.format.errors({ stack: true }),
+			customPrintf // Use custom printf in development
+		),
 		transports: [new winston.transports.Console(), dailyRotateFile],
 		exceptionHandlers: [dailyRotateFile],
 		exitOnError: false
@@ -118,7 +112,6 @@ export class Logger {
 		}
 		return parsedPath;
 	}
-
 	private readonly scope: string;
 
 	constructor(scope?: string) {
