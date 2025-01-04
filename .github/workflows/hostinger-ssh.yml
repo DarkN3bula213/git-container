@@ -99,7 +99,14 @@ jobs:
       
       - name: Build and deploy
         run: |
-          docker-compose -f docker/docker-compose-hostinger.yml up --build
+          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} << EOF
+            cd /var/www/hps/
+            docker-compose down --remove-orphans
+            # docker system prune -af
+            # Verbose build with debugging
+            DOCKER_BUILDKIT=0 docker-compose build --progress=plain
+                    docker-compose up -d
+                  EOF
 
 
  
