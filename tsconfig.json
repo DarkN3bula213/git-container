@@ -26,5 +26,5 @@
 		// This improves issue grouping in Sentry.
 		"sourceRoot": "/"
 	},
-	"exclude": ["node_modules", "dist", "addons", "uploads/**/*.ts", "tests", "vitest.config.mts"]
+	"exclude": ["node_modules", "dist", "addons", "uploads/**/*.ts", "tests", "vitest.config.mts", "commitlint.config.js"]
 }
