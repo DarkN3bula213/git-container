@@ -34,7 +34,7 @@ export async function RequestLogger(
 ) {
 	logEvents({
 		message: `${req.method}\t${req.url}\t${req.headers.origin}`,
-		logFileName: path.join(dir, 'request-%DATE%.log')
+		logFileName: 'request.log'
 	});
 	next();
 }

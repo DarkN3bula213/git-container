@@ -93,11 +93,17 @@ export class Logger {
 		level: 'debug',
 		format: winston.format.combine(
 			customTimestampFormat,
-			winston.format.errors({ stack: true }),
+			winston.format.errors({ stack: false }),
 			customPrintf // Use custom printf in development
 		),
 		transports: [new winston.transports.Console(), dailyRotateFile],
-		exceptionHandlers: [dailyRotateFile],
+		exceptionHandlers: [
+			new winston.transports.File({ filename: `exceptions.log` })
+		],
+		rejectionHandlers: [
+			new winston.transports.File({ filename: `rejections.log` })
+		],
+
 		exitOnError: false
 	});
 	private static parsePathToScope(filepath: string): string {

@@ -20,17 +20,12 @@ import router from './routes';
 const logger = new Logger(__filename);
 
 process.on('uncaughtException', (e) => {
-	logger.error(new Error(`An uncaught exception occurred: ${e.message}`), {
-		stack: e.stack
-	});
+	logger.error(`An uncaught exception occurred: ${e.message}`);
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on('unhandledRejection', (reason: any) => {
-	logger.error(
-		new Error(`An unhandled rejection occurred: ${reason?.message}`),
-		reason
-	);
+	logger.error(`An unhandled rejection occurred: ${reason?.message}`);
 });
 const app: Express = express();
 
