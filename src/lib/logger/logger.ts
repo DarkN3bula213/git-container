@@ -4,11 +4,7 @@ import * as path from 'node:path';
 import winston from 'winston';
 import { defaultScope, logLevel } from './loggerConfig';
 import { customPrintf, customTimestampFormat } from './loggerFormats';
-import {
-	consoleTransport,
-	dailyRotateFileTransport,
-	lokiTransport
-} from './loggerTransports';
+import { consoleTransport, dailyRotateFileTransport } from './loggerTransports';
 
 export class Logger {
 	public static readonly DEFAULT_SCOPE = defaultScope;
@@ -23,7 +19,7 @@ export class Logger {
 			winston.format.errors({ stack: true }),
 			customPrintf
 		),
-		transports: [consoleTransport, dailyRotateFileTransport, lokiTransport],
+		transports: [consoleTransport, dailyRotateFileTransport],
 
 		exceptionHandlers: [
 			new winston.transports.File({ filename: 'logs/exceptions.log' })

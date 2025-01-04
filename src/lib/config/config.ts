@@ -58,7 +58,7 @@ export const config = {
 		limit: '25mb'
 	},
 	log: {
-		level: getOsEnv('LOG_LEVEL'),
+		level: getDevelopmentEnv('LOG_LEVEL', 'debug'),
 		directory: getOsEnv('LOG_DIR')
 	},
 	mongo: {
