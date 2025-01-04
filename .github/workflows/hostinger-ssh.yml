@@ -48,7 +48,7 @@ name: Check and copy files to Hostinger
 on:
   push:
     branches:
-      - main
+      - version/hostinger
 
 jobs:
   deploy:
@@ -96,3 +96,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} '
             ls -la /var/www/hps/
           '
+      
+      - name: Build and deploy
+        run: |
+          docker-compose -f docker/docker-compose-hostinger.yml up --build
+
+
+ 
