@@ -1,112 +1,78 @@
-# name: Check and copy files to Hostinger
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   test-ssh:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Setup SSH key
-#         run: |
-#           mkdir -p ~/.ssh
-#           echo "${{ secrets.HOSTINGER_DEPLOY_KEY }}" > ~/.ssh/deploy_key
-#           chmod 600 ~/.ssh/deploy_key
-#           ls -la ~/.ssh/deploy_key
-
-#       - name: Debug key format
-#         run: |
-#           head -n 1 ~/.ssh/deploy_key
-#           echo "Key length (should be >100):"
-#           wc -l ~/.ssh/deploy_key
-
-#       - name: Add known hosts
-#         run: |
-#           echo "${{ secrets.HOSTINGER_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
-
-#       - name: Test connection
-#         run: |
-#           ssh -v -i ~/.ssh/deploy_key ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connected!'"
-
-#       - name: Deploy with rsync
-#         run: |
-#           rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
-#             --exclude '.git*' \
-#             --exclude 'node_modules' \
-#             --exclude 'test' \
-#             --exclude '.env' \
-#             --exclude 'logs' \
-#             --exclude 'dist' \
-#             ./ ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }}:/var/www/hps/
-
-
-name: Check and copy files to Hostinger
+name: Deploy to Hostinger
 
 on:
-  push:
-    branches:
-      - version/hostinger
+    push:
+        branches:
+            - version/hostinger
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    deploy:
+        runs-on: ubuntu-latest
 
-      - name: Setup SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.HOSTINGER_DEPLOY_KEY }}
-          known_hosts: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
-          if_key_exists: replace
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
 
-      - name: Test SSH Connection
-        run: |
-          ssh -v -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connection test successful'"
+            - name: Setup SSH key
+              uses: shimataro/ssh-key-action@v2
+              with:
+                  key: ${{ secrets.HOSTINGER_DEPLOY_KEY }}
+                  known_hosts: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+                  if_key_exists: replace
 
-      - name: Check destination directory permissions
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} '
-            ls -la /var/www/
-            mkdir -p /var/www/hps
-            chmod 755 /var/www/hps
-          '
+            - name: Test SSH Connection
+              run: |
+                  if ! ssh -v -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} "echo 'Connection test successful'"; then
+                    echo "SSH connection failed"
+                    exit 1
+                  fi
 
-      - name: Deploy with rsync (verbose)
-        run: |
-          eval $(ssh-agent -s)
-          ssh-add - <<< "${{ secrets.HOSTINGER_DEPLOY_KEY }}"
-          rsync -avvz --progress -e "ssh -v -o StrictHostKeyChecking=no" \
-            --exclude '.git*' \
-            --exclude 'node_modules' \
-            --exclude 'test' \
-            --exclude '.env' \
-            --exclude 'logs' \
-            --exclude 'dist' \
-            ./ ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }}:/var/www/hps/
+            - name: Check destination directory permissions
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} '
+                    ls -la /var/www/ || exit 1
+                    mkdir -p /var/www/hps
+                    chmod 755 /var/www/hps
+                  '
 
-      - name: Verify files
-        if: success()
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} '
-            ls -la /var/www/hps/
-          '
-      
-      - name: Build and deploy
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} << EOF
-            cd /var/www/hps/
-            docker-compose down --remove-orphans
-            # docker system prune -af
-            # Verbose build with debugging
-            DOCKER_BUILDKIT=0 docker-compose build --progress=plain
-                    docker-compose up -d
+            - name: Deploy with rsync (verbose)
+              run: |
+                  eval $(ssh-agent -s)
+                  ssh-add - <<< "${{ secrets.HOSTINGER_DEPLOY_KEY }}"
+                  rsync -avvz --progress -e "ssh -v -o StrictHostKeyChecking=no" \
+                    --exclude '.git*' \
+                    --exclude 'node_modules' \
+                    --exclude 'test' \
+                    --exclude '.env' \
+                    --exclude 'logs' \
+                    ./ ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }}:/var/www/hps/
+
+            - name: Verify files
+              if: success()
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} '
+                    ls -la /var/www/hps/ || exit 1
+                  '
+
+            - name: Build and deploy
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_IP }} << EOF
+                    cd /var/www/hps/
+                    # Backup current state
+                    docker-compose -f docker/docker-compose-hostinger.yml ps > docker_state.txt
+                    
+                    # Stop and rebuild
+                    docker-compose -f docker/docker-compose-hostinger.yml down --remove-orphans
+                    DOCKER_BUILDKIT=0 docker-compose -f docker/docker-compose-hostinger.yml build --progress=plain
+                    docker-compose -f docker/docker-compose-hostinger.yml up -d
+                    
+                    # Check if containers are running
+                    sleep 10
+                    if ! docker-compose -f docker/docker-compose-hostinger.yml ps | grep -q "Up"; then
+                      echo "Deployment failed - rolling back"
+                      docker-compose -f docker/docker-compose-hostinger.yml down
+                      exit 1
+                    fi
                   EOF
-
-
+              shell: bash
  
