@@ -28,7 +28,7 @@ jobs:
                     cd /var/www/app/git-container/
 
                     # Stop all containers and remove networks
-                    docker-compose down --remove-orphans
+                    docker-compose down -v --remove-orphans
 
                     # Remove any lingering networks
                     docker network prune -f
