@@ -2,7 +2,6 @@ import colors from 'colors';
 import dayjs from 'dayjs';
 import * as path from 'node:path';
 import winston from 'winston';
-import { config } from '../config';
 import { defaultScope, logLevel } from './loggerConfig';
 import { customPrintf, customTimestampFormat } from './loggerFormats';
 import {
@@ -76,16 +75,11 @@ export class Logger {
 
 		if (typeof message === 'object') {
 			let formattedMessage = `${this.scope} \n`;
-			if (!config.isProduction) {
-				const lines = Object.entries(message).map(([key, value]) => {
-					const coloredKey = colors.cyan(key);
-					return `${timestamp} ${colors.cyan(':-----:')} ${coloredKey}: ${value}`;
-				});
-				formattedMessage += lines.join('\n');
-			} else {
-				const messageString = JSON.stringify(message);
-				formattedMessage += `| + | ${messageString}`;
-			}
+			const lines = Object.entries(message).map(([key, value]) => {
+				const coloredKey = colors.cyan(key);
+				return `${timestamp} ${colors.cyan(':-----:')} ${coloredKey}: ${value}`;
+			});
+			formattedMessage += lines.join('\n');
 			Logger.logger.log(level, formattedMessage);
 		} else {
 			const formattedMessage = `${message}`;
