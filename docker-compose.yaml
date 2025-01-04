@@ -70,6 +70,8 @@ services:
             - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
         environment:
             - TZ=Asia/Karachi
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
         networks:
             - app-network
 
