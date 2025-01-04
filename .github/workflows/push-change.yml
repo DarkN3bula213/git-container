@@ -27,18 +27,29 @@ jobs:
                   ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
                     cd /var/www/app/git-container/
                     docker-compose down --remove-orphans
+                    
+                    # Debug: Check if source files are present
+                    echo "Checking source files..."
+                    ls -la
+                    
+                    # Force rebuild with no cache
+                    DOCKER_BUILDKIT=0 docker-compose build --no-cache --progress=plain
+
+                    # Debug: Check container structure after build
+                    echo "Checking container contents..."
+                    docker-compose run --rm app sh -c "ls -la /usr/src/app/"
+                    docker-compose run --rm app sh -c "ls -la /usr/src/app/dist || echo 'dist folder not found'"
+                    
+                
                     docker-compose rm -f
                     docker system prune -af
                     # docker rmi \$(docker images -q '*_app' '*_mongo' 2>/dev/null) 2>/dev/null || true
-                   
+                    
 
-                    # docker system prune -af
-                    # Verbose build with debugging
-                    # DOCKER_BUILDKIT=0 docker-compose build --progress=plain
 
-                    # Build with no cache
-                    DOCKER_BUILDKIT=0 docker-compose build --no-cache --pull --progress=plain
                     docker-compose up -d
+                    # Debug: Check logs immediately
+                    docker-compose logs app
                   EOF
               shell: bash
 

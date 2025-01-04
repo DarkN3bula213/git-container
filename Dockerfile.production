@@ -1,9 +1,6 @@
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
-
-# Clear npm cache first
-RUN npm cache clean --force
-
+ 
 # Install pnpm
 RUN npm install -g pnpm --ignore-scripts
 
@@ -13,20 +10,16 @@ COPY package*.json pnpm-lock.yaml ./
 # Clean install dependencies
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
-# Copy source
+# Copy source files
 COPY . .
-
-# Clean any existing build artifacts
-RUN rm -rf dist
-
-# Add debugging for TypeScript compilation
-RUN pnpm tsc --listFiles
-RUN pnpm tsc --traceResolution
 
 # Build
 RUN pnpm build
 
-RUN ls dist
+# Debug: Verify dist folder contents
+RUN ls -la dist/ 
+
+
 
 # Production stage
 FROM node:18-alpine

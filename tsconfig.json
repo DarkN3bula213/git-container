@@ -10,10 +10,11 @@
 			"@lib/*": ["lib/*"]
 		},
 
-		"typeRoots": ["node_modules/@types", "src/types","tests/types"],
+		"typeRoots": ["node_modules/@types", "src/types"],
 		"target": "es2016",
 		"module": "commonjs",
 		"outDir": "./dist",
+		"rootDir": "./src",
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
@@ -26,5 +27,5 @@
 		// This improves issue grouping in Sentry.
 		"sourceRoot": "/"
 	},
-	"exclude": ["node_modules", "dist", "addons", "uploads/**/*.ts", "tests"]
+	"exclude": ["node_modules", "dist", "addons", "uploads/**/*.ts", "tests", "vitest.config.mts"]
 }
