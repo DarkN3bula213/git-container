@@ -3,7 +3,7 @@ name: Push Change Workflow
 on:
     push:
         branches:
-            - main
+            - temp
 
 jobs:
     deploy:

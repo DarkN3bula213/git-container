@@ -3,7 +3,7 @@ name: Consolidated Deployment
 on:
     push:
         branches:
-            - cidi
+            - main
 
 jobs:
     deploy:
