@@ -14,6 +14,7 @@ import { Types } from 'mongoose';
 import QRCode from 'qrcode';
 import { Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { config } from '../config/config';
 import { logoutCookie } from '../config/cookies';
 import { Roles } from '../constants';
 
@@ -267,7 +268,7 @@ function isValidClassName(className: string): className is ClassName {
 }
 
 const LOCALHOST_IPV6 = '::1';
-const LOCALHOST_IPV4_MAPPED = '::ffff:127.0.0.1';
+const LOCALHOST_IPV4_MAPPED = config.app.mappedIP;
 const LOCALHOST_LABEL = 'localhost';
 
 // Type-safe sorting function

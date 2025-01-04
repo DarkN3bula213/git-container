@@ -1,0 +1,63 @@
+FROM node:18-alpine AS builder
+WORKDIR /usr/src/app
+
+# Clear npm cache first
+RUN npm cache clean --force && \
+    npm install -g pnpm --ignore-scripts
+
+# Copy package files
+COPY package*.json pnpm-lock.yaml ./
+
+# Clean install dependencies
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+# Copy source
+COPY . .
+
+# Clean any existing build artifacts
+RUN rm -rf dist && \
+    pnpm tsc --listFiles && \
+    pnpm tsc --traceResolution && \
+    pnpm build && \
+    ls dist
+
+# Production stage
+FROM node:18-alpine
+WORKDIR /usr/src/app
+
+# # Install tzdata and set timezone
+# RUN apk add --no-cache tzdata
+# ENV TZ=Asia/Karachi
+# Install tzdata and PM2
+RUN apk add --no-cache tzdata && \
+    npm install -g pm2 pnpm --ignore-scripts
+
+
+# Copy built files and dependencies
+COPY --from=builder /usr/src/app/dist ./dist
+COPY package*.json pnpm-lock.yaml ./
+
+# Set environment variables
+ENV DOCKER_BUILD=true
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV TZ=Asia/Karachi
+
+# # Clean install production dependencies
+# RUN npm install -g pnpm --ignore-scripts && pnpm install --frozen-lockfile --ignore-scripts --prod --ignore-scripts
+# # RUN npm install -g pnpm --ignore-scripts && pnpm install --frozen-lockfile --ignore-scripts --prod
+# RUN ls dist
+# Clean install production dependencies
+RUN pnpm install --frozen-lockfile --ignore-scripts --prod && \
+    ls dist && \ 
+    date
+
+
+EXPOSE ${PORT}
+# CMD ["node", "dist/index.js"]
+
+# Create PM2 ecosystem file
+COPY ecosystem.config.js .
+
+# Use PM2 to start the application
+CMD ["pm2-runtime", "ecosystem.config.js"]

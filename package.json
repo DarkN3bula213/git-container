@@ -11,14 +11,16 @@
 		"dev:test": "ts-node-dev --respawn --transpile-only --clear -r dotenv/config --inspect=0.0.0.0:9229 src/main",
 		"exec": "concurrently \"pnpx tsc --watch\" \"ts-node src/index.ts\"",
 		"format": "prettier --write \"src/**/*.ts\"",
-		"lint": "eslint \"src/**/*.ts\" --fix",
+		"lint": "eslint \"src/**/*.ts\"",
 		"lint:fix": "pnpm run lint --fix",
 		"prepare": "[ \"$NODE_ENV\" != \"production\" ] && husky install || echo 'Skipping Husky in production'",
 		"start": "node dist/index.js",
 		"scripts": "ts-node src/scripts",
 		"serve": "pnpm build && node dist/index.js",
-		"test": "jest  --verbose --runInBand --detectOpenHandles",
-		"test:watch": "jest  --no-cache --detectOpenHandles",
+		"test:jest": "jest  --verbose --runInBand --detectOpenHandles",
+		"test:watch:jest": "jest  --no-cache --detectOpenHandles",
+		"test:watch": "vitest",
+		"test": "console-ninja pnpm vitest run",
 		"watch-ts": "tsc -w",
 		"prepush-check": "pnpm serve",
 		"sentry:sourcemaps": "sentry-cli sourcemaps inject --org hps-l1 --project node-express ./dist && sentry-cli sourcemaps upload --org hps-l1 --project node-express ./dist"
@@ -137,7 +139,9 @@
 		"tsc-alias": "^1.8.8",
 		"tsconfig-paths": "^4.2.0",
 		"tsconfig-paths-jest": "^0.0.1",
-		"typescript": "^5.4.5"
+		"typescript": "^5.4.5",
+		"vite-tsconfig-paths": "^5.1.4",
+		"vitest": "^2.1.8"
 	},
 	"overrides": {
 		"**/formidable": "3.2.4"

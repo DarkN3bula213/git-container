@@ -31,7 +31,8 @@ export const config = {
 			process.env.NODE_ENV === 'docker'
 	),
 	app: {
-		port: normalizePort(process.env.PORT || getOsEnv('PORT'))
+		port: normalizePort(process.env.PORT || getOsEnv('PORT')),
+		mappedIP: getDevelopmentEnv('MAPPED_IP', '::ffff:127.0.0.1')
 	},
 	cors: {
 		origin: 'http://localhost:5173/',

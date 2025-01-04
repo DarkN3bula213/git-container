@@ -1,8 +1,28 @@
+# FROM mongo:latest
+
+# # Copy keyfile into container
+# COPY mongo-keyfile /data/mongo-keyfile
+
+# # Set proper ownership and permissions
+# RUN chown 999:999 /data/mongo-keyfile && \
+#     chmod 400 /data/mongo-keyfile
+
+# Version 2
 FROM mongo:latest
 
-# Copy keyfile into container
-COPY mongo-keyfile /data/mongo-keyfile
+# Create mongodb user and set up directories
+RUN groupadd -r mongodb && \
+    useradd -r -g mongodb mongodb && \
+    mkdir -p /data/db /data/configdb && \
+    chown -R mongodb:mongodb /data/db /data/configdb
 
-# Set proper ownership and permissions
-RUN chown 999:999 /data/mongo-keyfile && \
+# Copy keyfile and set permissions
+COPY mongo-keyfile /data/mongo-keyfile
+RUN chown mongodb:mongodb /data/mongo-keyfile && \
     chmod 400 /data/mongo-keyfile
+
+# Copy init script for root user creation
+COPY ./scripts/init-mongo.sh /docker-entrypoint-initdb.d/01-init-mongo.sh
+RUN chmod +x /docker-entrypoint-initdb.d/01-init-mongo.sh
+
+USER mongodb

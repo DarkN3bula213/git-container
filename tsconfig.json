@@ -10,7 +10,7 @@
 			"@lib/*": ["lib/*"]
 		},
 
-		"typeRoots": ["node_modules/@types", "src/types"],
+		"typeRoots": ["node_modules/@types", "src/types","tests/types"],
 		"target": "es2016",
 		"module": "commonjs",
 		"outDir": "./dist",

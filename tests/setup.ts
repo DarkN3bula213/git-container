@@ -1,34 +1,53 @@
-import { config } from '@/lib/config';
 import dotenv from 'dotenv';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import Bull from 'bull';
-import mongoose from 'mongoose';
-dotenv.config({ path: './tests/.env.test' });
+import supertest  from 'supertest';
+import { app } from '../src/app';
+import { Logger } from '../src/lib/logger/logger';
+import * as db from './tests.db';
 
-let mongo: any;
+const logger = new Logger('TestSetup');
+dotenv.config({ path: './tests/.env.test' });
+let request;
 
 beforeAll(async () => {
-  mongo = await MongoMemoryServer.create();
-  const mongoURI = mongo.getUri();
-  await mongoose.connect(mongoURI, { dbName: 'testDB' });
-  await mongoose.connection.db.dropDatabase();
+	// try {
+	// 	// Close any existing connections first
+	// 	await mongoose.disconnect();
 
-  // // Initialize Bull queue
-  // global.saveSessionQueue = new Bull('saveSessionQueue', {
-  //   redis: {
-  //     host: config.redis.host,
-  //     port: config.redis.port,
-  //   },
-  // });
+	// 	// Create new memory server instance
+	// 	mongoServer = await MongoMemoryServer.create();
+	// 	const mongoUri = mongoServer.getUri();
 
-  // // Initialize Redis client
-  // global.redisClient = redis.createClient({
-  //   host: config.redis.host,
-  //   port: config.redis.port,
-  // });
+	// 	// Connect to in-memory database
+	// 	await mongoose.connect(mongoUri, {
+	// 		dbName: 'test-db',
+	// 		// Add these options to avoid deprecation warnings
+	// 		autoCreate: true,
+	// 		autoIndex: true
+	// 	});
+
+	// 	logger.info(`Connected to in-memory MongoDB at ${mongoUri}`);
+	// } catch (error) {
+	// 	logger.error('Failed to setup test environment:', error);
+	// 	throw error;
+	// }
+	await db.connect();
+	request = supertest(app);
+});
+
+afterEach(async () => {
+	await db.clearDatabase();
 });
 
 afterAll(async () => {
-  await mongoose.connection.close();
-  await mongo.stop();
+	try {
+		// Cleanup
+		await db.closeDatabase();
+
+		logger.info('Cleaned up test environment');
+	} catch (error) {
+		logger.error('Failed to cleanup test environment:', error);
+		throw error;
+	}
 });
+
+export { request };

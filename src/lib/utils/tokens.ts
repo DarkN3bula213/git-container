@@ -25,11 +25,14 @@ export function signToken(
 ) {
 	const signingKey = config.tokens[key].private;
 
+	// const token = sign(payload, signingKey, {
+	// 	...(options && options),
+	// 	algorithm: 'RS256'
+	// });
 	const token = sign(payload, signingKey, {
-		...(options && options),
+		...options,
 		algorithm: 'RS256'
 	});
-
 	return token;
 }
 
@@ -134,9 +137,16 @@ export function generateInvoiceToken(payload: InvoiceProps) {
 /*
  * ----------( Verification Token )->
  */
-const verificationToken = Math.floor(
-	100000 + Math.random() * 900000
-).toString();
+export const generateVerificationToken = (): string => {
+	// Generate cryptographically strong random bytes
+	const buffer = randomBytes(4);
+	const num = buffer.readUInt32BE(0);
+
+	// Map to range 100000-999999
+	const token = 100000 + (num % 900000);
+
+	return token.toString();
+};
 
 /*
  * ----------( Email Verification Token )->
@@ -163,7 +173,7 @@ const generateSecureResetToken = (): string => {
 };
 
 export const verfication = {
-	token: verificationToken,
+	token: generateVerificationToken,
 	resetToken: generateSecureResetToken,
 	generateToken: generateVerifyEmailToken,
 	expiry: tokenExpiryTime

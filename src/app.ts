@@ -5,7 +5,7 @@ import { RequestLogger } from '@/lib/logger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { type Application, json, urlencoded } from 'express';
+import express, { type Express, json, urlencoded } from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import { handleUploads } from './lib/config';
@@ -32,7 +32,7 @@ process.on('unhandledRejection', (reason: any) => {
 		reason
 	);
 });
-const app: Application = express();
+const app: Express = express();
 
 app.set('trust proxy', 1);
 // setupMonitoring(app);

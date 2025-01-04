@@ -35,7 +35,7 @@ db.createCollection('users');
 
 if (db.api_keys.countDocuments() === 0) {
 	db.api_keys.insertOne({
-		key: 'haGv9z3ZNTwBfHBszfOjeu8q3ZfARGcN',
+		key: process.env.API_KEY,
 		permissions: ['GENERAL'],
 		comments: ['To be used by the hps vercel'],
 		version: 1,
@@ -78,14 +78,13 @@ if (db.users.countDocuments() === 0) {
 	db.users.insert({
 		name: 'Ateeb Ahmed',
 		father_name: 'Taeed Ahmed',
-		email: 'admin@admin.hps.com',
+		email: process.env.ADMIN_EMAIL,
 		gender: 'male',
 		cnic: '35201-8452114-7',
 		cnic_issued_date: '2019-11-11',
 		cnic_expiry_date: '2029-03-02',
 		username: 'admin',
-		password:
-			'$2b$10$smO9HlI9N0mz9Qex7BwY4ewJP500QGVZgpAav6tVE9d10vsmYCcWi',
+		password: process.env.ADMIN_PASSWORD,
 		roles: db.roles
 			.find({})
 			.toArray()

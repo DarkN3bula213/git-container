@@ -50,6 +50,8 @@ services:
             - '27017'
             - '--keyFile'
             - '/data/mongo-keyfile'
+            # - '--auth'
+            - '--auth'
         container_name: mongo
         ports:
             - 27017:27017
@@ -62,7 +64,8 @@ services:
             timeout: 30s
             retries: 30
         volumes:
-            - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+            # - ./addons/seed-db.js:/docker-entrypoint-initdb.d/seed-db.js:ro
+            - ./addons/seed-db.js:/docker-entrypoint-initdb.d/02-seed-db.js:ro
             - /var/lib/docker/volumes/git-container_dbdata/_data:/data/db
             - /var/lib/docker/volumes/git-container_dbdata_config/_data:/data/configdb
         environment:
@@ -83,7 +86,7 @@ services:
         #     retries: 30
         command: redis-server --appendonly no
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test: ['CMD', 'redis-cli', 'ping']
             interval: 5s
             timeout: 30s
             retries: 30

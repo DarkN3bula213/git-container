@@ -1,9 +1,11 @@
 import { Document, Schema, Types, model } from 'mongoose';
 
+type Visibility = 'all' | 'friends' | 'none';
+
 export interface UserSettings extends Document {
-	chatVisibility: 'all' | 'friends' | 'none';
-	callVisibility: 'all' | 'friends' | 'none';
-	profileVisibility: 'all' | 'friends' | 'none';
+	chatVisibility: Visibility;
+	callVisibility: Visibility;
+	profileVisibility: Visibility;
 	lastLogin: Date;
 	enableNotifications: boolean;
 	userId: Types.ObjectId;
