@@ -1,4 +1,4 @@
-name: Consolidated Deployment
+name: Application Deployment
 
 on:
     push:
@@ -29,7 +29,7 @@ jobs:
                     docker-compose down
                     # docker system prune -af
                     # Verbose build with debugging
-                    DOCKER_BUILDKIT=0 docker-compose build --progress=plain
+                    DOCKER_BUILDKIT=0 docker-compose build --no-cache --progress=plain
                     docker-compose up -d
                   EOF
               shell: bash
