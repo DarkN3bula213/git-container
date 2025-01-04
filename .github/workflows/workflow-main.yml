@@ -37,7 +37,7 @@ jobs:
                     docker builder prune -af
 
                     # Start fresh
-                    docker-compose up -d --force-recreate
+                    docker-compose up -d --build
                     
                     # Verify deployment
                     docker-compose ps
