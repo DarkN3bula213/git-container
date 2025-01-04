@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.3'  # Adding this line is important
 
 services:
     app:
@@ -80,7 +80,6 @@ services:
 
 networks:
     app-network:
-        name: app-network  # Adding explicit name
         driver: bridge
 
 volumes:
