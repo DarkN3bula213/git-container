@@ -30,6 +30,7 @@ const connect = async () => {
 
 	const attemptConnection = async () => {
 		try {
+			logger.info(`Connecting to database: ${conStr}`);
 			await mongoose.connect(conStr, options);
 			logger.info(`Database connected: ${mongoose.connection.name}`);
 
