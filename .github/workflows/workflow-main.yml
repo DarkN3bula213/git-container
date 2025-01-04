@@ -3,7 +3,7 @@ name: Application Deployment
 on:
     push:
         branches:
-            - temp
+            - main
 
 jobs:
     deploy:
@@ -22,25 +22,26 @@ jobs:
                   rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
               shell: bash
 
-            - name: Check Docker Builder
+            - name: Network Cleanup and Rebuild
               run: |
-                ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
-                  docker builder ls
-                  docker system df -v
-                EOF
-              shell: bash
-
-
-            - name: Cleanup and Rebuild
-              run: |
-                ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
-                  cd /var/www/app/git-container/
-                  docker-compose down
-                  docker system prune -af  # Clear all unused images and build cache
-                  docker builder prune -af # Clear builder cache
-                  DOCKER_BUILDKIT=0 docker-compose build --no-cache --progress=plain
-                  docker-compose up -d
-                EOF
+                  ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
+                    cd /var/www/app/git-container/
+                    # Check current networks
+                    docker network ls
+                    # Remove any existing network if stuck
+                    docker network rm app-network || true
+                    # Down with network removal
+                    docker-compose down --remove-orphans
+                    # Clean builder cache
+                    docker builder prune -af
+                    # Rebuild without cache
+                    DOCKER_BUILDKIT=0 docker-compose build --no-cache --progress=plain
+                    # Up with network recreation
+                    docker-compose up -d
+                    # Verify networks
+                    docker network ls
+                    docker network inspect app-network
+                  EOF
               shell: bash
 
             - name: Wait for Nginx to Start

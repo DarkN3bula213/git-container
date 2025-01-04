@@ -48,7 +48,7 @@ name: Check and copy files to Hostinger
 on:
   push:
     branches:
-      - main
+      - version/hostinger
 
 jobs:
   deploy:
