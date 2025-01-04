@@ -5,7 +5,7 @@ import PaymentModel, {
 import StudentModel from '@/modules/school/students/student.model';
 import mongoose from 'mongoose';
 
-const Logger = new Logger('payment-id-recovery');
+const logger = new Logger('payment-id-recovery');
 
 interface Summary {
 	totalStudents: number;
@@ -43,7 +43,7 @@ async function rebuildPaymentHistories() {
 					error.message.includes('lock');
 
 				if (isLockError && attempt < MAX_RETRIES) {
-					Logger.warn(`${operationName} failed due to lock error`);
+					logger.warn(`${operationName} failed due to lock error`);
 					await sleep(RETRY_DELAY * attempt);
 					continue;
 				}
@@ -57,7 +57,7 @@ async function rebuildPaymentHistories() {
 
 	try {
 		session.startTransaction();
-		Logger.info('Starting payment history rebuild process...');
+		logger.info('Starting payment history rebuild process...');
 
 		// Step 1: Clear all existing payment histories in batches
 		let clearedCount = 0;
@@ -77,7 +77,7 @@ async function rebuildPaymentHistories() {
 					clearedCount += result.modifiedCount;
 				}, 'Clear payment histories batch');
 
-				Logger.info(`Cleared ${clearedCount} payment histories`);
+				logger.info(`Cleared ${clearedCount} payment histories`);
 				studentBatch = [];
 			}
 		}
@@ -94,7 +94,7 @@ async function rebuildPaymentHistories() {
 			}, 'Clear final payment histories batch');
 		}
 
-		Logger.info(`Cleared all existing payment histories ${clearedCount}`);
+		logger.info(`Cleared all existing payment histories ${clearedCount}`);
 
 		// Step 2: Get and process payments in batches
 		const paymentsByStudent = new Map<
@@ -120,11 +120,11 @@ async function rebuildPaymentHistories() {
 
 			processedPayments++;
 			if (processedPayments % 1000 === 0) {
-				Logger.info(`Processed ${processedPayments} payments...`);
+				logger.info(`Processed ${processedPayments} payments...`);
 			}
 		}
 
-		Logger.info(
+		logger.info(
 			`Grouped ${processedPayments} payments for ${paymentsByStudent.size} students`
 		);
 
@@ -151,14 +151,14 @@ async function rebuildPaymentHistories() {
 							if (result) {
 								successCount++;
 							} else {
-								Logger.warn(
+								logger.warn(
 									`No result found for student ${studentId} and payment ${payments}`
 								);
 								errorCount++;
 							}
 						} catch (error) {
 							errorCount++;
-							Logger.error(
+							logger.error(
 								`Error updating student payment history ${studentId}: ${error}`
 							);
 						}
@@ -186,12 +186,12 @@ async function rebuildPaymentHistories() {
 			errorCount
 		};
 
-		Logger.info(`Payment history rebuild completed ${summary}`);
+		logger.info(`Payment history rebuild completed ${summary}`);
 
 		return summary;
 	} catch (error) {
 		await session.abortTransaction();
-		Logger.error(`Payment history rebuild failed ${error}`);
+		logger.error(`Payment history rebuild failed ${error}`);
 		throw error;
 	} finally {
 		session.endSession();
@@ -202,14 +202,14 @@ export async function recoverPaymentIds() {
 	session.startTransaction();
 
 	try {
-		Logger.info('Starting payment ID recovery process...');
+		logger.info('Starting payment ID recovery process...');
 
 		// Get all students with payment history
 		const students = await StudentModel.find({
 			'paymentHistory.paymentId': { $exists: true }
 		}).session(session);
 
-		Logger.info(`Found ${students.length} students with payment history`);
+		logger.info(`Found ${students.length} students with payment history`);
 
 		let updatedCount = 0;
 		let errorCount = 0;
@@ -231,7 +231,7 @@ export async function recoverPaymentIds() {
 							).session(session)) as IPayment | null;
 
 							if (!paymentDoc) {
-								Logger.warn(
+								logger.warn(
 									`Payment document not found for student ${student._id} and payment ${payment.paymentId}`
 								);
 								return payment;
@@ -243,7 +243,7 @@ export async function recoverPaymentIds() {
 								payId: paymentDoc.payId
 							};
 						} catch (error) {
-							Logger.error(
+							logger.error(
 								`Error processing individual payment for student ${student._id} and payment ${payment.paymentId}: ${error}`
 							);
 							return payment;
@@ -262,11 +262,11 @@ export async function recoverPaymentIds() {
 
 				// Log progress every 100 students
 				if (updatedCount % 100 === 0) {
-					Logger.info(`Processed ${updatedCount} students...`);
+					logger.info(`Processed ${updatedCount} students...`);
 				}
 			} catch (error) {
 				errorCount++;
-				Logger.error(
+				logger.error(
 					`Error processing student ${student._id}: ${error}`
 				);
 			}
@@ -281,7 +281,7 @@ export async function recoverPaymentIds() {
 			errorCount
 		};
 
-		Logger.info({
+		logger.info({
 			message: 'Payment ID recovery completed',
 			summary: JSON.stringify(summary, null, 2)
 		});
@@ -290,7 +290,7 @@ export async function recoverPaymentIds() {
 	} catch (error) {
 		// Abort transaction on error
 		await session.abortTransaction();
-		Logger.error(`Payment ID recovery failed ${error}`);
+		logger.error(`Payment ID recovery failed ${error}`);
 		throw error;
 	} finally {
 		session.endSession();
