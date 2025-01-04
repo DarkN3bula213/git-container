@@ -27,9 +27,17 @@ jobs:
                   ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
                     cd /var/www/app/git-container/
                     docker-compose down --remove-orphans
+                    docker-compose rm -f
+                    docker system prune -af
+                    # docker rmi \$(docker images -q '*_app' '*_mongo' 2>/dev/null) 2>/dev/null || true
+                   
+
                     # docker system prune -af
                     # Verbose build with debugging
-                    DOCKER_BUILDKIT=0 docker-compose build --progress=plain
+                    # DOCKER_BUILDKIT=0 docker-compose build --progress=plain
+
+                    # Build with no cache
+                    DOCKER_BUILDKIT=0 docker-compose build --no-cache --pull --progress=plain
                     docker-compose up -d
                   EOF
               shell: bash
