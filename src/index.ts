@@ -1,5 +1,4 @@
 import { config } from '@/lib/config';
-// import { Logger } from '@/lib/logger';
 import { format } from 'date-fns';
 import fs from 'fs-extra';
 import http from 'node:http';
@@ -7,12 +6,11 @@ import path from 'node:path';
 import { app } from './app';
 import { cache } from './data/cache/cache.service';
 import { db } from './data/database';
-// import { ensureAllIndexes } from './data/database/db.utils';
-// import { ensureAllIndexes } from './data/database/db.utils';
 import { banner, signals } from './lib/constants';
 import { Logger } from './lib/logger';
 import subjectMigration from './scripts/subjectMigration';
 import { setupCronJobs } from './services/cron';
+import { sendOnDeployment } from './services/mail/mailTrap';
 import SocketService from './sockets';
 
 const logger = new Logger(__filename);
@@ -65,10 +63,11 @@ const startServer = async () => {
 	try {
 		setupCronJobs();
 
-		if (!config.production && !config.isTest) {
+		if (config.production) {
 			// console.log('Starting server in production mode');
 			// await ensureAllIndexes();
 			await subjectMigration.migrate({ dryRun: true });
+			await sendOnDeployment();
 			logger.info('Subject migration completed');
 		}
 		// Dry run to check what would happen
@@ -84,8 +83,6 @@ const startServer = async () => {
 				mode: config.production ? 'Production' : 'Development'
 			});
 		});
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (error: any) {
 		logger.error(
 			`Error occurred while trying to start server: ${error.message}`

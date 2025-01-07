@@ -2,6 +2,7 @@ import { BadRequestError } from '@/lib/api';
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 import { numberFormatter } from '@/lib/utils/numberFormatter';
+import dayjs from 'dayjs';
 import { writeFileSync } from 'fs';
 import sendEmail, { generateHtmlTemplate } from '.';
 import { getPaymentsForDate } from '../cron/daily-fees';
@@ -99,7 +100,9 @@ export const sendSuccessMessage = async (email: string, url: string) => {
 			templateName: 'reset',
 			templateData: { resetURL: url }
 		});
-		logger.debug(JSON.stringify(emailRes));
+		logger.debug({
+			response: emailRes
+		});
 	} catch (error) {
 		if (typeof error === 'string') {
 			logger.error(`Email delivery failed: ${error}`);
@@ -210,3 +213,82 @@ export const sendPaymentSummaryEmail = async (email: string, date: Date) => {
 };
 // sendPaymentSummaryEmail('a.ateeb@proton.me', new Date());
 // previewEmailHtml(new Date());
+
+interface DeploymentDetails {
+	adminName: string;
+	appName: string;
+	deploymentTime: string;
+	environment: string;
+	serverRegion: string;
+	dashboardUrl: string;
+	logsUrl: string;
+	supportEmail: string;
+	senderName: string;
+	senderRole: string;
+	companyName: string;
+	serviceName: string;
+}
+
+export async function generateDeploymentSuccessEmail(
+	details: DeploymentDetails
+): Promise<string> {
+	// Format the deployment time if it's a Date object
+	const formattedDeploymentTime: string = details.deploymentTime
+		? details.deploymentTime.toLocaleString()
+		: details.deploymentTime;
+
+	const templateData = {
+		adminName: details.adminName,
+		appName: details.appName,
+		deploymentTime: formattedDeploymentTime,
+		environment: details.environment,
+		serverRegion: details.serverRegion,
+		dashboardUrl: details.dashboardUrl,
+		logsUrl: details.logsUrl,
+		supportEmail: details.supportEmail,
+		senderName: details.senderName,
+		senderRole: details.senderRole,
+		companyName: details.companyName,
+		serviceName: details.serviceName
+	};
+
+	return generateHtmlTemplate('deploymentSuccess', templateData);
+}
+
+export const sendDeploymentSuccessEmail = async (
+	email: string,
+	details: DeploymentDetails
+) => {
+	try {
+		const emailHtml = await generateDeploymentSuccessEmail(details);
+		await sendEmail({
+			to: email,
+			subject: 'Application Deployment Success',
+			html: emailHtml
+		});
+	} catch (error) {
+		logger.error('Error sending deployment success email:', error);
+		throw new Error(`Error sending deployment success email: ${error}`);
+	}
+};
+
+// Example usage:
+/*
+ */
+
+export const sendOnDeployment = async () => {
+	await sendDeploymentSuccessEmail('a.ateeb@proton.me', {
+		adminName: 'Admin',
+		appName: 'HPS Backend',
+		deploymentTime: dayjs(new Date()).format('DD-MM-YYYY HH:mm:ss'),
+		environment: 'Production',
+		serverRegion: 'us-east-1',
+		dashboardUrl: config.origin ?? 'https://hps-backend.com',
+		logsUrl: 'https://github.com/DarkN3bula213/git-container',
+		supportEmail: config.mail.address,
+		senderName: 'Deployment Team',
+		senderRole: 'DevOps Engineer',
+		companyName: 'HPS',
+		serviceName: 'Automated Deployment Service'
+	});
+};

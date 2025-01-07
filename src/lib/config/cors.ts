@@ -1,6 +1,6 @@
 import type cors from 'cors';
 import { origins } from '../constants/allowedOrigins';
-import { Logger } from '../logger/v1/logger';
+import { Logger } from '../logger/logger';
 import { config } from './config';
 
 const logger = new Logger(__filename);
