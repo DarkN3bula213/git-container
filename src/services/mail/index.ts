@@ -10,7 +10,8 @@ const logger = new Logger('Mailtrap');
 
 export const client = Nodemailer.createTransport(
 	MailtrapTransport({
-		token: config.mail.token
+		token: config.mail.token,
+		testInboxId: 2872013
 	}),
 	{
 		debug: true,
@@ -31,6 +32,7 @@ interface SendEmailWithTemplate {
 	templateData?: Record<string, string>;
 	name?: string;
 	message?: string;
+	title?: string;
 }
 
 interface SendEmailWithHtml {
@@ -39,6 +41,7 @@ interface SendEmailWithHtml {
 	html: string; // Required when sending complete HTML
 	name?: string;
 	message?: string;
+	title?: string;
 }
 
 type SendEmailProps = SendEmailWithTemplate | SendEmailWithHtml;
@@ -63,10 +66,11 @@ const sendEmail = async (props: SendEmailProps) => {
 		},
 		from: {
 			address: config.mail.address,
-			name: 'HPS Admin Support Team'
+			name: props.title ?? 'HPS Admin Support Team'
 		},
 		subject: props.subject,
-		html: htmlTemplate
+		html: htmlTemplate,
+		sandbox: config.isTest
 	};
 
 	try {

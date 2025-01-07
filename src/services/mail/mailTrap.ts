@@ -209,3 +209,4 @@ export const sendPaymentSummaryEmail = async (email: string, date: Date) => {
 	}
 };
 // sendPaymentSummaryEmail('a.ateeb@proton.me', new Date());
+// previewEmailHtml(new Date());

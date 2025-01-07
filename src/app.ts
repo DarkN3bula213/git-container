@@ -19,14 +19,26 @@ import router from './routes';
 
 const logger = new Logger(__filename);
 
-process.on('uncaughtException', (e) => {
-	logger.error(`An uncaught exception occurred: ${e.message}`);
+process.on('uncaughtException', (error: Error) => {
+	logger.error('Uncaught Exception:', {
+		error: error.stack ?? error.message,
+		timestamp: new Date().toISOString()
+	});
+	// Gracefully shutdown
+	// process.exit(1);
 });
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-process.on('unhandledRejection', (reason: any) => {
-	logger.error(`An unhandled rejection occurred: ${reason?.message}`);
-});
+process.on(
+	'unhandledRejection',
+	(reason: unknown, promise: Promise<unknown>) => {
+		logger.error('Unhandled Rejection:', {
+			reason: reason instanceof Error ? reason.stack : reason,
+			promise,
+			timestamp: new Date().toISOString()
+		});
+		// Optionally exit
+		// process.exit(1);
+	}
+);
 const app: Express = express();
 
 app.set('trust proxy', 1);

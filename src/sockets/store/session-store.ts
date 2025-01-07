@@ -1,7 +1,8 @@
 // src/session/RedisSessionStore.ts
 import { cache } from '@/data/cache/cache.service';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { Logger } from '@/lib/logger';
-import { convertToMilliseconds } from '@/lib/utils/fns';
+import { convertToSeconds } from '@/lib/utils/fns';
 import { RedisClientType } from 'redis';
 
 interface Session {
@@ -11,8 +12,8 @@ interface Session {
 }
 
 class RedisSessionStore {
-	private redisClient: RedisClientType;
-	private logger: Logger;
+	private readonly redisClient: RedisClientType;
+	private readonly logger: Logger;
 
 	constructor(redisClient: RedisClientType) {
 		this.redisClient = redisClient;
@@ -20,27 +21,26 @@ class RedisSessionStore {
 	}
 
 	async findSession(sessionId: string): Promise<Session | null> {
-		this.logger.info(`Finding session with ID: ${sessionId}`);
-		const sessionData = await this.redisClient.get(`session:${sessionId}`);
+		// this.logger.info(`Finding session with ID: ${sessionId}`);
+		const key = getDynamicKey(DynamicKey.SESSION, sessionId);
+		const sessionData = await this.redisClient.get(key);
 		return sessionData ? JSON.parse(sessionData) : null;
 	}
 
 	async saveSession(sessionId: string, session: Session): Promise<void> {
 		session.timestamp = Date.now(); // Add timestamp to session
-		const ttl = convertToMilliseconds('120m');
-		this.logger.info(
-			`Saving session with ID: ${sessionId} and TTL: ${ttl}`
-		);
-		await this.redisClient.set(
-			`session:${sessionId}`,
-			JSON.stringify(session),
-			{ EX: convertToMilliseconds('120m') } // Set TTL for the session
-		);
+		const ttl = convertToSeconds('120m');
+		const key = getDynamicKey(DynamicKey.SESSION, sessionId);
+		// this.logger.info(`Saving session with ID: ${sessionId} and TTL: ${ttl}`);
+		await this.redisClient.set(key, JSON.stringify(session), {
+			EX: ttl
+		});
 	}
 
 	async deleteSession(sessionId: string): Promise<void> {
-		this.logger.info(`Deleting session with ID: ${sessionId}`);
-		await this.redisClient.del(`session:${sessionId}`);
+		const key = getDynamicKey(DynamicKey.SESSION, sessionId);
+		// this.logger.info(`Deleting session with ID: ${sessionId}`);
+		await this.redisClient.del(key);
 	}
 }
 

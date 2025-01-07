@@ -1,6 +1,6 @@
 import { Logger } from '@/lib/logger';
 import { convertToSeconds } from '@/lib/utils/fns';
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { Document, HydratedDocument, Schema, Types } from 'mongoose';
 
 // import autoIncrement from 'mongoose-sequence';
 
@@ -20,14 +20,24 @@ interface TokenModel extends mongoose.Model<Token> {
 		userId: Types.ObjectId,
 		code: string
 	): Promise<string>;
+	addJwtToken(
+		userId: Types.ObjectId,
+		token: string,
+		session: mongoose.ClientSession
+	): Promise<void>;
 }
 
-type TokenTypes = 'VERIFICATION' | 'PASSWORD_RESET';
+type TokenTypes = 'VERIFICATION' | 'PASSWORD_RESET' | 'JWT';
 
-const schema = new Schema<Token>(
+const schema = new Schema<Token, TokenModel>(
 	{
 		token: { type: String, required: true },
-		tokenType: { type: String, enum: ['VERIFICATION', 'PASSWORD_RESET'] },
+		tokenType: {
+			type: String,
+			enum: ['VERIFICATION', 'PASSWORD_RESET', 'JWT'],
+			default: 'JWT',
+			required: true
+		},
 		userId: {
 			type: Schema.Types.ObjectId,
 			required: true,
@@ -41,7 +51,35 @@ const schema = new Schema<Token>(
 	},
 	{
 		timestamps: true,
-		versionKey: false
+		versionKey: false,
+
+		statics: {
+			async addJwtToken(
+				userId: Types.ObjectId,
+				token: string,
+				session: mongoose.ClientSession
+			): Promise<HydratedDocument<Token>> {
+				try {
+					const [tokenRecord] = await this.create(
+						[
+							{
+								// Wrap in array
+								token: token,
+								tokenType: 'JWT',
+								userId: userId
+							}
+						],
+						{ session }
+					);
+
+					return tokenRecord;
+				} catch (error) {
+					console.error(error);
+					logger.error('Error adding JWT token', error);
+					throw error;
+				}
+			}
+		}
 	}
 );
 

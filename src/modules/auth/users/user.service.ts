@@ -1,6 +1,5 @@
 import { cache } from '@/data/cache/cache.service';
-import { DynamicKey } from '@/data/cache/keys';
-import { getDynamicKey } from '@/data/cache/keys';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { convertToObjectId, withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
 import { config } from '@/lib/config';
@@ -34,7 +33,7 @@ type UserDataObject = {
 const logger = new Logger(__filename);
 class UserService {
 	private static instance: UserService;
-	constructor(private user: typeof UserModel) {}
+	constructor(private readonly user: typeof UserModel) {}
 
 	static getInstance() {
 		if (!UserService.instance) {
@@ -58,7 +57,7 @@ class UserService {
 		}
 
 		const roles = normalizeRoles(userCache.roles);
-		const roleCodes = (await fetchRoleCodes(roles)) as string[];
+		const roleCodes = await fetchRoleCodes(roles);
 		if (!roleCodes) {
 			throw new BadRequestError('No user found');
 		}
@@ -102,12 +101,13 @@ class UserService {
 			}
 			user.lastLogin = new Date();
 			await user.save({ session });
+			await Tokens.addJwtToken(user._id, accessToken, session);
 			const roles = normalizeRoles(userObj.roles);
 			const isAdmin = await isAdminRolePresent(roles);
 			const userSettings = await userSettingsService.getSettings(
 				user._id
 			);
-			const roleCodes = (await fetchUserPermissions(roles)) as string[];
+			const roleCodes = await fetchUserPermissions(roles);
 			if (!roleCodes) {
 				throw new BadRequestError('No user found');
 			}
@@ -129,21 +129,17 @@ class UserService {
 	async createUser(userDetails: Partial<User>, roleCode: Roles) {
 		return withTransaction(async (session) => {
 			// 1. Input validation
-			if (
-				!userDetails.email ||
-				!userDetails.username ||
-				!roleCode ||
-				!userDetails.name
-			) {
-				throw new BadRequestError(
-					!userDetails.email
-						? 'Email is required'
-						: !userDetails.username
-							? 'Username is required'
-							: !userDetails.name
-								? 'Name is required'
-								: 'Role is required'
-				);
+			if (!userDetails.email) {
+				throw new BadRequestError('Email is required');
+			}
+			if (!userDetails.username) {
+				throw new BadRequestError('Username is required');
+			}
+			if (!userDetails.name) {
+				throw new BadRequestError('Name is required');
+			}
+			if (!roleCode) {
+				throw new BadRequestError('Role is required');
 			}
 
 			// 2. Check for duplicates
@@ -165,25 +161,28 @@ class UserService {
 			}
 
 			// 3. Validate email MX records
-			const hasMxRecords = await checkMXRecords(userDetails.email);
-			if (!hasMxRecords) {
-				throw new BadRequestError('Invalid email domain');
+			const token = verfication.generateToken();
+			if (!config.isTest) {
+				const hasMxRecords = await checkMXRecords(userDetails.email);
+				if (!hasMxRecords) {
+					throw new BadRequestError('Invalid email domain');
+				}
+				// 5. Send verification email
+				try {
+					await sendVerifyEmail(
+						userDetails.username,
+						userDetails.email,
+						token
+					);
+				} catch (error) {
+					logger.error('Email sending failed:', error);
+					throw new BadRequestError(
+						'Failed to send verification email'
+					);
+				}
 			}
 
 			// 4. Generate verification token
-			const token = verfication.generateToken();
-
-			// 5. Send verification email
-			try {
-				await sendVerifyEmail(
-					userDetails.username,
-					userDetails.email,
-					token
-				);
-			} catch (error) {
-				logger.error('Email sending failed:', error);
-				throw new BadRequestError('Failed to send verification email');
-			}
 
 			// 6. Get role
 			const role = await RoleModel.findOne({ code: roleCode })
@@ -338,4 +337,4 @@ class UserService {
 	}
 }
 
-export const service = UserService.getInstance() as UserService;
+export const service = UserService.getInstance();

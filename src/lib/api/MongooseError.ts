@@ -5,8 +5,7 @@ import mongoose from 'mongoose';
 import {
 	MongooseCastError,
 	MongooseDuplicateKeyError,
-	MongooseGeneralError,
-	MongooseValidationError
+	MongooseGeneralError
 } from '.';
 
 const logger = new Logger(__filename);
@@ -16,7 +15,8 @@ export const handleMongooseError = (
 	res: Response
 ) => {
 	if (err instanceof mongoose.Error.ValidationError) {
-		throw new MongooseValidationError(err.message);
+		// throw new MongooseValidationError(err.message);
+		res.status(400).json({ error: err.message });
 	} else if (err instanceof mongoose.Error.CastError) {
 		throw new MongooseCastError(err.message);
 	} else if (err instanceof mongoose.Error.DocumentNotFoundError) {

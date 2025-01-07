@@ -33,7 +33,6 @@ export async function ensureAllIndexes(): Promise<void> {
 	return withTransaction(async (session) => {
 		const modelNames = mongoose.modelNames();
 		const fixedModels: string[] = [];
-		let totalIndexes = 0;
 
 		try {
 			logger.info('Starting index synchronization for all models...');
@@ -60,23 +59,17 @@ export async function ensureAllIndexes(): Promise<void> {
 				}
 
 				// Sync indexes with background: true for safer rebuilding
-				const result = await model.syncIndexes({
+				await model.syncIndexes({
 					session,
 					background: true
 				});
 
 				fixedModels.push(modelName);
-				totalIndexes += result.length;
-
-				logger.info({
-					message: `Synchronized indexes for ${modelName}`
-				});
 			}
 
 			logger.info({
 				message: 'Index synchronization completed successfully',
-				modelsUpdated: fixedModels,
-				totalIndexes
+				modelsUpdated: fixedModels
 			});
 		} catch (error) {
 			logger.error({

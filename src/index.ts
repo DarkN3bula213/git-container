@@ -8,6 +8,7 @@ import { app } from './app';
 import { cache } from './data/cache/cache.service';
 import { db } from './data/database';
 // import { ensureAllIndexes } from './data/database/db.utils';
+// import { ensureAllIndexes } from './data/database/db.utils';
 import { banner, signals } from './lib/constants';
 import { Logger } from './lib/logger';
 import subjectMigration from './scripts/subjectMigration';
@@ -45,6 +46,11 @@ const createDirectories = async () => {
 	}
 };
 
+async function initializeDataSources() {
+	await db.connect();
+	await cache.connect();
+}
+
 const startServer = async () => {
 	const date = new Date();
 	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -57,12 +63,9 @@ const startServer = async () => {
 		hour12: false
 	}).format(date);
 	try {
-		// Connect to cache and database
-		await cache.connect();
-		await db.connect();
 		setupCronJobs();
 
-		if (config.isDocker || config.isProduction) {
+		if (!config.production && !config.isTest) {
 			// console.log('Starting server in production mode');
 			// await ensureAllIndexes();
 			await subjectMigration.migrate({ dryRun: true });
@@ -71,9 +74,9 @@ const startServer = async () => {
 		// Dry run to check what would happen
 
 		// Start the server and listen on all network interfaces
-		server.listen(PORT, '0.0.0.0' as any, () => {
+		server.listen(PORT, () => {
 			logger.warn({
-				server: `Server instance instantiated and listening on port ${PORT}.`,
+				port: PORT,
 				node: banner,
 				date: format(date, 'PPP'),
 				timeZone: timeZone,
@@ -110,6 +113,7 @@ signals.forEach((signal) => {
 export { socketService };
 
 createDirectories()
+	.then(initializeDataSources)
 	.then(startServer)
 	.catch((error) => {
 		logger.error(

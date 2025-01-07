@@ -1,6 +1,7 @@
+import { cache } from '@/data/cache/cache.service';
+import { sessionJobKey, startTimeKey } from '@/data/cache/keys';
 import { validateData } from '@/lib/handlers/validate';
 import { Logger } from '@/lib/logger';
-import { convertToMilliseconds } from '@/lib/utils/fns';
 import QueueFactory from '@/queues';
 import { DoneCallback, Job } from 'bull';
 import { createUserSession } from './session.model';
@@ -17,24 +18,43 @@ const sessionProcessor = {
 		}>,
 		done: DoneCallback
 	) => {
-		logger.info(`Processing job ${job.id} for user ${job.data.userID}`);
+		logger.debug({
+			event: 'Processing job',
+			jobId: job.id,
+			userId: job.data.userID.slice(0, 5)
+		});
 		try {
 			const { userID, startTime, endTime, time } = job.data;
 			await createUserSession(userID, startTime, endTime, time);
-			logger.info(`Session saved for user ${userID}`);
+			logger.info({
+				event: 'Session saved',
+				userId: userID.slice(0, 5)
+			});
 			done();
 		} catch (error: any) {
-			logger.error(
-				`Error saving session for user ${job.data.userID}: ${error.message}`
-			);
+			logger.error({
+				event: 'Error saving session',
+				message: error.message,
+				userId: job.data.userID.slice(0, 5)
+			});
 			done(error);
 		}
 	}
 };
 
-export const saveSessionQueue = QueueFactory.createQueue('saveSession', {
-	saveUserSession: sessionProcessor.saveUserSession
-});
+export const saveSessionQueue = QueueFactory.createQueue(
+	'saveSession',
+	{
+		saveUserSession: sessionProcessor.saveUserSession
+	},
+	{},
+	{
+		onComplete: async (job) => {
+			const timeKey = startTimeKey(job.data.userID);
+			await cache.del(timeKey);
+		}
+	}
+);
 
 // Job creation example
 export async function addSaveSessionJob(
@@ -47,41 +67,55 @@ export async function addSaveSessionJob(
 
 	// Validate the data before adding the job to the queue
 	validateData(sessionSchema, data);
+	const jobId = sessionJobKey(userID);
 	try {
 		const job = await saveSessionQueue.add(
 			'saveUserSession',
 			{ userID, startTime, endTime, time },
 			{
-				jobId: `save-session-${userID}`,
-				delay: convertToMilliseconds('1min')
-			} // 5-minute delay
+				jobId: jobId
+			}
 		);
-		logger.debug(`Job ${job.id} queued for user ${userID}`);
+		logger.debug({
+			event: `Job queued ${job.id}`
+		});
 	} catch (error: any) {
-		logger.error(
-			`Failed to add save session job for user ${userID}: ${error.message}`
-		);
+		logger.error({
+			event: 'Error adding save session job',
+			message: error.message,
+			userId: userID.slice(0, 5)
+		});
 		throw error;
 	}
 }
 
 export async function removeSaveSessionJob(userID: string) {
 	try {
+		const jobId = sessionJobKey(userID);
 		// Retrieve the job by its ID
-		const job = await saveSessionQueue.getJob(`save-session-${userID}`);
+		const job = await saveSessionQueue.getJob(jobId);
 
 		if (job) {
 			await job.remove();
-			logger.debug(`Reconnection: Queued job removed `);
+			logger.debug({
+				event: 'Found job for user',
+				userId: userID.slice(0, 5),
+				jobId: job.id
+			});
 		} else {
-			logger.warn(
-				`No queued job found for user ${userID} on reconnection.`
-			);
+			//  Silent return
+			return;
 		}
 	} catch (error: any) {
-		logger.error(
-			`Failed to remove save session job for user ${userID}: ${error.message}`
-		);
+		logger.error({
+			event: 'Error removing save session job',
+			message: error.message,
+			userId: userID.slice(0, 5)
+		});
 		throw error;
 	}
+}
+export async function cancelSessionEnd(userId: string): Promise<boolean> {
+	const jobId = sessionJobKey(userId);
+	return QueueFactory.cancelDelayedJob(saveSessionQueue, jobId);
 }

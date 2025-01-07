@@ -1,102 +1,45 @@
-import { cache } from '@/data/cache/cache.service';
+// import { cache } from '@/data/cache/cache.service';
 import { Logger } from '@/lib/logger';
-import { saveSessionQueue } from '@/modules/auth/sessions/session.processor';
 import { getOrCreateConversation } from '@/modules/conversations/conversation.model';
+import { ConnectedUser } from '@/types/connectedUsers';
 import { Socket } from 'socket.io';
-import { Message, messageSingleton } from '../store/messageStore';
+// import { Message, messageSingleton } from '../store/messageStore';
+import { getOnlineUsers } from '../utils/getOnlineUsers';
 
 const logger = new Logger(__filename);
 
-const getOrSetStartTime = async (userID: string, socket: Socket) => {
-	const redisKey = `user:${userID}:startTime`;
-	const startTime = await cache.get<Date>(redisKey);
-
-	if (startTime) {
-		socket.data.startTime = new Date(startTime);
-		logger.debug(`Found start time for user ${socket.data.user}`);
-	} else {
-		const newStartTime = new Date();
-		socket.data.startTime = newStartTime;
-		await cache.set(redisKey, newStartTime.toISOString());
-		logger.info(
-			`Set new startTime in Redis for user ${userID} on socket ${socket.id}`
-		);
-	}
-};
-
-const handleDelayedJobs = async (userID: string) => {
-	const jobId = `job-${userID}`;
-	const delayedJobs = await saveSessionQueue.getDelayed();
-	const job = delayedJobs.find((job) => job.id === jobId);
-
-	if (job) {
-		await job.remove();
-		logger.info(
-			`Removed delayed job for user ${userID} as they reconnected`
-		);
-	}
-};
-
-const getStartTimeFromCache = async (
-	userID: string,
-	socket: Socket
-): Promise<Date | null> => {
-	const redisKey = `user:${userID}:startTime`;
-	const startTime = await cache.get<Date>(redisKey);
-
-	if (!startTime) {
-		logger.error(
-			`StartTime missing in Redis for user ${userID} on socket ${socket.id}.`
-		);
-		return null;
-	}
-
-	return new Date(startTime);
-};
-
-// Handle user connection and prevent duplicate sessions
-const manageUserConnection = (
+const broadcastUserList = (
 	socket: Socket,
-	connectedUsers: Map<
-		string,
-		{ userId: string; username: string; socketId: string }
-	>
+	connectedUsers: Map<string, ConnectedUser>
 ) => {
-	const userId = socket.data.userId as string;
-	const user = socket.data.user;
-	const username = user.username as string;
-
-	if (connectedUsers.has(userId)) {
-		const existingUser = connectedUsers.get(userId);
-		// Update only the socket ID, don't trigger a disconnection
-		if (existingUser) {
-			logger.info(
-				`Reevaluating connection for user ${username} (ID: ${userId}).`
-			);
-
-			// Update the map with the new socketId
-			connectedUsers.set(userId, {
-				userId,
-				username,
-				socketId: socket.id
-			});
-
-			logger.info(
-				`Updated socketId for user ${username} (ID: ${userId}) to ${socket.id}`
+	const onlineUsers = getOnlineUsers(connectedUsers);
+	socket.broadcast.emit('userListUpdated', onlineUsers);
+};
+function updateUserSocket(
+	connectedUsers: Map<string, ConnectedUser>,
+	sessionId: string,
+	newSocketId: string
+) {
+	if (connectedUsers.has(sessionId)) {
+		const existingUser = connectedUsers.get(sessionId);
+		if (existingUser && existingUser.socketId !== newSocketId) {
+			connectedUsers.delete(sessionId);
+			logger.warn(
+				`Disconnecting duplicate connection for user with socketId ${existingUser.socketId}`
 			);
 		}
-	} else {
-		// If user is not in the map, add them for the first time
-		connectedUsers.set(userId, {
-			userId,
-			username,
-			socketId: socket.id
-		});
-
-		logger.info(`New socket added for User ${username}`);
 	}
+}
 
-	return username;
+const joinUserRoom = (socket: Socket) => {
+	const userId = socket.data.userId as string;
+	if (userId) {
+		socket.join(userId);
+	} else {
+		logger.warn(
+			`Unable to join user room: userId not found in socket.data`
+		);
+	}
 };
 
 const getConversationId = async (userId: string, socket: Socket) => {
@@ -119,78 +62,78 @@ const getConversationId = async (userId: string, socket: Socket) => {
 	}
 };
 // Handle message sending and receiving
-const handleMessageEvents = (
-	socket: Socket,
-	connectedUsers: Map<string, any>
-) => {
-	socket.on('privateMessage', async ({ toUserId, message }) => {
-		const userId = socket.data.userId;
-		const username = socket.data.username;
-		const recipient = connectedUsers.get(toUserId);
+// const handleMessageEvents = (
+// 	socket: Socket,
+// 	connectedUsers: Map<string, any>
+// ) => {
+// 	socket.on('privateMessage', async ({ toUserId, message }) => {
+// 		const userId = socket.data.userId;
+// 		const username = socket.data.username;
+// 		const recipient = connectedUsers.get(toUserId);
 
-		if (recipient) {
-			const newMessage = {
-				from: { userId, username, socketId: socket.id },
-				to: recipient,
-				content: message,
-				timestamp: Date.now()
-			} as Message;
+// 		if (recipient) {
+// 			const newMessage = {
+// 				from: { userId, username, socketId: socket.id },
+// 				to: recipient,
+// 				content: message,
+// 				timestamp: Date.now()
+// 			} as Message;
 
-			const conversationId = await getConversationId(toUserId, socket);
+// 			const conversationId = await getConversationId(toUserId, socket);
 
-			let msg;
-			if (!conversationId) {
-				logger.error('Conversation ID not found');
-				socket.emit('systemMessage', {
-					message: `Must create a conversation with user ID: ${toUserId} before sending messages.`,
-					timestamp: new Date().toISOString()
-				});
-				msg = newMessage;
-			} else {
-				msg = {
-					...newMessage,
-					conversationId
-				};
-				socket.emit('conversationId', conversationId);
-			}
+// 			let msg;
+// 			if (!conversationId) {
+// 				logger.error('Conversation ID not found');
+// 				socket.emit('systemMessage', {
+// 					message: `Must create a conversation with user ID: ${toUserId} before sending messages.`,
+// 					timestamp: new Date().toISOString()
+// 				});
+// 				msg = newMessage;
+// 			} else {
+// 				msg = {
+// 					...newMessage,
+// 					conversationId
+// 				};
+// 				socket.emit('conversationId', conversationId);
+// 			}
 
-			await messageSingleton.saveMessage(msg as Message);
+// 			await messageSingleton.saveMessage(msg as Message);
 
-			socket.to(recipient.socketId).emit('messageReceived', {
-				from: { userId, username, socketId: socket.id },
-				to: {
-					userId: recipient.userId,
-					username: recipient.username,
-					socketId: recipient.socketId
-				},
-				message,
-				timestamp: new Date().toISOString()
-			});
-			logger.info(
-				`Message sent to user ID: ${toUserId} (socket ID: ${recipient.socketId})`
-			);
-		} else {
-			logger.warn(
-				`Recipient with user ID: ${toUserId} not found or disconnected`
-			);
-			socket.emit('messageError', {
-				message: 'User not found or disconnected'
-			});
-		}
-	});
+// 			socket.to(recipient.socketId).emit('messageReceived', {
+// 				from: { userId, username, socketId: socket.id },
+// 				to: {
+// 					userId: recipient.userId,
+// 					username: recipient.username,
+// 					socketId: recipient.socketId
+// 				},
+// 				message,
+// 				timestamp: new Date().toISOString()
+// 			});
+// 			logger.info(
+// 				`Message sent to user ID: ${toUserId} (socket ID: ${recipient.socketId})`
+// 			);
+// 		} else {
+// 			logger.warn(
+// 				`Recipient with user ID: ${toUserId} not found or disconnected`
+// 			);
+// 			socket.emit('messageError', {
+// 				message: 'User not found or disconnected'
+// 			});
+// 		}
+// 	});
 
-	/*=====  Start of the Conversation  ======*/
+// 	/*=====  Start of the Conversation  ======*/
 
-	// On Requesting Conversation ID
-	socket.on('requestConversationId', async (userId) => {
-		const conversationId = await getConversationId(userId, socket);
-		if (conversationId) {
-			socket.emit('conversationId', conversationId);
-		} else {
-			socket.emit('conversationId', null);
-		}
-	});
-};
+// 	// On Requesting Conversation ID
+// 	socket.on('requestConversationId', async (userId) => {
+// 		const conversationId = await getConversationId(userId, socket);
+// 		if (conversationId) {
+// 			socket.emit('conversationId', conversationId);
+// 		} else {
+// 			socket.emit('conversationId', null);
+// 		}
+// 	});
+// };
 
 const rooms: { [id: string]: string[] } = {};
 
@@ -227,14 +170,17 @@ const handleCandidate = (socket: Socket) => {
 	});
 };
 export {
-	getOrSetStartTime,
-	handleDelayedJobs,
-	getStartTimeFromCache,
-	manageUserConnection,
-	handleMessageEvents,
+	// getOrSetStartTime,
+	// handleDelayedJobs,
+	// getStartTimeFromCache,
+	// manageUserConnection,
+	// handleMessageEvents,
 	handleJoinRoom,
 	handleOffer,
 	handleAnswer,
 	handleCandidate,
-	getConversationId
+	getConversationId,
+	joinUserRoom,
+	broadcastUserList,
+	updateUserSocket
 };

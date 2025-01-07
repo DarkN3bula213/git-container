@@ -1,6 +1,6 @@
 import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
-import Bull, { DoneCallback, Job, Queue } from 'bull';
+import Bull, { DoneCallback, Job, Queue, QueueOptions } from 'bull';
 
 const logger = new Logger(__filename);
 
@@ -9,29 +9,47 @@ type ProcessorFunction<T> = (job: Job<T>, done: DoneCallback) => Promise<void>;
 type ProcessorMap<T> = {
 	[key: string]: ProcessorFunction<T>;
 };
-
+const DEFAULT_DELAY = 5 * 60 * 1000; // 5 minutes in milliseconds
+interface QueueCallbacks<T> {
+	onComplete?: (job: Job<T>) => Promise<void> | void;
+	onFailed?: (job: Job<T>, error: Error) => Promise<void> | void;
+}
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class QueueFactory {
 	static createQueue<T>(
 		name: string,
-		processorMap: ProcessorMap<T>
+		processorMap: ProcessorMap<T>,
+		options: QueueOptions = {},
+		callbacks: QueueCallbacks<T> = {}
 	): Queue<T> {
 		const queue = new Bull<T>(name, {
 			redis: config.redis.uri,
 			defaultJobOptions: {
 				attempts: 3,
+				delay: DEFAULT_DELAY,
 				backoff: {
 					type: 'exponential',
 					delay: 1000
-				}
-			}
+				},
+				removeOnComplete: true
+			},
+			...options
 		});
 
 		// Register event listeners
-		queue.on('completed', (job: Job<T>) => {
+		queue.on('completed', async (job: Job<T>) => {
 			logger.info(
 				`Job ${job.id} in queue ${name} completed successfully.`
 			);
+			if (callbacks?.onComplete) {
+				try {
+					await callbacks.onComplete(job);
+				} catch (error: any) {
+					logger.error(
+						`Error in onComplete callback: ${error.message}`
+					);
+				}
+			}
 		});
 
 		queue.on('failed', (job: Job<T>, err: Error) => {
@@ -83,6 +101,37 @@ class QueueFactory {
 		} catch (error: any) {
 			logger.error(
 				`Failed to remove job ${jobId} from queue ${queueName}: ${error.message}`
+			);
+			throw error;
+		}
+	}
+	static async cancelDelayedJob<T>(
+		queue: Queue<T>,
+		jobId: string,
+		onSuccess?: () => void
+	): Promise<boolean> {
+		try {
+			const job = await queue.getJob(jobId);
+			if (!job) {
+				logger.warn(`No job found with ID ${jobId} to cancel`);
+				return false;
+			}
+
+			const state = await job.getState();
+			if (state === 'delayed' || state === 'waiting') {
+				await job.remove();
+				logger.info(`Successfully cancelled delayed job ${jobId}`);
+				onSuccess?.();
+				return true;
+			}
+
+			logger.warn(
+				`Job ${jobId} is in state ${state} and cannot be cancelled`
+			);
+			return false;
+		} catch (error: any) {
+			logger.error(
+				`Failed to cancel delayed job ${jobId}: ${error.message}`
 			);
 			throw error;
 		}

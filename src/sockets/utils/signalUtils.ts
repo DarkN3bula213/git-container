@@ -9,12 +9,12 @@ interface PendingOffer {
 }
 
 export class WebRTCSignalingService {
-	private static instance: WebRTCSignalingService;
-	private pendingOffers: Map<string, PendingOffer[]> = new Map();
+	private static readonly instance: WebRTCSignalingService;
+	private readonly pendingOffers: Map<string, PendingOffer[]> = new Map();
 	private readonly OFFER_TIMEOUT = 30000; // 30 seconds
-	private logger: Logger;
+	private readonly logger: Logger;
 
-	constructor(private io: Server) {
+	constructor(private readonly io: Server) {
 		this.logger = new Logger('WebRTCSignalingService');
 		this.startOfferCleanup();
 	}

@@ -1,7 +1,9 @@
 import { cache } from '@/data/cache/cache.service';
+import { startTimeKey } from '@/data/cache/keys';
 import { Logger } from '@/lib/logger';
 import { ConnectedUser } from '@/types/connectedUsers';
 import { Server, type Socket } from 'socket.io';
+import { DefaultSocketEvents } from '.';
 import { addSaveSessionJob } from '../../modules/auth/sessions/session.processor';
 import { calculateTimeSpent } from '../../modules/auth/sessions/socket.utils';
 import { sendAdminMessage } from '../utils/emitMessage';
@@ -16,9 +18,9 @@ export const handleDisconnect = async (
 	connectedUsers: Map<string, ConnectedUser>
 ) => {
 	const userID = socket.data.userId;
-	const redisKey = `user:${userID}:startTime`;
+	const redisKey = startTimeKey(userID);
 	const userId = socket.data.userId;
-	const startTime = await getStartTimeFromCache(userID, socket);
+	const startTime = await getStartTimeFromCache(userID);
 	if (!startTime) return; // If start time is missing, return early
 
 	let session;
@@ -57,23 +59,14 @@ export const handleDisconnect = async (
 
 	const sessionId = socket.data.sessionId as string;
 	const username = socket.data.username as string;
-
-	logger.info(
-		`Handling disconnect for user ${username} (sessionId: ${sessionId})`
-	);
 	const matchingSockets = await io.in(userId).fetchSockets();
 	const isDisconnected = matchingSockets.length === 0;
 
 	// console.dir(matchingSockets, { depth: null });
 
-	logger.info(`Status disconnected: ${isDisconnected}`);
-
 	if (isDisconnected) {
-		// User is fully disconnected
 		connectedUsers.delete(userId);
 		logger.info(`User ${userId} disconnected completely`);
-
-		// Notify other users
 		const onlineUsers = Array.from(connectedUsers.values());
 		socket.broadcast.emit('userListUpdated', onlineUsers);
 	} else {
@@ -109,8 +102,8 @@ export const handleDisconnect = async (
 	}
 	/*=====  End of Section comment block  ======*/
 
-	if (connectedUsers && connectedUsers.has(userId)) {
-		io.emit('systemMessage', {
+	if (connectedUsers?.has(userId)) {
+		io.emit(DefaultSocketEvents.SYSTEM_MESSAGE, {
 			message: `User ${userId} disconnected`,
 			timestamp: new Date().toISOString()
 		});

@@ -38,7 +38,7 @@ export const trackRequest = (
 };
 
 export const nonProductionMiddleware = (app: Application) => {
-	if (!config.production) {
+	if (!config.production || !config.isTest) {
 		app.use(trackRequest);
 	}
 };

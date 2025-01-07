@@ -77,6 +77,13 @@ const UserSessionModel = model<UserSessionModelType>(
 
 export default UserSessionModel;
 
+UserSessionModel.watch().on('change', (change) => {
+	logger.info({
+		event: 'Session change',
+		change: change.operationType
+	});
+});
+
 export const createUserSession = async (
 	userID: string,
 	startTime: Date,

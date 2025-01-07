@@ -9,7 +9,7 @@ import { emitMessage } from '../utils/emitMessage';
 import { getConversationId } from '../utils/getConversationId';
 import { getOnlineUsers } from '../utils/getOnlineUsers';
 import { SignalData } from './room-manager';
-import { broadcastUserList } from './users';
+import { broadcastUserList } from './socket.events';
 
 const logger = new Logger(__filename);
 
@@ -30,6 +30,7 @@ export const handleMessages = async (
 	);
 	socket.on('callUser', handleCallUser(socket, io));
 	socket.on('answerCall', handleAnswerCall(socket, io));
+	socket.on('setAvailability', handleSetAvailability(socket, connectedUsers));
 };
 
 // Handle request for conversation ID
@@ -217,4 +218,21 @@ const handleAnswerCall =
 			payload: { signalData, fromUserId }
 		});
 		logger.info(`Call answered by user ${fromUserId} for user ${toUserId}`);
+	};
+
+export const handleSetAvailability =
+	(socket: Socket, connectedUsers: Map<string, ConnectedUser>) =>
+	(isAvailable: boolean) => {
+		const sessionId = socket.data.sessionId as string;
+		const user = connectedUsers.get(sessionId);
+		if (user) {
+			// Only update if availability actually changed
+			user.isAvailable = isAvailable;
+			connectedUsers.set(sessionId, user);
+			broadcastUserList(socket, connectedUsers);
+
+			logger.info(
+				`User ${user.username} (${user.userId}) availability changed to ${isAvailable}`
+			);
+		}
 	};

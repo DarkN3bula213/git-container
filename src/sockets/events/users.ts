@@ -2,12 +2,16 @@ import { Logger } from '@/lib/logger';
 import { ConnectedUser } from '@/types/connectedUsers';
 import { Socket } from 'socket.io';
 import { sendAdminMessage } from '../utils/emitMessage';
-import { getOnlineUsers } from '../utils/getOnlineUsers';
+import {
+	broadcastUserList,
+	joinUserRoom,
+	updateUserSocket
+} from './socket.events';
 
 const logger = new Logger(__filename);
 
 // Main handler function for user events
-export const handleUsers = async (
+export const handleUsers = (
 	socket: Socket,
 	connectedUsers: Map<string, ConnectedUser>
 ) => {
@@ -20,13 +24,28 @@ export const handleUsers = async (
 		return;
 	}
 
-	logger.info(`Managing connection for user ${username} (${userId})`);
-
 	// Initial setup
-	handleExistingConnection(connectedUsers, sessionId, socket.id);
+	handleExistingConnection(connectedUsers, sessionId, socket);
+};
+
+// Utility Functions
+const handleExistingConnection = (
+	connectedUsers: Map<string, ConnectedUser>,
+	sessionId: string,
+	socket: Socket
+) => {
+	const newSocketId = socket.id;
+	const username = socket.data.username as string;
+	const userId = socket.data.userId as string;
+	logger.info({ newSocketId });
+
+	/*<-1. Update user socket ---------------------------------*/
+	updateUserSocket(connectedUsers, sessionId, newSocketId);
+
+	/*<-2. Join user room ---------------------------------*/
 	joinUserRoom(socket);
 
-	// Add/update the user in connectedUsers map
+	/*<-3. Set user list ---------------------------------*/
 	connectedUsers.set(sessionId, {
 		userId,
 		username,
@@ -34,72 +53,9 @@ export const handleUsers = async (
 		isAvailable: false // Default to available
 	});
 
-	// Set up event listeners
-	socket.on(
-		'setAvailability',
-		handleSetAvailability(socket, connectedUsers, sessionId)
-	);
-
-	// Initial broadcasts
+	/*<-4. Broadcast user list ---------------------------------*/
 	broadcastUserList(socket, connectedUsers);
+
+	/*<-5. Send admin message ---------------------------------*/
 	sendAdminMessage(socket, connectedUsers, `${username} connected`);
-};
-
-// Handle user availability changes
-// Event Handlers
-export const handleSetAvailability =
-	(
-		socket: Socket,
-		connectedUsers: Map<string, ConnectedUser>,
-		sessionId: string
-	) =>
-	(isAvailable: boolean) => {
-		const user = connectedUsers.get(sessionId);
-		if (user) {
-			// Only update if availability actually changed
-			user.isAvailable = isAvailable;
-			connectedUsers.set(sessionId, user);
-			broadcastUserList(socket, connectedUsers);
-
-			logger.info(
-				`User ${user.username} (${user.userId}) availability changed to ${isAvailable}`
-			);
-		}
-	};
-
-// Utility Functions
-const handleExistingConnection = (
-	connectedUsers: Map<string, ConnectedUser>,
-	sessionId: string,
-	newSocketId: string
-) => {
-	if (connectedUsers.has(sessionId)) {
-		const existingUser = connectedUsers.get(sessionId);
-		if (existingUser && existingUser.socketId !== newSocketId) {
-			connectedUsers.delete(sessionId);
-			logger.warn(
-				`Disconnecting duplicate connection for user with socketId ${existingUser.socketId}`
-			);
-		}
-	}
-};
-
-const joinUserRoom = (socket: Socket) => {
-	const userId = socket.data.userId as string;
-	if (userId) {
-		socket.join(userId);
-	} else {
-		logger.warn(
-			`Unable to join user room: userId not found in socket.data`
-		);
-	}
-};
-
-export const broadcastUserList = (
-	socket: Socket,
-	connectedUsers: Map<string, ConnectedUser>
-) => {
-	const onlineUsers = getOnlineUsers(connectedUsers);
-
-	socket.broadcast.emit('userListUpdated', onlineUsers);
 };

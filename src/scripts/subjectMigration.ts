@@ -138,7 +138,7 @@ class SubjectMigration {
 				};
 			});
 
-			logger.info(`Subjects migration completed ${result}`);
+			logger.info({ event: 'Subjects migration completed', result });
 			return result;
 		} catch (error) {
 			logger.error(`Subjects migration failed ${error}`);

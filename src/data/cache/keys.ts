@@ -10,7 +10,8 @@ export enum DynamicKey {
 	CONVERSATION = 'conversation',
 	USER = 'USER',
 	CLASS_SUBJECTS = 'class_subjects',
-	NOTIFICATIONS = 'NOTIFICATIONS'
+	NOTIFICATIONS = 'NOTIFICATIONS',
+	SESSION = 'session'
 }
 
 export type DynamicKeyType = `${DynamicKey}:${string}`;
@@ -22,3 +23,5 @@ export function getDynamicKey(key: DynamicKey, suffix: string) {
 
 export const usersKey = (userId: string) => `users#${userId}`;
 export const roleKey = (userId: string) => `role#${userId}`;
+export const startTimeKey = (userId: string) => `startTime#${userId}`;
+export const sessionJobKey = (userId: string) => `session-job-${userId}`;

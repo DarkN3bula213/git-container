@@ -7,7 +7,7 @@
 		"build": "pnpm clear && tsc && tsc-alias",
 		"build-ts": "tsc",
 		"clear": "rm -rf dist",
-		"dev": "nodemon -e ts,js --exec ts-node -r tsconfig-paths/register ./src/index.ts",
+		"dev": "console-ninja pnpm nodemon -e ts,js --exec ts-node -r tsconfig-paths/register ./src/index.ts",
 		"dev:test": "ts-node-dev --respawn --transpile-only --clear -r dotenv/config --inspect=0.0.0.0:9229 src/main",
 		"exec": "concurrently \"pnpx tsc --watch\" \"ts-node src/index.ts\"",
 		"format": "prettier --write \"src/**/*.ts\"",
@@ -150,5 +150,10 @@
 	},
 	"overrides": {
 		"**/formidable": "3.2.4"
+	},
+	"config": {
+		"mongodb-memory-server": {
+			"debug": "1"
+		}
 	}
 }

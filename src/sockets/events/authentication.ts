@@ -4,6 +4,7 @@ import { isUserAdmin } from '@/modules/auth/users/user.model';
 import cookie from 'cookie';
 import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
+import { DefaultSocketEvents } from '.';
 import { sessionStore } from '../store/session-store';
 import { getOrSetStartTime } from '../utils/getStartTimeFromCache';
 
@@ -13,12 +14,12 @@ export const handleAuth = async (
 	socket: Socket,
 	io: Server
 ): Promise<boolean> => {
-	const cookies = cookie.parse(socket.handshake.headers.cookie || '');
+	const cookies = cookie.parse(socket.handshake.headers.cookie ?? '');
 	const authToken = cookies.access;
 
 	if (!authToken) {
 		logger.warn(
-			`No auth token provided, disconnecting socket ${socket.id}`
+			`Disconnecting socket ${socket.id.substring(0, 4)} due to no auth token`
 		);
 		socket.emit('logout');
 		socket.disconnect();
@@ -27,7 +28,9 @@ export const handleAuth = async (
 
 	const verificationResult = verifyToken(authToken, 'access');
 	if (!verificationResult.valid) {
-		logger.warn(`Invalid auth token, disconnecting socket ${socket.id}`);
+		logger.warn(
+			`Disconnecting socket ${socket.id.substring(0, 4)} due to invalid auth token`
+		);
 		socket.emit('logout');
 		socket.disconnect();
 		return false;
@@ -38,7 +41,9 @@ export const handleAuth = async (
 	const username = user?.username;
 
 	if (!userId || !username) {
-		logger.warn(`Invalid user data, disconnecting socket ${socket.id}`);
+		logger.warn(
+			`Disconnecting socket ${socket.id.substring(0, 4)} due to invalid user data`
+		);
 		socket.disconnect();
 		return false;
 	}
@@ -47,7 +52,7 @@ export const handleAuth = async (
 
 	const sessionId = await handleSession(socket, userId.toString(), username);
 	const isAdmin = await isUserAdmin(userId);
-	logger.info(`User ${username} is admin: ${isAdmin}`);
+	// logger.info(`${username} is: ${isAdmin ? 'admin' : 'user'}`);
 	socket.data.isAdmin = isAdmin;
 
 	// Attach session data to socket
@@ -57,11 +62,15 @@ export const handleAuth = async (
 
 	// Send the sessionId back to the client
 	socket.emit('session', { sessionId, userId, username, isAdmin });
-	io.emit('systemMessage', {
+	io.emit(DefaultSocketEvents.SYSTEM_MESSAGE, {
 		message: `User ${username} connected`,
 		timestamp: new Date().toISOString()
 	});
-	logger.info(`User ${username} authenticated with sessionId ${sessionId}`);
+	logger.info({
+		event: 'User connected',
+		Username: username,
+		IsAdmin: isAdmin
+	});
 
 	return true;
 };
@@ -72,33 +81,66 @@ const handleSession = async (
 	username: string
 ): Promise<string> => {
 	let sessionId = getSessionId(socket);
+	logger.info(`SessionId: ${sessionId}`);
 
 	if (sessionId) {
 		const existingSession = await sessionStore.findSession(sessionId);
 		if (!existingSession) {
-			logger.warn(`Session ${sessionId} not found, creating new session`);
 			sessionId = v4();
-			await sessionStore.saveSession(sessionId, { userId, username });
-			logger.info(`New session created with sessionId: ${sessionId}`);
+			await sessionStore.saveSession(sessionId, {
+				userId,
+				username,
+				timestamp: Date.now()
+			});
+			logger.info({
+				event: 'New session created',
+				SessionId: sessionId.substring(0, 4),
+				UserId: userId,
+				Username: username
+			});
+		} else {
+			const startTime = socket.data.startTime;
+			logger.info({
+				event: 'Session found in redis',
+				SessionId: sessionId.substring(0, 4),
+				UserId: userId,
+				Username: username,
+				StartTime: startTime.toISOString()
+			});
 		}
 	} else {
 		sessionId = v4();
-		logger.warn(
-			`No sessionId provided by client, issuing new sessionId: ${sessionId}`
-		);
-		await sessionStore.saveSession(sessionId, { userId, username });
+
+		await sessionStore.saveSession(sessionId, {
+			userId,
+			username,
+			timestamp: Date.now()
+		});
+		logger.warn({
+			event: 'No sessionId provided by client, issuing new sessionId',
+			NewSessionId: sessionId.substring(0, 4),
+			UserId: userId,
+			Username: username
+		});
 	}
 
 	return sessionId;
 };
 
+// const getSessionId = (socket: Socket): string | undefined => {
+// 	if (socket.handshake.auth && socket.handshake.auth.sessionId) {
+// 		return socket.handshake.auth.sessionId as string;
+// 	} else if (socket.handshake.query && socket.handshake.query.sessionId) {
+// 		return socket.handshake.query.sessionId as string;
+// 	} else {
+// 		const cookies = cookie.parse(socket.handshake.headers.cookie || '');
+// 		return cookies.sessionId;
+// 	}
+// };
 const getSessionId = (socket: Socket): string | undefined => {
-	if (socket.handshake.auth && socket.handshake.auth.sessionId) {
-		return socket.handshake.auth.sessionId as string;
-	} else if (socket.handshake.query && socket.handshake.query.sessionId) {
-		return socket.handshake.query.sessionId as string;
-	} else {
-		const cookies = cookie.parse(socket.handshake.headers.cookie || '');
-		return cookies.sessionId;
-	}
+	return (
+		(socket.handshake.auth?.sessionId as string) ??
+		(socket.handshake.query?.sessionId as string) ??
+		cookie.parse(socket.handshake.headers.cookie ?? '').sessionId
+	);
 };

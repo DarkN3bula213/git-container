@@ -81,7 +81,7 @@ const dailyRotateFile = new DailyRotateFile({
 			)
 		: winston.format.combine(
 				customTimestampFormat,
-				winston.format.errors({ stack: true }),
+				winston.format.errors({ stack: false }),
 				customPrintf
 			)
 });
@@ -98,10 +98,16 @@ export class Logger {
 		),
 		transports: [new winston.transports.Console(), dailyRotateFile],
 		exceptionHandlers: [
-			new winston.transports.File({ filename: `exceptions.log` })
+			new winston.transports.File({
+				filename: `exceptions-${dayjs().format('YYYY-MM-DD')}.log`,
+				dirname: dir
+			})
 		],
 		rejectionHandlers: [
-			new winston.transports.File({ filename: `rejections.log` })
+			new winston.transports.File({
+				filename: `rejections-${dayjs().format('YYYY-MM-DD')}.log`,
+				dirname: dir
+			})
 		],
 
 		exitOnError: false
@@ -140,22 +146,168 @@ export class Logger {
 	}
 
 	// eslint-disable-next-line no-unused-vars
-	private log(level: string, message: string | object, _args: any[]): void {
-		const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
+	// private log(level: string, message: string | object, _args: any[]): void {
+	// 	const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
+	// 	const prefix = `${timestamp} ${colors.cyan(':----:')}`;
 
-		if (typeof message === 'object') {
-			let formattedMessage = `${this.scope} \n`;
-			const lines = Object.entries(message).map(([key, value]) => {
-				const coloredKey = colors.cyan(key);
-				return `${timestamp} ${colors.cyan(':-----:')} ${coloredKey}: ${value}`;
-			});
-			formattedMessage += lines.join('\n');
-			Logger.logger.log(level, formattedMessage);
+	// 	if (typeof message === 'object') {
+	// 		let formattedMessage = `${this.scope}\n`;
+
+	// 		const formatValue = (value: unknown, indent = ''): string => {
+	// 			if (value === null) return colors.red('null');
+	// 			if (value === undefined) return colors.red('undefined');
+	// 			if (typeof value === 'object') {
+	// 				const entries = Object.entries(value);
+	// 				const lines = entries.map(([k, v]) => {
+	// 					const coloredKey = colors.yellow(`"${k}"`);
+	// 					const formattedVal = formatValue(v, `${indent}  `);
+	// 					return `${indent}  ${coloredKey}: ${formattedVal}`;
+	// 				});
+	// 				return `{\n${lines.join(',\n')}\n${indent}}`;
+	// 			}
+	// 			if (typeof value === 'string')
+	// 				return colors.green(`"${value}"`);
+	// 			if (typeof value === 'number')
+	// 				return colors.cyan(String(value));
+	// 			if (typeof value === 'boolean')
+	// 				return colors.blue(String(value));
+	// 			return String(value);
+	// 		};
+
+	// 		const lines = Object.entries(message).map(([key, value]) => {
+	// 			const coloredKey = colors.cyan(key);
+	// 			const formattedValue = formatValue(value)
+	// 				.split('\n')
+	// 				.map((line, i) => (i === 0 ? line : `${prefix} ${line}`))
+	// 				.join('\n');
+	// 			return `${prefix} ${coloredKey}: ${formattedValue}`;
+	// 		});
+
+	// 		formattedMessage += lines.join('\n');
+	// 		Logger.logger.log(level, formattedMessage);
+	// 	} else {
+	// 		Logger.logger.log({
+	// 			level,
+	// 			message: message,
+	// 			timestamp: dayjs().format('| [+] | MM-DD HH:mm:ss')
+	// 		});
+	// 	}
+	// }
+	// eslint-disable-next-line no-unused-vars
+	private log(level: string, message: string | object, _args: any[]): void {
+		const MAX_DEPTH = 3; // Prevent deep nesting
+		const MAX_ARRAY_LENGTH = 10; // Limit array output
+		const MAX_STRING_LENGTH = 1000; // Limit string length
+
+		const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
+		const prefix = `${timestamp} ${colors.cyan(':----:')}`;
+
+		if (typeof message === 'object' && message !== null) {
+			let formattedMessage = `${this.scope}\n`;
+			const seen = new WeakSet(); // Track circular references
+
+			const formatValue = (
+				value: unknown,
+				indent = '',
+				depth = 0
+			): string => {
+				// Handle depth limit
+				if (depth >= MAX_DEPTH)
+					return colors.yellow('[Max Depth Reached]');
+
+				// Handle null/undefined
+				if (value === null) return colors.red('null');
+				if (value === undefined) return colors.red('undefined');
+
+				// Handle circular references
+				if (typeof value === 'object' && value !== null) {
+					if (seen.has(value))
+						return colors.yellow('[Circular Reference]');
+					seen.add(value);
+				}
+
+				try {
+					// Handle different types
+					if (Array.isArray(value)) {
+						const items = value
+							.slice(0, MAX_ARRAY_LENGTH)
+							.map((v) =>
+								formatValue(v, indent + '  ', depth + 1)
+							);
+						const hasMore = value.length > MAX_ARRAY_LENGTH;
+						const moreItemsText = hasMore
+							? ',\n  ... more items'
+							: '';
+						return (
+							'[\n' +
+							indent +
+							'  ' +
+							items.join(',\n' + indent + '  ') +
+							moreItemsText +
+							'\n' +
+							indent +
+							']'
+						);
+					}
+
+					if (typeof value === 'object') {
+						const entries = Object.entries(value);
+						const lines = entries.map(([k, v]) => {
+							const coloredKey = colors.yellow(`"${k}"`);
+							const formattedVal = formatValue(
+								v,
+								`${indent}  `,
+								depth + 1
+							);
+							return `${indent}  ${coloredKey}: ${formattedVal}`;
+						});
+						return `{\n${lines.join(',\n')}\n${indent}}`;
+					}
+
+					if (typeof value === 'string') {
+						const truncated =
+							value.length > MAX_STRING_LENGTH
+								? value.slice(0, MAX_STRING_LENGTH) +
+									'...[truncated]'
+								: value;
+						return colors.green(`"${truncated}"`);
+					}
+
+					if (typeof value === 'number')
+						return colors.cyan(String(value));
+					if (typeof value === 'boolean')
+						return colors.blue(String(value));
+
+					return String(value);
+				} catch (error) {
+					return colors.red('[Error formatting value]');
+				}
+			};
+
+			try {
+				const lines = Object.entries(message).map(([key, value]) => {
+					const coloredKey = colors.cyan(key);
+					const formattedValue = formatValue(value)
+						.split('\n')
+						.map((line, i) =>
+							i === 0 ? line : `${prefix} ${line}`
+						)
+						.join('\n');
+					return `${prefix} ${coloredKey}: ${formattedValue}`;
+				});
+
+				formattedMessage += lines.join('\n');
+				Logger.logger.log(level, formattedMessage);
+			} catch (error) {
+				Logger.logger.error(`Error formatting log message: ${error}`);
+			}
 		} else {
-			const formattedMessage = `${message}`;
 			Logger.logger.log({
 				level,
-				message: formattedMessage,
+				message:
+					typeof message === 'string'
+						? message.slice(0, MAX_STRING_LENGTH)
+						: String(message),
 				timestamp: dayjs().format('| [+] | MM-DD HH:mm:ss')
 			});
 		}

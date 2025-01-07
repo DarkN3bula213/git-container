@@ -1,7 +1,7 @@
 import { cache } from '@/data/cache/cache.service';
 import { config, loginLimiter, morganMiddleware as morgan } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
-import { RequestLogger } from '@/lib/logger';
+// import { RequestLogger } from '@/lib/logger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -27,7 +27,7 @@ export default (app: Application) => {
 
 	// Logging Middleware
 	app.use(morgan);
-	app.use(RequestLogger);
+	// app.use(RequestLogger);
 
 	// Parsing Middleware
 	app.use(urlencoded(config.urlEncoded));

@@ -2,12 +2,15 @@ import { cache } from '@/data/cache/cache.service';
 import { config } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
 import { Logger } from '@/lib/logger';
-import { removeSaveSessionJob } from '@/modules/auth/sessions/session.processor';
+import {
+	cancelSessionEnd // removeSaveSessionJob
+} from '@/modules/auth/sessions/session.processor';
 import { metrics } from '@/services/metrics';
 import { ConnectedUser } from '@/types/connectedUsers';
 import type { Server as HttpServer } from 'node:http';
 import { type Socket, Server as SocketIOServer } from 'socket.io';
 import {
+	DefaultSocketEvents,
 	handleAuth,
 	handleDisconnect,
 	handleMessages,
@@ -44,7 +47,11 @@ class SocketService {
 		}
 		return SocketService.instance;
 	}
-	public emit(eventName: string, message: string, roomId?: string): void {
+	public emit(
+		eventName: DefaultSocketEvents | string,
+		message: string,
+		roomId?: string
+	): void {
 		logger.debug(`Emitting event: ${eventName} to ${roomId}`);
 
 		if (roomId) {
@@ -62,7 +69,10 @@ class SocketService {
 		if (socket) {
 			socket.emit(eventName, message);
 		} else {
-			logger.warn(`Socket ${socketId} not found`);
+			logger.warn({
+				event: 'Socket not found',
+				SocketId: socketId.substring(0, 4)
+			});
 		}
 	}
 
@@ -70,12 +80,12 @@ class SocketService {
 		this.io.on('connection', async (socket: Socket) => {
 			try {
 				metrics.socketConnectionsTotal.inc();
-
 				const authResult = await handleAuth(socket, this.io);
 				if (!authResult) return;
-				await removeSaveSessionJob(socket.data.userId);
-				await handleUsers(socket, this.connectedUsers);
-				// console.log(JSON.stringify(this.connectedUsers, null, 2));
+				// await removeSaveSessionJob(socket.data.userId);
+				await cancelSessionEnd(socket.data.userId);
+				handleUsers(socket, this.connectedUsers);
+
 				await handleMessages(socket, this.io, this.connectedUsers);
 				handleWebRTC(socket, this.io);
 				handleImageTransfer(socket, this.io);
@@ -87,9 +97,11 @@ class SocketService {
 						event !== 'init' ||
 						event !== 'userListUpdated'
 					) {
-						logger.warn(
-							`Incoming ${event}, ${JSON.stringify(args, null, 2)}`
-						);
+						logger.warn({
+							event: 'Incoming event',
+							Event: event,
+							Args: args
+						});
 					}
 				});
 
@@ -101,11 +113,16 @@ class SocketService {
 						event !== 'video-offer' &&
 						event !== 'video-answer'
 					) {
-						logger.debug(
-							`Outgoing ${event}, ${JSON.stringify(args, null, 2)}`
-						);
+						logger.debug({
+							event: 'Outgoing event',
+							Event: event,
+							Args: args
+						});
 					} else {
-						logger.debug(`Outgoing ${event}`);
+						logger.debug({
+							event: 'Outgoing event',
+							Event: event
+						});
 					}
 				});
 
@@ -119,16 +136,20 @@ class SocketService {
 						metrics.socketConnectionsTotal.dec();
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					} catch (error: any) {
-						logger.error(
-							`Error in handleDisconnect for socket ${socket.id}: ${error.message}`
-						);
+						logger.error({
+							event: 'Error in handleDisconnect',
+							SocketId: socket.id.substring(0, 4),
+							Error: error.message
+						});
 					}
 				});
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} catch (error: any) {
-				logger.error(
-					`Error during connection setup for socket ${socket.id}: ${error.message}`
-				);
+				logger.error({
+					event: 'Error during connection setup',
+					SocketId: socket.id.substring(0, 4),
+					Error: error.message
+				});
 			}
 		});
 	}

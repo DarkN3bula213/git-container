@@ -97,11 +97,11 @@ export class CacheClientService {
 	): Promise<T> {
 		const cachedData = await this.get<T>(key);
 		if (cachedData) {
-			logger.debug(`Data in cache: ${key}`);
+			logger.debug(`Data in cache for key: ${key}`);
 			return cachedData;
 		}
 
-		logger.debug(`Data not in cache - fetching from source: ${key}`);
+		logger.debug(`Data not in cache for key: ${key}`);
 		const freshData = await fetchFunction();
 
 		// if the data is an array and has length then set the cache
