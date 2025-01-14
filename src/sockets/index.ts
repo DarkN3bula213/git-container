@@ -75,7 +75,9 @@ class SocketService {
 			});
 		}
 	}
-
+	public disconnect(): void {
+		this.io.close();
+	}
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {
 			try {

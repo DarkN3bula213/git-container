@@ -1,3 +1,4 @@
+import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 import cron from 'node-cron';
 import { sendPaymentSummaryEmail } from '../mail/mailTrap';
@@ -11,9 +12,15 @@ export const setupPaymentSummaryJob = () => {
 		async () => {
 			logger.info('Sending daily payment report...');
 			try {
-				const date = new Date();
-				await sendPaymentSummaryEmail('a.ateeb@proton.me', date);
-				logger.info('Daily payment report sent successfully.');
+				if (config.production) {
+					const date = new Date();
+					await sendPaymentSummaryEmail('a.ateeb@proton.me', date);
+					logger.info('Daily payment report sent successfully.');
+				} else {
+					logger.info(
+						'Daily payment report not sent in non-production mode.'
+					);
+				}
 			} catch (error) {
 				logger.error('Error sending daily payment report:', error);
 			}

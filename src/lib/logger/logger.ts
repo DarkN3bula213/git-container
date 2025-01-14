@@ -40,6 +40,22 @@ const customTimestampFormat = winston.format((info, _opts) => {
 
 	return info;
 })();
+const errorStackFormat = winston.format((info) => {
+	if (info instanceof Error || info.error instanceof Error) {
+		const error = info instanceof Error ? info : info.error;
+		return {
+			...info,
+			message: `${info.message}\n${error.stack}`,
+			stack: error.stack,
+			error: {
+				name: error.name,
+				message: error.message,
+				stack: error.stack
+			}
+		};
+	}
+	return info;
+});
 
 const customPrintf = winston.format.printf((info) => {
 	const timestamp = colors.grey(info.timestamp);
@@ -50,7 +66,18 @@ const customPrintf = winston.format.printf((info) => {
 
 	return `${timestamp} [${level}]: ${message}`;
 });
-
+const consoleFormat = winston.format.combine(
+	winston.format.errors({ stack: true }),
+	customTimestampFormat,
+	errorStackFormat(),
+	customPrintf
+);
+const fileFormat = winston.format.combine(
+	winston.format.timestamp(),
+	winston.format.errors({ stack: true }),
+	errorStackFormat(),
+	winston.format.json()
+);
 /**
  *
  *
@@ -92,24 +119,38 @@ export class Logger {
 	private static readonly logger = winston.createLogger({
 		level: 'debug',
 		format: winston.format.combine(
-			customTimestampFormat,
 			winston.format.errors({ stack: false }),
-			customPrintf // Use custom printf in development
+			errorStackFormat(),
+			customTimestampFormat,
+			customPrintf
 		),
-		transports: [new winston.transports.Console(), dailyRotateFile],
+		transports: [
+			new winston.transports.Console({
+				format: consoleFormat,
+				level: 'debug'
+			}),
+			dailyRotateFile
+		],
 		exceptionHandlers: [
+			new winston.transports.Console({
+				format: consoleFormat,
+				level: 'error'
+			}),
 			new winston.transports.File({
-				filename: `exceptions-${dayjs().format('YYYY-MM-DD')}.log`,
-				dirname: dir
+				filename: `${dir}/exceptions.log`,
+				format: fileFormat
 			})
 		],
 		rejectionHandlers: [
+			new winston.transports.Console({
+				format: consoleFormat,
+				level: 'error'
+			}),
 			new winston.transports.File({
-				filename: `rejections-${dayjs().format('YYYY-MM-DD')}.log`,
-				dirname: dir
+				filename: `${dir}/rejections.log`,
+				format: fileFormat
 			})
 		],
-
 		exitOnError: false
 	});
 	private static parsePathToScope(filepath: string): string {
@@ -141,10 +182,9 @@ export class Logger {
 		this.log('warn', message, args);
 	}
 
-	public error(message: string | object, ...args: any[]): void {
+	public error(message: string | Error | object, ...args: any[]): void {
 		this.log('error', message, args);
 	}
-
 	// eslint-disable-next-line no-unused-vars
 	// private log(level: string, message: string | object, _args: any[]): void {
 	// 	const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));

@@ -4,14 +4,112 @@ import { type RedisClientType, createClient } from 'redis';
 
 const logger = new Logger(__filename);
 
-const redisClient: RedisClientType = createClient({
-	url: config.isDevelopment ? 'redis://localhost:6379' : process.env.REDIS_URL
-});
+class RedisConnection {
+	private readonly client: RedisClientType;
+	private retryCount = 0;
+	private readonly maxRetries = 5;
+	private readonly initialRetryDelay = 1000; // 1 second
+	private readonly maxRetryDelay = 30000; // 30 seconds
+	private connecting = false;
 
-redisClient.on('connect', () => logger.info('Cache is connecting'));
-redisClient.on('ready', () => logger.info('Cache is ready'));
-redisClient.on('end', () => logger.info('Cache disconnected'));
-redisClient.on('reconnecting', () => logger.info('Cache is reconnecting'));
-redisClient.on('error', (e) => logger.error(`Cache error: ${e.message}`));
+	constructor() {
+		this.client = this.createRedisClient();
+		this.setupEventHandlers();
+	}
 
-export default redisClient;
+	private createRedisClient(): RedisClientType {
+		return createClient({
+			url: config.isDevelopment
+				? 'redis://localhost:6379'
+				: process.env.REDIS_URL,
+			socket: {
+				reconnectStrategy: (retries: number) => {
+					if (retries >= this.maxRetries) {
+						logger.error(
+							'Max reconnection attempts reached. Giving up.'
+						);
+						return new Error('Max reconnection attempts reached');
+					}
+
+					// Exponential backoff with jitter
+					const delay = Math.min(
+						this.initialRetryDelay * Math.pow(2, retries) +
+							Math.random() * 1000,
+						this.maxRetryDelay
+					);
+					const delayInSeconds = (delay / 1000).toFixed(2);
+					logger.warn(
+						`Attempting reconnection #${retries + 1} in ${delayInSeconds}s`
+					);
+					return delay;
+				}
+			}
+		});
+	}
+
+	private setupEventHandlers(): void {
+		this.client.on('connect', () => {
+			logger.debug('Cache is connecting');
+			this.retryCount = 0;
+		});
+
+		this.client.on('ready', () => {
+			logger.debug('Cache is ready');
+			this.connecting = false;
+			this.retryCount = 0;
+		});
+
+		this.client.on('end', () => {
+			logger.debug('Cache disconnected');
+			this.connecting = false;
+		});
+
+		this.client.on('reconnecting', () => {
+			this.retryCount++;
+			logger.debug(`Cache is reconnecting (attempt ${this.retryCount})`);
+		});
+
+		this.client.on('error', (error) => {
+			logger.error(`Cache error: ${error.message}`);
+		});
+	}
+
+	public async connect(): Promise<void> {
+		if (this.connecting) {
+			logger.warn('Connection attempt already in progress');
+			return;
+		}
+
+		try {
+			this.connecting = true;
+			await this.client.connect();
+		} catch (error) {
+			this.connecting = false;
+			logger.error('Failed to connect to Redis:', error);
+			throw error;
+		}
+	}
+
+	public async disconnect(): Promise<void> {
+		try {
+			await this.client.disconnect();
+			this.connecting = false;
+		} catch (error) {
+			logger.error('Error disconnecting from Redis:', error);
+			throw error;
+		}
+	}
+
+	public getClient(): RedisClientType {
+		return this.client;
+	}
+}
+
+// Create a singleton instance
+const redisConnection = new RedisConnection();
+
+// Export the Redis client instance
+export default redisConnection.getClient();
+
+// Export connect method for explicit connection management
+export const connectRedis = () => redisConnection.connect();

@@ -18,7 +18,10 @@ import { config } from '../config/config';
 import { logoutCookie } from '../config/cookies';
 import { Roles } from '../constants';
 
+// import { validateRouteOrder } from './routeValidator';
+
 export function setRouter(router: Router, routes: RouteMap[]): void {
+	// validateRouteOrder(routes);
 	for (const route of routes) {
 		const { path, method, handler, validations } = route;
 

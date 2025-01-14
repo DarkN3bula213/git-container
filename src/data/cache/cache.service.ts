@@ -26,13 +26,13 @@ export class CacheClientService {
 		this.client = client;
 	}
 
-	async connect(): Promise<void> {
-		await this.client.connect();
-	}
+	// async connect(): Promise<void> {
+	// 	await this.client.connect();
+	// }
 
-	disconnect(): void {
-		this.client.disconnect();
-	}
+	// disconnect(): void {
+	// 	this.client.disconnect();
+	// }
 
 	getClient(): RedisClientType {
 		return this.client;

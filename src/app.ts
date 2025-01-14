@@ -1,7 +1,6 @@
 import { cache } from '@/data/cache/cache.service';
 import { config, loginLimiter, morganMiddleware as morgan } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
-import { RequestLogger } from '@/lib/logger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -25,7 +24,7 @@ process.on('uncaughtException', (error: Error) => {
 		timestamp: new Date().toISOString()
 	});
 	// Gracefully shutdown
-	// process.exit(1);
+	process.exit(1);
 });
 process.on(
 	'unhandledRejection',
@@ -36,7 +35,7 @@ process.on(
 			timestamp: new Date().toISOString()
 		});
 		// Optionally exit
-		// process.exit(1);
+		process.exit(1);
 	}
 );
 const app: Express = express();
@@ -50,7 +49,7 @@ app.use(hpp());
 app.use(sanitizeInputs);
 app.use(cors(corsOptions));
 app.use(morgan);
-app.use(RequestLogger);
+// app.use(RequestLogger);
 app.use(urlencoded(config.urlEncoded));
 app.use(json(config.json));
 app.use(cache.cachedSession(config.tokens.jwtSecret));

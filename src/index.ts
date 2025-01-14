@@ -21,9 +21,12 @@ const PORT = config.app.port;
 
 const createDirectories = async () => {
 	try {
-		const uploadsDir = path.join(__dirname, 'uploads');
-		const imagesDir = path.join(__dirname, '..', 'uploads/images');
-		const documentsDir = path.join(__dirname, '..', 'uploads/documents');
+		// Use process.cwd() to reliably get the project root directory
+		const projectRoot = process.cwd();
+		const uploadsDir = path.join(projectRoot, 'uploads');
+		const imagesDir = path.join(uploadsDir, 'images');
+		const documentsDir = path.join(uploadsDir, 'documents');
+
 		// fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
 		await fs.ensureDir(uploadsDir);
 		await fs.ensureDir(imagesDir);
@@ -43,10 +46,9 @@ const createDirectories = async () => {
 		}
 	}
 };
-
 async function initializeDataSources() {
 	await db.connect();
-	await cache.connect();
+	await cache.getClient().connect();
 }
 
 const startServer = async () => {
@@ -89,24 +91,52 @@ const startServer = async () => {
 		);
 	}
 };
+
 signals.forEach((signal) => {
 	process.on(signal, async () => {
 		try {
 			logger.debug(`Received ${signal}. Shutting down gracefully...`);
-			server.close();
-			logger.debug('HTTP server closed.');
-			cache.disconnect();
-			logger.debug('Cache disconnected.');
-			await db.disconnect();
-			logger.debug('Database disconnected.');
-			process.exit(0);
+
+			// Create a promise for server closure
+			const serverClosed = new Promise((resolve) => {
+				server.close(() => {
+					logger.debug('HTTP server closed.');
+					resolve(true);
+				});
+			});
+
+			// Handle existing connections
+			if (socketService) {
+				socketService.disconnect();
+				logger.debug('WebSocket connections closed.');
+			}
+
+			// Wait for all operations to complete
+			await Promise.all([
+				serverClosed,
+				cache
+					.getClient()
+					.disconnect()
+					.catch((err) => {
+						logger.error('Error disconnecting cache:', err);
+					}),
+				db.disconnect().catch((err) => {
+					logger.error('Error disconnecting database:', err);
+				})
+			]);
+
+			logger.debug('All connections closed successfully.');
+
+			// Give time for final logs to be written
+			process.exit(1);
 		} catch (error) {
 			logger.error('Failed to shut down gracefully', error);
-			process.exit(1);
+			setTimeout(() => {
+				process.exit(1);
+			}, 100);
 		}
 	});
 });
-
 export { socketService };
 
 createDirectories()
@@ -117,4 +147,5 @@ createDirectories()
 			'Failed to initialize required directories or server setup.',
 			error
 		);
+		process.exit(1);
 	});

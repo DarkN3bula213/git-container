@@ -2,6 +2,8 @@ import { config } from '@/lib/config';
 import { Logger } from '@/lib/logger';
 import mongoose from 'mongoose';
 
+// import { dbClient } from './db.client';
+
 const logger = new Logger(__filename);
 
 // const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:${config.mongo.port}/${config.mongo.database}?authSource=admin`;
@@ -14,36 +16,34 @@ if (config.isDocker) {
 } else {
 	conStr = URI;
 }
-
+const options = {
+	autoIndex: true,
+	minPoolSize: 5,
+	maxPoolSize: 10,
+	connectTimeoutMS: 60000,
+	socketTimeoutMS: 45000,
+	dbName: 'docker-db'
+};
 const connect = async () => {
-	const options = {
-		autoIndex: true,
-		minPoolSize: 5,
-		maxPoolSize: 10,
-		connectTimeoutMS: 60000,
-		socketTimeoutMS: 45000,
-		dbName: 'docker-db'
-	};
-
 	let retry = 0;
 	const maxRetries = 10;
 
 	const attemptConnection = async () => {
 		try {
 			await mongoose.connect(conStr, options);
-			logger.info(`Database connected: ${mongoose.connection.name}`);
+			logger.debug(`Database connected: ${mongoose.connection.name}`);
 
 			mongoose.connection.on('error', (err) => {
 				logger.error(`Mongoose default connection error: ${err}`);
 			});
 			mongoose.connection.on('disconnected', () => {
-				logger.info('Mongoose default connection disconnected');
+				logger.debug('Mongoose default connection disconnected');
 			});
 			mongoose.connection.on('reconnected', () => {
-				logger.info('Mongoose default connection reconnected');
+				logger.debug('Mongoose default connection reconnected');
 			});
 			mongoose.connection.on('close', () => {
-				logger.info('Mongoose default connection closed');
+				logger.debug('Mongoose default connection closed');
 			});
 			// mongoose.set('debug', true);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,7 +52,7 @@ const connect = async () => {
 
 			if (retry < maxRetries) {
 				retry += 1;
-				logger.info(
+				logger.debug(
 					`Retrying connection attempt ${retry}/${maxRetries} in 10 seconds...`
 				);
 				setTimeout(attemptConnection, 10000);
@@ -79,3 +79,6 @@ class DBClient {
 }
 
 export const db = new DBClient();
+
+// export const dbConnect = dbClient.connect(conStr, options);
+// export const dbDisconnect = dbClient.disconnect();
