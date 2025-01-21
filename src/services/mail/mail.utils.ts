@@ -2,6 +2,8 @@ import { writeFileSync } from 'fs';
 import path from 'path';
 import { generateHtmlTemplate } from '.';
 
+// import { EmailTemplate } from './mailTemplates';
+
 // Define template types
 type PaymentTemplateData = {
 	formattedDate: string;
@@ -24,15 +26,17 @@ type DeploymentTemplateData = {
 	serviceName: string;
 };
 
+type VerificationLinkTemplateData = {
+	verificationCode: string;
+	baseUrl: string;
+};
+
 // Map template names to their data types
 type TemplateDataMap = {
 	paymentSummary: PaymentTemplateData;
 	deploymentSuccess: DeploymentTemplateData;
-	// Add other templates here
+	verifyEmail: VerificationLinkTemplateData;
 };
-
-// Template names union type
-type TemplateName = keyof TemplateDataMap;
 
 /**
  * Generates and saves an email template preview to HTML file
@@ -41,7 +45,7 @@ type TemplateName = keyof TemplateDataMap;
  * @param outputPath - Optional custom output path
  * @returns Path to the generated preview file
  */
-export function previewEmailTemplate<T extends TemplateName>(
+export function previewEmailTemplate<T extends keyof TemplateDataMap>(
 	templateName: T,
 	data: TemplateDataMap[T],
 	outputPath?: string

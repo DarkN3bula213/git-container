@@ -3,9 +3,36 @@ import colors from 'colors';
 import dayjs from 'dayjs';
 import fs from 'node:fs';
 import * as path from 'node:path';
-import * as winston from 'winston';
+import { createLogger, format, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { config } from '../config';
+import { config } from '../config/config';
+
+export const getRotateFileOptions = ({
+	dir,
+	level
+}: {
+	dir: string;
+	level: string;
+}): DailyRotateFile.DailyRotateFileTransportOptions => {
+	return {
+		level: level,
+		filename: `${dir}/%DATE%.log`,
+		datePattern: 'YYYY-MM-DD',
+		zippedArchive: true,
+		handleExceptions: true,
+		maxSize: '20m',
+		maxFiles: '14d',
+		format: format.combine(
+			formattedTimestamp,
+			format.errors({ stack: false }),
+			format.splat(),
+			format.uncolorize(), // Strip colors for file output
+			format.printf((info) => {
+				return `${info.timestamp} [${info.level.toUpperCase()}]: ${info.message}`;
+			})
+		)
+	};
+};
 
 // Define custom colors for log levels
 colors.setTheme({
@@ -21,137 +48,155 @@ colors.setTheme({
 	debugMessage: 'blue'
 });
 
-const levelColors: levelColorMap = {
-	info: 'yellow',
-	warn: 'cyan',
-	error: 'red',
-	debug: 'blue'
-};
-
-type levelColorMap = {
-	[key: string]: string;
-};
-
-// const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
-
 // eslint-disable-next-line no-unused-vars
-const customTimestampFormat = winston.format((info, _opts) => {
+const formattedTimestamp = format((info, _opts) => {
 	info.timestamp = dayjs().format('| [+] | MM-DD HH:mm:ss');
 
 	return info;
 })();
-const errorStackFormat = winston.format((info) => {
-	if (info instanceof Error || info.error instanceof Error) {
-		const error = info instanceof Error ? info : info.error;
-		return {
-			...info,
-			message: `${info.message}\n${error.stack}`,
-			stack: error.stack,
-			error: {
-				name: error.name,
-				message: error.message,
-				stack: error.stack
-			}
-		};
+const formatLevel = (level: string) => {
+	switch (level) {
+		case 'error':
+			return colors.red(level.toUpperCase());
+		case 'warn':
+			return colors.cyan(level.toUpperCase());
+		case 'info':
+			return colors.yellow(level.toUpperCase());
+		case 'debug':
+			return colors.blue(level.toUpperCase());
+		default:
+			return level.toUpperCase();
 	}
-	return info;
-});
+};
 
-const customPrintf = winston.format.printf((info) => {
-	const timestamp = colors.grey(info.timestamp);
-	const levelColor = levelColors[info.level] || 'white';
-	const messageColor = (colors as any)[`${info.level}Message`];
-	const level = (colors as any)[levelColor](info.level.toUpperCase());
-	const message = messageColor ? messageColor(info.message) : info.message;
-
-	return `${timestamp} [${level}]: ${message}`;
-});
-const consoleFormat = winston.format.combine(
-	winston.format.errors({ stack: true }),
-	customTimestampFormat,
-	errorStackFormat(),
-	customPrintf
-);
-const fileFormat = winston.format.combine(
-	winston.format.timestamp(),
-	winston.format.errors({ stack: true }),
-	errorStackFormat(),
-	winston.format.json()
-);
-/**
- *
- *
- *
- *
- *
- */
-let dir = config.log.directory;
-if (!dir) dir = path.resolve('logs');
-if (!fs.existsSync(dir)) {
-	fs.mkdirSync(dir);
+let dir: string;
+try {
+	// First try to get directory from config
+	dir = config?.log?.directory || '';
+} catch (error) {
+	// If config access fails, fallback to default
+	dir = '';
 }
 
-const logLevel = config.isProduction || config.isDocker ? 'error' : 'debug';
-const dailyRotateFile = new DailyRotateFile({
-	level: logLevel,
-	filename: `${dir}/%DATE%.log`,
-	datePattern: 'YYYY-MM-DD',
-	zippedArchive: true,
-	handleExceptions: true,
-	maxSize: '20m',
-	maxFiles: '14d',
-	format: config.isProduction
-		? winston.format.combine(
-				winston.format.timestamp(),
-				winston.format.errors({ stack: true }),
-				winston.format.json()
-			)
-		: winston.format.combine(
-				customTimestampFormat,
-				winston.format.errors({ stack: false }),
-				customPrintf
-			)
-});
+// If no valid directory, fallback to default
+if (!dir) {
+	dir = path.resolve(process.cwd(), 'logs');
+}
 
+// Ensure the directory exists
+try {
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true });
+	}
+} catch (error) {
+	// If we can't create the directory, fallback to current working directory
+	console.error(`Failed to create logs directory: ${error}`);
+	dir = process.cwd();
+	if (!fs.existsSync(path.join(dir, 'logs'))) {
+		fs.mkdirSync(path.join(dir, 'logs'));
+	}
+}
+
+// Also update the logLevel determination to be more defensive
+const logLevel = (() => {
+	try {
+		return config?.isProduction || config?.isDocker ? 'error' : 'debug';
+	} catch (error) {
+		return 'debug'; // Default to debug if config access fails
+	}
+})();
+
+const dailyRotateFile = new DailyRotateFile(
+	getRotateFileOptions({
+		dir,
+		level: logLevel
+	})
+);
+const exceptionHandler = format.combine(
+	formattedTimestamp,
+	format.errors({ stack: true }),
+	format.printf((info) => {
+		const stack = info.stack ? `\n${info.stack}` : '';
+		return `${colors.grey(info.timestamp)} [${colors.red('UNCAUGHT')}]: ${info.message}${stack}`;
+	})
+);
 export class Logger {
 	public static readonly DEFAULT_SCOPE = 'app';
 
-	private static readonly logger = winston.createLogger({
-		level: 'debug',
-		format: winston.format.combine(
-			winston.format.errors({ stack: false }),
-			errorStackFormat(),
-			customTimestampFormat,
-			customPrintf
-		),
+	private static readonly logger = createLogger({
+		level: logLevel,
+		defaultMeta: {
+			scope: Logger.DEFAULT_SCOPE
+		},
 		transports: [
-			new winston.transports.Console({
-				format: consoleFormat,
-				level: 'debug'
+			new transports.Console({
+				level: logLevel,
+				handleExceptions: true,
+				handleRejections: true,
+				format: format.combine(
+					formattedTimestamp,
+					format.errors({ stack: true }),
+					format.splat(),
+					format.printf((info) => {
+						const messageColor = (colors as any)[
+							`${info.level}Message`
+						];
+						const message = messageColor
+							? messageColor(info.message)
+							: info.message;
+						const stack = info.stack ? `\n${info.stack}` : '';
+						return `${colors.grey(info.timestamp)} [${formatLevel(info.level)}]: ${message}${stack}`;
+					})
+				)
 			}),
 			dailyRotateFile
 		],
+		exitOnError: false,
 		exceptionHandlers: [
-			new winston.transports.Console({
-				format: consoleFormat,
-				level: 'error'
+			new transports.Console({
+				format: format.combine(
+					formattedTimestamp,
+					format.errors({ stack: true }),
+					format.printf((info) => {
+						const stack = info.stack ? `\n${info.stack}` : '';
+						return `${colors.grey(info.timestamp)} [${colors.red('UNCAUGHT EXCEPTION')}]: ${info.message}${stack}`;
+					})
+				)
 			}),
-			new winston.transports.File({
-				filename: `${dir}/exceptions.log`,
-				format: fileFormat
+			new transports.File({
+				filename: path.join(
+					dir,
+					`exceptions-${dayjs().format('YYYY-MM-DD')}.log`
+				),
+				format: format.combine(
+					formattedTimestamp,
+					format.errors({ stack: true }),
+					format.uncolorize(),
+					format.json(),
+					format.printf((info) => {
+						const stack = info.stack ? `\n${info.stack}` : '';
+						return `${info.timestamp} [UNCAUGHT EXCEPTION]: ${info.message}${stack}`;
+					})
+				)
 			})
 		],
 		rejectionHandlers: [
-			new winston.transports.Console({
-				format: consoleFormat,
-				level: 'error'
+			new transports.Console({
+				format: exceptionHandler
 			}),
-			new winston.transports.File({
-				filename: `${dir}/rejections.log`,
-				format: fileFormat
+			new transports.File({
+				filename: `rejections-${dayjs().format('YYYY-MM-DD')}.log`,
+				dirname: dir,
+				format: format.combine(
+					formattedTimestamp,
+					format.errors({ stack: true }),
+					format.uncolorize(),
+					format.printf((info) => {
+						return `${info.timestamp} [${info.level.toUpperCase()}]: ${info.message}`;
+					})
+				)
 			})
-		],
-		exitOnError: false
+		]
 	});
 	private static parsePathToScope(filepath: string): string {
 		let parsedPath = filepath;
@@ -182,61 +227,21 @@ export class Logger {
 		this.log('warn', message, args);
 	}
 
-	public error(message: string | Error | object, ...args: any[]): void {
-		this.log('error', message, args);
+	public error(message: string | object | Error, ...args: any[]): void {
+		if (message instanceof Error) {
+			this.log('error', message.message, [
+				...args,
+				{ stack: message.stack }
+			]);
+		} else {
+			this.log('error', message, args);
+		}
 	}
-	// eslint-disable-next-line no-unused-vars
-	// private log(level: string, message: string | object, _args: any[]): void {
-	// 	const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
-	// 	const prefix = `${timestamp} ${colors.cyan(':----:')}`;
 
-	// 	if (typeof message === 'object') {
-	// 		let formattedMessage = `${this.scope}\n`;
-
-	// 		const formatValue = (value: unknown, indent = ''): string => {
-	// 			if (value === null) return colors.red('null');
-	// 			if (value === undefined) return colors.red('undefined');
-	// 			if (typeof value === 'object') {
-	// 				const entries = Object.entries(value);
-	// 				const lines = entries.map(([k, v]) => {
-	// 					const coloredKey = colors.yellow(`"${k}"`);
-	// 					const formattedVal = formatValue(v, `${indent}  `);
-	// 					return `${indent}  ${coloredKey}: ${formattedVal}`;
-	// 				});
-	// 				return `{\n${lines.join(',\n')}\n${indent}}`;
-	// 			}
-	// 			if (typeof value === 'string')
-	// 				return colors.green(`"${value}"`);
-	// 			if (typeof value === 'number')
-	// 				return colors.cyan(String(value));
-	// 			if (typeof value === 'boolean')
-	// 				return colors.blue(String(value));
-	// 			return String(value);
-	// 		};
-
-	// 		const lines = Object.entries(message).map(([key, value]) => {
-	// 			const coloredKey = colors.cyan(key);
-	// 			const formattedValue = formatValue(value)
-	// 				.split('\n')
-	// 				.map((line, i) => (i === 0 ? line : `${prefix} ${line}`))
-	// 				.join('\n');
-	// 			return `${prefix} ${coloredKey}: ${formattedValue}`;
-	// 		});
-
-	// 		formattedMessage += lines.join('\n');
-	// 		Logger.logger.log(level, formattedMessage);
-	// 	} else {
-	// 		Logger.logger.log({
-	// 			level,
-	// 			message: message,
-	// 			timestamp: dayjs().format('| [+] | MM-DD HH:mm:ss')
-	// 		});
-	// 	}
-	// }
 	// eslint-disable-next-line no-unused-vars
 	private log(level: string, message: string | object, _args: any[]): void {
 		const MAX_DEPTH = 3; // Prevent deep nesting
-		const MAX_ARRAY_LENGTH = 10; // Limit array output
+		const MAX_ARRAY_LENGTH = 100; // Limit array output
 		const MAX_STRING_LENGTH = 1000; // Limit string length
 
 		const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));

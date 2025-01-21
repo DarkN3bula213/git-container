@@ -1,9 +1,9 @@
+import { getUploadsDir } from '@/lib/constants';
 import { type Application, static as static_ } from 'express';
 import multer, { MulterError, StorageEngine } from 'multer';
 import { randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { uploadsDir } from '../constants';
 
 // Base path for uploads
 const STORAGE_BASE_PATH = 'uploads';
@@ -115,8 +115,8 @@ export const fieldsUpload = fileUpload.fields([
  * Serve static uploaded files
  */
 export const handleUploads = (app: Application) => {
-	ensureDirectoryExists(uploadsDir);
-	app.use(static_(`${process.cwd()}/uploads`));
+	ensureDirectoryExists(getUploadsDir());
+	app.use(static_(getUploadsDir()));
 };
 
 export const customFileName = (customName?: string) => {

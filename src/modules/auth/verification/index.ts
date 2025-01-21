@@ -19,26 +19,6 @@ export const verifyUser = asyncHandler(async (req, res) => {
 	const { code } = req.body;
 
 	await verificationService.newUserVerification(code);
-	// const user = await UserModel.findOne({
-	// 	verificationToken: code,
-	// 	verificationTokenExpiresAt: { $gt: Date.now() }
-	// });
-
-	// if (!user) {
-	// 	throw new BadRequestError('Invalid or expired verification code');
-	// }
-
-	// // Check if user is already verified
-	// if (user.isVerified) {
-	// 	throw new BadRequestError('User already verified');
-	// }
-
-	// user.isVerified = true;
-	// user.verificationToken = null;
-	// user.verificationTokenExpiresAt = null;
-	// await user.save();
-
-	// await sendEmailVerified(user.email);
 
 	new SuccessResponse('Email verified successfully', {}).send(res);
 });

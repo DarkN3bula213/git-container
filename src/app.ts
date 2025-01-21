@@ -1,5 +1,5 @@
 import { cache } from '@/data/cache/cache.service';
-import { config, loginLimiter, morganMiddleware as morgan } from '@/lib/config';
+import { loginLimiter, morganMiddleware as morgan } from '@/lib/config';
 import { corsOptions } from '@/lib/config/cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -8,6 +8,7 @@ import express, { type Express, json, urlencoded } from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import { handleUploads } from './lib/config';
+import { config } from './lib/config/config';
 import handleErrors from './lib/handlers/errorHandler';
 import { Logger } from './lib/logger';
 // import setupMonitoring from './middleware/monitoring.middleware';
@@ -18,26 +19,14 @@ import router from './routes';
 
 const logger = new Logger(__filename);
 
-process.on('uncaughtException', (error: Error) => {
-	logger.error('Uncaught Exception:', {
-		error: error.stack ?? error.message,
-		timestamp: new Date().toISOString()
-	});
-	// Gracefully shutdown
-	process.exit(1);
+process.on('unhandledRejection', (reason, promise) => {
+	logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-process.on(
-	'unhandledRejection',
-	(reason: unknown, promise: Promise<unknown>) => {
-		logger.error('Unhandled Rejection:', {
-			reason: reason instanceof Error ? reason.stack : reason,
-			promise,
-			timestamp: new Date().toISOString()
-		});
-		// Optionally exit
-		process.exit(1);
-	}
-);
+process.on('uncaughtException', (error) => {
+	logger.error('Uncaught Exception:', error);
+	// Optionally, exit the process after logging
+	// setTimeout(() => process.exit(1), 100);
+});
 const app: Express = express();
 
 app.set('trust proxy', 1);

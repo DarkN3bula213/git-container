@@ -7,11 +7,12 @@ import { config } from '../config';
 import { Logger as log } from '../logger/logger';
 
 const logger = new log(__filename);
+type PickUser = Pick<User, 'username' | 'email' | 'roles' | 'name' | '_id'>;
 
-interface TokenPayload {
-	user: User;
+export interface TokenPayload {
+	user: PickUser;
 	session?: string;
-	isPrime?: boolean;
+	isAdmin?: boolean;
 }
 interface TokenVerificationResult {
 	valid: boolean;

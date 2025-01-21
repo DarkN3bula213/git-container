@@ -93,3 +93,17 @@ export const updateProfile = validateReq({
 		phone: Joi.string().optional().min(11).max(11)
 	})
 });
+// Validate the password to have at least 8 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character
+
+export const registerUser = validateReq({
+	body: Joi.object({
+		email: Joi.string().email().required(),
+		password: Joi.string()
+			.required()
+			.regex(
+				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+			),
+		name: Joi.string().required(),
+		username: Joi.string().required()
+	})
+});

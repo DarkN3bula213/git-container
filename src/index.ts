@@ -1,4 +1,4 @@
-import { config } from '@/lib/config';
+import { config } from '@/lib/config/config';
 import { format } from 'date-fns';
 import fs from 'fs-extra';
 import http from 'node:http';
@@ -6,7 +6,8 @@ import path from 'node:path';
 import { app } from './app';
 import { cache } from './data/cache/cache.service';
 import { db } from './data/database';
-import { banner, signals } from './lib/constants';
+import { initializeConfig } from './lib/config';
+import { banner, getUploadsDir, signals } from './lib/constants';
 import { Logger } from './lib/logger';
 import subjectMigration from './scripts/subjectMigration';
 import { setupCronJobs } from './services/cron';
@@ -14,6 +15,15 @@ import { sendOnDeployment } from './services/mail/mailTrap';
 import SocketService from './sockets';
 
 const logger = new Logger(__filename);
+
+// // Add these debug logs at the very top of index.ts, before any imports
+// logger.debug('🚀 Starting application...');
+// logger.debug('📝 Environment variables:', {
+// 	NODE_ENV: process.env.NODE_ENV,
+// 	PWD: process.cwd(),
+// 	ENV_PATH: `${process.cwd()}/.env`
+// });
+
 const server = http.createServer(app);
 const socketService = SocketService.getInstance(server);
 
@@ -22,8 +32,7 @@ const PORT = config.app.port;
 const createDirectories = async () => {
 	try {
 		// Use process.cwd() to reliably get the project root directory
-		const projectRoot = process.cwd();
-		const uploadsDir = path.join(projectRoot, 'uploads');
+		const uploadsDir = getUploadsDir();
 		const imagesDir = path.join(uploadsDir, 'images');
 		const documentsDir = path.join(uploadsDir, 'documents');
 
@@ -46,6 +55,17 @@ const createDirectories = async () => {
 		}
 	}
 };
+
+// // Add more detailed logging before using config
+// logger.debug({
+// 	event: '🔍 Config initialization check:',
+// 	configExists: !!config,
+// 	configKeys: config ? Object.keys(config) : 'Config not loaded',
+// 	isDevelopment: config?.isDevelopment,
+// 	isProduction: config?.isProduction,
+// 	isDocker: config?.isDocker
+// });
+
 async function initializeDataSources() {
 	await db.connect();
 	await cache.getClient().connect();
@@ -128,7 +148,7 @@ signals.forEach((signal) => {
 			logger.debug('All connections closed successfully.');
 
 			// Give time for final logs to be written
-			process.exit(1);
+			process.exit(0);
 		} catch (error) {
 			logger.error('Failed to shut down gracefully', error);
 			setTimeout(() => {
@@ -137,15 +157,26 @@ signals.forEach((signal) => {
 		}
 	});
 });
+
 export { socketService };
 
-createDirectories()
-	.then(initializeDataSources)
-	.then(startServer)
-	.catch((error) => {
-		logger.error(
-			'Failed to initialize required directories or server setup.',
-			error
-		);
+// Modify your initialization order
+async function bootstrap() {
+	try {
+		await initializeConfig();
+
+		// Then proceed with other initializations
+		await createDirectories();
+		await initializeDataSources();
+		await startServer();
+	} catch (error) {
+		console.error('💥 Bootstrap failed:', error);
 		process.exit(1);
-	});
+	}
+}
+
+// Replace your existing initialization chain with the bootstrap function
+bootstrap().catch((error) => {
+	console.error('🔥 Fatal error during startup:', error);
+	process.exit(1);
+});

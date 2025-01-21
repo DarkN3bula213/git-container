@@ -1,19 +1,22 @@
-import { withTransaction } from '@/data/database/db.utils';
-import { BadRequestError } from '@/lib/api';
+import { cache } from '@/data/cache/cache.service';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
+import { convertToObjectId, withTransaction } from '@/data/database/db.utils';
+import { AuthFailureError, BadRequestError } from '@/lib/api';
 import { config } from '@/lib/config';
 import { Roles } from '@/lib/constants';
 import { Logger } from '@/lib/logger';
-import { signToken, verfication } from '@/lib/utils/tokens';
+import { TokenPayload, signToken, verfication } from '@/lib/utils/tokens';
 import {
+	fetchRoleCodes,
 	fetchUserPermissions,
 	isAdminRolePresent,
 	normalizeRoles
 } from '@/lib/utils/utils';
 import checkMXRecords from '@/services/dns-validation';
-import { sendVerifyEmail } from '@/services/mail/mailTrap';
+import { sendVerificationLinkEmail } from '@/services/mail/mailTrap';
 import { RoleModel } from '../roles/role.model';
 import userSettingsService from '../settings/settings.service';
-import Tokens from '../tokens/token.model';
+import Tokens, { checkTokenValidity } from '../tokens/token.model';
 import { User, UserModel } from '../users/user.model';
 
 type UserDataObject = {
@@ -23,6 +26,7 @@ type UserDataObject = {
 	isVerified: boolean;
 	permissions: string[];
 	settings: any;
+	verificationPending?: boolean;
 	token: string | null;
 	accessToken: string | undefined;
 };
@@ -83,11 +87,7 @@ class AuthService {
 				}
 				// 5. Send verification email
 				try {
-					await sendVerifyEmail(
-						userDetails.username,
-						userDetails.email,
-						token
-					);
+					await sendVerificationLinkEmail(userDetails.email, token);
 				} catch (error) {
 					logger.error('Email sending failed:', error);
 					throw new BadRequestError(
@@ -113,7 +113,7 @@ class AuthService {
 			const newUser = new this.user({
 				username: userDetails.username,
 				email: userDetails.email,
-				name: userDetails.username,
+				name: userDetails.name,
 				password: userDetails.password,
 				verificationToken: token,
 				verificationTokenExpiresAt: verfication.expiry,
@@ -136,14 +136,32 @@ class AuthService {
 		return withTransaction(async (session) => {
 			const user = await this.user.login(email, password);
 			if (!user) {
-				throw new BadRequestError('Invalid credentials');
+				logger.error('Invalid credentials');
+				throw new AuthFailureError('Invalid credentials');
 			}
 			const userObj = user.toObject();
 			userObj.password = undefined;
+			userObj.verificationToken = undefined;
 			userObj.isPrime = user.isPrime || false;
-			const payload = {
-				user: userObj
+			const roles = normalizeRoles(userObj.roles);
+			const isAdmin = await isAdminRolePresent(roles);
+			const payload: TokenPayload = {
+				user: {
+					username: userObj.username,
+					email: userObj.email,
+					roles: userObj.roles,
+					name: userObj.name,
+					_id: userObj._id
+				},
+				isAdmin
 			};
+			const existingToken = await checkTokenValidity(user._id.toString());
+			if (existingToken) {
+				await Tokens.deleteOne({
+					userId: user._id,
+					tokenType: 'JWT'
+				}).session(session);
+			}
 			const accessToken = signToken(payload, 'access', {
 				expiresIn: '120m'
 			});
@@ -153,8 +171,7 @@ class AuthService {
 			user.lastLogin = new Date();
 			await user.save({ session });
 			await Tokens.addJwtToken(user._id, accessToken, session);
-			const roles = normalizeRoles(userObj.roles);
-			const isAdmin = await isAdminRolePresent(roles);
+
 			const userSettings = await userSettingsService.getSettings(
 				user._id
 			);
@@ -169,12 +186,49 @@ class AuthService {
 				isVerified: user.isVerified || false,
 				permissions: roleCodes,
 				settings: userSettings,
+				verificationPending: !!user.verificationToken,
 				token: config.production ? null : accessToken,
 				accessToken: accessToken
 			};
 
 			return dataObject;
 		});
+	}
+	async getCurrentUser(id: string) {
+		const key = getDynamicKey(DynamicKey.USER, id);
+		const userCache = (await cache.getWithFallback(key, async () => {
+			return await this.user
+				.findById(id)
+				.select('-password') // Method 1: Exclude password at query level
+				.lean()
+				.exec();
+		})) as User;
+		if (!userCache) {
+			throw new BadRequestError('No user found');
+		}
+
+		const roles = normalizeRoles(userCache.roles);
+		const roleCodes = await fetchRoleCodes(roles);
+		if (!roleCodes) {
+			throw new BadRequestError('No user found');
+		}
+		const isAdmin = await isAdminRolePresent(roles);
+
+		const userSettings = await userSettingsService.getSettings(
+			convertToObjectId(id)
+		);
+
+		const dataObject: UserDataObject = {
+			user: userCache,
+			isAdmin,
+			isVerified: userCache.isVerified || false,
+			permissions: roleCodes,
+			settings: userSettings,
+			token: null,
+			accessToken: undefined
+		};
+
+		return dataObject;
 	}
 }
 

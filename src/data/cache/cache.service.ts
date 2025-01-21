@@ -1,4 +1,4 @@
-import { config } from '@/lib/config';
+import { config } from '@/lib/config/config';
 import { Logger } from '@/lib/logger';
 import { convertToMilliseconds } from '@/lib/utils/fns';
 import RedisStore from 'connect-redis';

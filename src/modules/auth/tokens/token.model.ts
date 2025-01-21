@@ -1,9 +1,9 @@
 import { Logger } from '@/lib/logger';
 import { convertToSeconds } from '@/lib/utils/fns';
+import { verifyToken } from '@/lib/utils/tokens';
 import mongoose, { Document, HydratedDocument, Schema, Types } from 'mongoose';
 
 // import autoIncrement from 'mongoose-sequence';
-
 interface Token extends Document {
 	token: string;
 	tokenType: TokenTypes;
@@ -29,7 +29,7 @@ interface TokenModel extends mongoose.Model<Token> {
 
 type TokenTypes = 'VERIFICATION' | 'PASSWORD_RESET' | 'JWT';
 
-const schema = new Schema<Token, TokenModel>(
+const schema = new Schema<Token>(
 	{
 		token: { type: String, required: true },
 		tokenType: {
@@ -91,6 +91,9 @@ schema.path('createdAt').index({
 		tokenType: 'VERIFICATION'
 	}
 });
+
+// Index to ensure only one JWT token per user
+schema.index({ userId: 1, tokenType: 1 }, { unique: true });
 
 // schema.plugin(autoIncrement, {
 // 	inc_field: 'IssueId',
@@ -154,5 +157,23 @@ export default Tokens;
 const logger = new Logger(__filename);
 // Log when a token is deleted
 Tokens.watch().on('change', (change) => {
-	logger.info(change.operationType);
+	logger.warn({
+		message: 'Token deleted',
+		change: change.operationType
+	});
 });
+
+export async function checkTokenValidity(
+	userId: string
+): Promise<string | null> {
+	const tokenRecord = await Tokens.findOne({ userId, tokenType: 'JWT' });
+	if (!tokenRecord) {
+		return null;
+	}
+	const decoded = verifyToken(tokenRecord.token, 'access');
+	if (!decoded) {
+		await Tokens.deleteOne({ userId, tokenType: 'JWT' });
+		return null;
+	}
+	return tokenRecord.token;
+}

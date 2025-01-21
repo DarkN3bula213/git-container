@@ -1,13 +1,12 @@
 import { DynamicKey } from '@/data/cache/keys';
-import { Roles } from '@/lib/constants';
 import { invalidate } from '@/lib/handlers/cache.handler';
 import { validate } from '@/lib/handlers/validate';
 import { RouterMap, mapRouter, setRouter } from '@/lib/utils/utils';
 import { authentication } from '@/middleware/authMiddleware';
-import { authorize } from '@/middleware/authorize';
 import { limitRequest } from '@/middleware/rateLimit.middleware';
 import { RouteMap } from '@/types/routes';
 import { Router } from 'express';
+import { authController } from '../controllers/auth.controller';
 import * as verfication from '../verification';
 import verify from '../verification/verification.schema';
 import * as controller from './user.controller';
@@ -52,12 +51,12 @@ function getRouteMap(): RouteMap[] {
 		// 	handler: verfication.reissueEmailVerificationToken
 		// },
 		/*<!-- 5. Register  ---------------------------( x )->*/
-		{
-			path: '/register',
-			method: 'post',
-			validations: [validate(register), limitRequest],
-			handler: controller.register
-		},
+		// {
+		// 	path: '/register',
+		// 	method: 'post',
+		// 	validations: [validate(register), limitRequest],
+		// 	handler: controller.register
+		// },
 		/*<!-- 6. Change Password  ---------------------------( x )->*/
 		{
 			path: '/change-password',
@@ -84,16 +83,16 @@ function getRouteMap(): RouteMap[] {
 		// 	validations: [validate(schema.registeredUserVerification)],
 		// 	handler: verfication.registeredUserVerification
 		// },
-		{
-			path: '/aux',
-			method: 'post',
-			validations: [
-				authentication,
-				validate(schema.temporary),
-				authorize(Roles.ADMIN)
-			],
-			handler: controller.createTempUser
-		},
+		// {
+		// 	path: '/aux',
+		// 	method: 'post',
+		// 	validations: [
+		// 		authentication,
+		// 		validate(schema.temporary),
+		// 		authorize(Roles.ADMIN)
+		// 	],
+		// 	handler: controller.createTempUser
+		// },
 		{
 			path: '/approve/:userId',
 			method: 'patch',
@@ -122,7 +121,7 @@ function authenticationRoutes(): RouterMap[] {
 			path: '/login',
 			methods: {
 				post: {
-					handler: controller.login,
+					handler: authController.login,
 					validations: [validate(schema.login)]
 				}
 			}
@@ -131,8 +130,17 @@ function authenticationRoutes(): RouterMap[] {
 			path: '/logout',
 			methods: {
 				post: {
-					handler: controller.logout,
+					handler: authController.logout,
 					validations: [authentication]
+				}
+			}
+		},
+		{
+			path: '/register',
+			methods: {
+				post: {
+					handler: authController.register,
+					validations: [limitRequest, validate(register)]
 				}
 			}
 		},
@@ -140,7 +148,7 @@ function authenticationRoutes(): RouterMap[] {
 			path: '/currentUser',
 			methods: {
 				get: {
-					handler: controller.getCurrentUser,
+					handler: authController.getCurrentUser,
 					validations: [authentication]
 				}
 			}

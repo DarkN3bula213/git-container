@@ -1,6 +1,6 @@
 import { NotFoundResponse, SuccessResponse } from '@/lib/api/ApiResponse';
 import { singleUpload } from '@/lib/config/multer';
-import { uploadsDir } from '@/lib/constants';
+import { getUploadsDir } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
 import { getFileMetadata } from '@/lib/utils/getFileMetaData';
@@ -14,7 +14,7 @@ const logger = new Logger(__filename);
 
 export const downloadFile = asyncHandler(async (req, res) => {
 	const { fileName, folder } = req.params;
-	const filePath = path.join(uploadsDir, folder, fileName);
+	const filePath = path.join(getUploadsDir(), folder, fileName);
 	logger.info(`Downloading file ${fileName} from ${folder}`);
 
 	if (!fs.existsSync(filePath)) {
@@ -110,7 +110,7 @@ export const uploadDocument = asyncHandler(
 
 export const deleteFile = asyncHandler(async (req: Request, res: Response) => {
 	const { fileName, folder } = req.params;
-	const filePath = path.join(uploadsDir, folder, fileName);
+	const filePath = path.join(getUploadsDir(), folder, fileName);
 	if (fs.existsSync(filePath)) {
 		fs.unlinkSync(filePath);
 		return new SuccessResponse('File deleted successfully.', null).send(

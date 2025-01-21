@@ -1,31 +1,15 @@
-// import { cache } from '@/data/cache/cache.service';
-// import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
-// import { convertToObjectId } from '@/data/database/db.utils';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
-// import { config } from '@/lib/config';
-
-/** -----------------------------( Authentication )->
- *
- ** -----------------------------( login )->
- */
-import { accessCookie, logoutCookie } from '@/lib/config/cookies';
+import { logoutCookie } from '@/lib/config/cookies';
 import { Roles } from '@/lib/constants';
-import { getRoleFromMap } from '@/lib/constants/validCNIC';
+// import { getRoleFromMap } from '@/lib/constants/validCNIC';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { Logger } from '@/lib/logger';
+// import { Logger } from '@/lib/logger';
 import { notify } from '@/lib/utils/socketParser';
-// import { signToken } from '@/lib/utils/tokens';
-// import {
-// 	fetchRoleCodes,
-// 	isAdminRolePresent,
-// 	normalizeRoles
-// } from '@/lib/utils/utils';
 import Role, { RoleModel } from '@/modules/auth/roles/role.model';
 import { type User, UserModel } from './user.model';
 import { service } from './user.service';
 
-const logger = new Logger(__filename);
-// import session from 'express-session';
+// const logger = new Logger(__filename);
 
 declare module 'express-session' {
 	interface SessionData {
@@ -74,7 +58,7 @@ export const getUsers = asyncHandler(async (_req, res) => {
 export const getCurrentUser = asyncHandler(async (req, res) => {
 	const user = req.user as User;
 
-	const id = user._id?.toString();
+	const id = user?._id?.toString();
 	if (!id) {
 		throw new BadRequestError('No user found');
 	}
@@ -117,47 +101,47 @@ export const getUserById = asyncHandler(async (req, res) => {
 });
 
 /*<!-- 1. Create  ---------------------------( createUser )-> */
-export const register = asyncHandler(async (req, res) => {
-	const { email, username, password, cnic, name } = req.body;
+// export const register = asyncHandler(async (req, res) => {
+// 	const { email, username, password, cnic, name } = req.body;
 
-	const roleCode = getRoleFromMap(cnic);
-	logger.info(`Creating user with role: ${roleCode}`);
-	const data = await service.createUser(
-		{
-			email,
-			username,
-			password,
-			name
-		},
-		roleCode
-	);
-	const { user } = data;
-	// await sendVerifyEmail(user.name, user.email, token);
-	return new SuccessResponse(
-		'User created',
-		user.verificationTokenExpiresAt
-	).send(res);
-});
+// 	const roleCode = getRoleFromMap(cnic);
+// 	logger.info(`Creating user with role: ${roleCode}`);
+// 	const data = await service.createUser(
+// 		{
+// 			email,
+// 			username,
+// 			password,
+// 			name
+// 		},
+// 		roleCode
+// 	);
+// 	const { user } = data;
+// 	// await sendVerifyEmail(user.name, user.email, token);
+// 	return new SuccessResponse(
+// 		'User created',
+// 		user.verificationTokenExpiresAt
+// 	).send(res);
+// });
 
-/*<!-- 3. Create  ---------------------------( createTempUser )-> */
-export const createTempUser = asyncHandler(async (req, res) => {
-	const check = await UserModel.findUserByEmail(req.body.email);
-	if (check) {
-		throw new BadRequestError('User with this email already exists');
-	}
-	const { username, email, password, name, dob } = req.body;
-	const user = new UserModel({
-		username: username,
-		email: email,
-		password: password,
-		name: name,
-		temporary: Date.now(),
-		isPrime: false,
-		dob: dob
-	});
-	await user.save();
-	return new SuccessResponse('User created successfully', user).send(res);
-});
+// /*<!-- 3. Create  ---------------------------( createTempUser )-> */
+// export const createTempUser = asyncHandler(async (req, res) => {
+// 	const check = await UserModel.findUserByEmail(req.body.email);
+// 	if (check) {
+// 		throw new BadRequestError('User with this email already exists');
+// 	}
+// 	const { username, email, password, name, dob } = req.body;
+// 	const user = new UserModel({
+// 		username: username,
+// 		email: email,
+// 		password: password,
+// 		name: name,
+// 		temporary: Date.now(),
+// 		isPrime: false,
+// 		dob: dob
+// 	});
+// 	await user.save();
+// 	return new SuccessResponse('User created successfully', user).send(res);
+// });
 
 /*<!-- 1. Update  ---------------------------( updateUser )-> */
 export const updateUser = asyncHandler(async (req, res) => {
@@ -202,67 +186,67 @@ export const deleteUser = asyncHandler(async (req, res) => {
 	});
 });
 
-// Login Controller
-export const login = asyncHandler(async (req, res) => {
-	const { email, password } = req.body;
-	// const user = await UserModel.login(email, password);
+// // Login Controller
+// export const login = asyncHandler(async (req, res) => {
+// 	const { email, password } = req.body;
+// 	// const user = await UserModel.login(email, password);
 
-	const data = await service.login(email, password);
+// 	const data = await service.login(email, password);
 
-	if (!data) {
-		throw new BadRequestError('Invalid credentials');
-	}
+// 	if (!data) {
+// 		throw new BadRequestError('Invalid credentials');
+// 	}
 
-	// const verifiedUser = user.toObject();
-	// verifiedUser.password = undefined;
+// 	// const verifiedUser = user.toObject();
+// 	// verifiedUser.password = undefined;
 
-	// const payload = {
-	// 	user: {
-	// 		...verifiedUser,
+// 	// const payload = {
+// 	// 	user: {
+// 	// 		...verifiedUser,
 
-	// 		isPremium: verifiedUser.isPrime || false
-	// 	}
-	// };
+// 	// 		isPremium: verifiedUser.isPrime || false
+// 	// 	}
+// 	// };
 
-	// const access = signToken(payload, 'access', { expiresIn: '120m' });
+// 	// const access = signToken(payload, 'access', { expiresIn: '120m' });
 
-	// // Store user data in session
-	// req.session.userId = user._id?.toString();
-	// req.session.username = user.username;
+// 	// // Store user data in session
+// 	// req.session.userId = user._id?.toString();
+// 	// req.session.username = user.username;
 
-	// // Optional: Update last login
-	// user.lastLogin = new Date();
-	// await user.save();
+// 	// // Optional: Update last login
+// 	// user.lastLogin = new Date();
+// 	// await user.save();
 
-	// Send back JWT as an additional security layer if needed
-	const access = data.accessToken;
-	res.cookie('access', access, accessCookie);
+// 	// Send back JWT as an additional security layer if needed
+// 	const access = data.accessToken;
+// 	res.cookie('access', access, accessCookie);
 
-	// const role = normalizeRoles(user.roles);
-	// const isAdmin = await isAdminRolePresent(role);
-	// const userSettings = await userSettingsService.getSettings(
-	// 	convertToObjectId(verifiedUser._id)
-	// );
+// 	// const role = normalizeRoles(user.roles);
+// 	// const isAdmin = await isAdminRolePresent(role);
+// 	// const userSettings = await userSettingsService.getSettings(
+// 	// 	convertToObjectId(verifiedUser._id)
+// 	// );
 
-	logger.info(`User ${data.user._id} logged in`);
+// 	logger.info(`User ${data.user._id} logged in`);
 
-	// const roleCodes = (await fetchUserPermissions(role)) as string[];
-	notify({
-		event: 'incomingNotification',
-		message: `${data.user.username} logged in`
-	});
+// 	// const roleCodes = (await fetchUserPermissions(role)) as string[];
+// 	notify({
+// 		event: 'incomingNotification',
+// 		message: `${data.user.username} logged in`
+// 	});
 
-	// const dataObject = {
-	// 	user: verifiedUser,
-	// 	isAdmin,
-	// 	isVerified: verifiedUser.isVerified || false,
-	// 	permissions: roleCodes,
-	// 	settings: userSettings,
-	// 	token: config.production ? null : access
-	// };
+// 	// const dataObject = {
+// 	// 	user: verifiedUser,
+// 	// 	isAdmin,
+// 	// 	isVerified: verifiedUser.isVerified || false,
+// 	// 	permissions: roleCodes,
+// 	// 	settings: userSettings,
+// 	// 	token: config.production ? null : access
+// 	// };
 
-	return new SuccessResponse('Login successful', data).send(res);
-});
+// 	return new SuccessResponse('Login successful', data).send(res);
+// });
 
 /** -----------------------------( Authentication )->
  *
@@ -377,3 +361,10 @@ export const checkSession = asyncHandler(async (req, res) => {
   return new BadRequestError('Session is inactive');
 });
 */
+
+// import { config } from '@/lib/config';
+
+/** -----------------------------( Authentication )->
+ *
+ ** -----------------------------( login )->
+ */

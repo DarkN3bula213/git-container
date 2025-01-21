@@ -39,9 +39,7 @@ const UserSettingsSchema = new Schema<UserSettings>({
 	blockedUsers: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 });
 
-const UserSettingsModel = model<UserSettings>(
+export const UserSettingsModel = model<UserSettings>(
 	'UserSettings',
 	UserSettingsSchema
 );
-
-export { UserSettingsModel };

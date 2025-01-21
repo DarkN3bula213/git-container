@@ -10,8 +10,8 @@ const logger = new Logger('Mailtrap');
 
 export const client = Nodemailer.createTransport(
 	MailtrapTransport({
-		token: config.mail.token,
-		testInboxId: 2872013
+		token: config.mail.test.token,
+		testInboxId: Number(config.mail.test.inboxId)
 	}),
 	{
 		debug: true,
@@ -70,12 +70,12 @@ const sendEmail = async (props: SendEmailProps) => {
 		},
 		subject: props.subject,
 		html: htmlTemplate,
-		sandbox: config.isTest
+		sandbox: !config.production
 	};
 
 	try {
 		const result = await client.sendMail(request);
-		logger.debug(JSON.stringify(result));
+		logger.debug({ result });
 		return result;
 	} catch (error) {
 		logger.error('Error sending email:', error);
@@ -87,12 +87,16 @@ export const generateHtmlTemplate = (
 	templateName: keyof typeof templates,
 	templateData?: Record<string, string>
 ): string => {
-	let template = templates[templateName];
-	for (const key in templateData) {
-		const value = templateData[key];
-		template = template.replace(new RegExp(`{${key}}`, 'g'), value);
+	const template = templates[templateName];
+	if (!template) {
+		logger.error(`Template "${templateName}" not found`);
+		return '';
 	}
-	return template;
+
+	return Object.entries(templateData || {}).reduce(
+		(acc, [key, value]) => acc.replace(new RegExp(`{${key}}`, 'g'), value),
+		template
+	);
 };
 
 export default sendEmail;

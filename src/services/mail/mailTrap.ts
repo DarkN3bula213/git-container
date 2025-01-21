@@ -6,7 +6,8 @@ import dayjs from 'dayjs';
 import { writeFileSync } from 'fs';
 import sendEmail, { generateHtmlTemplate } from '.';
 import { getPaymentsForDate } from '../cron/daily-fees';
-import template from './mailTemplates';
+// import { previewEmailTemplate } from './mail.utils';
+import template, { EmailTemplate } from './mailTemplates';
 
 const logger = new Logger(__filename);
 
@@ -15,7 +16,7 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
 		await sendEmail({
 			to: email,
 			subject: 'Welcome to HPS Admin',
-			templateName: 'success',
+			templateName: 'verifyEmail' as EmailTemplate,
 			templateData: { username: name }
 		});
 	} catch (error) {
@@ -34,11 +35,11 @@ export const sendVerifyEmail = async (
 		const emailRes = await sendEmail({
 			to: email,
 			subject: 'Verification Email',
-			templateName: 'verfifation',
+			templateName: 'verifyEmail',
 			templateData: { verificationCode: token },
 			name: name
 		});
-		logger.debug(JSON.stringify(emailRes));
+		logger.debug({ emailRes });
 	} catch (error) {
 		if (typeof error === 'string') {
 			logger.error(`Email delivery failed: ${error}`);
@@ -79,7 +80,7 @@ export const sendResetPasswordEmail = async (email: string, url: string) => {
 		const emailRes = await sendEmail({
 			to: email,
 			subject: 'Reset Password',
-			templateName: 'reset',
+			templateName: 'resetPassword',
 			templateData: { resetURL: url }
 		});
 		logger.debug(JSON.stringify(emailRes));
@@ -97,7 +98,7 @@ export const sendSuccessMessage = async (email: string, url: string) => {
 		const emailRes = await sendEmail({
 			to: email,
 			subject: 'Reset Password',
-			templateName: 'reset',
+			templateName: 'resetPasswordSuccess',
 			templateData: { resetURL: url }
 		});
 		logger.debug({
@@ -118,7 +119,7 @@ export const sendResetSuccessEmail = async (email: string) => {
 		await sendEmail({
 			to: email,
 			subject: 'Password Reset Successful',
-			templateName: 'success'
+			templateName: 'resetPasswordSuccess'
 		});
 	} catch (error) {
 		console.error(`Error sending password reset success email`, error);
@@ -132,7 +133,7 @@ export const emailVerificationSuccess = async (email: string) => {
 		await sendEmail({
 			to: email,
 			subject: 'Verification Successful',
-			templateName: 'emailVerified'
+			templateName: 'emailVerificationSuccess'
 		});
 	} catch (error) {
 		console.error(`Error sending password reset success email`, error);
@@ -140,22 +141,22 @@ export const emailVerificationSuccess = async (email: string) => {
 	}
 };
 
-export const sendDailyReport = async () => {
-	try {
-		await sendEmail({
-			to: 'info@hps.com',
-			subject: 'Daily Report',
-			templateName: 'dailyPaymentReport',
-			templateData: {
-				date: new Date().toLocaleDateString(),
-				totalAmount: (1000).toLocaleString()
-			}
-		});
-	} catch (error) {
-		console.error(`Error sending password reset success email`, error);
-		throw new Error(`Error sending password reset success email: ${error}`);
-	}
-};
+// export const sendDailyReport = async () => {
+// 	try {
+// 		await sendEmail({
+// 			to: 'info@hps.com',
+// 			subject: 'Daily Report',
+// 			templateName: 'dailyPaymentReport',
+// 			templateData: {
+// 				date: new Date().toLocaleDateString(),
+// 				totalAmount: (1000).toLocaleString()
+// 			}
+// 		});
+// 	} catch (error) {
+// 		console.error(`Error sending password reset success email`, error);
+// 		throw new Error(`Error sending password reset success email: ${error}`);
+// 	}
+// };
 
 export async function generatePaymentEmail(date: Date): Promise<string> {
 	const payments = await getPaymentsForDate(date);
@@ -290,5 +291,25 @@ export const sendOnDeployment = async () => {
 		senderRole: 'DevOps Engineer',
 		companyName: 'HPS',
 		serviceName: 'Automated Deployment Service'
+	});
+};
+
+// previewEmailTemplate('verificationLink', {
+// 	verificationCode: '123456',
+// 	baseUrl: 'http://localhost:5173'
+// });
+export const sendVerificationLinkEmail = async (
+	email: string,
+	token: string
+) => {
+	const emailHtml = generateHtmlTemplate('verificationLink', {
+		verificationCode: token,
+		baseUrl: config.production ? config.origin : 'http://localhost:5173'
+	});
+	// logger.debug({ emailHtml });
+	await sendEmail({
+		to: email,
+		subject: 'Verification Link',
+		html: emailHtml
 	});
 };

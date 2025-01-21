@@ -1,7 +1,7 @@
 import { InternalError } from '@/lib/api';
+import { Roles } from '@/lib/constants';
 // import { convertToMilliseconds } from '@/lib/utils/fns';
-import { normalizeRoles } from '@/lib/utils/utils';
-import { isAdminRolePresent } from '@/lib/utils/utils';
+import { isAdminRolePresent, normalizeRoles } from '@/lib/utils/utils';
 import bcrypt from 'bcrypt';
 import {
 	ClientSession,
@@ -42,6 +42,7 @@ export interface User extends Document {
 	pendingEmail?: string;
 	lastPasswordChange: Date | null;
 	isApproved: boolean;
+	isAdmin: boolean;
 }
 
 interface UserMethods {
@@ -197,7 +198,11 @@ export const schema = new Schema<User>(
 			transform: function (_doc, ret) {
 				delete ret.password;
 				return ret;
-			}
+			},
+			virtuals: true
+		},
+		toObject: {
+			virtuals: true
 		}
 	}
 );
@@ -213,6 +218,16 @@ const exclusionDate = new Date('2024-08-01'); // Example exclusion date
 // 	}
 // );
 // Index for clearing verification tokens after 15 minutes
+schema.virtual('isAdmin').get(async function (this: User) {
+	const adminId = await RoleModel.findOne({ code: Roles.ADMIN });
+	if (!adminId) return false;
+
+	// Check if roles array includes the admin role ID
+	return this.roles.some(
+		(roleId) => roleId.toString() === adminId.toString()
+	);
+});
+
 schema.path('verificationTokenExpiresAt').index({
 	expireAfterSeconds: 0,
 	partialFilterExpression: {

@@ -1,4 +1,4 @@
-import { config } from '@/lib/config';
+import { config } from '@/lib/config/config';
 import { Logger } from '@/lib/logger';
 import { type RedisClientType, createClient } from 'redis';
 
@@ -49,28 +49,27 @@ class RedisConnection {
 
 	private setupEventHandlers(): void {
 		this.client.on('connect', () => {
-			logger.debug('Cache is connecting');
 			this.retryCount = 0;
 		});
 
 		this.client.on('ready', () => {
-			logger.debug('Cache is ready');
+			logger.debug('Redis connection established');
 			this.connecting = false;
 			this.retryCount = 0;
 		});
 
 		this.client.on('end', () => {
-			logger.debug('Cache disconnected');
+			logger.debug('Redis connection closed');
 			this.connecting = false;
 		});
 
 		this.client.on('reconnecting', () => {
 			this.retryCount++;
-			logger.debug(`Cache is reconnecting (attempt ${this.retryCount})`);
+			logger.debug(`Redis is reconnecting (attempt ${this.retryCount})`);
 		});
 
 		this.client.on('error', (error) => {
-			logger.error(`Cache error: ${error.message}`);
+			logger.error(`Redis error: ${error.message}`);
 		});
 	}
 
@@ -92,8 +91,10 @@ class RedisConnection {
 
 	public async disconnect(): Promise<void> {
 		try {
-			await this.client.disconnect();
-			this.connecting = false;
+			if (this.client.isReady) {
+				await this.client.disconnect();
+				this.connecting = false;
+			}
 		} catch (error) {
 			logger.error('Error disconnecting from Redis:', error);
 			throw error;

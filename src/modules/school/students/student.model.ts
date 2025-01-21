@@ -71,7 +71,7 @@ const studentSchema = new Schema<Student>(
 		},
 		phone: {
 			type: String,
-			required: [true, 'Phone number is required'],
+			// required: [true, 'Phone number is required'],
 			minlength: [11, 'Phone number must be 11 digits long'],
 			maxlength: [11, 'Phone number must be 11 digits long']
 		},

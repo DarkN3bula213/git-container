@@ -65,11 +65,11 @@ class QueueFactory {
 		});
 
 		queue.on('active', (job: Job<T>) => {
-			logger.info(`Job ${job.id} in queue ${name} is now active.`);
+			logger.debug(`Job ${job.id} in queue ${name} is now active.`);
 		});
 
 		queue.on('stalled', (job: Job<T>) => {
-			logger.warn(`Job ${job.id} in queue ${name} has stalled.`);
+			logger.debug(`Job ${job.id} in queue ${name} has stalled.`);
 		});
 
 		// Register processors
@@ -77,7 +77,7 @@ class QueueFactory {
 			queue.process(jobType, handler);
 		});
 
-		logger.info(`Queue ${name} initialized with processors.`);
+		logger.debug(`Queue ${name} initialized with processors.`);
 
 		return queue;
 	}
@@ -91,11 +91,11 @@ class QueueFactory {
 			const job = await queue.getJob(jobId);
 			if (job) {
 				await job.remove();
-				logger.info(
+				logger.debug(
 					`Job ${jobId} removed successfully from queue ${queueName}.`
 				);
 			} else {
-				logger.warn(`Job ${jobId} not found in queue ${queueName}.`);
+				logger.debug(`Job ${jobId} not found in queue ${queueName}.`);
 			}
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
@@ -113,19 +113,19 @@ class QueueFactory {
 		try {
 			const job = await queue.getJob(jobId);
 			if (!job) {
-				logger.warn(`No job found with ID ${jobId} to cancel`);
+				logger.debug(`No job found with ID ${jobId} to cancel`);
 				return false;
 			}
 
 			const state = await job.getState();
 			if (state === 'delayed' || state === 'waiting') {
 				await job.remove();
-				logger.info(`Successfully cancelled delayed job ${jobId}`);
+				logger.debug(`Successfully cancelled delayed job ${jobId}`);
 				onSuccess?.();
 				return true;
 			}
 
-			logger.warn(
+			logger.debug(
 				`Job ${jobId} is in state ${state} and cannot be cancelled`
 			);
 			return false;
