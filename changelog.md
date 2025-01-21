@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/DarkN3bula213/git-container/compare/v1.5.0...v1.6.0) (2025-01-21)
+
+
+### Features
+
+* add feedback module ([c2427a9](https://github.com/DarkN3bula213/git-container/commit/c2427a98a688759cb530c72085e213cf019859d4))
+
+
+### Chores
+
+* **release:** 1.5.0 ([ae5ac32](https://github.com/DarkN3bula213/git-container/commit/ae5ac32da71e9e2110ff0a153a634d524e848188))
+
 ## 1.5.0 (2025-01-07)
 
 
