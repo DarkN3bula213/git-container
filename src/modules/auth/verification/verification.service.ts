@@ -44,8 +44,7 @@ class VerificationService {
 			/*<!-- 2. Find user by token -->*/
 			const user = await this.user
 				.findById(token.userId)
-				.session(session)
-				.lean();
+				.session(session);
 
 			if (!user) {
 				throw new BadRequestError('User not found');
@@ -60,7 +59,7 @@ class VerificationService {
 			user.isVerified = true;
 			user.verificationToken = null;
 			user.verificationTokenExpiresAt = null;
-			await user.save({ session });
+			await user.save();
 
 			/*<!-- 5. Delete token -->*/
 			await this.token.deleteOne({ _id: token._id }).session(session);

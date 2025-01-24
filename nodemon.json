@@ -1,13 +1,16 @@
 {
 	"nodemonConfig": {
+		"watch": ["src"],
 		"ignore": [
 			"**/*.test.ts",
 			"**/*.spec.ts",
 			".git",
 			"node_modules",
-			"uploads"
+			"uploads",
+			"addons",
+			"./mongo_vs.js",
+			"mongo_vs.js"
 		],
-		"watch": ["src"],
 		"exec": "node -r tsconfig-paths/register -r ts-node/register ./src/server.ts",
 		"ext": "ts, js"
 	},

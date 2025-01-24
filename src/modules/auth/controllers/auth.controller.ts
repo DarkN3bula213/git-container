@@ -15,9 +15,8 @@ export const login = asyncHandler(async (req, res) => {
 
 	if (data.user.isVerified) {
 		logger.debug('User is not verified');
-
-		res.cookie('access', data.accessToken, accessCookie);
 	}
+	res.cookie('access', data.accessToken, accessCookie);
 
 	notify({
 		event: 'incomingNotification',

@@ -19,10 +19,9 @@ module.exports = {
 		],
 		'type-case': [2, 'always', 'lower-case'],
 		'type-empty': [2, 'never'],
+		'body-max-line-length': [2, 'always', 200]
 		// 'subject-case': [2, 'always', 'lower-case'],
 		// 'subject-empty': [2, 'never'],
 		// 'subject-full-stop': [2, 'never', '.']
 	}
 };
-
-

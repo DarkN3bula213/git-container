@@ -12,19 +12,43 @@ export async function withTransaction<T>(
 
 	try {
 		const result = await callback(session);
-		// Only commit if we haven't thrown any errors
 		await session.commitTransaction();
 		logger.info('Transaction Success');
 		return result;
 	} catch (error) {
-		logger.error('Transaction failed, rolling back...', error);
+		// Enhanced error logging
+		const errorDetails = {
+			message: 'Transaction failed, rolling back...',
+			originalError:
+				error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+			// If it's a Mongoose error, include additional details
+			mongooseError:
+				error instanceof mongoose.Error
+					? {
+							name: error.name,
+							kind: (error as any).kind,
+							path: (error as any).path,
+							value: (error as any).value
+						}
+					: undefined
+		};
+
+		logger.error(errorDetails);
+
 		await session.abortTransaction();
-		// Re-throw the error after rollback
+
+		// Enhance the error before rethrowing
+		if (error instanceof Error) {
+			error.message = `${error.message}`;
+		}
+
 		throw error;
 	} finally {
 		await session.endSession();
 	}
 }
+
 export const convertToObjectId = (id: string): Types.ObjectId => {
 	return new Types.ObjectId(id);
 };
