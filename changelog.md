@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/DarkN3bula213/git-container/compare/v1.6.0...v1.6.1) (2025-01-24)
+
+
+### Chores
+
+* update configuration and improve error handling ([b7e9607](https://github.com/DarkN3bula213/git-container/commit/b7e96076627804e08b4bd26726f42c5eb0c642a9))
+
 ## [1.6.0](https://github.com/DarkN3bula213/git-container/compare/v1.5.0...v1.6.0) (2025-01-21)
 
 
