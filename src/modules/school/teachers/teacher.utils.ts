@@ -1,4 +1,4 @@
-import { Teacher } from './teacher.model';
+import { Teacher } from './teacher.interface';
 
 /**
  * Transforms a single teacher's data from the initial flat structure to the nested structure required by the schema.
