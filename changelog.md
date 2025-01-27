@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/DarkN3bula213/git-container/compare/v1.6.1...v1.7.0) (2025-01-27)
+
+
+### Features
+
+* add teacher data transformation and reload script ([a6439d9](https://github.com/DarkN3bula213/git-container/commit/a6439d9032eabd23bd92d1aa3f6c2063e33ae827))
+
 ### [1.6.1](https://github.com/DarkN3bula213/git-container/compare/v1.6.0...v1.6.1) (2025-01-24)
 
 
