@@ -1,80 +1,29 @@
 import { config } from '@/lib/config/config';
 import { format } from 'date-fns';
-import fs from 'fs-extra';
 import http from 'node:http';
-import path from 'node:path';
 import { app } from './app';
-import { cache } from './data/cache/cache.service';
-import { db } from './data/database';
-import { initializeConfig } from './lib/config';
-import { banner, getUploadsDir, signals } from './lib/constants';
+import { banner } from './lib/constants';
 import { Logger } from './lib/logger';
-import subjectMigration from './scripts/subjectMigration';
-import { setupCronJobs } from './services/cron';
-import { sendOnDeployment } from './services/mail/mailTrap';
-import SocketService from './sockets';
+import { main } from './scripts/reloadTeachers';
+import { initializeServer } from './server/initialize';
+import { ServerContext, setupGracefulShutdown } from './server/shutdown';
 
 const logger = new Logger(__filename);
 
-// // Add these debug logs at the very top of index.ts, before any imports
-// logger.debug('🚀 Starting application...');
-// logger.debug('📝 Environment variables:', {
-// 	NODE_ENV: process.env.NODE_ENV,
-// 	PWD: process.cwd(),
-// 	ENV_PATH: `${process.cwd()}/.env`
-// });
+async function createServerContext(): Promise<ServerContext> {
+	const server = http.createServer(app);
+	const socketService = await initializeServer.setupWebSockets(server);
 
-const server = http.createServer(app);
-const socketService = SocketService.getInstance(server);
-
-const PORT = config.app.port;
-
-const createDirectories = async () => {
-	try {
-		// Use process.cwd() to reliably get the project root directory
-		const uploadsDir = getUploadsDir();
-		const imagesDir = path.join(uploadsDir, 'images');
-		const documentsDir = path.join(uploadsDir, 'documents');
-
-		// fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
-		await fs.ensureDir(uploadsDir);
-		await fs.ensureDir(imagesDir);
-		await fs.ensureDir(documentsDir);
-
-		logger.info('Ensured that upload directories exist.');
-	} catch (error: unknown) {
-		if (error instanceof Error) {
-			// Type-guard check
-			logger.error(
-				`Error occurred while trying to start server: ${error.message}`
-			);
-		} else {
-			logger.error(
-				'An unexpected error occurred while trying to start the server.'
-			);
-		}
-	}
-};
-
-// // Add more detailed logging before using config
-// logger.debug({
-// 	event: '🔍 Config initialization check:',
-// 	configExists: !!config,
-// 	configKeys: config ? Object.keys(config) : 'Config not loaded',
-// 	isDevelopment: config?.isDevelopment,
-// 	isProduction: config?.isProduction,
-// 	isDocker: config?.isDocker
-// });
-
-async function initializeDataSources() {
-	await db.connect();
-	await cache.getClient().connect();
+	return {
+		server,
+		socketService,
+		port: config.app.port
+	};
 }
 
-const startServer = async () => {
+async function logServerStartup(): Promise<void> {
 	const date = new Date();
 	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-	// Get time in Pakistan
 	const pkTime = new Intl.DateTimeFormat('en-US', {
 		timeZone: 'Asia/Karachi',
 		hour: '2-digit',
@@ -82,101 +31,57 @@ const startServer = async () => {
 		second: '2-digit',
 		hour12: false
 	}).format(date);
-	try {
-		setupCronJobs();
 
-		if (config.production) {
-			// console.log('Starting server in production mode');
-			// await ensureAllIndexes();
-			await subjectMigration.migrate({ dryRun: true });
-			await sendOnDeployment();
-			logger.info('Subject migration completed');
-		}
-		// Dry run to check what would happen
-
-		// Start the server and listen on all network interfaces
-		server.listen(PORT, () => {
-			logger.warn({
-				port: PORT,
-				node: banner,
-				date: format(date, 'PPP'),
-				timeZone: timeZone,
-				pkTime: pkTime,
-				mode: config.production ? 'Production' : 'Development'
-			});
-		});
-	} catch (error: any) {
-		logger.error(
-			`Error occurred while trying to start server: ${error.message}`
-		);
-	}
-};
-
-signals.forEach((signal) => {
-	process.on(signal, async () => {
-		try {
-			logger.debug(`Received ${signal}. Shutting down gracefully...`);
-
-			// Create a promise for server closure
-			const serverClosed = new Promise((resolve) => {
-				server.close(() => {
-					logger.debug('HTTP server closed.');
-					resolve(true);
-				});
-			});
-
-			// Handle existing connections
-			if (socketService) {
-				socketService.disconnect();
-				logger.debug('WebSocket connections closed.');
-			}
-
-			// Wait for all operations to complete
-			await Promise.all([
-				serverClosed,
-				cache
-					.getClient()
-					.disconnect()
-					.catch((err) => {
-						logger.error('Error disconnecting cache:', err);
-					}),
-				db.disconnect().catch((err) => {
-					logger.error('Error disconnecting database:', err);
-				})
-			]);
-
-			logger.debug('All connections closed successfully.');
-
-			// Give time for final logs to be written
-			process.exit(0);
-		} catch (error) {
-			logger.error('Failed to shut down gracefully', error);
-			setTimeout(() => {
-				process.exit(1);
-			}, 100);
-		}
+	logger.warn({
+		port: config.app.port,
+		node: banner,
+		date: format(date, 'PPP'),
+		timeZone,
+		pkTime,
+		mode: config.production ? 'Production' : 'Development'
 	});
-});
+}
 
-export { socketService };
-
-// Modify your initialization order
 async function bootstrap() {
 	try {
-		await initializeConfig();
+		// Initialize configuration first
+		await initializeServer.config();
 
-		// Then proceed with other initializations
-		await createDirectories();
-		await initializeDataSources();
-		await startServer();
+		// Setup required directories
+		await initializeServer.directories();
+
+		// Initialize data sources (DB & Cache)
+		await initializeServer.dataSources();
+
+		// Create and configure server
+		const serverContext = await createServerContext();
+
+		// Production-specific initialization
+		if (config.production) {
+			await initializeServer.productionTasks();
+		}
+
+		// Start server
+		serverContext.server.listen(serverContext.port, async () => {
+			await logServerStartup();
+			await main().catch(console.error);
+		});
+
+		// Setup graceful shutdown handlers
+		setupGracefulShutdown(serverContext);
+
+		return serverContext;
 	} catch (error) {
-		console.error('💥 Bootstrap failed:', error);
+		logger.error('💥 Bootstrap failed:', error);
 		process.exit(1);
 	}
 }
 
-// Replace your existing initialization chain with the bootstrap function
+// Export socket service for use in other parts of the application
+export { socketService } from './server/initialize';
+
+// Start the application
 bootstrap().catch((error) => {
-	console.error('🔥 Fatal error during startup:', error);
+	logger.error('🔥 Fatal error during startup:', error);
 	process.exit(1);
 });

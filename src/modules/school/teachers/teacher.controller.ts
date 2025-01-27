@@ -1,6 +1,9 @@
 import { NotFoundError, SuccessMsgResponse, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
+import { Logger } from '@/lib/logger';
 import TeacherModel from './teacher.model';
+
+const logger = new Logger('TeacherController');
 
 /*
 <!-- 1. Create  ---------------------------->
@@ -13,7 +16,7 @@ export const createTeacher = asyncHandler(async (req, res) => {
 	);
 });
 export const createManyTeachers = asyncHandler(async (req, res) => {
-	const teachers = await TeacherModel.insertMany(req.body);
+	const teachers = (await TeacherModel.insertMany(req.body)) as object[];
 	return new SuccessResponse('Teachers created successfully', teachers).send(
 		res
 	);
@@ -24,7 +27,10 @@ export const createManyTeachers = asyncHandler(async (req, res) => {
 */
 
 export const getTeacherById = asyncHandler(async (req, res) => {
-	const teacher = await TeacherModel.findById(req.params.id);
+	const { id } = req.params;
+	logger.info(id);
+	const teacher = (await TeacherModel.findOne({ _id: id })) as object;
+	logger.info(teacher ?? 'teacher not found');
 	if (!teacher) {
 		throw new NotFoundError('Teacher not found');
 	}
@@ -45,11 +51,11 @@ export const getTeachersSorted = asyncHandler(async (_req, res) => {
 <!-- 3. Update ---------------------------->
 */
 export const updateTeacherById = asyncHandler(async (req, res) => {
-	const teacher = await TeacherModel.findByIdAndUpdate(
+	const teacher = (await TeacherModel.findByIdAndUpdate(
 		req.params.id,
 		req.body,
 		{ new: true }
-	);
+	)) as object;
 	if (!teacher) {
 		throw new NotFoundError('Teacher not found');
 	}

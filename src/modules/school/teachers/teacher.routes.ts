@@ -17,7 +17,8 @@ function getRouteMap(): RouteMap[] {
 		{
 			path: '/:id',
 			method: 'get',
-			handler: controller.getTeacherById
+			handler: controller.getTeacherById,
+			validations: [schema.getTeacherByIdSchema]
 		},
 		{
 			path: '/',

@@ -1,0 +1,1566 @@
+[{
+  "_id": "65ed59605353edda244c8b76",
+  "first_name": "Tehmina",
+  "last_name": "Butt",
+  "gender": "Female",
+  "father_name": "Abdul Wahid",
+  "address": "Khokhar Town Sialkot",
+  "cnic": "34603-5728906-2",
+  "phone": "0335-8722041",
+  "dob": "1983-10-03T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.A Islamiyat",
+      "year": "2009",
+      "institution": "Punjab Uni",
+      "marks": "603",
+      "_id": "65ed59605353edda244c8b77"
+    }
+  ],
+  "appointment": {
+    "designation": "Principal",
+    "date": "2004-10-12T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 33500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b78",
+  "first_name": "Noreen ",
+  "last_name": "Khalid",
+  "gender": "Female",
+  "father_name": "Khalid Mehmood",
+  "address": "Laduhar The & Dis Sialkot",
+  "cnic": "34603-7744307-2",
+  "phone": "0344-0604348",
+  "dob": "1989-10-11T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.A English",
+      "year": "2017",
+      "institution": "A.I.O.U",
+      "marks": "435",
+      "_id": "65ed59605353edda244c8b79"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2014-08-27T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 25800
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b7a",
+  "first_name": "Sana",
+  "last_name": "Tariq",
+  "gender": "Female",
+  "father_name": "Tariq Mehmood",
+  "address": "Khan Colony Haji Pura Sialkot",
+  "cnic": "34603-2289237-4",
+  "phone": "0345-1427480",
+  "dob": "1986-04-11T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.A Islamiyat",
+      "year": "2012",
+      "institution": "Punjab Uni",
+      "marks": "467",
+      "_id": "65ed59605353edda244c8b7b"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2016-04-15T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 16500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b7c",
+  "first_name": "Nazia ",
+  "last_name": "Manzoor",
+  "gender": "Female",
+  "father_name": "Manzoor Hussain",
+  "address": "Laduhar The & Dis Sialkot",
+  "cnic": "34603-9414066-4",
+  "phone": "0348-9749094",
+  "dob": "1993-11-22T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2014",
+      "institution": "U.O.G",
+      "marks": "431",
+      "_id": "65ed59605353edda244c8b7d"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2015-05-15T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 15150
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b7e",
+  "first_name": "Jawairia",
+  "last_name": "Nisar",
+  "gender": "Female",
+  "father_name": "Nisar Ahmed",
+  "address": "Miani Khas Daska road Sialkot",
+  "cnic": "34603-7316876-0",
+  "phone": "0349-664507-8",
+  "dob": "1995-07-25T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "MSc.Zoology",
+      "year": "2018",
+      "institution": "G.C.U.F",
+      "marks": "774",
+      "_id": "65ed59605353edda244c8b7f"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2019-03-13T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 16250
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b80",
+  "first_name": "Hafiza ",
+  "last_name": "Saliha",
+  "gender": "Female",
+  "father_name": "Liaqat Ali",
+  "address": "Haji Pura road Sialkot",
+  "cnic": "34603-9942787-4",
+  "phone": "0319-7638126",
+  "dob": "1995-08-15T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2017",
+      "institution": "Punjab Uni",
+      "marks": "422",
+      "_id": "65ed59605353edda244c8b81"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2017-02-10T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 16000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b82",
+  "first_name": "Amara",
+  "last_name": "Shabir",
+  "gender": "Female",
+  "father_name": "Shabir Hussain",
+  "address": "House No. 15/490 Haji Pura Sialkot",
+  "cnic": "34603-4397044-4",
+  "phone": "0331-4577810",
+  "dob": "1998-06-06T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.Com",
+      "year": "2019",
+      "institution": "Punjab Uni",
+      "marks": "969",
+      "_id": "65ed59605353edda244c8b83"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2019-11-15T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 14500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b84",
+  "first_name": "Sana ",
+  "last_name": "Arooj",
+  "gender": "Female",
+  "father_name": "Muhammad Yasin",
+  "address": "Muhammadi Chowk Boghra Sialkot",
+  "cnic": "34603-4705187-8",
+  "phone": "0302-1978557",
+  "dob": "1996-07-18T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "Msc.IT",
+      "year": "2018",
+      "institution": "Punjab Uni",
+      "marks": "837",
+      "_id": "65ed59605353edda244c8b85"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2020-01-03T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 18700
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b86",
+  "first_name": "Mehreen",
+  "last_name": "Zubair",
+  "gender": "Female",
+  "father_name": "Muhammad Zubair",
+  "address": "Ghouse Pura Fateh Garh Sialkot",
+  "cnic": "34603-2697535-0",
+  "phone": "0320-7163585",
+  "dob": "1991-07-16T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "BSc ",
+      "year": "2014",
+      "institution": "Punjab Uni",
+      "marks": "416",
+      "_id": "65ed59605353edda244c8b87"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2015-01-04T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 17000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b88",
+  "first_name": "Kiran ",
+  "last_name": "Ikram",
+  "gender": "Female",
+  "father_name": "Muhammad Ikram",
+  "address": "Doburji Malian Sialkot",
+  "cnic": "34603-1816922-6",
+  "phone": "0324-6296163",
+  "dob": "1999-12-10T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "MSc.Math",
+      "year": "2022",
+      "institution": "Punjab Uni",
+      "marks": "592",
+      "_id": "65ed59605353edda244c8b89"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2021-03-06T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 14500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b8a",
+  "first_name": "Fiaza",
+  "last_name": "Gohar",
+  "gender": "Female",
+  "father_name": "Nasarullah Gohar",
+  "address": "Haji Pura Ban Sialkot",
+  "cnic": "42201-1183756-8",
+  "phone": "0336-7329222",
+  "dob": "1998-03-12T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "BS. Chemistry ",
+      "year": "2020",
+      "institution": "U.O.G",
+      "marks": "2.8 CGPA",
+      "_id": "65ed59605353edda244c8b8b"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2021-04-09T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 14500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b8c",
+  "first_name": "Nagheen ",
+  "last_name": "Nisar",
+  "gender": "Female",
+  "father_name": "Nisar Ahmed",
+  "address": "Miani Khas Daska road Sialkot",
+  "cnic": "34603-7422421-0",
+  "phone": "0348-6886104",
+  "dob": "1998-04-29T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "MSc. Math",
+      "year": "2021",
+      "institution": "G.C.U.F",
+      "marks": "953.32",
+      "_id": "65ed59605353edda244c8b8d"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2022-02-01T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 16500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b8e",
+  "first_name": "Palwasha ",
+  "last_name": "Arif",
+  "gender": "Female",
+  "father_name": "Arif Mehmood",
+  "address": "Miani Khas Daska road Sialkot",
+  "cnic": "34603-4246331-2",
+  "phone": "0348-6192376",
+  "dob": "1998-06-08T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "MSc. Math",
+      "year": "2021",
+      "institution": "USKT",
+      "marks": "2.7 CGPA",
+      "_id": "65ed59605353edda244c8b8f"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2022-04-16T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 16500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b90",
+  "first_name": "Komal",
+  "last_name": "Nasir",
+  "gender": "Female",
+  "father_name": "Muhammad Nasir",
+  "address": "Haji Pura Daska road Sialkot",
+  "cnic": "34603-3190360-4",
+  "phone": "0332-1430297",
+  "dob": "1996-11-01T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.Com",
+      "year": "2020",
+      "institution": "Punjab Uni",
+      "marks": "981",
+      "_id": "65ed59605353edda244c8b91"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2022-03-28T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 13200
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b92",
+  "first_name": "Jahan Ara ",
+  "last_name": "Manzoor",
+  "gender": "Female",
+  "father_name": "Manzoor Hussain",
+  "address": "Laduhar The & Dis Sialkot",
+  "cnic": "34603-8694512-2",
+  "phone": "0348-9749094",
+  "dob": "1997-02-09T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "BSc. Hon",
+      "year": "2020",
+      "institution": "GCWUS",
+      "marks": "2.604 CGPA",
+      "_id": "65ed59605353edda244c8b93"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2022-01-04T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 15400
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b94",
+  "first_name": "Fatima",
+  "last_name": "Asmat",
+  "gender": "Female",
+  "father_name": "Asmat Ali",
+  "address": "Haji Pura Daska road Sialkot",
+  "cnic": "34603-9366679-2",
+  "phone": "0306-3720747",
+  "dob": "1992-02-07T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "BSc",
+      "year": "2016",
+      "institution": "Punjab Uni",
+      "marks": "376",
+      "_id": "65ed59605353edda244c8b95"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2022-01-09T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 17000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b96",
+  "first_name": "Sehar",
+  "last_name": "Mobeen",
+  "gender": "Female",
+  "father_name": "Muhammad Arif",
+  "address": "Boghra Sialkot",
+  "cnic": "34603-3833449-6",
+  "phone": "0304-1762641",
+  "dob": "2002-01-12T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "Alma Fazla",
+      "year": "2019",
+      "institution": "Gujranwala board",
+      "marks": "699",
+      "_id": "65ed59605353edda244c8b97"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2023-03-13T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b98",
+  "first_name": "Nosheen",
+  "last_name": "Mushtaq",
+  "gender": "Female",
+  "father_name": "Mushtaq Husaain",
+  "address": "Fateh Garh Sialkot",
+  "cnic": "37406-6678739-0",
+  "phone": "0314-7042841",
+  "dob": "1984-09-10T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.A M.Ed",
+      "year": "2019",
+      "institution": "A.I.O.U",
+      "marks": "1378",
+      "_id": "65ed59605353edda244c8b99"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "+022023-03-12T19:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 13000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b9a",
+  "first_name": "Ayesha ",
+  "last_name": "Noreen",
+  "gender": "Female",
+  "father_name": "Mehmood Ahmed",
+  "address": "House No. 14/85 Haji Pura Sialkot",
+  "cnic": "34603-9784127-2",
+  "phone": "0307-1313049",
+  "dob": "1991-10-25T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.Ed",
+      "year": "2015",
+      "institution": "Sargoda Uni",
+      "marks": "601",
+      "_id": "65ed59605353edda244c8b9b"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2023-01-03T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 14000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b9c",
+  "first_name": "Waqar Un Nisa",
+  "last_name": "Ahsan",
+  "gender": "Female",
+  "father_name": "Muhammad Ahsanullah",
+  "address": "Boghra Sialkot",
+  "cnic": "34601-7432245-4",
+  "phone": "0346-6770655",
+  "dob": "1995-11-13T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.A",
+      "year": "2016",
+      "institution": "Punjab Uni",
+      "marks": "501",
+      "_id": "65ed59605353edda244c8b9d"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2014-09-16T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 16500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8b9e",
+  "first_name": "Raheela ",
+  "last_name": "Zafar",
+  "gender": "Female",
+  "father_name": "Zafarullah",
+  "address": "Hashim Pura Fateh Garh Sialkot",
+  "cnic": "34603-2107942-8",
+  "phone": "0323-4453455",
+  "dob": "1982-09-17T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2001",
+      "institution": "Gujranwala board",
+      "marks": "602",
+      "_id": "65ed59605353edda244c8b9f"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2001-01-01T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 14000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8ba0",
+  "first_name": "Maryam ",
+  "last_name": "Nazir",
+  "gender": "Female",
+  "father_name": "Muhammad Nazir",
+  "address": "Doburji Malian Sialkot",
+  "cnic": "34603-2895846-8",
+  "phone": "0315-6133531",
+  "dob": "1997-01-15T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "Alma Fazla",
+      "year": "2015",
+      "institution": "Tanzeem ul Madaris",
+      "marks": "821",
+      "_id": "65ed59605353edda244c8ba1"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2017-10-04T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 13500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8ba2",
+  "first_name": "Mishal ",
+  "last_name": "Pervaiz",
+  "gender": "Female",
+  "father_name": "Pervaiz",
+  "address": "Haji pura Sialkot",
+  "cnic": "34603-4769322-4",
+  "phone": "0321-7136649",
+  "dob": "1997-05-24T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2019",
+      "institution": "Punjab Uni",
+      "marks": "384",
+      "_id": "65ed59605353edda244c8ba3"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2018-11-27T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 12500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8ba4",
+  "first_name": "Shaheen ",
+  "last_name": "Nazir",
+  "gender": "Female",
+  "father_name": "Muhammad Nazir",
+  "address": "Haji Pura Ban Sialkot",
+  "cnic": "34603-5398145-6",
+  "phone": "0306-6106008",
+  "dob": "1998-11-10T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.Ed",
+      "year": "2013",
+      "institution": "A.I.O.U",
+      "marks": "592",
+      "_id": "65ed59605353edda244c8ba5"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2018-01-09T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 13000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8ba6",
+  "first_name": "Rabia ",
+  "last_name": "Hussain",
+  "gender": "Female",
+  "father_name": "Muhammad Hussain",
+  "address": "Bhadal Eimanabad road Sialkot",
+  "cnic": "34603-9276669-2",
+  "phone": "0305-4206607",
+  "dob": "1996-05-15T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2018",
+      "institution": "Punjab Uni",
+      "marks": "543",
+      "_id": "65ed59605353edda244c8ba7"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2019-08-27T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 11500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8ba8",
+  "first_name": "Asma",
+  "last_name": "Naeem",
+  "gender": "Female",
+  "father_name": "Abdul Naeem",
+  "address": "Daska road Sialkot",
+  "cnic": "34603-9244613-6",
+  "phone": "0302-7797172",
+  "dob": "1998-02-05T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2019",
+      "institution": "Punjab Uni",
+      "marks": "389",
+      "_id": "65ed59605353edda244c8ba9"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "1919-11-19T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 11000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8baa",
+  "first_name": "Shama",
+  "last_name": "Nazir",
+  "gender": "Female",
+  "father_name": "Nazir Ahmed",
+  "address": "Boghra Sialkot",
+  "cnic": "34603-3929169-4",
+  "phone": "0304-1639419",
+  "dob": "1988-03-15T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A  B.Ed",
+      "year": "2009",
+      "institution": "A.I.O.U",
+      "marks": "590",
+      "_id": "65ed59605353edda244c8bab"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2020-12-03T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 11000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bac",
+  "first_name": "Shiza ",
+  "last_name": "Shahzad",
+  "gender": "Female",
+  "father_name": "Shahzad Ahmed",
+  "address": "Haji Pura Ban Sialkot",
+  "cnic": "34603-2175788-4",
+  "phone": "0322-7429778",
+  "dob": "2000-08-27T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2020",
+      "institution": "Punjab Uni",
+      "marks": "160",
+      "_id": "65ed59605353edda244c8bad"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2021-12-08T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 10000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bae",
+  "first_name": "Aiza ",
+  "last_name": "Liaqat",
+  "gender": "Female",
+  "father_name": "Liaqat Ali",
+  "address": "Haji Pura Daska road Sialkot",
+  "cnic": "34603-3040213-2",
+  "phone": "0316-7794589",
+  "dob": "2004-12-25T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2022",
+      "institution": "Gujranwala board",
+      "marks": "628",
+      "_id": "65ed59605353edda244c8baf"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2021-01-11T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bb0",
+  "first_name": "Zainab ",
+  "last_name": "Nadeem",
+  "gender": "Female",
+  "father_name": "Nadeem Qaisar",
+  "address": "House No. 14/79 Haji Pura Sialkot",
+  "cnic": "34603-5350969-2",
+  "phone": "0309-9894535",
+  "dob": "1999-10-02T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2020",
+      "institution": "Gujranwala board",
+      "marks": "508",
+      "_id": "65ed59605353edda244c8bb1"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2021-04-10T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 10000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bb2",
+  "first_name": "Fatima ",
+  "last_name": "Miraj",
+  "gender": "Female",
+  "father_name": "Miraj Din",
+  "address": "Abad Nagar Sialkot",
+  "cnic": "34603-8953582-6",
+  "phone": "0320-5891549",
+  "dob": "2000-02-17T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "I.Com",
+      "year": "2021",
+      "institution": "Gujranwala board",
+      "marks": "408",
+      "_id": "65ed59605353edda244c8bb3"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2021-11-22T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bb4",
+  "first_name": "Nisah ",
+  "last_name": "Arshad",
+  "gender": "Female",
+  "father_name": "Muhammad Arshad",
+  "address": "Miani Khas Daska road Sialkot",
+  "cnic": "34603-5597263-0",
+  "phone": "0309-1736945",
+  "dob": "2001-11-02T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "BSc.IT",
+      "year": "2022",
+      "institution": "Punjab Uni",
+      "marks": "464",
+      "_id": "65ed59605353edda244c8bb5"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2023-03-15T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bb6",
+  "first_name": "Samina",
+  "last_name": "Mushtaq",
+  "gender": "Female",
+  "father_name": "Mushtaq",
+  "address": "House No.14/108 Haji Pura Sialkot",
+  "cnic": "34603-6322892-8",
+  "phone": "0332-0841896",
+  "dob": "1984-04-11T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2011",
+      "institution": "Punjab Uni",
+      "marks": "428",
+      "_id": "65ed59605353edda244c8bb7"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2021-01-11T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 11000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bb8",
+  "first_name": "Rafia ",
+  "last_name": "Kanwal",
+  "gender": "Female",
+  "father_name": "Muhammad Khalid",
+  "address": "Boghra Sialkot",
+  "cnic": "34603-7691886-8",
+  "phone": "0307-6443260",
+  "dob": "1999-10-03T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2018",
+      "institution": "Gujranwala board",
+      "marks": "476",
+      "_id": "65ed59605353edda244c8bb9"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-12-01T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bba",
+  "first_name": "Fajar",
+  "last_name": "Amjad",
+  "gender": "Female",
+  "father_name": "Amjad Iqbal",
+  "address": "House No. 5/421 Rang Pura Sialkot",
+  "cnic": "34603-6110148-8",
+  "phone": "0307-6466152",
+  "dob": "1999-12-22T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2020",
+      "institution": "Punjab Uni",
+      "marks": "188",
+      "_id": "65ed59605353edda244c8bbb"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-01-14T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bbc",
+  "first_name": "Muneeba",
+  "last_name": "Maqbool",
+  "gender": "Female",
+  "father_name": "Mirza Maqbool Baig",
+  "address": "Mughalanwali Miani Sialkot",
+  "cnic": "34603-1964625-8",
+  "phone": "0320-7908379",
+  "dob": "2001-04-22T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2020",
+      "institution": "Gujranwala board",
+      "marks": "476",
+      "_id": "65ed59605353edda244c8bbd"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-10-03T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bbe",
+  "first_name": "Sumaira ",
+  "last_name": "Mushtaq",
+  "gender": "Female",
+  "father_name": "Muhammad Mushtaq",
+  "address": "House No. 14/108 Haji Pura Sialkot",
+  "cnic": "34603-0684158-8",
+  "phone": "0332-0841896",
+  "dob": "1994-10-10T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2021",
+      "institution": "Gujranwala board",
+      "marks": "514",
+      "_id": "65ed59605353edda244c8bbf"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-11-03T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bc0",
+  "first_name": "Fatima",
+  "last_name": "Waqar",
+  "gender": "Female",
+  "father_name": "Waqar Ali",
+  "address": "Hashim Pura Fateh Garh Sialkot",
+  "cnic": "34603-4727795-2",
+  "phone": "0302-4246631",
+  "dob": "1999-11-17T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2021",
+      "institution": "A.I.O.U",
+      "marks": "808",
+      "_id": "65ed59605353edda244c8bc1"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-11-03T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 11000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bc2",
+  "first_name": "Dua",
+  "last_name": "Shabir",
+  "gender": "Female",
+  "father_name": "Shabir Hussain",
+  "address": "Rawail Pura Sialkot",
+  "cnic": "34603-1020724-0",
+  "phone": "0340-6725094",
+  "dob": "2003-11-08T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2021",
+      "institution": "Gujranwala board",
+      "marks": "790",
+      "_id": "65ed59605353edda244c8bc3"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-03-29T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bc4",
+  "first_name": "Irfa ",
+  "last_name": "Shabir",
+  "gender": "Female",
+  "father_name": "Shabir Hussain",
+  "address": "Rawail Pura Sialkot",
+  "cnic": "34603-8248859-4",
+  "phone": "0340-6725094",
+  "dob": "1999-10-18T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2020",
+      "institution": "Gujranwala board",
+      "marks": "589",
+      "_id": "65ed59605353edda244c8bc5"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-03-31T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bc6",
+  "first_name": "Nimra ",
+  "last_name": "Waqar",
+  "gender": "Female",
+  "father_name": "Waqar Ali",
+  "address": "Hashim Pura Fateh Garh Sialkot",
+  "cnic": "34603-4737295-2",
+  "phone": "0302-4246631",
+  "dob": "2001-03-10T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2021",
+      "institution": "Gujranwala board",
+      "marks": "656",
+      "_id": "65ed59605353edda244c8bc7"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-05-04T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 8000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bc8",
+  "first_name": "Manahil",
+  "last_name": "Kiran",
+  "gender": "Female",
+  "father_name": "Muhammad Manzoor",
+  "address": "Doburji Malian Sialkot",
+  "cnic": "34603-2332975-4",
+  "phone": "0341-8682354",
+  "dob": "2002-02-11T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2021",
+      "institution": "Gujranwala board",
+      "marks": "700",
+      "_id": "65ed59605353edda244c8bc9"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-01-04T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bca",
+  "first_name": "Alishba",
+  "last_name": "Manwar",
+  "gender": "Female",
+  "father_name": "Manwar Hussain",
+  "address": "Buttar Daska road Sialkot",
+  "cnic": "34603-9649904-0",
+  "phone": "0300-6104095",
+  "dob": "1997-01-05T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2018",
+      "institution": "Punjab Uni",
+      "marks": "361",
+      "_id": "65ed59605353edda244c8bcb"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-11-09T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 11000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bcc",
+  "first_name": "Haleema ",
+  "last_name": "Sadia",
+  "gender": "Female",
+  "father_name": "Shabir Ahmed",
+  "address": "Doburji Malian Sialkot",
+  "cnic": "34602-0150502-2",
+  "phone": "0341-8682354",
+  "dob": "2004-09-03T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2021",
+      "institution": "Gujranwala board",
+      "marks": "219",
+      "_id": "65ed59605353edda244c8bcd"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2022-12-14T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 8000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bce",
+  "first_name": "Saneha",
+  "last_name": "Shahid",
+  "gender": "Female",
+  "father_name": "Shahid Mehmood",
+  "address": "Khan Colony Haji Pura Sialkot",
+  "cnic": "34603-5067898-2",
+  "phone": "0300-6176085",
+  "dob": "2004-07-19T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2022",
+      "institution": "Gujranwala board",
+      "marks": "559",
+      "_id": "65ed59605353edda244c8bcf"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2023-10-02T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 8000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bd0",
+  "first_name": "Hifza",
+  "last_name": "Shahzad",
+  "gender": "Female",
+  "father_name": "Muhammad Shahzad",
+  "address": "Boghra Sialkot",
+  "cnic": "34603-4342706-0",
+  "phone": "0302-2376235",
+  "dob": "2003-09-23T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2022",
+      "institution": "Punjab Uni",
+      "marks": "518",
+      "_id": "65ed59605353edda244c8bd1"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2023-03-20T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 10000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bd2",
+  "first_name": "Nisha ",
+  "last_name": "Iqbal",
+  "gender": "Female",
+  "father_name": "Muhammad Iqbal",
+  "address": "Haji Pura Daska road Sialkot",
+  "cnic": "34601-1855081-2",
+  "phone": "0327-6481310",
+  "dob": "2002-10-15T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2021",
+      "institution": "Gujranwala board",
+      "marks": "518",
+      "_id": "65ed59605353edda244c8bd3"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2021-04-11T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 14000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bd4",
+  "first_name": "Bushra ",
+  "last_name": "Kosar",
+  "gender": "Female",
+  "father_name": "Muhammad Nazir",
+  "address": "Doburji Malian Sialkot",
+  "cnic": "",
+  "phone": "0315-6133531",
+  "dob": "2000-10-02T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A",
+      "year": "2018",
+      "institution": "Gujranwala board",
+      "marks": "462",
+      "_id": "65ed59605353edda244c8bd5"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2023-01-04T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 8000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bd6",
+  "first_name": "Iqra ",
+  "last_name": "Shahzadi",
+  "gender": "Female",
+  "father_name": "Shahzad Qamar",
+  "address": "Boghra Sialkot",
+  "cnic": "34603-7212006-4",
+  "phone": "0324-6115475",
+  "dob": "2000-04-06T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.A History",
+      "year": "2023",
+      "institution": "Punjab Uni",
+      "marks": "617",
+      "_id": "65ed59605353edda244c8bd7"
+    }
+  ],
+  "appointment": {
+    "designation": "Primary Teacher",
+    "date": "2023-04-04T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 9900
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bd8",
+  "first_name": "Imran",
+  "last_name": "Shahzad",
+  "gender": "Male",
+  "father_name": "Abdul Rasheed",
+  "address": "House No. 16/376 Bijli ghar Sialkot",
+  "cnic": "34603-2154152-7",
+  "phone": "0333-8637741",
+  "dob": "1976-01-05T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "Pschylogy",
+      "year": "1998",
+      "institution": "Nims",
+      "marks": "260",
+      "_id": "65ed59605353edda244c8bd9"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2007-08-15T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 28000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bda",
+  "first_name": "Rashid ",
+  "last_name": "Iqbal",
+  "gender": "Male",
+  "father_name": "Rana Muhammad Iqbal",
+  "address": "Miani Khas Daska road Sialkot",
+  "cnic": "34603-6557987-9",
+  "phone": "0331-8604225",
+  "dob": "1986-10-17T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.A Economics",
+      "year": "2013",
+      "institution": "Punjab Uni",
+      "marks": "597",
+      "_id": "65ed59605353edda244c8bdb"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2013-01-04T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 24200
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bdc",
+  "first_name": "Muhammad",
+  "last_name": "Arslan",
+  "gender": "Male",
+  "father_name": "Muhammad Naeem",
+  "address": "Muslim Colony Haji Pura Sialkot",
+  "cnic": "34603-8632261-3",
+  "phone": "0308-7025266",
+  "dob": "1995-09-08T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "BSc",
+      "year": "2015",
+      "institution": "U.O.G",
+      "marks": "345",
+      "_id": "65ed59605353edda244c8bdd"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2015-08-09T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 24200
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8bde",
+  "first_name": "Muhammad ",
+  "last_name": "Asim",
+  "gender": "Male",
+  "father_name": "Muhammad Sharif",
+  "address": "Hashim Pura Fateh Garh Sialkot",
+  "cnic": "34603-0853894-9",
+  "phone": "0332-5301828",
+  "dob": "1995-03-15T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A Continue",
+      "year": "2023",
+      "institution": "A.I.O.U",
+      "marks": "",
+      "_id": "65ed59605353edda244c8bdf"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2016-03-06T00:00:00.000Z",
+    "appointed_by": "Madem Malika Saeeda",
+    "salary": 19300
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8be0",
+  "first_name": "Muhammad",
+  "last_name": "Abdullah",
+  "gender": "Male",
+  "father_name": "Muhammad Naeem",
+  "address": "Muslim Colony Haji Pura Sialkot",
+  "cnic": "34603-5593009-5",
+  "phone": "0332-8737110",
+  "dob": "1998-03-27T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "M.Com",
+      "year": "2022",
+      "institution": "Sargoda Uni",
+      "marks": "749",
+      "_id": "65ed59605353edda244c8be1"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2019-01-09T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 20500
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8be2",
+  "first_name": "Hafiz Munawar",
+  "last_name": "Iqbal",
+  "gender": "Male",
+  "father_name": "Ata Muhammad",
+  "address": "Boghra Sialkot",
+  "cnic": "34603-2132870-1",
+  "phone": "0345-6994976",
+  "dob": "1983-01-01T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "B.A",
+      "year": "2015",
+      "institution": "A.I.O.U",
+      "marks": "641",
+      "_id": "65ed59605353edda244c8be3"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2021-11-24T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 18000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8be4",
+  "first_name": "Hafiz Husnain",
+  "last_name": "Rana",
+  "gender": "Male",
+  "father_name": "Shah Jahan Rana",
+  "address": "Khan Mehal Road Sialkot",
+  "cnic": "34603-5077189-3",
+  "phone": "0311-6576221",
+  "dob": "1999-10-04T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A Tafseer Quran",
+      "year": "2019",
+      "institution": "Fedral Board",
+      "marks": "653",
+      "_id": "65ed59605353edda244c8be5"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2021-10-03T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 18000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8be6",
+  "first_name": "Ghulam",
+  "last_name": "Hassan",
+  "gender": "Male",
+  "father_name": "Ranjoo",
+  "address": "House No. 34/19 Main Bazar Sialkot",
+  "cnic": "32103-4700269-3",
+  "phone": "0345-3168128",
+  "dob": "1994-03-02T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "F.A Daras e Nazami",
+      "year": "2020",
+      "institution": "A.I.O.U",
+      "marks": "559",
+      "_id": "65ed59605353edda244c8be7"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2022-08-16T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 15000
+  },
+  "__v": 0
+},
+{
+  "_id": "65ed59605353edda244c8be8",
+  "first_name": "Muhammad",
+  "last_name": "Ali",
+  "gender": "Male",
+  "father_name": "Muhammad Ikram",
+  "address": "Doburji Malian Sialkot",
+  "cnic": "34603-4648994-9",
+  "phone": "0305-6535641",
+  "dob": "2001-06-24T00:00:00.000Z",
+  "qualification": [
+    {
+      "degree": "BS.Math",
+      "year": "2022",
+      "institution": "U.O.G",
+      "marks": "3.35 CGPA",
+      "_id": "65ed59605353edda244c8be9"
+    }
+  ],
+  "appointment": {
+    "designation": "High Teacher",
+    "date": "2022-01-11T00:00:00.000Z",
+    "appointed_by": "Principal",
+    "salary": 15500
+  },
+  "__v": 0
+}]

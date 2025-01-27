@@ -91,7 +91,7 @@ class RedisConnection {
 
 	public async disconnect(): Promise<void> {
 		try {
-			if (this.client.isReady) {
+			if (this.client.isReady && this.client.isOpen) {
 				await this.client.disconnect();
 				this.connecting = false;
 			}
@@ -114,3 +114,5 @@ export default redisConnection.getClient();
 
 // Export connect method for explicit connection management
 export const connectRedis = () => redisConnection.connect();
+
+export const disconnectRedis = () => redisConnection.getClient().disconnect();

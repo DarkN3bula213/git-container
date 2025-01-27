@@ -15,7 +15,7 @@
 		"lint:fix": "pnpm run lint --fix",
 		"prepare": "[ \"$NODE_ENV\" != \"production\" ] && husky install || echo 'Skipping Husky in production'",
 		"start": "ts-node  src/index.ts",
-		"scripts": "ts-node src/scripts",
+		"scripts:reloadTeachers": "ts-node dotenv/config src/scripts/reloadTeachers.ts",
 		"serve": "pnpm build && node dist/index.js",
 		"test:jest": "jest  --verbose --runInBand --detectOpenHandles",
 		"test:watch:jest": "jest  --no-cache --detectOpenHandles",

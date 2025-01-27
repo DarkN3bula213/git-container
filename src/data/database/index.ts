@@ -16,8 +16,9 @@ if (config.isDocker) {
 } else {
 	conStr = URI;
 }
-const options = {
+const options: ConnectOptions = {
 	autoIndex: true,
+
 	minPoolSize: 5,
 	maxPoolSize: 10,
 	connectTimeoutMS: 60000,
@@ -113,6 +114,13 @@ class DBClient {
 	private getConnectionOptions(): ConnectOptions {
 		return {
 			autoIndex: true,
+			autoCreate: true,
+			writeConcern: {
+				w: 'majority',
+				j: true,
+				fsync: true
+			},
+			readPreference: 'primary',
 			minPoolSize: this.config.minPoolSize,
 			maxPoolSize: this.config.maxPoolSize,
 			connectTimeoutMS: this.config.connectionTimeout,

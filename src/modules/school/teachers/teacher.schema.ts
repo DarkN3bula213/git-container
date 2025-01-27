@@ -1,3 +1,4 @@
+import { JoiObjectId, validateReq } from '@/lib/handlers/validate';
 import Joi from 'joi';
 
 // Joi schema for Teacher
@@ -24,4 +25,10 @@ export const fetchTeacherParamsSchema = Joi.object({
 	cnic: Joi.string()
 		.required()
 		.regex(/^\d{5}-\d{7}-\d{1}$/)
+});
+
+export const getTeacherByIdSchema = validateReq({
+	params: Joi.object({
+		id: JoiObjectId
+	})
 });
