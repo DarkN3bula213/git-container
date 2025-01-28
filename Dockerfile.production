@@ -84,6 +84,8 @@ RUN rm -rf dist
 # Build
 RUN pnpm build
 
+RUN mkdir -p dist/scripts && cp src/scripts/transformed_teachers.json dist/scripts/
+
 RUN ls dist
 
 # Production stage
