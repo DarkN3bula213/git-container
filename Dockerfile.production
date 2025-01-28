@@ -65,8 +65,8 @@ ENV NODE_ENV=production
 # Clear npm cache first
 RUN npm cache clean --force 
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and typescript globally
+RUN npm install -g pnpm typescript@5.4.5 tsc-alias
 
 # Copy package files
 COPY package*.json pnpm-lock.yaml ./
@@ -80,8 +80,10 @@ COPY . .
 # Clean any existing build artifacts
 RUN rm -rf dist
 
-# Build
-RUN pnpm build
+# Build using local typescript
+RUN pnpm run clear && \
+    npx tsc && \
+    npx tsc-alias
 
 RUN mkdir -p dist/scripts && cp src/scripts/transformed_teachers.json dist/scripts/
 
