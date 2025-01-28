@@ -59,6 +59,9 @@
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
 
+# Set NODE_ENV for the build stage
+ENV NODE_ENV=production
+
 # Clear npm cache first
 RUN npm cache clean --force 
 
@@ -77,10 +80,6 @@ COPY . .
 # Clean any existing build artifacts
 RUN rm -rf dist
 
-# Add debugging for TypeScript compilation
-# RUN pnpm tsc --listFiles
-# RUN pnpm tsc --traceResolution
-
 # Build
 RUN pnpm build
 
@@ -92,19 +91,18 @@ RUN ls dist
 FROM node:18-alpine
 WORKDIR /usr/src/app
 
+# Set environment variables early in the final stage
+ENV NODE_ENV=production \
+    DOCKER_BUILD=true \
+    PORT=3000 \
+    TZ=Asia/Karachi
+
 # Install tzdata and set timezone
 RUN apk add --no-cache tzdata
-ENV TZ=Asia/Karachi
 
 # Copy built files and dependencies
 COPY --from=builder /usr/src/app/dist ./dist
 COPY package*.json pnpm-lock.yaml ./
-
-# Set environment variables
-ENV DOCKER_BUILD=true
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV TZ=Asia/Karachi
 
 # Clean install production dependencies
 RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod

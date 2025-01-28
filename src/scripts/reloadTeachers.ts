@@ -1,7 +1,9 @@
 // import { config } from '@/lib/config/config';
+import { config } from '@/lib/config/config';
 import { Logger } from '@/lib/logger';
 import TeacherModel from '@/modules/school/teachers/teacher.model';
 import fs from 'fs/promises';
+import path from 'path';
 
 const logger = new Logger(__filename);
 
@@ -15,10 +17,18 @@ export async function main() {
 		logger.info('Deleting existing teachers...');
 		await TeacherModel.deleteMany({});
 
-		// Read the transformed data
-		const teachers = JSON.parse(
-			await fs.readFile('src/scripts/transformed_teachers.json', 'utf-8')
+		// Determine the correct file path based on environment
+		const filePath = config.isProduction
+			? path.join(process.cwd(), 'dist/scripts/transformed_teachers.json')
+			: path.join(process.cwd(), 'src/scripts/transformed_teachers.json');
+
+		logger.info(
+			`Environment: ${config.node}, isProduction: ${config.isProduction}`
 		);
+		logger.info(`Reading teachers data from: ${filePath}`);
+
+		// Read the transformed data
+		const teachers = JSON.parse(await fs.readFile(filePath, 'utf-8'));
 
 		logger.info('Inserting transformed teachers data...');
 		const result = await TeacherModel.insertMany(teachers);
