@@ -110,9 +110,6 @@ RUN ls dist
 
 # Verify timezone setup (optional, can be removed in production)
 RUN date
-RUN mkdir -p dist/scripts
 
 EXPOSE ${PORT}
 CMD ["node", "dist/index.js"]
-
-

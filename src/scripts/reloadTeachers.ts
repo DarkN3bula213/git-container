@@ -17,10 +17,11 @@ export async function main() {
 		logger.info('Deleting existing teachers...');
 		await TeacherModel.deleteMany({});
 
-		// Determine the correct file path based on environment
-		const filePath = config.isProduction
-			? path.join(process.cwd(), 'dist/scripts/transformed_teachers.json')
-			: path.join(process.cwd(), 'src/scripts/transformed_teachers.json');
+		// Look for the file in the migrations directory
+		const filePath = path.join(
+			process.cwd(),
+			'migrations/transformed_teachers.json'
+		);
 
 		logger.info(
 			`Environment: ${config.node}, isProduction: ${config.isProduction}`

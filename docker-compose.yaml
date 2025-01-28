@@ -14,8 +14,7 @@ services:
             - REDIS_URL=redis://redis
         volumes:
             - ./logs:/usr/src/app/logs
-            - ./dist:/usr/src/app/dist
-            - ./src/scripts/transformed_teachers.json:/usr/src/app/dist/scripts/transformed_teachers.json
+            - ./migrations:/usr/src/app/migrations
             - uploads_volume:/usr/src/app/uploads
         depends_on:
             - redis
