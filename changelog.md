@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/DarkN3bula213/git-container/compare/v1.7.0...v1.8.0) (2025-01-29)
+
+
+### Features
+
+* improve Docker build and pre-commit checks ([57f0c07](https://github.com/DarkN3bula213/git-container/commit/57f0c07efd3c7480ae280c82049e63a93ebbaa22))
+
+
+### Bug Fixes
+
+* docker build fail 3 ([d766762](https://github.com/DarkN3bula213/git-container/commit/d766762abfc64b65b43fb60d6573788550b6bf05))
+* docker build fail 4 ([9a86344](https://github.com/DarkN3bula213/git-container/commit/9a863443e97771ec85324331cd5d4e048a83bd9d))
+* docker build fail 5 ([24b33e5](https://github.com/DarkN3bula213/git-container/commit/24b33e5e4384b8c1d7f3ddda33c21ee0f71d6693))
+* docker file fix ([6c0e84c](https://github.com/DarkN3bula213/git-container/commit/6c0e84c35cdb53f6ad1db3802fb23f7da57ce728))
+* docker file fix 2 ([68f0b07](https://github.com/DarkN3bula213/git-container/commit/68f0b07728bf7505395c780455d6acaedf41fd9f))
+* include transformed teachers JSON in production build ([541f5b1](https://github.com/DarkN3bula213/git-container/commit/541f5b185734d7d241aa8056fa9ca3ab2e806022))
+* remove TypeScript compilation debugging and update teacher import ([2c6c3b3](https://github.com/DarkN3bula213/git-container/commit/2c6c3b36edf55806bab3174778fca008684614ef))
+
+
+### Code Refactoring
+
+* replace `config.production` with `config.isProduction` ([7e81138](https://github.com/DarkN3bula213/git-container/commit/7e811380aa3a11785b0b08d4ee4e6cd4b9cdd1a1))
+
 ## [1.7.0](https://github.com/DarkN3bula213/git-container/compare/v1.6.1...v1.7.0) (2025-01-27)
 
 
