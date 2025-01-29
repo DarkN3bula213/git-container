@@ -3,7 +3,7 @@ import { db } from '@/data/database';
 import { initializeConfig } from '@/lib/config';
 import { getUploadsDir } from '@/lib/constants';
 import { Logger } from '@/lib/logger';
-import subjectMigration from '@/scripts/subjectMigration';
+// import subjectMigration from '@/scripts/subjectMigration';
 import { setupCronJobs } from '@/services/cron';
 import { sendOnDeployment } from '@/services/mail/mailTrap';
 import SocketService from '@/sockets';
@@ -51,7 +51,7 @@ export const initializeServer = {
 
 	async productionTasks() {
 		setupCronJobs();
-		await subjectMigration.migrate({ dryRun: true });
+		// await subjectMigration.migrate({ dryRun: true });
 		await sendOnDeployment();
 		logger.info('Production tasks completed');
 	}

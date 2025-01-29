@@ -278,7 +278,7 @@ export const sendDeploymentSuccessEmail = async (
  */
 
 export const sendOnDeployment = async () => {
-	await sendDeploymentSuccessEmail('a.ateeb@proton.me', {
+	await sendDeploymentSuccessEmail(config.mail.adminEmail, {
 		adminName: 'Admin',
 		appName: 'HPS Backend',
 		deploymentTime: dayjs(new Date()).format('DD-MM-YYYY HH:mm:ss'),
@@ -291,6 +291,9 @@ export const sendOnDeployment = async () => {
 		senderRole: 'DevOps Engineer',
 		companyName: 'HPS',
 		serviceName: 'Automated Deployment Service'
+	}).catch((error) => {
+		logger.error('Error sending deployment success email:', error);
+		throw new Error(`Error sending deployment success email: ${error}`);
 	});
 };
 

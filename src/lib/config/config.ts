@@ -132,6 +132,7 @@ class Config {
 				token: getOsEnv('MAILTRAP_TOKEN'),
 				address: getOsEnv('SENDER_EMAIL'),
 				url: getOsEnv('CLIENT_URL'),
+				adminEmail: getOsEnv('ADMIN_EMAIL'),
 
 				auth: {
 					user: getOsEnv('EMAIL_USER'),

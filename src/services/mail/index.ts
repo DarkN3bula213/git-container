@@ -10,8 +10,8 @@ const logger = new Logger('Mailtrap');
 
 export const client = Nodemailer.createTransport(
 	MailtrapTransport({
-		token: config.mail.test.token,
-		testInboxId: Number(config.mail.test.inboxId)
+		token: config.mail.token
+		// testInboxId: Number(config.mail.test.inboxId)
 	}),
 	{
 		debug: true,
@@ -25,6 +25,7 @@ client.on('error', (err) => {
 	console.error(err);
 	logger.error('Mailtrap transport error:', err);
 });
+
 interface SendEmailWithTemplate {
 	to: string;
 	subject: string;
@@ -45,6 +46,11 @@ interface SendEmailWithHtml {
 }
 
 type SendEmailProps = SendEmailWithTemplate | SendEmailWithHtml;
+
+interface MailError extends Error {
+	code?: string;
+	command?: string;
+}
 
 const sendEmail = async (props: SendEmailProps) => {
 	let htmlTemplate: string;
@@ -69,17 +75,54 @@ const sendEmail = async (props: SendEmailProps) => {
 			name: props.title ?? 'HPS Admin Support Team'
 		},
 		subject: props.subject,
-		html: htmlTemplate,
-		sandbox: !config.isProduction
+		html: htmlTemplate
 	};
 
 	try {
+		logger.debug('Attempting to send email', {
+			to: props.to,
+			subject: props.subject,
+			templateName:
+				'templateName' in props ? props.templateName : undefined
+		});
+
 		const result = await client.sendMail(request);
-		logger.debug({ result });
-		return result;
+
+		logger.debug('Email sent successfully', {
+			messageId: result.messageId,
+			response: result.response,
+			to: props.to
+		});
+
+		return {
+			success: true,
+			result
+		};
 	} catch (error) {
-		logger.error('Error sending email:', error);
-		throw error; // This will now properly propagate to the transaction
+		const mailError = error as MailError;
+
+		// Log detailed error information
+		logger.error({
+			name: mailError.name,
+			message: mailError.message,
+			code: mailError.code,
+			command: mailError.command,
+			stack: mailError.stack,
+			to: props.to,
+			subject: props.subject,
+			templateName:
+				'templateName' in props ? props.templateName : undefined
+		});
+
+		// Return error information instead of throwing
+		return {
+			success: false,
+			error: {
+				message: mailError.message,
+				code: mailError.code,
+				name: mailError.name
+			}
+		};
 	}
 };
 
