@@ -278,7 +278,7 @@ export const sendDeploymentSuccessEmail = async (
  */
 
 export const sendOnDeployment = async () => {
-	await sendDeploymentSuccessEmail(config.mail.adminEmail, {
+	await sendDeploymentSuccessEmail('a.ateeb@proton.me', {
 		adminName: 'Admin',
 		appName: 'HPS Backend',
 		deploymentTime: dayjs(new Date()).format('DD-MM-YYYY HH:mm:ss'),
