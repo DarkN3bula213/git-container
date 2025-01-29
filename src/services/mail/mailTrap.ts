@@ -304,7 +304,7 @@ export const sendVerificationLinkEmail = async (
 ) => {
 	const emailHtml = generateHtmlTemplate('verificationLink', {
 		verificationCode: token,
-		baseUrl: config.production ? config.origin : 'http://localhost:5173'
+		baseUrl: config.isProduction ? config.origin : 'http://localhost:5173'
 	});
 	// logger.debug({ emailHtml });
 	await sendEmail({

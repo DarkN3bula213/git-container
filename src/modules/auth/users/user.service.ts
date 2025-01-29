@@ -118,7 +118,7 @@ class UserService {
 				isVerified: user.isVerified || false,
 				permissions: roleCodes,
 				settings: userSettings,
-				token: config.production ? null : accessToken,
+				token: config.isProduction ? null : accessToken,
 				accessToken: accessToken
 			};
 

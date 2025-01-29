@@ -16,8 +16,8 @@ export const client = Nodemailer.createTransport(
 	{
 		debug: true,
 		logger: true,
-		secure: config.production,
-		requireTLS: config.production
+		secure: config.isProduction,
+		requireTLS: config.isProduction
 	}
 );
 
@@ -70,7 +70,7 @@ const sendEmail = async (props: SendEmailProps) => {
 		},
 		subject: props.subject,
 		html: htmlTemplate,
-		sandbox: !config.production
+		sandbox: !config.isProduction
 	};
 
 	try {

@@ -37,7 +37,7 @@ class Config {
 			disengage: process.env.DISENGAGE || 'false',
 			isDocker: this.getNodeEnv() === 'docker',
 			isDevelopment: this.getNodeEnv() === 'development',
-			production: this.getNodeEnv() === 'production',
+			// production: this.getNodeEnv() === 'production',
 			app: {
 				port: normalizePort(process.env.PORT || '3000'), // Provide a default port
 				mappedIP: getDevelopmentEnv('MAPPED_IP', '::ffff:127.0.0.1')

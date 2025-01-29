@@ -187,7 +187,7 @@ class AuthService {
 				permissions: roleCodes,
 				settings: userSettings,
 				verificationPending: !!user.verificationToken,
-				token: config.production ? null : accessToken,
+				token: config.isProduction ? null : accessToken,
 				accessToken: accessToken
 			};
 

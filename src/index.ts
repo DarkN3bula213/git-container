@@ -4,7 +4,6 @@ import http from 'node:http';
 import { app } from './app';
 import { banner } from './lib/constants';
 import { Logger } from './lib/logger';
-import { main } from './scripts/reloadTeachers';
 import { initializeServer } from './server/initialize';
 import { ServerContext, setupGracefulShutdown } from './server/shutdown';
 
@@ -38,7 +37,7 @@ async function logServerStartup(): Promise<void> {
 		date: format(date, 'PPP'),
 		timeZone,
 		pkTime,
-		mode: config.production ? 'Production' : 'Development'
+		mode: config.isProduction ? 'Production' : 'Development'
 	});
 }
 
@@ -57,14 +56,14 @@ async function bootstrap() {
 		const serverContext = await createServerContext();
 
 		// Production-specific initialization
-		if (config.production) {
+		if (config.isProduction) {
 			await initializeServer.productionTasks();
 		}
 
 		// Start server
 		serverContext.server.listen(serverContext.port, async () => {
 			await logServerStartup();
-			await main().catch(console.error);
+			// await main().catch(console.error);
 		});
 
 		// Setup graceful shutdown handlers

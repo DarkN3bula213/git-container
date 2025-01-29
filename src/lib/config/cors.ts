@@ -10,7 +10,7 @@ export const corsOptions: cors.CorsOptions = {
 	origin: function (origin, callback) {
 		if (
 			origin &&
-			origins[config.production ? 'prod' : 'dev'].includes(origin)
+			origins[config.isProduction ? 'prod' : 'dev'].includes(origin)
 		) {
 			callback(null, true);
 		} else {
