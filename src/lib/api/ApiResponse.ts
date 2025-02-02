@@ -163,3 +163,36 @@ export class DuplicateKeyResponse extends ApiResponse {
 		super(StatusCode.FAILURE, ResponseStatus.DUPLICATE_KEY, message);
 	}
 }
+
+export class DocumentResponse extends ApiResponse {
+	constructor(
+		private readonly data: Buffer,
+		private readonly filename: string,
+		private readonly mimeType: string
+	) {
+		super(
+			StatusCode.SUCCESS,
+			ResponseStatus.SUCCESS,
+			'Document generated successfully'
+		);
+	}
+
+	send(res: Response, headers: { [key: string]: string } = {}): Response {
+		// Set content disposition and type headers
+		headers['Content-Disposition'] =
+			`attachment; filename="${this.filename}"`;
+		headers['Content-Type'] = this.mimeType;
+		headers['Content-Length'] = this.data.length.toString();
+
+		// Send the buffer directly instead of JSON
+		return res.status(this.status).set(headers).send(this.data);
+	}
+}
+
+// Common MIME types for easy reference
+export const DocumentMimeTypes = {
+	XLSX: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	PDF: 'application/pdf',
+	CSV: 'text/csv',
+	JSON: 'application/json'
+} as const;

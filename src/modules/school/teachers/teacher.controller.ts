@@ -30,7 +30,7 @@ export const getTeacherById = asyncHandler(async (req, res) => {
 	const { id } = req.params;
 	logger.info(id);
 	const teacher = (await TeacherModel.findOne({ _id: id })) as object;
-	logger.info(teacher ?? 'teacher not found');
+
 	if (!teacher) {
 		throw new NotFoundError('Teacher not found');
 	}

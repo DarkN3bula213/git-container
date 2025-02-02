@@ -4,6 +4,7 @@ import http from 'node:http';
 import { app } from './app';
 import { banner } from './lib/constants';
 import { Logger } from './lib/logger';
+// import { testInvoiceIdGenerator } from './lib/utils/generators';
 import { initializeServer } from './server/initialize';
 import { ServerContext, setupGracefulShutdown } from './server/shutdown';
 
@@ -63,7 +64,7 @@ async function bootstrap() {
 		// Start server
 		serverContext.server.listen(serverContext.port, async () => {
 			await logServerStartup();
-			// await main().catch(console.error);
+			// await testInvoiceIdGenerator();
 		});
 
 		// Setup graceful shutdown handlers

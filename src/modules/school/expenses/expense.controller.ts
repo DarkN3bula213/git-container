@@ -63,7 +63,7 @@ export const createExpense = asyncHandler(async (req, res) => {
 					};
 
 					const newExpense = await Expenses.create(expenseData);
-					logger.debug(newExpense);
+					logger.info('New Expense Created', { newExpense });
 					res.status(201).json(newExpense);
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				} catch (error: any) {

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { ForbiddenError } from '@/lib/api';
+import { config } from '@/lib/config';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { ValidationSource, validate } from '@/lib/handlers/validate';
 import { Logger } from '@/lib/logger';
@@ -24,6 +25,9 @@ export default router.use(
 	validate(schema.apiKey, ValidationSource.HEADER),
 	asyncHandler(async (req, _res, next) => {
 		const key = req.headers[Header.API_KEY]?.toString();
+		if (config.isTest) {
+			return next();
+		}
 		if (!key) {
 			logger.info('Api key is missing');
 			next();

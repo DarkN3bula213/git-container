@@ -5,20 +5,15 @@ import supertest from 'supertest';
 import { vi } from 'vitest';
 import { app } from '../src/app';
 import { cache } from '../src/data/cache/cache.service';
+import { config } from '../src/lib/config';
 import { Logger } from '../src/lib/logger';
 
-
+const URI = `mongodb://${config.mongo.user}:${encodeURIComponent(config.mongo.pass)}@127.0.0.1:27017/docker-db?replicaSet=rs0`;
 // import teardown from './teardown';
 // import * as db from './tests.db';
 // Mock the file system operations
-vi.mock('node:fs', () => ({
-	default: {
-		mkdirSync: vi.fn(),
-		existsSync: vi.fn(() => true)
-	}
-}));
-
  
+
 let mockLogger: any;
 
 dotenv.config({ path: './tests/.env.test' });
@@ -29,26 +24,19 @@ const replSet = new MongoMemoryReplSet({
 		name: 'testset'
 	}
 });
-const request = supertest(app); 
+const request = supertest(app);
 beforeAll(async () => {
 	// Disconnect any existing connections
 	await mongoose.disconnect();
 	// await cache.getClient().quit();
-	mockLogger = new Logger('test');
-
-	// Start the replica set
-	await replSet.start();
-
-	// Get the connection URI
-	const uri = replSet.getUri();
 
 	// Connect to the in-memory database
-	await mongoose.connect(uri, {
+	await mongoose.connect(URI, {
 		directConnection: true
 	});
 
 	// Connect to cache (assuming Redis)
-	await cache.connect();
+	// await cache.getClient().connect();
 });
 afterEach(async () => {
 	// Clear all mock logger calls
