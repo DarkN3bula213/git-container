@@ -4,7 +4,6 @@ import http from 'node:http';
 import { app } from './app';
 import { banner } from './lib/constants';
 import { Logger } from './lib/logger';
-// import { testInvoiceIdGenerator } from './lib/utils/generators';
 import { initializeServer } from './server/initialize';
 import { ServerContext, setupGracefulShutdown } from './server/shutdown';
 
@@ -32,7 +31,7 @@ async function logServerStartup(): Promise<void> {
 		hour12: false
 	}).format(date);
 
-	logger.warn({
+	logger.warn('🚀 Server started', {
 		port: config.app.port,
 		node: banner,
 		date: format(date, 'PPP'),

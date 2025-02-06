@@ -1,6 +1,7 @@
 import { withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
-import { ClassModel, IClass } from '../classes/class.model';
+import ClassModel from '../classes/class.model';
+import { IClass } from '../classes/interfaces';
 import paymentModel from '../payments/payment.model';
 import { Student } from './student.interface';
 import StudentModel from './student.model';

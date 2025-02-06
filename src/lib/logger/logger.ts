@@ -4,6 +4,7 @@ import path from 'node:path';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { config } from '../config/config';
+import { formatObject } from './loggerFormats';
 
 // Configure log directory
 const logDir = (() => {
@@ -45,14 +46,14 @@ const getColor = (level: string) => {
 
 // Custom timestamp format
 const getFormattedTimestamp = () => {
-	const timestamp = new Date().toLocaleString('en-US', {
-		month: '2-digit',
-		day: '2-digit',
-		hour: '2-digit',
-		minute: '2-digit',
-		second: '2-digit',
-		hour12: false
-	});
+	const timestamp =
+		new Date().toLocaleString('en-US', {
+			hour: '2-digit',
+			minute: '2-digit',
+			second: 'numeric',
+			hour12: false,
+			timeZone: 'Asia/Karachi'
+		}) + `.${new Date().getMilliseconds().toString().padStart(3, '0')}`;
 	return colors.gray(`| + | ${timestamp}`);
 };
 
@@ -62,7 +63,7 @@ const consoleFormat = winston.format.combine(
 	winston.format.timestamp(),
 	winston.format.printf((info) => {
 		const color = getColor(info.level);
-		const level = color(info.level.padEnd(5).toUpperCase());
+		const level = color(info.level.toUpperCase());
 		const timestamp = getFormattedTimestamp();
 		const scope = info.scope
 			? colors.cyan(
@@ -70,23 +71,13 @@ const consoleFormat = winston.format.combine(
 				)
 			: '';
 
-		// Handle object logging (e.g., { event: "some event", message: "some log" })
 		let message = info.message;
-		if (typeof message === 'object' && message !== null) {
-			try {
-				message = Object.entries(message)
-					.map(
-						([key, value]) =>
-							`${colors.yellow(key)}: ${colors.green(JSON.stringify(value))}`
-					)
-					.join(', ');
-			} catch {
-				message = colors.red('[Error formatting log message]');
-			}
-		}
 
+		if (typeof message === 'object') {
+			message = formatObject(info.scope, message);
+		}
 		const stack = info.stack ? `\n${colors.gray(info.stack)}` : '';
-		return `${timestamp} [${level}] ${scope}: ${message}${stack}`;
+		return `${timestamp} [${level}]${scope}: ${message}${stack}`;
 	})
 );
 
@@ -188,8 +179,12 @@ export class Logger {
 		message: string | Record<string, unknown>,
 		meta: any[]
 	) {
-		if (typeof message === 'object') {
-			this.logger.log(level, { ...message, meta });
+		if (typeof message === 'object' && message !== null) {
+			const formattedMessage = formatObject(
+				this.logger.defaultMeta?.scope as string,
+				message
+			);
+			this.logger.log(level, formattedMessage);
 		} else {
 			this.logger.log(level, message, ...meta);
 		}

@@ -91,7 +91,7 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 
 # Install tzdata and set timezone
-RUN apk add --no-cache tzdata
+RUN apk add --no-cache mongodb-tools tzdata
 ENV TZ=Asia/Karachi
 
 # Copy built files and dependencies

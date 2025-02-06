@@ -37,7 +37,6 @@ const handleExistingConnection = (
 	const newSocketId = socket.id;
 	const username = socket.data.username as string;
 	const userId = socket.data.userId as string;
-	logger.info({ newSocketId });
 
 	/*<-1. Update user socket ---------------------------------*/
 	updateUserSocket(connectedUsers, sessionId, newSocketId);

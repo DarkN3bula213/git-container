@@ -1,21 +1,44 @@
-import { type Document, Schema, Types, model } from 'mongoose';
-import { generateSubjectId } from './class.utils';
+import { Schema, Types, model } from 'mongoose';
+import {
+	IClass,
+	IClassSection,
+	IClassSubject,
+	IFeeHistory
+} from './interfaces';
 
-export interface IClassSubject {
-	_id?: Types.ObjectId;
-	classId: Types.ObjectId;
-	subjectId: string;
-	name: string;
-	level: string;
-	teacherId?: string;
-	teacherName?: string;
-	prescribedBooks?: string[];
-}
+const classSectionSchema = new Schema<IClassSection>(
+	{
+		section: {
+			type: String,
+			enum: ['A', 'B', 'C', 'D', 'E'],
+			required: true
+		},
+		teacherId: {
+			type: Schema.Types.ObjectId,
+			required: true
+		},
+		teacherName: {
+			type: String,
+			required: true
+		},
+		configuration: {
+			type: String,
+			enum: ['mixed', 'boys', 'girls'],
+			required: true
+		}
+	},
+	{
+		timestamps: true,
+		versionKey: false,
+		_id: false
+	}
+);
+
 const classSubjectSchema = new Schema<IClassSubject>(
 	{
 		classId: {
 			type: Schema.Types.ObjectId,
-			// ref: 'Class',
+			ref: 'Class',
 			required: true
 		},
 		name: {
@@ -45,20 +68,33 @@ const classSubjectSchema = new Schema<IClassSubject>(
 		}
 	},
 	{
-		timestamps: true
+		timestamps: true,
+		versionKey: false,
+		_id: false
 	}
 );
-export interface IClass extends Document {
-	className: string;
-	section: string[];
-	fee: number;
-	subjects: IClassSubject[];
-	classTeacher?: {
-		teacherId: Types.ObjectId;
-		teacherName: string;
-	};
-}
 
+const feeHistorySchema = new Schema<IFeeHistory>(
+	{
+		fee: {
+			type: Schema.Types.Number,
+			required: true
+		},
+		effectiveFrom: {
+			type: Schema.Types.Date,
+			required: true
+		},
+		reason: {
+			type: Schema.Types.String
+		},
+		updatedBy: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			required: true
+		}
+	},
+	{ _id: false }
+);
 const schema = new Schema<IClass>(
 	{
 		className: {
@@ -78,21 +114,26 @@ const schema = new Schema<IClass>(
 				'10th'
 			],
 			trim: true,
-
 			unique: true,
 			required: true
 		},
 		section: {
 			type: [Schema.Types.String],
+			enum: ['A', 'B', 'C', 'D', 'E'],
 			required: true
 		},
 		fee: {
 			type: Schema.Types.Number,
-			required: true
+			required: true,
+			min: 0
 		},
 		subjects: {
 			type: [classSubjectSchema],
-			required: true
+			required: false
+		},
+		sections: {
+			type: [classSectionSchema],
+			required: false
 		},
 		classTeacher: {
 			type: {
@@ -103,7 +144,24 @@ const schema = new Schema<IClass>(
 				teacherName: {
 					type: Schema.Types.String
 				}
-			}
+			},
+			required: false
+		},
+		updatedBy: {
+			type: {
+				userId: {
+					type: Schema.Types.ObjectId,
+					ref: 'User'
+				},
+				userName: {
+					type: Schema.Types.String
+				}
+			},
+			required: false
+		},
+		feeHistory: {
+			type: [feeHistorySchema],
+			required: false
 		}
 	},
 	{
@@ -111,27 +169,20 @@ const schema = new Schema<IClass>(
 		versionKey: false
 	}
 );
-export const ClassModel = model<IClass>('Class', schema);
 
-export function createIClassSubject(
-	data: Partial<IClassSubject>,
-	className: string,
-	classId: Types.ObjectId,
-	teacherName: string
-): IClassSubject {
-	if (!data.name) {
-		throw new Error('Missing required fields');
+// Add a pre-save middleware to track fee changes
+schema.pre('save', function (next) {
+	if (this.isModified('fee')) {
+		const currentFee = this.fee;
+		const feeHistoryEntry: IFeeHistory = {
+			fee: currentFee,
+			effectiveFrom: new Date(),
+			updatedBy: this.updatedBy?.userId ?? new Types.ObjectId()
+		};
+		this.feeHistory.push(feeHistoryEntry);
 	}
-	const dataTransform: IClassSubject = {
-		_id: data._id ?? new Types.ObjectId(),
-		subjectId: generateSubjectId(data.name, className),
-		name: data.name,
-		teacherId: data.teacherId ?? '', // Ensure optional fields are handled
-		classId: classId,
-		level: className,
-		prescribedBooks: data.prescribedBooks ?? [],
-		teacherName: teacherName
-	};
+	next();
+});
+const ClassModel = model<IClass>('Class', schema);
 
-	return dataTransform;
-}
+export default ClassModel;

@@ -1,7 +1,7 @@
 import { Logger } from '@/lib/logger';
 import QueueFactory from '@/queues';
 import type Bull from 'bull';
-import { ClassModel } from '../classes/class.model';
+import ClassModel from '../classes/class.model';
 import StudentModel from '../students/student.model';
 import paymentModel from './payment.model';
 import { getPayId } from './payment.utils';

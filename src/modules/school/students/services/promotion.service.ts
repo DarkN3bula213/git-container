@@ -1,6 +1,7 @@
 import { withTransaction } from '@/data/database/db.utils';
 import { ClientSession } from 'mongoose';
-import { ClassModel, IClass } from '../../classes/class.model';
+import ClassModel from '../../classes/class.model';
+import { IClass } from '../../classes/interfaces';
 import { Student } from '../student.interface';
 import StudentModel from '../student.model';
 

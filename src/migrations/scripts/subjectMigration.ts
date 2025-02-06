@@ -1,7 +1,7 @@
 // migrations/subjectMigration.ts
 import { withTransaction } from '@/data/database/db.utils';
 import { Logger } from '@/lib/logger';
-import { ClassModel } from '@/modules/school/classes/class.model';
+import ClassModel from '@/modules/school/classes/class.model';
 import { generateSubjectsData } from '@/modules/school/subjects/subject.data';
 import { ISubject, Subject } from '@/modules/school/subjects/subject.model';
 import mongoose, { ClientSession } from 'mongoose';

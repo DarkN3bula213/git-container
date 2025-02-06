@@ -1,4 +1,5 @@
 import { ValidClassName } from '@/lib/constants/classOrder';
+import { writeFileSync } from 'fs-extra';
 import { ISubject, SubjectType } from './subject.model';
 import { generateSubjectCode } from './subject.utils';
 import { validateSubjectData } from './subject.utils';
@@ -130,4 +131,10 @@ export const generateSubjectsData = (): Partial<ISubject>[] => {
 	});
 
 	return subjects;
+};
+
+export const writeSubsToFs = () => {
+	const subjects = generateSubjectsData();
+
+	writeFileSync('subjects.json', JSON.stringify(subjects, null, 2));
 };

@@ -2,7 +2,7 @@ import { cache } from '@/data/cache/cache.service';
 import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
-import { ClassModel } from './class.model';
+import ClassModel from './class.model';
 import classService from './class.service';
 
 /*<!----------------------------------------(GET ROUTES) */
@@ -51,15 +51,15 @@ export const deleteAll = asyncHandler(async (_req, res) => {
 	new SuccessResponse('All classes deleted', data).send(res);
 });
 
-export const findClassByName = asyncHandler(async (req, res) => {
-	const data = await ClassModel.find({ className: req.params.name })
-		.lean()
-		.exec();
-	if (data.length === 0) {
-		throw new BadRequestError('Class not found');
-	}
-	new SuccessResponse(' Class', data).send(res);
-});
+// export const findClassByName = asyncHandler(async (req, res) => {
+// 	const data = await ClassModel.find({ className: req.params.name })
+// 		.lean()
+// 		.exec();
+// 	if (data.length === 0) {
+// 		throw new BadRequestError('Class not found');
+// 	}
+// 	new SuccessResponse(' Class', data).send(res);
+// });
 
 export const updateClassFee = asyncHandler(async (req, res) => {
 	const data = await ClassModel.find({ className: req.params.name })

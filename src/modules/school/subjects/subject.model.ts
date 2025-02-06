@@ -1,7 +1,7 @@
 // models/Subject.ts
 import { ValidClassName } from '@/lib/constants/classOrder';
 import mongoose, { Document, Schema } from 'mongoose';
-import { IClass } from '../classes/class.model';
+import { IClass } from '../classes/interfaces';
 
 export interface ISubject extends Document {
 	code: string;

@@ -7,7 +7,7 @@ import { sortStudentsByClassAndSection } from '@/lib/utils/utils';
 import type { User } from '@/modules/auth/users/user.model';
 import { endOfDay, isAfter, isValid, parseISO, startOfDay } from 'date-fns';
 import { Types } from 'mongoose';
-import { ClassModel } from '../classes/class.model';
+import ClassModel from '../classes/class.model';
 import type { Student } from '../students/student.interface';
 import StudentModel from '../students/student.model';
 import {

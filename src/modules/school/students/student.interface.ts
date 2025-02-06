@@ -1,5 +1,5 @@
 import { Document, ObjectId } from 'mongoose';
-import { IClass } from '../classes/class.model';
+import { IClass } from '../classes/interfaces';
 
 export type Student = Document & {
 	//[+] Personal Information

@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { IClassSubject } from './class.model';
+import { IClassSubject } from './interfaces';
 
 export function generateSubjectId(subjectName: string, level: string): string {
 	const abbreviations: { [key: string]: string } = {

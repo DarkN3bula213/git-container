@@ -1,0 +1,1034 @@
+[
+  {
+    "label": "English",
+    "type": "LANGUAGE",
+    "className": "Nursery",
+    "orderIndex": 1,
+    "code": "LN011",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Urdu",
+    "type": "LANGUAGE",
+    "className": "Nursery",
+    "orderIndex": 2,
+    "code": "LN012",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "Nursery",
+    "orderIndex": 3,
+    "code": "MA011",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "General Knowledge",
+    "type": "GENERAL",
+    "className": "Nursery",
+    "orderIndex": 4,
+    "code": "GN011",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Drawing",
+    "type": "ARTS",
+    "className": "Nursery",
+    "orderIndex": 5,
+    "code": "AR011",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Nazra Quran",
+    "type": "RELIGIOUS",
+    "className": "Nursery",
+    "orderIndex": 6,
+    "code": "RE011",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English",
+    "type": "LANGUAGE",
+    "className": "Prep",
+    "orderIndex": 7,
+    "code": "LN021",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Urdu",
+    "type": "LANGUAGE",
+    "className": "Prep",
+    "orderIndex": 8,
+    "code": "LN022",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "Prep",
+    "orderIndex": 9,
+    "code": "MA021",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "General Knowledge",
+    "type": "GENERAL",
+    "className": "Prep",
+    "orderIndex": 10,
+    "code": "GN021",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Drawing",
+    "type": "ARTS",
+    "className": "Prep",
+    "orderIndex": 11,
+    "code": "AR021",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Nazra Quran",
+    "type": "RELIGIOUS",
+    "className": "Prep",
+    "orderIndex": 12,
+    "code": "RE021",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English",
+    "type": "LANGUAGE",
+    "className": "1st",
+    "orderIndex": 13,
+    "code": "LN031",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Urdu",
+    "type": "LANGUAGE",
+    "className": "1st",
+    "orderIndex": 14,
+    "code": "LN032",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "1st",
+    "orderIndex": 15,
+    "code": "MA031",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Drawing",
+    "type": "ARTS",
+    "className": "1st",
+    "orderIndex": 16,
+    "code": "AR031",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Science",
+    "type": "SCIENCE",
+    "className": "1st",
+    "orderIndex": 17,
+    "code": "SC031",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat",
+    "type": "RELIGIOUS",
+    "className": "1st",
+    "orderIndex": 18,
+    "code": "RE031",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Social Studies",
+    "type": "SOCIAL",
+    "className": "1st",
+    "orderIndex": 19,
+    "code": "SO031",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Nazra Quran",
+    "type": "RELIGIOUS",
+    "className": "1st",
+    "orderIndex": 20,
+    "code": "RE032",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English",
+    "type": "LANGUAGE",
+    "className": "2nd",
+    "orderIndex": 21,
+    "code": "LN041",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Urdu",
+    "type": "LANGUAGE",
+    "className": "2nd",
+    "orderIndex": 22,
+    "code": "LN042",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "2nd",
+    "orderIndex": 23,
+    "code": "MA041",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Drawing",
+    "type": "ARTS",
+    "className": "2nd",
+    "orderIndex": 24,
+    "code": "AR041",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Science",
+    "type": "SCIENCE",
+    "className": "2nd",
+    "orderIndex": 25,
+    "code": "SC041",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat",
+    "type": "RELIGIOUS",
+    "className": "2nd",
+    "orderIndex": 26,
+    "code": "RE041",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Social Studies",
+    "type": "SOCIAL",
+    "className": "2nd",
+    "orderIndex": 27,
+    "code": "SO041",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Nazra Quran",
+    "type": "RELIGIOUS",
+    "className": "2nd",
+    "orderIndex": 28,
+    "code": "RE042",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English",
+    "type": "LANGUAGE",
+    "className": "3rd",
+    "orderIndex": 29,
+    "code": "LN051",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Urdu",
+    "type": "LANGUAGE",
+    "className": "3rd",
+    "orderIndex": 30,
+    "code": "LN052",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "3rd",
+    "orderIndex": 31,
+    "code": "MA051",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Drawing",
+    "type": "ARTS",
+    "className": "3rd",
+    "orderIndex": 32,
+    "code": "AR051",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Science",
+    "type": "SCIENCE",
+    "className": "3rd",
+    "orderIndex": 33,
+    "code": "SC051",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat",
+    "type": "RELIGIOUS",
+    "className": "3rd",
+    "orderIndex": 34,
+    "code": "RE051",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Social Studies",
+    "type": "SOCIAL",
+    "className": "3rd",
+    "orderIndex": 35,
+    "code": "SO051",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Nazra Quran",
+    "type": "RELIGIOUS",
+    "className": "3rd",
+    "orderIndex": 36,
+    "code": "RE052",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English",
+    "type": "LANGUAGE",
+    "className": "4th",
+    "orderIndex": 37,
+    "code": "LN061",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Urdu",
+    "type": "LANGUAGE",
+    "className": "4th",
+    "orderIndex": 38,
+    "code": "LN062",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "4th",
+    "orderIndex": 39,
+    "code": "MA061",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Drawing",
+    "type": "ARTS",
+    "className": "4th",
+    "orderIndex": 40,
+    "code": "AR061",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Science",
+    "type": "SCIENCE",
+    "className": "4th",
+    "orderIndex": 41,
+    "code": "SC061",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat",
+    "type": "RELIGIOUS",
+    "className": "4th",
+    "orderIndex": 42,
+    "code": "RE061",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Social Studies",
+    "type": "SOCIAL",
+    "className": "4th",
+    "orderIndex": 43,
+    "code": "SO061",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Nazra Quran",
+    "type": "RELIGIOUS",
+    "className": "4th",
+    "orderIndex": 44,
+    "code": "RE062",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English",
+    "type": "LANGUAGE",
+    "className": "5th",
+    "orderIndex": 45,
+    "code": "LN071",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Urdu",
+    "type": "LANGUAGE",
+    "className": "5th",
+    "orderIndex": 46,
+    "code": "LN072",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "5th",
+    "orderIndex": 47,
+    "code": "MA071",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Drawing",
+    "type": "ARTS",
+    "className": "5th",
+    "orderIndex": 48,
+    "code": "AR071",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Science",
+    "type": "SCIENCE",
+    "className": "5th",
+    "orderIndex": 49,
+    "code": "SC071",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat",
+    "type": "RELIGIOUS",
+    "className": "5th",
+    "orderIndex": 50,
+    "code": "RE071",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Social Studies",
+    "type": "SOCIAL",
+    "className": "5th",
+    "orderIndex": 51,
+    "code": "SO071",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Nazra Quran",
+    "type": "RELIGIOUS",
+    "className": "5th",
+    "orderIndex": 52,
+    "code": "RE072",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English A",
+    "type": "LANGUAGE",
+    "className": "6th",
+    "orderIndex": 53,
+    "code": "LN081",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_6th"
+  },
+  {
+    "label": "English B",
+    "type": "LANGUAGE",
+    "className": "6th",
+    "orderIndex": 54,
+    "code": "LN082",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_6th"
+  },
+  {
+    "label": "Urdu A",
+    "type": "LANGUAGE",
+    "className": "6th",
+    "orderIndex": 55,
+    "code": "LN083",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_6th"
+  },
+  {
+    "label": "Urdu B",
+    "type": "LANGUAGE",
+    "className": "6th",
+    "orderIndex": 56,
+    "code": "LN084",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_6th"
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "6th",
+    "orderIndex": 57,
+    "code": "MA081",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Science",
+    "type": "SCIENCE",
+    "className": "6th",
+    "orderIndex": 58,
+    "code": "SC081",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Computer",
+    "type": "COMPUTER",
+    "className": "6th",
+    "orderIndex": 59,
+    "code": "CP081",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat",
+    "type": "RELIGIOUS",
+    "className": "6th",
+    "orderIndex": 60,
+    "code": "RE081",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Hist.Geo",
+    "type": "SOCIAL",
+    "className": "6th",
+    "orderIndex": 61,
+    "code": "SO081",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Tarjam tul Quran",
+    "type": "RELIGIOUS",
+    "className": "6th",
+    "orderIndex": 62,
+    "code": "RE082",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English A",
+    "type": "LANGUAGE",
+    "className": "7th",
+    "orderIndex": 63,
+    "code": "LN091",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_7th"
+  },
+  {
+    "label": "English B",
+    "type": "LANGUAGE",
+    "className": "7th",
+    "orderIndex": 64,
+    "code": "LN092",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_7th"
+  },
+  {
+    "label": "Urdu A",
+    "type": "LANGUAGE",
+    "className": "7th",
+    "orderIndex": 65,
+    "code": "LN093",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_7th"
+  },
+  {
+    "label": "Urdu B",
+    "type": "LANGUAGE",
+    "className": "7th",
+    "orderIndex": 66,
+    "code": "LN094",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_7th"
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "7th",
+    "orderIndex": 67,
+    "code": "MA091",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Science",
+    "type": "SCIENCE",
+    "className": "7th",
+    "orderIndex": 68,
+    "code": "SC091",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Computer",
+    "type": "COMPUTER",
+    "className": "7th",
+    "orderIndex": 69,
+    "code": "CP091",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat",
+    "type": "RELIGIOUS",
+    "className": "7th",
+    "orderIndex": 70,
+    "code": "RE091",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Hist.Geo",
+    "type": "SOCIAL",
+    "className": "7th",
+    "orderIndex": 71,
+    "code": "SO091",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Tarjam tul Quran",
+    "type": "RELIGIOUS",
+    "className": "7th",
+    "orderIndex": 72,
+    "code": "RE092",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English A",
+    "type": "LANGUAGE",
+    "className": "8th",
+    "orderIndex": 73,
+    "code": "LN101",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_8th"
+  },
+  {
+    "label": "English B",
+    "type": "LANGUAGE",
+    "className": "8th",
+    "orderIndex": 74,
+    "code": "LN102",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_8th"
+  },
+  {
+    "label": "Urdu A",
+    "type": "LANGUAGE",
+    "className": "8th",
+    "orderIndex": 75,
+    "code": "LN103",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_8th"
+  },
+  {
+    "label": "Urdu B",
+    "type": "LANGUAGE",
+    "className": "8th",
+    "orderIndex": 76,
+    "code": "LN104",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_8th"
+  },
+  {
+    "label": "Math",
+    "type": "MATHEMATICS",
+    "className": "8th",
+    "orderIndex": 77,
+    "code": "MA101",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Science",
+    "type": "SCIENCE",
+    "className": "8th",
+    "orderIndex": 78,
+    "code": "SC101",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Computer",
+    "type": "COMPUTER",
+    "className": "8th",
+    "orderIndex": 79,
+    "code": "CP101",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat",
+    "type": "RELIGIOUS",
+    "className": "8th",
+    "orderIndex": 80,
+    "code": "RE101",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Hist.Geo",
+    "type": "SOCIAL",
+    "className": "8th",
+    "orderIndex": 81,
+    "code": "SO101",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Tarjam tul Quran",
+    "type": "RELIGIOUS",
+    "className": "8th",
+    "orderIndex": 82,
+    "code": "RE102",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English A",
+    "type": "LANGUAGE",
+    "className": "9th",
+    "orderIndex": 83,
+    "code": "LN111",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_9th"
+  },
+  {
+    "label": "English B",
+    "type": "LANGUAGE",
+    "className": "9th",
+    "orderIndex": 84,
+    "code": "LN112",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_9th"
+  },
+  {
+    "label": "Urdu A",
+    "type": "LANGUAGE",
+    "className": "9th",
+    "orderIndex": 85,
+    "code": "LN113",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_9th"
+  },
+  {
+    "label": "Urdu B",
+    "type": "LANGUAGE",
+    "className": "9th",
+    "orderIndex": 86,
+    "code": "LN114",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_9th"
+  },
+  {
+    "label": "Mathematics",
+    "type": "MATHEMATICS",
+    "className": "9th",
+    "orderIndex": 87,
+    "code": "MA111",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "MATH_9th"
+  },
+  {
+    "label": "General Math",
+    "type": "MATHEMATICS",
+    "className": "9th",
+    "orderIndex": 88,
+    "code": "MA112",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "MATH_9th"
+  },
+  {
+    "label": "General Science",
+    "type": "SCIENCE",
+    "className": "9th",
+    "orderIndex": 89,
+    "code": "SC111",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat Com",
+    "type": "RELIGIOUS",
+    "className": "9th",
+    "orderIndex": 90,
+    "code": "RE111",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat Studies",
+    "type": "RELIGIOUS",
+    "className": "9th",
+    "orderIndex": 91,
+    "code": "RE112",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Pak Studies",
+    "type": "SOCIAL",
+    "className": "9th",
+    "orderIndex": 92,
+    "code": "SO111",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Chemistry",
+    "type": "SCIENCE",
+    "className": "9th",
+    "orderIndex": 93,
+    "code": "SC112",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Physics",
+    "type": "SCIENCE",
+    "className": "9th",
+    "orderIndex": 94,
+    "code": "SC113",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Biology",
+    "type": "SCIENCE",
+    "className": "9th",
+    "orderIndex": 95,
+    "code": "SC114",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Computer",
+    "type": "COMPUTER",
+    "className": "9th",
+    "orderIndex": 96,
+    "code": "CP111",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Taram tul Quran",
+    "type": "RELIGIOUS",
+    "className": "9th",
+    "orderIndex": 97,
+    "code": "RE113",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "English A",
+    "type": "LANGUAGE",
+    "className": "10th",
+    "orderIndex": 98,
+    "code": "LN121",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_10th"
+  },
+  {
+    "label": "English B",
+    "type": "LANGUAGE",
+    "className": "10th",
+    "orderIndex": 99,
+    "code": "LN122",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "ENGLISH_10th"
+  },
+  {
+    "label": "Urdu A",
+    "type": "LANGUAGE",
+    "className": "10th",
+    "orderIndex": 100,
+    "code": "LN123",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_10th"
+  },
+  {
+    "label": "Urdu B",
+    "type": "LANGUAGE",
+    "className": "10th",
+    "orderIndex": 101,
+    "code": "LN124",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "URDU_10th"
+  },
+  {
+    "label": "Mathematics",
+    "type": "MATHEMATICS",
+    "className": "10th",
+    "orderIndex": 102,
+    "code": "MA121",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "MATH_10th"
+  },
+  {
+    "label": "General Math",
+    "type": "MATHEMATICS",
+    "className": "10th",
+    "orderIndex": 103,
+    "code": "MA122",
+    "hasComponents": true,
+    "isActive": true,
+    "componentGroup": "MATH_10th"
+  },
+  {
+    "label": "General Science",
+    "type": "SCIENCE",
+    "className": "10th",
+    "orderIndex": 104,
+    "code": "SC121",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat Com",
+    "type": "RELIGIOUS",
+    "className": "10th",
+    "orderIndex": 105,
+    "code": "RE121",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Islamyat Studies",
+    "type": "RELIGIOUS",
+    "className": "10th",
+    "orderIndex": 106,
+    "code": "RE122",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Pak Studies",
+    "type": "SOCIAL",
+    "className": "10th",
+    "orderIndex": 107,
+    "code": "SO121",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Chemistry",
+    "type": "SCIENCE",
+    "className": "10th",
+    "orderIndex": 108,
+    "code": "SC122",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Physics",
+    "type": "SCIENCE",
+    "className": "10th",
+    "orderIndex": 109,
+    "code": "SC123",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Biology",
+    "type": "SCIENCE",
+    "className": "10th",
+    "orderIndex": 110,
+    "code": "SC124",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Computer",
+    "type": "COMPUTER",
+    "className": "10th",
+    "orderIndex": 111,
+    "code": "CP121",
+    "hasComponents": false,
+    "isActive": true
+  },
+  {
+    "label": "Taram tul Quran",
+    "type": "RELIGIOUS",
+    "className": "10th",
+    "orderIndex": 112,
+    "code": "RE123",
+    "hasComponents": false,
+    "isActive": true
+  }
+]

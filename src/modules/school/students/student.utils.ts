@@ -4,7 +4,7 @@ import {
 	IIDTracker
 } from '@/modules/school/students/ID Tracker/idTracker.model';
 import dayjs from 'dayjs';
-import { ClassModel } from '../classes/class.model';
+import ClassModel from '../classes/class.model';
 import StudentModel from './student.model';
 
 const logger = new Logger(__filename);
