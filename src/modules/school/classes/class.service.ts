@@ -2,9 +2,9 @@ import { withTransaction } from '@/data/database/db.utils';
 import { BadRequestError } from '@/lib/api';
 import { User } from '@/modules/auth/users/user.model';
 // import { Logger } from '@/lib/logger';
-import mongoose, { PipelineStage } from 'mongoose';
+import { PipelineStage } from 'mongoose';
 import ClassModel from './class.model';
-import { createIClassSubject } from './class.utils';
+// import { createIClassSubject } from './class.utils';
 import {
 	AddSubjectsToClassRequestBody,
 	ClassWithSectionCounts,
@@ -86,15 +86,19 @@ class ClassService {
 			if (!classData) {
 				throw new BadRequestError('Class not found');
 			}
-			const id = new mongoose.Types.ObjectId(classId);
-			const subjectsData = subjects.map((item) => {
+			// const id = new mongoose.Types.ObjectId(classId);
+			const subjectsData = subjects.map(() => {
 				try {
-					return createIClassSubject(
-						item,
-						classData.className,
-						id,
-						item.teacherName
-					);
+					return {
+						// ...item,
+						// subjectId: new mongoose.Types.ObjectId(item.subjectId)
+					};
+					// return createIClassSubject(
+					// 		item,
+					// 		classData.className,
+					// 		id,
+					// 		item.teacherName
+					// 	);
 				} catch (error) {
 					console.error('Error creating class subject:', error);
 					throw new BadRequestError('Invalid subject data');

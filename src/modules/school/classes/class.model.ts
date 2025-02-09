@@ -36,11 +36,6 @@ const classSectionSchema = new Schema<IClassSection>(
 
 const classSubjectSchema = new Schema<IClassSubject>(
 	{
-		classId: {
-			type: Schema.Types.ObjectId,
-			ref: 'Class',
-			required: true
-		},
 		name: {
 			type: Schema.Types.String,
 			required: true // Add required validation
@@ -61,6 +56,10 @@ const classSubjectSchema = new Schema<IClassSubject>(
 		subjectId: {
 			type: Schema.Types.String,
 			required: true // Add required validation
+		},
+		code: {
+			type: Schema.Types.String,
+			required: false
 		},
 		teacherName: {
 			type: Schema.Types.String,

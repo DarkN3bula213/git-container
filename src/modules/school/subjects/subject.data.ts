@@ -1,8 +1,7 @@
 import { ValidClassName } from '@/lib/constants/classOrder';
 import { writeFileSync } from 'fs-extra';
 import { ISubject, SubjectType } from './subject.model';
-import { generateSubjectCode } from './subject.utils';
-import { validateSubjectData } from './subject.utils';
+import { generateSubjectCode, validateSubjectData } from './subject.utils';
 
 export const generateSubjectsData = (): Partial<ISubject>[] => {
 	const subjects: Partial<ISubject>[] = [];

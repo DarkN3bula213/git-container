@@ -7,9 +7,10 @@ export interface IFeeHistory {
 	updatedBy: Types.ObjectId;
 }
 export interface IClassSubject {
-	_id?: Types.ObjectId;
-	classId: Types.ObjectId;
+	// _id?: Types.ObjectId;
+	// classId: Types.ObjectId;
 	subjectId: string;
+	code?: string;
 	name: string;
 	level: string;
 	teacherId?: string;

@@ -1,159 +1,142 @@
-import { withTransaction } from '@/data/database/db.utils';
 import { Logger } from '@/lib/logger';
 import ClassModel from '@/modules/school/classes/class.model';
-import { createIClassSubject } from '@/modules/school/classes/class.utils';
+import { generateSubjectId } from '@/modules/school/classes/class.utils';
 import { IClassSubject } from '@/modules/school/classes/interfaces';
+import { generateSubjectsData } from '@/modules/school/subjects/subject.data';
 import { IMigration } from '@/types/migration';
-import { Types } from 'mongoose';
-import subjects from '../json/subjects.json';
+import mongoose from 'mongoose';
 
-const logger = new Logger('add-subjects-to-classes');
+const logger = new Logger('add_subjects');
 
-interface SubjectData {
-	label: string;
-	className: string;
-	type: string;
-	code: string;
-	orderIndex: number;
-	hasComponents: boolean;
-	componentGroup?: string;
-}
-
-async function validateClasses(subjects: SubjectData[]): Promise<string[]> {
-	const uniqueClassNames = [...new Set(subjects.map((s) => s.className))];
-	const existingClasses = await ClassModel.find({
-		className: { $in: uniqueClassNames }
-	}).lean();
-	const existingClassNames = existingClasses.map((c) => c.className);
-
-	return uniqueClassNames.filter(
-		(className) => !existingClassNames.includes(className)
-	);
-}
-
-function groupSubjectsByClass(
-	subjects: SubjectData[]
-): Record<string, SubjectData[]> {
-	return subjects.reduce(
-		(acc, subject) => {
-			if (!acc[subject.className]) {
-				acc[subject.className] = [];
-			}
-			acc[subject.className].push(subject);
-			return acc;
-		},
-		{} as Record<string, SubjectData[]>
-	);
-}
-
-async function addSubjectsToClasses(dryRun = false): Promise<void> {
-	try {
-		await withTransaction(async (session) => {
-			// Validate all classes exist
-			const missingClasses = await validateClasses(subjects);
-			if (missingClasses.length > 0) {
-				throw new Error(
-					`Missing class documents for: ${missingClasses.join(', ')}`
-				);
-			}
-
-			// Group subjects by class
-			const subjectsByClass = groupSubjectsByClass(subjects);
-			let totalSubjectsAdded = 0;
-			let updatedClasses = 0;
-
-			// Process each class
-			for (const [className, classSubjects] of Object.entries(
-				subjectsByClass
-			)) {
-				const classDoc = await ClassModel.findOne({ className }, null, {
-					session
-				});
-				if (!classDoc) {
-					logger.warn(`Class ${className} not found, skipping`);
-					continue;
-				}
-
-				if (dryRun) {
-					logger.info(
-						`[DRY RUN] Would add ${classSubjects.length} subjects to class ${className}`
-					);
-					totalSubjectsAdded += classSubjects.length;
-					updatedClasses++;
-					continue;
-				}
-
-				try {
-					// Transform subjects to IClassSubject format
-					const transformedSubjects: IClassSubject[] =
-						classSubjects.map((subject) =>
-							createIClassSubject(
-								{
-									name: subject.label,
-									_id: new Types.ObjectId()
-								},
-								className,
-								classDoc._id as Types.ObjectId,
-								''
-							)
-						);
-
-					// Update class with new subjects
-					await ClassModel.updateOne(
-						{ _id: classDoc._id },
-						{ $set: { subjects: transformedSubjects } },
-						{ session }
-					);
-
-					totalSubjectsAdded += transformedSubjects.length;
-					updatedClasses++;
-					logger.info(
-						`Added ${transformedSubjects.length} subjects to class ${className}`
-					);
-				} catch (error) {
-					logger.error(
-						`Failed to process subjects for class ${className}:`,
-						error
-					);
-					throw error;
-				}
-			}
-
-			logger.info(
-				`Migration completed: Updated ${updatedClasses} classes with ${totalSubjectsAdded} subjects`
-			);
-		});
-	} catch (error) {
-		logger.error('Migration failed:', error);
-		throw error;
-	}
-}
-
-async function rollbackSubjectsFromClasses(): Promise<void> {
-	try {
-		await withTransaction(async (session) => {
-			const result = await ClassModel.updateMany(
-				{ subjects: { $exists: true, $ne: [] } },
-				{ $set: { subjects: [] } },
-				{ session }
-			);
-
-			logger.info(
-				`Rollback completed: Cleared subjects from ${result.modifiedCount} classes`
-			);
-		});
-	} catch (error) {
-		logger.error('Rollback failed:', error);
-		throw error;
-	}
-}
-
-export const add_subjects_to_classes: IMigration = {
-	name: 'add-subjects-to-classes',
+export const add_subjects: IMigration = {
+	name: 'add_subjects',
 	up: async () => {
-		await addSubjectsToClasses(true);
+		await migrateSubjects(false);
 	},
 	down: async () => {
-		await rollbackSubjectsFromClasses();
+		// await migrateSubjects(false);
 	}
 };
+
+interface IMigrationLog {
+	timestamp: Date;
+	operation: string;
+	status: 'completed' | 'failed' | 'rolled-back';
+	details: any;
+}
+
+// Mapping function to convert generated data to schema format
+// function mapToClassSubject(subject: any): IClassSubject {
+// 	return {
+// 		// classId,
+// 		subjectId: new mongoose.Types.ObjectId(),
+// 		code: subject.code,
+// 		name: subject.label,
+// 		level: subject.type,
+// 		prescribedBooks: [],
+
+// 		teacherName: ''
+// 	};
+// }
+function mapToClassSubject(subject: any, className: string): IClassSubject {
+	return {
+		// classId,
+		subjectId: subject.code,
+		code: generateSubjectId(subject.label, className),
+		name: subject.label,
+		level:
+			className === '10th'
+				? `${className.slice(0, 2)}-${subject.type}`
+				: `${className.slice(0, 1)}-${subject.type}`,
+		prescribedBooks: [],
+
+		teacherName: ''
+	};
+}
+async function migrateSubjects(isDryRun = true) {
+	const session = await mongoose.startSession();
+	session.startTransaction();
+
+	const migrationLogs: IMigrationLog[] = [];
+	const backupData = new Map();
+
+	try {
+		const classes = await ClassModel.find({}).session(session);
+		const subjectsData = generateSubjectsData();
+
+		for (const classDoc of classes) {
+			// Backup existing subjects
+			if (!classDoc._id || typeof classDoc._id !== 'object') {
+				throw new Error('Invalid class document ID');
+			}
+			backupData.set(classDoc._id.toString(), [
+				...(classDoc.subjects || [])
+			]);
+
+			const classSubjects = subjectsData.filter(
+				(subject) => subject.className === classDoc.className
+			);
+
+			const formattedSubjects = classSubjects.map((subject) => {
+				return mapToClassSubject(subject, classDoc.className);
+			});
+
+			if (isDryRun) {
+				logger.info(
+					`[DRY RUN] ${classDoc.className}: ${formattedSubjects.length} subjects`
+				);
+				logger.info({
+					className: classDoc.className,
+					subjects: JSON.stringify(formattedSubjects, null, 2)
+				});
+				continue;
+			}
+
+			classDoc.subjects = formattedSubjects;
+			// console.log(classDoc);
+			await classDoc.save({ session });
+
+			migrationLogs.push({
+				timestamp: new Date(),
+				operation: `Add subjects to ${classDoc.className}`,
+				status: 'completed',
+				details: { subjectsAdded: formattedSubjects.length }
+			});
+		}
+
+		if (!isDryRun) {
+			await session.commitTransaction();
+			logger.info('Migration completed successfully');
+		} else {
+			await session.abortTransaction();
+			logger.info('Dry run completed - no changes made');
+		}
+
+		return { success: true, logs: migrationLogs };
+	} catch (error) {
+		await session.abortTransaction();
+		logger.error(JSON.stringify(error, null, 2));
+
+		if (!isDryRun) {
+			// Restore from backup
+			for (const [classId, subjects] of backupData.entries()) {
+				const classDoc = await ClassModel.findById(classId);
+				if (classDoc) {
+					classDoc.subjects = subjects;
+					await classDoc.save();
+
+					migrationLogs.push({
+						timestamp: new Date(),
+						operation: `Rollback ${classDoc.className}`,
+						status: 'rolled-back',
+						details: { error: (error as Error).message }
+					});
+				}
+			}
+		}
+
+		return { success: false, error, logs: migrationLogs };
+	} finally {
+		session.endSession();
+	}
+}
