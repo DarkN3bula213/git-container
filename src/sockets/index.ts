@@ -75,8 +75,19 @@ class SocketService {
 			});
 		}
 	}
-	public disconnect(): void {
-		this.io.close();
+	public disconnect(): Promise<void> {
+		return new Promise((resolve) => {
+			// Close all socket connections first
+			this.io.sockets.sockets.forEach((socket) => {
+				socket.disconnect(true);
+			});
+
+			// Then close the server
+			this.io.close(() => {
+				logger.info('Socket.IO server closed successfully');
+				resolve();
+			});
+		});
 	}
 	private registerEvents(): void {
 		this.io.on('connection', async (socket: Socket) => {

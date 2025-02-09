@@ -11,6 +11,17 @@ const router = Router();
 const getRoutes = (): RouteMap[] => {
 	return [
 		{
+			path: '/backup',
+			method: 'get',
+			handler: multer.backupDb
+		},
+		{
+			path: '/restore',
+			method: 'post',
+			handler: multer.restoreDb,
+			validations: [multer.uploadBackup.single('backup')]
+		},
+		{
 			path: '/download/:filename',
 			method: 'get',
 			//   validations: [authentication],

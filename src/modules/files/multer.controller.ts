@@ -4,12 +4,15 @@ import { getUploadsDir } from '@/lib/constants';
 import asyncHandler from '@/lib/handlers/asyncHandler';
 import { Logger } from '@/lib/logger';
 import { getFileMetadata } from '@/lib/utils/getFileMetaData';
+import { exec } from 'child_process';
 import { Request, Response } from 'express';
 import fs from 'fs-extra';
-import { MulterError } from 'multer';
+import multer, { MulterError } from 'multer';
 import path from 'path';
+import { promisify } from 'util';
 import Files from './file.model';
 
+const execAsync = promisify(exec);
 const logger = new Logger(__filename);
 
 export const downloadFile = asyncHandler(async (req, res) => {
@@ -118,4 +121,35 @@ export const deleteFile = asyncHandler(async (req: Request, res: Response) => {
 		);
 	}
 	return new NotFoundResponse('File not found.').send(res);
+});
+
+export const uploadBackup = multer({ dest: '/tmp/uploads/' });
+
+export const backupDb = asyncHandler(async (req, res) => {
+	const backupPath = '/tmp/backup';
+	await execAsync(`mongodump --host mongo:27017 --out=${backupPath}`);
+	await execAsync(`cd ${backupPath} && tar -czf backup.tar.gz *`);
+
+	res.download(`${backupPath}/backup.tar.gz`, 'backup.tar.gz', (err) => {
+		execAsync(`rm -rf ${backupPath}`);
+		if (err) throw err;
+	});
+});
+
+export const restoreDb = asyncHandler(async (req, res) => {
+	const backupPath = '/tmp/restore';
+
+	if (!req.file) throw new Error('No backup file provided');
+	await execAsync(
+		`mkdir -p ${backupPath} && tar -xzf ${req.file.path} -C ${backupPath}`
+	);
+	await execAsync(`mongorestore --host mongo:27017 ${backupPath}`);
+
+	res.json({ message: 'Restore completed' });
+
+	// Cleanup
+	await execAsync(`rm -rf ${backupPath} ${req.file.path}`);
+	return new SuccessResponse('Database restored successfully.', null).send(
+		res
+	);
 });
