@@ -33,8 +33,10 @@ jobs:
                     # Remove any lingering networks
                     docker network prune -f
 
-                    # Clean builder cache
+                    # Clean builder cache and artifacts
                     docker builder prune -af
+                    rm -rf node_modules dist .pnpm-store
+                    docker system prune -af
 
                     # Ensure tsconfig.json is properly copied
                     if [ ! -f tsconfig.json ]; then
