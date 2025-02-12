@@ -57,3 +57,12 @@ jobs:
                     docker exec nginx nginx -s reload
                   EOF
               shell: bash
+
+            # - name: Run Database Migrations
+            #   run: |
+            #       ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
+            #         cd /var/www/app/git-container/
+            #         echo "Running database migrations..."
+            #         docker-compose exec -T app pnpm migrate:up
+            #       EOF
+            #   shell: bash

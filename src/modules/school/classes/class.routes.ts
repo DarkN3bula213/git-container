@@ -32,9 +32,9 @@ router
 
 // router.get('/name/:name', controller.findClassByName);
 
-router.put('/fee/:name', validate(schema.fee), controller.updateClassFee);
+// router.put('/fee/:name', validate(schema.fee), controller.updateClassFee);
 
-router.post('/seed', validate(schema.multiClass), controller.insertMany);
+// router.post('/seed', validate(schema.multiClass), controller.insertMany);
 
 const routes = (): RouteMap[] => {
 	return [

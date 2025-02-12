@@ -1,3 +1,5 @@
+import { cache } from '@/data/cache/cache.service';
+import { DynamicKey, getDynamicKey } from '@/data/cache/keys';
 import { withTransaction } from '@/data/database/db.utils';
 import { BadRequestError, SuccessResponse } from '@/lib/api';
 import asyncHandler from '@/lib/handlers/asyncHandler';
@@ -202,13 +204,19 @@ export const addStudentResult = asyncHandler(async (req, res) => {
 
 export const getStudentResult = asyncHandler(async (req, res) => {
 	const { studentId } = req.params;
-
-	logger.info(studentId);
-
-	const result = await ExamModel.find({
-		studentId,
-		examType: ExamType.ANNUAL,
-		academicYear: dayjs().format('YYYY-MM-DD')
+	const key = getDynamicKey(DynamicKey.RESULT, studentId);
+	const result = await cache.getWithFallback(key, async () => {
+		const result = await ExamModel.find({
+			studentId,
+			examType: ExamType.ANNUAL,
+			academicYear: dayjs().format('YYYY-MM-DD')
+		});
+		return result;
+	});
+	logger.info({
+		event: 'Student result fetched',
+		StudentId: studentId,
+		Result: result
 	});
 
 	new SuccessResponse(

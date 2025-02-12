@@ -126,8 +126,9 @@ export const deleteFile = asyncHandler(async (req: Request, res: Response) => {
 export const uploadBackup = multer({ dest: '/tmp/uploads/' });
 
 export const backupDb = asyncHandler(async (req, res) => {
+	logger.info('Backing up database');
 	const backupPath = '/tmp/backup';
-	await execAsync(`mongodump --host mongo:27017 --out=${backupPath}`);
+	await execAsync(`mongodump --host a956339bc7f1:27017 --out=${backupPath}`);
 	await execAsync(`cd ${backupPath} && tar -czf backup.tar.gz *`);
 
 	res.download(`${backupPath}/backup.tar.gz`, 'backup.tar.gz', (err) => {
@@ -153,3 +154,17 @@ export const restoreDb = asyncHandler(async (req, res) => {
 		res
 	);
 });
+
+export const testBackup = async () => {
+	try {
+		logger.info('Backing up database');
+		const root = process.cwd();
+		const backupPath = path.join(root, 'uploads', 'backup');
+		await execAsync(
+			`mongodump --host a956339bc7f1:27017 --out=${backupPath}`
+		);
+		await execAsync(`cd ${backupPath} && tar -czf backup.tar.gz *`);
+	} catch (error) {
+		logger.error(error as Error);
+	}
+};

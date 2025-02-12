@@ -11,7 +11,8 @@ export enum DynamicKey {
 	USER = 'USER',
 	CLASS_SUBJECTS = 'class_subjects',
 	NOTIFICATIONS = 'NOTIFICATIONS',
-	SESSION = 'session'
+	SESSION = 'session',
+	RESULT = 'result'
 }
 
 export type DynamicKeyType = `${DynamicKey}:${string}`;

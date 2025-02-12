@@ -49,7 +49,7 @@ morgan.token('colored-auth', (req: Request) => {
 });
 
 morgan.format('myFormat', (tokens, req: Request, res: Response) => {
-	const timestamp = colors.grey(dayjs().format('| [+] | MM-DD HH:mm:ss'));
+	const timestamp = colors.grey(dayjs().format('| [+] | HH:mm:ss:SSS'));
 	const method = tokens['colored-method'](req, res);
 	const url = tokens.url(req, res);
 	const status = tokens['colored-status'](req, res);

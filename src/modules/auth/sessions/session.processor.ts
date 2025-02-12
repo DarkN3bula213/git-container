@@ -18,26 +18,14 @@ const sessionProcessor = {
 		}>,
 		done: DoneCallback
 	) => {
-		logger.debug({
-			event: 'Processing job',
-			jobId: job.id,
-			userId: job.data.userID.slice(0, 5)
-		});
 		try {
 			const { userID, startTime, endTime, time } = job.data;
 			await createUserSession(userID, startTime, endTime, time);
-			logger.info({
-				event: 'Session saved',
-				userId: userID.slice(0, 5)
-			});
+
 			done();
-		} catch (error: any) {
-			logger.error({
-				event: 'Error saving session',
-				message: error.message,
-				userId: job.data.userID.slice(0, 5)
-			});
-			done(error);
+		} catch (error: unknown) {
+			logger.error(error as Error);
+			done(error as Error);
 		}
 	}
 };

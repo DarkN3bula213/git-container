@@ -3,8 +3,8 @@ import { Logger } from '@/lib/logger';
 import { migrations } from '@/migrations';
 import { config } from 'dotenv';
 import fs from 'fs';
-// import mongoose from 'mongoose';
 import path from 'path';
+import MigrationModel from './migration.model';
 
 // Load environment variables
 config();
@@ -29,13 +29,60 @@ async function createMigration(name?: string) {
 	);
 
 	const template = `import { IMigration } from '../types';
+import MigrationModel from '../migration.model';
+import mongoose from 'mongoose';
 
 export const ${name}: IMigration = {
+	name: '${name}',
 	up: async () => {
-		// Implementation
+		// Check if already migrated
+		const migrationDoc = await MigrationModel.findOne({ name: '${name}' });
+		if (migrationDoc?.status === 'completed') {
+			console.log('Migration already applied, skipping...');
+			return;
+		}
+
+		const session = await mongoose.startSession();
+		session.startTransaction();
+
+		try {
+			// Implementation
+			
+			// Record migration
+			await MigrationModel.create([{
+				name: '${name}',
+				version: '1.0.0',
+				status: 'completed'
+			}], { session });
+
+			await session.commitTransaction();
+		} catch (error) {
+			await session.abortTransaction();
+			throw error;
+		} finally {
+			session.endSession();
+		}
 	},
 	down: async () => {
-		// Rollback implementation
+		const session = await mongoose.startSession();
+		session.startTransaction();
+
+		try {
+			// Rollback implementation
+
+			// Update migration status
+			await MigrationModel.updateOne(
+				{ name: '${name}' },
+				{ status: 'rolled_back' }
+			).session(session);
+
+			await session.commitTransaction();
+		} catch (error) {
+			await session.abortTransaction();
+			throw error;
+		} finally {
+			session.endSession();
+		}
 	}
 };`;
 
@@ -51,21 +98,55 @@ async function runMigrations() {
 
 		for (const migration of migrations) {
 			try {
+				// Check if migration was already run
+				const migrationDoc = await MigrationModel.findOne({
+					name: migration.name
+				});
+				if (migrationDoc?.status === 'completed') {
+					logger.debug(
+						`Migration ${migration.name} already completed, skipping...`
+					);
+					continue;
+				}
+
 				logger.debug(`Running migration: ${migration.name}`);
+
+				// Create pending migration record
+				await MigrationModel.create({
+					name: migration.name,
+					version: '1.0.0',
+					status: 'pending'
+				});
+
+				// Run migration
 				await migration.up();
+
+				// Update migration status
+				await MigrationModel.updateOne(
+					{ name: migration.name },
+					{ status: 'completed' }
+				);
+
 				logger.debug(`Completed migration: ${migration.name}`);
 			} catch (error) {
 				logger.error(
 					`Failed to run migration ${migration.name}:`,
 					error
 				);
+
+				// Update migration status to failed
+				await MigrationModel.updateOne(
+					{ name: migration.name },
+					{ status: 'failed' }
+				);
+
 				throw error;
 			}
 		}
 
 		logger.debug('All migrations completed successfully');
 	} catch (error) {
-		logger.error('Migration failed:', error);
+		logger.error(`error: ${JSON.stringify(error, null, 2)}`);
 		process.exit(1);
 	}
 }

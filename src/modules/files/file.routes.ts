@@ -11,7 +11,7 @@ const router = Router();
 const getRoutes = (): RouteMap[] => {
 	return [
 		{
-			path: '/backup',
+			path: '/b/backup',
 			method: 'get',
 			handler: multer.backupDb
 		},

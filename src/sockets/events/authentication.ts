@@ -92,21 +92,21 @@ const handleSession = async (
 				username,
 				timestamp: Date.now()
 			});
-			logger.info({
-				event: 'New session created',
-				SessionId: sessionId.substring(0, 4),
-				UserId: userId,
-				Username: username
-			});
+			// logger.info({
+			// 	event: 'New session created',
+			// 	SessionId: sessionId.substring(0, 4),
+			// 	UserId: userId,
+			// 	Username: username
+			// });
 		} else {
-			const startTime = socket.data.startTime;
-			logger.info({
-				event: 'Session found in redis',
-				SessionId: sessionId.substring(0, 4),
-				UserId: userId,
-				Username: username,
-				StartTime: startTime.toISOString()
-			});
+			return sessionId;
+			// logger.info({
+			// 	event: 'Session found in redis',
+			// 	SessionId: sessionId.substring(0, 4),
+			// 	UserId: userId,
+			// 	Username: username,
+			// 	StartTime: startTime.toISOString()
+			// });
 		}
 	} else {
 		sessionId = v4();

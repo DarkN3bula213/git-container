@@ -3,6 +3,15 @@
 
 echo "🔍 Running pre-commit checks..."
 
+
+
+# Run TypeScript build
+echo "🏗️ Checking TypeScript build..."
+pnpm run build-ts || {
+    echo "❌ TypeScript build failed. Please fix the type errors and try committing again."
+    exit 1
+}
+
 # Run Prettier formatting
 echo "💅 Formatting code..."
 pnpm run format || {
@@ -17,11 +26,6 @@ pnpm run lint || {
     exit 1
 }
 
-# Run TypeScript build
-echo "🏗️ Checking TypeScript build..."
-pnpm run build-ts || {
-    echo "❌ TypeScript build failed. Please fix the type errors and try committing again."
-    exit 1
-}
+
 
 echo "✅ All pre-commit checks passed!" 

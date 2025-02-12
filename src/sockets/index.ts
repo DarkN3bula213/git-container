@@ -26,7 +26,7 @@ class SocketService {
 	readonly io: SocketIOServer;
 	connectedUsers = new Map<string, ConnectedUser>();
 	private static instance: SocketService;
-
+	private isShuttingDown = false;
 	constructor(httpServer: HttpServer) {
 		this.io = new SocketIOServer(httpServer, {
 			serveClient: false,
@@ -75,7 +75,8 @@ class SocketService {
 			});
 		}
 	}
-	public disconnect(): Promise<void> {
+	public async disconnect(): Promise<void> {
+		this.isShuttingDown = true;
 		return new Promise((resolve) => {
 			// Close all socket connections first
 			this.io.sockets.sockets.forEach((socket) => {
@@ -141,13 +142,15 @@ class SocketService {
 
 				socket.on('disconnect', async () => {
 					try {
-						await handleDisconnect(
-							socket,
-							this.io,
-							this.connectedUsers
-						);
-						metrics.socketConnectionsTotal.dec();
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						// Skip disconnect handling during shutdown
+						if (!this.isShuttingDown) {
+							await handleDisconnect(
+								socket,
+								this.io,
+								this.connectedUsers
+							);
+							metrics.socketConnectionsTotal.dec();
+						}
 					} catch (error: any) {
 						logger.error({
 							event: 'Error in handleDisconnect',
