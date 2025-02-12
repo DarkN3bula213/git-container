@@ -22,7 +22,7 @@ jobs:
                   rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
               shell: bash
 
-            - name: Network Cleanup and Build
+            - name: Network Cleanup and Rebuild
               run: |
                   ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
                     cd /var/www/app/git-container/
@@ -33,20 +33,12 @@ jobs:
                     # Remove any lingering networks
                     docker network prune -f
 
-                    # Clean builder cache and artifacts
+                    # Clean builder cache
                     docker builder prune -af
-                    rm -rf node_modules dist .pnpm-store
-                    docker system prune -af
 
-                    # Ensure tsconfig.json is properly copied
-                    if [ ! -f tsconfig.json ]; then
-                      echo "tsconfig.json not found!"
-                      exit 1
-                    fi
-
-                    # Start fresh with proper TypeScript path resolution
+                    # Start fresh
                     docker-compose up -d --build
-
+                    
                     # Verify deployment
                     docker-compose ps
                   EOF
@@ -65,12 +57,3 @@ jobs:
                     docker exec nginx nginx -s reload
                   EOF
               shell: bash
-
-            # - name: Run Database Migrations
-            #   run: |
-            #       ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
-            #         cd /var/www/app/git-container/
-            #         echo "Running database migrations..."
-            #         docker-compose exec -T app pnpm migrate:up
-            #       EOF
-            #   shell: bash
