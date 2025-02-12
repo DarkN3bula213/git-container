@@ -2,7 +2,7 @@ import { InternalError } from '@/lib/api';
 import { Roles } from '@/lib/constants';
 // import { convertToMilliseconds } from '@/lib/utils/fns';
 import { isAdminRolePresent, normalizeRoles } from '@/lib/utils/utils';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import {
 	ClientSession,
 	type Document,

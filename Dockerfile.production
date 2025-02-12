@@ -59,9 +59,6 @@
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
 
-# Install build dependencies for bcrypt
-RUN apk add --no-cache python3 make g++ 
-
 # Clear npm cache first
 RUN npm cache clean --force 
 
@@ -71,7 +68,7 @@ RUN npm install -g pnpm
 # Copy package files
 COPY package*.json pnpm-lock.yaml ./
 
-# Clean install dependencies with native build support
+# Clean install dependencies
 RUN pnpm install --frozen-lockfile
 
 # Copy source
@@ -89,8 +86,8 @@ RUN ls dist
 FROM node:18-alpine
 WORKDIR /usr/src/app
 
-# Install production dependencies for bcrypt and other tools
-RUN apk add --no-cache python3 make g++ mongodb-tools tzdata
+# Install mongodb tools and set timezone
+RUN apk add --no-cache mongodb-tools tzdata
 ENV TZ=Asia/Karachi
 
 # Copy built files and dependencies
@@ -103,11 +100,8 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV TZ=Asia/Karachi
 
-# Clean install production dependencies with native build support
-RUN npm install -g pnpm && \
-    pnpm install --frozen-lockfile --prod && \
-    # Remove build dependencies to reduce image size
-    apk del python3 make g++
+# Install production dependencies
+RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod
 
 RUN ls dist
 
