@@ -62,8 +62,8 @@ WORKDIR /usr/src/app
 # Clear npm cache first
 RUN npm cache clean --force 
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and required dependencies
+RUN npm install -g pnpm tsconfig-paths tsc-alias
 
 # Copy package files
 COPY package*.json pnpm-lock.yaml ./
@@ -71,18 +71,14 @@ COPY package*.json pnpm-lock.yaml ./
 # Clean install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source
+# Copy source and config files
 COPY . .
 
 # Clean any existing build artifacts
 RUN rm -rf dist
 
-# Add debugging for TypeScript compilation
-# RUN pnpm tsc --listFiles
-# RUN pnpm tsc --traceResolution
-
-# Build
-RUN pnpm build
+# Build with proper path resolution
+RUN pnpm build && pnpm tsc-alias
 
 RUN ls dist
 

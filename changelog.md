@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.9.0](https://github.com/DarkN3bula213/git-container/compare/v1.8.0...v1.9.0) (2025-02-12)
+
+
+### Features
+
+* add database backup and restore functionality ([d7ba097](https://github.com/DarkN3bula213/git-container/commit/d7ba097b2ec7b8b78c93c2026c8f80bc3c6816c7))
+* add invoice ID generation and export functionality ([5d3c2ec](https://github.com/DarkN3bula213/git-container/commit/5d3c2ec2b131cf3d699903c8f81a7013c35f4c72))
+* enhance email configuration and error handling ([97c3dcd](https://github.com/DarkN3bula213/git-container/commit/97c3dcde7580f7236b40d12b5f0aba019a7b189d))
+* enhance migration infrastructure and class management ([e37dbe3](https://github.com/DarkN3bula213/git-container/commit/e37dbe3436d356e212c2cc83c612d47b829a978f))
+* improve migration, caching, and logging infrastructure ([769266d](https://github.com/DarkN3bula213/git-container/commit/769266d94a1de2e2faee2d59b16bd76cb5cc3975))
+* refactor exam result and subject migration infrastructure ([ad8497d](https://github.com/DarkN3bula213/git-container/commit/ad8497d7eb774408de7b8857bbb7ea8a0de3baac))
+
+
+### Bug Fixes
+
+* email change ([c76301b](https://github.com/DarkN3bula213/git-container/commit/c76301b8e9782f71c33feb2735bb8dd0fcc1f866))
+
+
+### Chores
+
+* docker container external access ([d52e914](https://github.com/DarkN3bula213/git-container/commit/d52e91448898763988018d2195b55c3662d2bb37))
+* docker container external access 2 ([3d4ed09](https://github.com/DarkN3bula213/git-container/commit/3d4ed09d087eb37ca70e812a7394f799e88dbe40))
+
 ## [1.8.0](https://github.com/DarkN3bula213/git-container/compare/v1.7.0...v1.8.0) (2025-01-29)
 
 

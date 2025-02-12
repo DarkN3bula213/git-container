@@ -22,7 +22,7 @@ jobs:
                   rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude '/node_modules' --exclude '/test' ./ root@24.199.76.209:/var/www/app/git-container/
               shell: bash
 
-            - name: Network Cleanup and Rebuild
+            - name: Network Cleanup and Build
               run: |
                   ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
                     cd /var/www/app/git-container/
@@ -36,9 +36,15 @@ jobs:
                     # Clean builder cache
                     docker builder prune -af
 
-                    # Start fresh
+                    # Ensure tsconfig.json is properly copied
+                    if [ ! -f tsconfig.json ]; then
+                      echo "tsconfig.json not found!"
+                      exit 1
+                    fi
+
+                    # Start fresh with proper TypeScript path resolution
                     docker-compose up -d --build
-                    
+
                     # Verify deployment
                     docker-compose ps
                   EOF
