@@ -23,5 +23,9 @@ export const origins = {
 	// development
 	dev: allowedOrigins,
 	// production No HTTP access
-	prod: ['https://hps-admin.com', 'https://hps-five.vercel.app']
+	prod: [
+		'https://hps-admin.com',
+		'https://hps-five.vercel.app',
+		'https://hps-git-staging-darkn3bula213s-projects.vercel.app'
+	]
 };

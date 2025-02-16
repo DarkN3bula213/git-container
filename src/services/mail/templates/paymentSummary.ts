@@ -24,7 +24,7 @@ const paymentSummaryTemplate = `
 `;
 const CLASS_SECTION_TEMPLATE = `
 <div style="margin-bottom: 20px;">
-  <h4 style="text-align: center; margin-bottom: 10px;">{className} - <span style="font-size: 14px;">{section}</span></h4>
+  <h4 style="text-align: center; margin-bottom: 10px; background-color:rgb(85, 86, 90); padding: 10px; border-radius: 5px;">{className} - <span style="font-size: 14px;">{section}</span></h4>
   <table style="width: 100%; border-collapse: collapse; border-radius: 5px;">
     <thead>
       <tr>

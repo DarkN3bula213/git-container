@@ -19,3 +19,25 @@ export const addSubjectToClass = validateReq({
 		subject: Joi.string().required()
 	})
 });
+export const addSectionToClass = validateReq({
+	params: Joi.object({
+		classId: JoiObjectId().required()
+	}),
+	body: Joi.object({
+		sections: Joi.array()
+			.items(
+				Joi.object({
+					section: Joi.string()
+						.valid('A', 'B', 'C', 'D', 'E')
+						.required(),
+					teacherId: JoiObjectId().required(),
+					teacherName: Joi.string().required(),
+					configuration: Joi.string()
+						.valid('mixed', 'boys', 'girls')
+						.default('mixed')
+						.required()
+				})
+			)
+			.required()
+	})
+});

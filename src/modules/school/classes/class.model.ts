@@ -24,13 +24,13 @@ const classSectionSchema = new Schema<IClassSection>(
 		configuration: {
 			type: String,
 			enum: ['mixed', 'boys', 'girls'],
-			required: true
+			required: true,
+			default: 'mixed'
 		}
 	},
 	{
 		timestamps: true,
-		versionKey: false,
-		_id: false
+		versionKey: false
 	}
 );
 
