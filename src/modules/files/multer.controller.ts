@@ -165,6 +165,8 @@ export const testBackup = async () => {
 		);
 		await execAsync(`cd ${backupPath} && tar -czf backup.tar.gz *`);
 	} catch (error) {
-		logger.error(error as Error);
+		logger.error({
+			error: `Error backing up database: ${JSON.stringify(error, null, 2)}`
+		});
 	}
 };

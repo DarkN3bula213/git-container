@@ -96,3 +96,34 @@ export const promote = Joi.object({
 export const rollback = Joi.object({
 	studentIds: Joi.array().items(JoiObjectId()).required()
 });
+
+export const uploadStudentDocument = Joi.object({
+	studentId: JoiObjectId().required(),
+	documentType: Joi.string()
+		.valid('id', 'certificate', 'photo', 'other')
+		.required()
+		.messages({
+			'any.only': 'Invalid document type'
+		}),
+	description: Joi.string().required().messages({
+		'string.empty': 'Description is required'
+	})
+});
+
+export const deleteStudentDocument = Joi.object({
+	studentId: JoiObjectId().required(),
+	documentId: JoiObjectId().required()
+});
+
+const schemas = {
+	register,
+	updateFee,
+	updateSection,
+	student,
+	promote,
+	rollback,
+	uploadStudentDocument,
+	deleteStudentDocument
+};
+
+export default schemas;

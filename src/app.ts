@@ -20,10 +20,10 @@ import router from './routes';
 const logger = new Logger(__filename);
 
 process.on('unhandledRejection', (reason, promise) => {
-	logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
 });
 process.on('uncaughtException', (error) => {
-	logger.error('Uncaught Exception:', error);
+	logger.error(`Uncaught Exception: ${error}`);
 	// Optionally, exit the process after logging
 	// setTimeout(() => process.exit(1), 100);
 });
@@ -33,6 +33,7 @@ app.set('trust proxy', 1);
 // setupMonitoring(app);
 app.use(cookieParser());
 app.use(helmet());
+
 app.use(compression());
 app.use(hpp());
 app.use(sanitizeInputs);

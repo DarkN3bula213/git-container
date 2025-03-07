@@ -19,7 +19,7 @@ import {
 import Payments, { type IPayment } from './payment.model';
 import paymentQueue from './payment.queue';
 import { addJobsToQueue, formatBillingCycle, getPayId } from './payment.utils';
-import paymentsService from './payments.service';
+import paymentsService from './services/payments.service';
 
 const logger = new Logger(__filename);
 
@@ -489,4 +489,13 @@ export const deleteCommittedTransactions = asyncHandler(async (req, res) => {
 	return new SuccessResponse('Payments deleted successfully', response).send(
 		res
 	);
+});
+
+/*<!-- 7. Read  ---------------------------( Get Valid Date Range )-> */
+export const getValidDateRange = asyncHandler(async (_req, res) => {
+	const validDateRange = await paymentsService.getValidDateRange();
+	return new SuccessResponse(
+		'Valid date range fetched successfully',
+		validDateRange
+	).send(res);
 });

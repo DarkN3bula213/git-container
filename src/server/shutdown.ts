@@ -9,11 +9,37 @@ export interface ServerContext {
 	server: Server;
 	socketService: SocketService;
 	port: number;
+	changeStreams?: Array<{ close: () => Promise<void> }>;
 }
 
 const logger = new Logger('server/shutdown');
 
 let isShuttingDown = false;
+
+async function closeChangeStreams(
+	streams?: Array<{ close: () => Promise<void> }>
+) {
+	if (!streams?.length) return;
+
+	logger.debug('Closing change streams...');
+	await Promise.all(
+		streams.map((stream) =>
+			stream.close().catch((err) => {
+				logger.warn('Error closing change stream: ' + err.message);
+			})
+		)
+	);
+	logger.debug('Change streams closed.');
+}
+
+async function closeServer(server: Server): Promise<void> {
+	return new Promise((resolve) => {
+		server.close(() => {
+			logger.debug('HTTP server closed.');
+			resolve();
+		});
+	});
+}
 
 export function setupGracefulShutdown(context: ServerContext): void {
 	signals.forEach((signal) => {
@@ -21,19 +47,12 @@ export function setupGracefulShutdown(context: ServerContext): void {
 			try {
 				// Prevent multiple shutdown attempts
 				if (isShuttingDown) {
-					logger.warn({
-						event: 'Graceful Shutdown',
-						message: 'Shutdown already in progress'
-					});
+					logger.warn('Shutdown already in progress');
 					return;
 				}
 				isShuttingDown = true;
 
-				logger.info({
-					event: 'Graceful Shutdown',
-					signal,
-					message: 'Starting graceful shutdown...'
-				});
+				logger.info(`Starting graceful shutdown... (${signal})`);
 
 				// Set a timeout for the entire shutdown process
 				const shutdownTimeout = setTimeout(() => {
@@ -41,65 +60,57 @@ export function setupGracefulShutdown(context: ServerContext): void {
 					process.exit(1);
 				}, 10000); // 10 seconds timeout
 
-				// First, stop accepting new connections
-				context.server.close(() => {
-					logger.debug('HTTP server closed.');
-				});
-
-				// Handle socket connections first
-				if (context.socketService) {
-					await context.socketService
-						.disconnect()
-						.catch((err: Error) => {
-							logger.warn({
-								event: 'Socket Shutdown',
-								message: 'Error during socket disconnect',
-								error: err.message
-							});
-						});
-				}
-
-				// Close Redis connection
+				// Execute shutdown sequence
 				try {
+					// 1. Stop accepting new connections
+					await closeServer(context.server);
+
+					// 2. Close all change streams first to prevent MongoDB connection errors
+					await closeChangeStreams(context.changeStreams);
+
+					// 3. Handle socket connections
+					if (context.socketService) {
+						await context.socketService.disconnect();
+						logger.debug('Socket connections closed.');
+					}
+
+					// 4. Close Redis connection
 					await disconnectRedis();
 					logger.debug('Redis connection closed.');
-				} catch (err) {
-					logger.warn({
-						event: 'Redis Shutdown',
-						message:
-							'Redis already disconnected or error during disconnect',
-						error: err instanceof Error ? err.message : String(err)
-					});
-				}
 
-				// Close database connection
-				try {
+					// 5. Close database connection last
 					await db.disconnect();
 					logger.debug('Database connection closed.');
-				} catch (err) {
-					logger.warn({
-						event: 'Database Shutdown',
-						message: 'Error during database disconnect',
-						error: err instanceof Error ? err.message : String(err)
-					});
+
+					clearTimeout(shutdownTimeout);
+					logger.info('All connections closed successfully');
+
+					// Give time for final logs to be written
+					setTimeout(() => process.exit(0), 100);
+				} catch (error) {
+					clearTimeout(shutdownTimeout);
+					logger.error(
+						'Failed to shut down gracefully: ' +
+							(error instanceof Error
+								? error.message
+								: String(error))
+					);
+					process.exit(1);
 				}
-
-				clearTimeout(shutdownTimeout);
-				logger.info({
-					event: 'Graceful Shutdown',
-					message: 'All connections closed successfully'
-				});
-
-				// Give time for final logs to be written
-				setTimeout(() => process.exit(0), 100);
 			} catch (error) {
-				logger.error({
-					event: 'Graceful Shutdown',
-					message: 'Failed to shut down gracefully',
-					error
-				});
+				logger.error(
+					'Critical error during shutdown: ' +
+						(error instanceof Error ? error.message : String(error))
+				);
 				process.exit(1);
 			}
 		});
 	});
 }
+
+// For testing purposes
+export const __test__ = {
+	closeChangeStreams,
+	closeServer,
+	isShuttingDown: () => isShuttingDown
+};

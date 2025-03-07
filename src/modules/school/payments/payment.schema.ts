@@ -53,5 +53,10 @@ export default {
 				.regex(/^\d{2}\d{2}$/)
 				.required()
 		})
+	}),
+	excel: validateReq({
+		params: Joi.object({
+			date: Joi.date().required()
+		})
 	})
 };

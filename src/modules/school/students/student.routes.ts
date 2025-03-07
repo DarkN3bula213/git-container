@@ -5,9 +5,10 @@ import { setRouter } from '@/lib/utils/utils';
 import { type RouteMap } from '@/types/routes';
 import { Router } from 'express';
 import * as aggregations from './controllers/aggregation.controller';
+import * as documentController from './controllers/document.controller';
 import * as promotionController from './controllers/promotion.controller';
 import * as controller from './student.controller';
-import * as schema from './student.schema';
+import schema from './student.schema';
 
 const router = Router();
 router.route('/sorted').get(aggregations.fetchStudentsWithPaidStatus);
@@ -51,6 +52,7 @@ function getPromotionRouteMap(): RouteMap[] {
 }
 function getRouteMap(): RouteMap[] {
 	return [
+		// Static routes first
 		{
 			path: '/',
 			method: 'get',
@@ -65,16 +67,10 @@ function getRouteMap(): RouteMap[] {
 			],
 			handler: controller.newAdmission
 		},
-		/*-------------{Payments Aggregations}---------------*/
 		{
 			path: '/with-payments',
 			method: 'get',
 			handler: controller.getStudentsWithPayments
-		},
-		{
-			path: '/payments/:id',
-			method: 'get',
-			handler: controller.studentFeeAggregated
 		},
 		{
 			path: '/monthly-aggregated',
@@ -82,24 +78,62 @@ function getRouteMap(): RouteMap[] {
 			handler: aggregations.monthlyAggregatedStudentsController
 		},
 		{
-			path: '/fee-documents/:id',
-			method: 'get',
-			validations: [schema.student],
-			handler: aggregations.getStudentsWithFeeDocuments
+			path: '/clean-all',
+			method: 'post',
+			handler: documentController.cleanAllZombieDocuments
 		},
-		/*--------------------------------------------------*/
-		// {
-		// 	path: '/sortedByClassName',
-		// 	method: 'get',
-		// 	handler: controller.sortedByClassName
-		// },
 
+		// More specific dynamic routes
 		{
 			path: '/class/:classId',
 			method: 'get',
 			handler: controller.getStudentByClass
 		},
+		{
+			path: '/payments/:id',
+			method: 'get',
+			handler: controller.studentFeeAggregated
+		},
+		{
+			path: '/fee-documents/:id',
+			method: 'get',
+			validations: [schema.student],
+			handler: aggregations.getStudentsWithFeeDocuments
+		},
 
+		// Document routes with studentId
+		{
+			path: '/:studentId/documents',
+			method: 'get',
+			handler: documentController.getStudentDocuments
+		},
+		{
+			path: '/:studentId/documents',
+			method: 'post',
+			validations: [
+				documentController.studentDocUpload,
+				validate(schema.uploadStudentDocument),
+				invalidateOnSuccess([DynamicKey.STUDENTS, '*'])
+			],
+			handler: documentController.uploadStudentDocument
+		},
+		{
+			path: '/:studentId/documents/scan',
+			method: 'post',
+			handler: documentController.scanZombieDocuments
+		},
+		{
+			path: '/:studentId/documents/:documentId',
+			method: 'get',
+			handler: documentController.downloadStudentDocument
+		},
+		{
+			path: '/:studentId/documents/:documentId',
+			method: 'delete',
+			handler: documentController.deleteStudentDocument
+		},
+
+		// Generic student routes last
 		{
 			path: '/:id',
 			method: 'get',
@@ -111,7 +145,6 @@ function getRouteMap(): RouteMap[] {
 			validations: [invalidate(DynamicKey.STUDENTS)],
 			handler: controller.patchStudent
 		},
-
 		{
 			path: '/:id',
 			method: 'delete',

@@ -7,6 +7,7 @@ import attachRoles from '@/middleware/attachRoles';
 import { authorize } from '@/middleware/authorize';
 import type { RouteMap } from '@/types/routes';
 import { Router } from 'express';
+import { getPaymentsExcel } from './controllers/payment.excel.controller';
 import * as controller from './payment.controller';
 import schema from './payment.schema';
 
@@ -16,44 +17,49 @@ router.route('/history/:studentId').get(controller.getStudentPaymentHistory);
 
 const getRouteMap = (): RouteMap[] => {
 	return [
-		/*<!-- 1. Get  ---------------------------( Get Billing Cycle )->*/
+		// Static routes first
 		{
 			path: '/cycles',
 			method: 'get',
 			handler: controller.getAvailableBillingCycles
 		},
-
-		/*<!-- 1. Get  ---------------------------( Get by PayID )->*/
-		{
-			path: '/bill-cycle/:billingCycle',
-			method: 'get',
-			validations: [schema.billingCycle],
-			handler: controller.getFeesByCycle
-		},
-		/*<!-- 1. Get  ---------------------------( Get by Schools )->*/
-		{
-			path: '/stat/:payId',
-			method: 'get',
-			validations: [schema.schoolStats],
-			handler: controller.getSchoolStatsBySession
-		},
-		/*<!-- 2. Get  ---------------------------( Get by Date Range )->*/
 		{
 			path: '/date-range',
 			method: 'get',
-			// validations: [schema.schoolStats],
 			handler: controller.getPaymentsByDateRange
 		},
 		{
-			path: '/',
+			path: '/valid-date-range',
+			method: 'get',
+			handler: controller.getValidDateRange
+		},
+		{
+			path: '/stats',
+			method: 'get',
+			handler: controller.getPaymentById
+		},
+		{
+			path: '/custom',
 			method: 'post',
 			validations: [
-				invalidateOnSuccess([
+				invalidate([
 					getDynamicKey(DynamicKey.FEE, '*'),
 					getDynamicKey(DynamicKey.STUDENTS, '*')
 				])
 			],
-			handler: controller.createPayment
+			handler: controller.makeCustomPayment
+		},
+		{
+			path: '/multi-insert',
+			method: 'post',
+			validations: [
+				validate(schema.createPaymentsBulk),
+				invalidate([
+					getDynamicKey(DynamicKey.FEE, '*'),
+					getDynamicKey(DynamicKey.STUDENTS, '*')
+				])
+			],
+			handler: controller.createPaymentsBulk
 		},
 		{
 			path: '/transaction',
@@ -80,59 +86,56 @@ const getRouteMap = (): RouteMap[] => {
 			handler: controller.deleteCommittedTransactions
 		},
 		{
-			path: '/student/:studentId',
-			method: 'get',
-			handler: controller.getPaymentsByStudentId
+			path: '/reset',
+			method: 'delete',
+			validations: [
+				attachRoles(Roles.ADMIN),
+				authorize(Roles.ADMIN),
+				invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
+				invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT'))
+			],
+			handler: controller.resetCollection
 		},
 		{
-			path: '/stats',
-			method: 'get',
+			path: '/delete',
+			method: 'delete',
+			validations: [
+				validate(schema.removeBulk),
+				invalidate(getDynamicKey(DynamicKey.FEE, '*')),
+				invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT'))
+			],
+			handler: controller.deleteManyByID
+		},
 
-			handler: controller.getSchoolStats
-		},
+		// Dynamic routes with more specific paths
 		{
-			path: '/custom',
-			method: 'post',
-			validations: [
-				invalidate([
-					getDynamicKey(DynamicKey.FEE, '*'),
-					getDynamicKey(DynamicKey.STUDENTS, '*')
-				])
-			],
-			handler: controller.makeCustomPayment
-		},
-		{
-			path: '/multi-insert',
-			method: 'post',
-			validations: [
-				validate(schema.createPaymentsBulk),
-				invalidate([
-					getDynamicKey(DynamicKey.FEE, '*'),
-					getDynamicKey(DynamicKey.STUDENTS, '*')
-				])
-			],
-			handler: controller.createPaymentsBulk
-		},
-		{
-			path: '/',
+			path: '/data/grouped/:date',
 			method: 'get',
-			handler: controller.getPayments
-		},
-		{
-			path: '/id/:id',
-			method: 'get',
-			handler: controller.getPaymentById
-		},
-		{
-			path: '/stats',
-			method: 'get',
-			handler: controller.getPaymentById
+			validations: [schema.excel],
+			handler: getPaymentsExcel
 		},
 		{
 			path: '/stats/id/:id',
 			method: 'get',
 			validations: [validate(schema.payId)],
 			handler: controller.getPaymentById
+		},
+		{
+			path: '/bill-cycle/:billingCycle',
+			method: 'get',
+			validations: [schema.billingCycle],
+			handler: controller.getFeesByCycle
+		},
+		{
+			path: '/stat/:payId',
+			method: 'get',
+			validations: [schema.schoolStats],
+			handler: controller.getSchoolStatsBySession
+		},
+		{
+			path: '/student/:studentId',
+			method: 'get',
+			handler: controller.getPaymentsByStudentId
 		},
 		{
 			path: '/class/:className',
@@ -143,6 +146,11 @@ const getRouteMap = (): RouteMap[] => {
 			path: '/payId/:payId',
 			method: 'get',
 			handler: controller.getMonthsPayments
+		},
+		{
+			path: '/id/:id',
+			method: 'get',
+			handler: controller.getPaymentById
 		},
 		{
 			path: '/id/:id',
@@ -164,26 +172,23 @@ const getRouteMap = (): RouteMap[] => {
 			],
 			handler: controller.updatePayment
 		},
+
+		// Root routes last
 		{
-			path: '/reset',
-			method: 'delete',
+			path: '/',
+			method: 'post',
 			validations: [
-				attachRoles(Roles.ADMIN),
-				authorize(Roles.ADMIN),
-				invalidate(getDynamicKey(DynamicKey.FEE, 'all')),
-				invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT'))
+				invalidateOnSuccess([
+					getDynamicKey(DynamicKey.FEE, '*'),
+					getDynamicKey(DynamicKey.STUDENTS, '*')
+				])
 			],
-			handler: controller.resetCollection
+			handler: controller.createPayment
 		},
 		{
-			path: '/delete',
-			method: 'delete',
-			validations: [
-				validate(schema.removeBulk),
-				invalidate(getDynamicKey(DynamicKey.FEE, '*')),
-				invalidate(getDynamicKey(DynamicKey.FEE, 'STATCURRENT'))
-			],
-			handler: controller.deleteManyByID
+			path: '/',
+			method: 'get',
+			handler: controller.getPayments
 		}
 	];
 };

@@ -36,6 +36,7 @@ export type Student = Document & {
 		remarks: string[];
 	};
 	paymentHistory: Payments[];
+	documents?: StudentDocument[];
 	promotionHistory: StudentPromotionHistory[];
 	version: number;
 };
@@ -56,4 +57,17 @@ export type StudentPromotionHistory = {
 	promotionDate: Date;
 	oldTuitionFee: number;
 	newTuitionFee: number;
+};
+
+export type StudentDocument = {
+	_id: ObjectId | string;
+	fileName: string;
+	originalName: string;
+	fileType: string;
+	filePath: string;
+	fileSize: number;
+	uploadDate: Date;
+	documentType: 'id' | 'certificate' | 'photo' | 'other' | 'application';
+	description?: string;
+	exists?: boolean;
 };

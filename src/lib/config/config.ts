@@ -37,6 +37,7 @@ class Config {
 			disengage: process.env.DISENGAGE || 'false',
 			isDocker: this.getNodeEnv() === 'docker',
 			isDevelopment: this.getNodeEnv() === 'development',
+			showScope: process.env.SHOW_SCOPE || false,
 			// production: this.getNodeEnv() === 'production',
 			app: {
 				port: normalizePort(process.env.PORT || '3000'), // Provide a default port

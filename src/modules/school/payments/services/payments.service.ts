@@ -8,39 +8,42 @@ import {
 	generateQRCode,
 	sortStudentsByClassAndSection
 } from '@/lib/utils/utils';
+import InvoiceIdGenerator from '@/services/generators/invoice.generator';
 import { InvoiceProps } from '@/types';
 import {
 	addWeeks,
+	endOfDay,
 	endOfMonth,
 	isAfter,
 	isBefore,
 	isWithinInterval,
+	startOfDay,
 	startOfMonth,
 	startOfWeek
 } from 'date-fns';
-import { Student } from '../students/student.interface';
-import StudentModel from '../students/student.model';
+import { Student } from '../../students/student.interface';
+import StudentModel from '../../students/student.model';
 import {
 	ClassSectionData,
-	ClassSectionStats,
 	EnhancedPayment,
 	PaymentCycleResponse,
 	WeeklyCollection
-} from './payment.interfaces';
-import Payments from './payment.model';
+} from '../payment.interfaces';
+import { ClassSectionStats } from '../payment.interfaces';
+import Payments from '../payment.model';
 import {
 	generateClassSectionKey,
-	generateSerial,
 	getBillingMonthDate,
 	getPayId,
 	parsePayId
-} from './payment.utils';
+} from '../payment.utils';
 
 const logger = new Logger(__filename);
 
 class PaymentService {
 	async getNextInvoiceId(): Promise<string> {
-		return await generateSerial();
+		const invoiceIdGenerator = new InvoiceIdGenerator('invoice', 3, 3);
+		return await invoiceIdGenerator.generateId();
 	}
 	/*===============( GENERATE INVOICE _ )==============================*/
 	async generateInvoice(paymentId: string, studentId: string) {
@@ -614,6 +617,29 @@ class PaymentService {
 			payments: enhancedPayments,
 			summary
 		};
+	}
+	/*===============( GET VALID DATE RANGE )==============================*/
+	async getValidDateRange() {
+		const earliestPayment = await Payments.findOne()
+			.sort({ paymentDate: 1 })
+			.select('paymentDate')
+			.lean();
+		const latestPayment = await Payments.findOne()
+			.sort({ paymentDate: -1 })
+			.select('paymentDate')
+			.lean();
+
+		if (!earliestPayment || !latestPayment) {
+			throw new BadRequestError('No payment records found');
+		}
+
+		const validDateRange = {
+			earliestDate: startOfDay(earliestPayment.paymentDate),
+			latestDate: endOfDay(latestPayment.paymentDate),
+			defaultStartDate: startOfMonth(new Date()),
+			defaultEndDate: endOfDay(new Date())
+		};
+		return validDateRange;
 	}
 }
 

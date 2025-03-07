@@ -23,10 +23,13 @@ export const initializeServer = {
 			const uploadsDir = getUploadsDir();
 			const imagesDir = path.join(uploadsDir, 'images');
 			const documentsDir = path.join(uploadsDir, 'documents');
+			const studentsDir = path.join(uploadsDir, 'students');
 
+			// fs-extra's ensureDir function checks if a directory exists, and creates it if it doesn't
 			await fs.ensureDir(uploadsDir);
 			await fs.ensureDir(imagesDir);
 			await fs.ensureDir(documentsDir);
+			await fs.ensureDir(studentsDir);
 
 			logger.info('Ensured that upload directories exist.');
 		} catch (error) {

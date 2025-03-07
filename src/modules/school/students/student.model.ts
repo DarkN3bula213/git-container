@@ -1,10 +1,10 @@
 import { Logger as log } from '@/lib/logger';
+import { generateUniqueRollNumber } from '@/services/generators/roll.generator';
 import { type Model, Schema, Types, model } from 'mongoose';
 import ClassModel from '../classes/class.model';
 import { IClass } from '../classes/interfaces';
 import paymentModel from '../payments/payment.model';
-import type { Student } from './student.interface';
-import { generateUniqueId } from './student.utils';
+import type { Student, StudentDocument } from './student.interface';
 
 const Logger = new log(__filename);
 
@@ -18,7 +18,38 @@ interface IStudentModel extends Model<Student>, IStudentStaticMethods {
 	getClassIdByName(className: string): Promise<Types.ObjectId>;
 	insertManyWithId(docs: Student[]): Promise<Types.ObjectId[]>;
 }
-
+const documentSchema = new Schema<StudentDocument>({
+	fileName: {
+		type: String,
+		required: true
+	},
+	originalName: {
+		type: String,
+		required: true
+	},
+	fileType: {
+		type: String,
+		required: true
+	},
+	filePath: {
+		type: String,
+		required: true
+	},
+	fileSize: {
+		type: Number,
+		required: true
+	},
+	uploadDate: {
+		type: Date,
+		default: Date.now
+	},
+	documentType: {
+		type: String,
+		enum: ['id', 'certificate', 'photo', 'other'],
+		default: 'other'
+	},
+	description: String
+});
 const studentSchema = new Schema<Student>(
 	{
 		name: {
@@ -143,6 +174,7 @@ const studentSchema = new Schema<Student>(
 			remarks: [String],
 			isDeleted: Boolean
 		},
+		documents: [documentSchema],
 		paymentHistory: [
 			{
 				paymentId: {
@@ -170,6 +202,7 @@ const studentSchema = new Schema<Student>(
 			}
 		]
 	},
+
 	{
 		timestamps: true,
 		versionKey: 'version',
@@ -193,7 +226,8 @@ const studentSchema = new Schema<Student>(
 
 						student.classId = classDoc._id;
 						student.tuition_fee = classDoc.fee;
-						student.registration_no = await generateUniqueId();
+						student.registration_no =
+							await generateUniqueRollNumber();
 						return student;
 					})
 				);
@@ -219,19 +253,47 @@ studentSchema.statics.bulkInsert = async function (students) {
 		}
 		student.classId = classDoc._id;
 		student.tuition_fee = classDoc.fee;
-		student.registration_no = await generateUniqueId();
+		student.registration_no = await generateUniqueRollNumber();
 	}
 	// Once the additional operations or validations are done, you can use insertMany to perform the bulk insert
 
 	return this.insertMany(students);
 };
+// studentSchema.pre('save', async function (next) {
+// 	if (this.isNew) {
+// 		this.registration_no = await generateUniqueId();
+// 	}
+// 	next(); // Call next to pass control to the next middleware
+// });
 studentSchema.pre('save', async function (next) {
-	if (this.isNew) {
-		this.registration_no = await generateUniqueId();
+	try {
+		// Only generate registration_no if this is a new document and doesn't already have one
+		if (this.isNew && !this.registration_no) {
+			// Get the session from the document if it exists
+			let session;
+			try {
+				session = this.$session();
+				// Check if session is valid and active
+				if (session && !session.hasEnded) {
+					this.registration_no =
+						await generateUniqueRollNumber(session);
+				} else {
+					// If no valid session, generate without one
+					this.registration_no = await generateUniqueRollNumber();
+				}
+			} catch (sessionError) {
+				const error = sessionError as Error;
+				// If there's an error accessing the session, generate without one
+				Logger.warn(`Error accessing session: ${error.message}`);
+				this.registration_no = await generateUniqueRollNumber();
+			}
+		}
+		next();
+	} catch (error: any) {
+		Logger.error(`Error generating registration number: ${error.message}`);
+		next(error);
 	}
-	next(); // Call next to pass control to the next middleware
 });
-
 studentSchema.pre('save', async function (next) {
 	try {
 		const populatedStudent = await ClassModel.findOne({

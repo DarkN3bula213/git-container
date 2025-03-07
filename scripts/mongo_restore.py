@@ -110,4 +110,4 @@ if __name__ == "__main__":
     logger = setup_logging()
     main()
 
-    # python mongo_restore.py hps_backend-mongo1-1 /Users/spacen3b/Developer/hps_backend/backups/backup-2024-11-29.gz
+    # python mongo_restore.py git-container-mongo1-1 /Users/ispeakcode/Developer/backup/backup-2025-02-26.gz

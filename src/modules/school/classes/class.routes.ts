@@ -6,13 +6,17 @@ import { RouteMap } from '@/types/routes';
 import { Router } from 'express';
 import * as controller from './class.controller';
 import * as schema from './class.schema';
-import { getClassesWithSectionCounts, updateClassFields } from './controllers';
+import {
+	getAllClasses,
+	removeClassSections,
+	updateClassFields
+} from './controllers';
 
 const router = Router();
 
 router
 	.route('/')
-	.get(getClassesWithSectionCounts)
+	.get(getAllClasses)
 	.post(
 		validate(schema.singleClass),
 		invalidate([DynamicKey.CLASS, '*']),
@@ -64,6 +68,20 @@ const routes = (): RouteMap[] => {
 			method: 'post',
 			validations: [invalidate([DynamicKey.CLASS, '*'])],
 			handler: controller.addClassTeacher
+		} /*<----------------------------------------(Section Routes) */,
+		{
+			path: '/sections/:classId',
+			method: 'put',
+			validations: [invalidate([DynamicKey.CLASS, '*'])],
+			handler: updateClassFields
+		},
+
+		/*<----------------------------------------(Section Routes) */
+		{
+			path: '/sections/:classId',
+			method: 'delete',
+			validations: [invalidateOnSuccess([DynamicKey.CLASS, '*'])],
+			handler: removeClassSections
 		}
 	];
 };

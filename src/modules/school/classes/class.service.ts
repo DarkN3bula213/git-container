@@ -302,5 +302,11 @@ class ClassService {
 			return updatedClass;
 		});
 	}
+	public async getAllClasses(): Promise<IClass[]> {
+		return withTransaction(async (session) => {
+			const classes = await ClassModel.find({}).session(session).exec();
+			return classes;
+		});
+	}
 }
 export default ClassService.getInstance(ClassModel);

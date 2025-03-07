@@ -59,25 +59,26 @@ const getFormattedTimestamp = () => {
 
 // Console formatter for development
 const consoleFormat = winston.format.combine(
-	winston.format.errors({ stack: true }),
+	winston.format.errors({ stack: false }),
 	winston.format.timestamp(),
 	winston.format.printf((info) => {
 		const color = getColor(info.level);
 		const level = color(info.level.toUpperCase());
 		const timestamp = getFormattedTimestamp();
-		const scope = info.scope
-			? colors.cyan(
-					` [${path.basename(path.dirname(info.scope))}/${path.basename(info.scope)}]`
-				)
-			: '';
+		const scope =
+			config.showScope && info.scope
+				? colors.cyan(
+						` [${path.basename(path.dirname(info.scope))}/${path.basename(info.scope)}]`
+					)
+				: '';
 
 		let message = info.message;
 
 		if (typeof message === 'object') {
 			message = formatObject(info.scope, message);
 		}
-		const stack = info.stack ? `\n${colors.gray(info.stack)}` : '';
-		return `${timestamp} [${level}]${scope}: ${message}${stack}`;
+		// const stack = info.stack ? `\n${colors.gray(info.stack)}` : '';
+		return `${timestamp} [${level}]${scope}: ${colors.bold(colors.white(message))}`;
 	})
 );
 
@@ -119,8 +120,8 @@ const logger = winston.createLogger({
 			maxSize: '20m',
 			maxFiles: '14d',
 			format: fileFormat
-		}),
-		new winston.transports.Console({ format: consoleFormat })
+		})
+		// new winston.transports.Console({ format: consoleFormat })
 	],
 	rejectionHandlers: [
 		new DailyRotateFile({
@@ -131,8 +132,8 @@ const logger = winston.createLogger({
 			maxSize: '20m',
 			maxFiles: '14d',
 			format: fileFormat
-		}),
-		new winston.transports.Console({ format: consoleFormat })
+		})
+		// new winston.transports.Console({ format: consoleFormat })
 	],
 	exitOnError: false
 });
@@ -165,10 +166,7 @@ export class Logger {
 		...meta: any[]
 	) {
 		if (message instanceof Error) {
-			this.log('error', message.message, [
-				...meta,
-				{ stack: message.stack }
-			]);
+			this.log('error', message.message, [...meta, { stack: undefined }]);
 		} else {
 			this.log('error', message, meta);
 		}
