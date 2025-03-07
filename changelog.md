@@ -2,36 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [1.9.0](https://github.com/DarkN3bula213/git-container/compare/v1.8.0...v1.9.0) (2025-03-07)
-
-
-### Features
-
-* add database backup and restore functionality ([d7ba097](https://github.com/DarkN3bula213/git-container/commit/d7ba097b2ec7b8b78c93c2026c8f80bc3c6816c7))
-* add invoice ID generation and export functionality ([5d3c2ec](https://github.com/DarkN3bula213/git-container/commit/5d3c2ec2b131cf3d699903c8f81a7013c35f4c72))
-* enhance email configuration and error handling ([97c3dcd](https://github.com/DarkN3bula213/git-container/commit/97c3dcde7580f7236b40d12b5f0aba019a7b189d))
-* enhance migration infrastructure and class management ([e37dbe3](https://github.com/DarkN3bula213/git-container/commit/e37dbe3436d356e212c2cc83c612d47b829a978f))
-* enhance student document management and admission process ([a37c93f](https://github.com/DarkN3bula213/git-container/commit/a37c93f51bf74f61cff85ffde1bde993c6595120))
-* improve migration, caching, and logging infrastructure ([769266d](https://github.com/DarkN3bula213/git-container/commit/769266d94a1de2e2faee2d59b16bd76cb5cc3975))
-* refactor exam result and subject migration infrastructure ([ad8497d](https://github.com/DarkN3bula213/git-container/commit/ad8497d7eb774408de7b8857bbb7ea8a0de3baac))
-
-
-### Bug Fixes
-
-* build ([a6919b1](https://github.com/DarkN3bula213/git-container/commit/a6919b1baa0c664813635943bc3319c93fb371d0))
-* deployment v 2 ([35b6a10](https://github.com/DarkN3bula213/git-container/commit/35b6a105817cafa24ab692875e024fde17ffba61))
-* deployment v1 ([b914576](https://github.com/DarkN3bula213/git-container/commit/b914576323f3aa53399aa9f5a6841e7d4217fc89))
-* deployment v4 ([599b2c0](https://github.com/DarkN3bula213/git-container/commit/599b2c09db448982324d773b787c268f1b281305))
-* email change ([c76301b](https://github.com/DarkN3bula213/git-container/commit/c76301b8e9782f71c33feb2735bb8dd0fcc1f866))
-
-
-### Chores
-
-* added staging origin. - updated class model, schema, subject service and payment summary ([d4a735b](https://github.com/DarkN3bula213/git-container/commit/d4a735bedead4cf872f592ff39cb2414a0662c32))
-* docker container external access ([d52e914](https://github.com/DarkN3bula213/git-container/commit/d52e91448898763988018d2195b55c3662d2bb37))
-* docker container external access 2 ([3d4ed09](https://github.com/DarkN3bula213/git-container/commit/3d4ed09d087eb37ca70e812a7394f799e88dbe40))
-* **release:** 1.9.0 ([5657796](https://github.com/DarkN3bula213/git-container/commit/56577965a4c99607656df626cf082d94baaea43a))
-
 ## 1.5.0 (2025-01-07)
 
 

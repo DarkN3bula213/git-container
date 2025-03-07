@@ -1,17 +1,20 @@
+import { ConfigType } from '@/types/config';
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
 import {
 	getDecodedOsEnv,
 	getDevelopmentEnv,
-	getOsEnv, // getOsEnvOptional,
+	getOsEnv,
+	getOsEnvOptional, // getOsEnvOptional,
 	normalizePort,
+	toBool,
 	toNumber
 } from './utils';
 
 // First, create a Config class
 class Config {
 	private static instance: Config;
-	private readonly config: any;
+	private readonly config: ConfigType;
 
 	private constructor() {
 		// Load environment variables first
@@ -37,10 +40,10 @@ class Config {
 			disengage: process.env.DISENGAGE || 'false',
 			isDocker: this.getNodeEnv() === 'docker',
 			isDevelopment: this.getNodeEnv() === 'development',
-			showScope: process.env.SHOW_SCOPE || false,
+			showScope: toBool(process.env.SHOW_SCOPE || 'false'),
 			// production: this.getNodeEnv() === 'production',
 			app: {
-				port: normalizePort(process.env.PORT || '3000'), // Provide a default port
+				port: Number(normalizePort(process.env.PORT || '3000')), // Provide a default port
 				mappedIP: getDevelopmentEnv('MAPPED_IP', '::ffff:127.0.0.1')
 			},
 			cors: {
@@ -77,13 +80,20 @@ class Config {
 			log: {
 				level: process.env.LOG_LEVEL || 'debug',
 				directory:
-					process.env.LOG_DIR || path.join(process.cwd(), 'logs')
+					process.env.LOG_DIR || path.join(process.cwd(), 'logs'),
+				logtail: process.env.LOGTAIL_TOKEN
+					? {
+							token: getOsEnvOptional('LOGTAIL_TOKEN'),
+							endpoint:
+								'https://s1203342.eu-nbg-2.betterstackdata.com'
+						}
+					: undefined
 			},
 			mongo: {
 				host: getOsEnv('DB_HOST'),
 				user: getOsEnv('DB_USER'),
 				pass: getOsEnv('DB_PASSWORD'),
-				port: getOsEnv('DB_PORT'),
+				port: Number(getOsEnv('DB_PORT')),
 				database: getOsEnv('DB_NAME'),
 				pool: {
 					min: toNumber(getOsEnv('DB_POOL_MIN')),
@@ -211,4 +221,4 @@ class Config {
 }
 
 // Export a frozen config object
-export const config = Object.freeze(Config.getInstance().get());
+export const config: ConfigType = Object.freeze(Config.getInstance().get());

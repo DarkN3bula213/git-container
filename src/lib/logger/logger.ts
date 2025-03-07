@@ -1,3 +1,5 @@
+import { Logtail } from '@logtail/node';
+import { LogtailTransport } from '@logtail/winston';
 import colors from 'colors';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -78,7 +80,7 @@ const consoleFormat = winston.format.combine(
 			message = formatObject(info.scope, message);
 		}
 		// const stack = info.stack ? `\n${colors.gray(info.stack)}` : '';
-		return `${timestamp} [${level}]${scope}: ${colors.bold(colors.white(message))}`;
+		return `${timestamp} [${level}]${scope}: ${colors.bgBlack(colors.white(message))}`;
 	})
 );
 
@@ -89,6 +91,12 @@ const fileFormat = winston.format.combine(
 	winston.format.json()
 );
 
+const getLogtailTransport = () => {
+	const logtail = new Logtail('ijqXWHKK4H43zyaNp2yFrKy1', {
+		endpoint: 'https://s1203342.eu-nbg-2.betterstackdata.com'
+	});
+	return new LogtailTransport(logtail);
+};
 // Transport configurations
 const transports = [
 	new winston.transports.Console({
@@ -104,7 +112,8 @@ const transports = [
 		maxSize: '20m',
 		maxFiles: '14d',
 		format: fileFormat
-	})
+	}),
+	getLogtailTransport()
 ];
 
 // Create base logger

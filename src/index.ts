@@ -31,7 +31,7 @@ async function logServerStartup(): Promise<void> {
 		hour12: false
 	}).format(date);
 
-	logger.warn('🚀 Server started', {
+	logger.warn('🚀 Server started 2', {
 		port: config.app.port,
 		node: banner,
 		date: format(date, 'PPP'),
