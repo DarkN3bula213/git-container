@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.11.1](https://github.com/DarkN3bula213/git-container/compare/v1.11.0...v1.11.1) (2025-03-13)
+
+
+### Code Refactoring
+
+* optimize Dockerfile and enhance GitHub Actions workflow ([79d039e](https://github.com/DarkN3bula213/git-container/commit/79d039eecd9ffff68fbb671113f6db37876e5f86))
+
 ## [1.11.0](https://github.com/DarkN3bula213/git-container/compare/v1.8.0...v1.11.0) (2025-03-13)
 
 
