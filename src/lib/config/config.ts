@@ -84,7 +84,7 @@ export const config = {
 		host: env.REDIS_HOST,
 		user: env.REDIS_USER,
 		pass: env.REDIS_PASS,
-		port: env.REDIS_PORT,
+		// port: env.REDIS_PORT,
 		uri: env.REDIS_URL
 	},
 

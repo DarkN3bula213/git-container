@@ -50,7 +50,7 @@ export const envSchema = z.object({
 	REDIS_HOST: z.string(),
 	REDIS_USER: z.string(),
 	REDIS_PASS: z.string(),
-	REDIS_PORT: z.coerce.number(),
+	// REDIS_PORT: z.coerce.number(),
 	REDIS_URL: z.string(),
 
 	// JWT Tokens
@@ -111,7 +111,7 @@ export const env = envSchema.parse({
 	REDIS_HOST: requiredVar('REDIS_HOST'),
 	REDIS_USER: requiredVar('REDIS_USER'),
 	REDIS_PASS: requiredVar('REDIS_PASS'),
-	REDIS_PORT: requiredVar('REDIS_PORT'),
+	// REDIS_PORT: requiredVar('REDIS_PORT'),
 	REDIS_URL: requiredVar('REDIS_URL'),
 
 	JWT_SECRET: requiredVar('JWT_SECRET'),
