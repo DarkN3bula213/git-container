@@ -4,6 +4,32 @@ on:
     push:
         branches:
             - main
+    workflow_dispatch:
+        inputs:
+            rebuild_all:
+                description: 'Rebuild all containers'
+                required: false
+                default: 'false'
+                type: choice
+                options:
+                    - 'true'
+                    - 'false'
+            rebuild_nginx:
+                description: 'Rebuild nginx container'
+                required: false
+                default: 'false'
+                type: choice
+                options:
+                    - 'true'
+                    - 'false'
+            rebuild_mongo:
+                description: 'Rebuild mongo container'
+                required: false
+                default: 'false'
+                type: choice
+                options:
+                    - 'true'
+                    - 'false'
 
 jobs:
     deploy:
@@ -27,17 +53,8 @@ jobs:
                   ssh -o StrictHostKeyChecking=no root@24.199.76.209 << EOF
                     cd /var/www/app/git-container/
 
-                    # Stop all containers and remove networks
-                    docker-compose down -v --remove-orphans
-
-                    # Remove any lingering networks
-                    docker network prune -f
-
-                    # Clean builder cache
-                    docker builder prune -af
-
-                    # Start fresh
-                    docker-compose up -d --build
+                    # Only rebuild the app container by default
+                    docker-compose up -d --build app
                     
                     # Verify deployment
                     docker-compose ps
