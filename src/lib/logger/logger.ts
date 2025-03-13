@@ -92,7 +92,7 @@ const fileFormat = winston.format.combine(
 );
 
 const getLogtailTransport = () => {
-	const logtail = new Logtail('ijqXWHKK4H43zyaNp2yFrKy1', {
+	const logtail = new Logtail(config.log.logtail, {
 		endpoint: 'https://s1203342.eu-nbg-2.betterstackdata.com'
 	});
 	return new LogtailTransport(logtail);

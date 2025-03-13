@@ -183,7 +183,7 @@ const studentSchema = new Schema<Student>(
 				},
 				payID: String,
 				payId: String,
-				invoiceId: {
+				feeId: {
 					type: String
 				}
 			}

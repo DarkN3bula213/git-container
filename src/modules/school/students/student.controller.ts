@@ -59,10 +59,47 @@ export const getStudentByClass = asyncHandler(async (req, res) => {
 export const getStudentsById = asyncHandler(async (req, res) => {
 	const { id } = req.params;
 	const students = await Student.findById(id)
-		.populate('paymentHistory.paymentId')
+		.populate({
+			path: 'paymentHistory.paymentId',
+			transform: (doc) => {
+				if (!doc) return null;
+				// Create a clean payment object without redundant fields
+				const payment = {
+					...doc,
+					paymentId: doc._id, // Keep paymentId for reference
+					_id: undefined, // Remove redundant _id
+					__v: undefined // Remove version
+				};
+				return payment;
+			}
+		})
+		.lean()
 		.exec();
 
-	new SuccessResponse('Students fetched successfully', students).send(res);
+	if (!students) {
+		throw new BadRequestError('Student not found');
+	}
+
+	// Transform the payment history to remove redundant fields
+	const transformedStudent = {
+		...students,
+		paymentHistory: students.paymentHistory.map((payment) => {
+			const paymentData = payment.paymentId as Record<string, any>;
+			return {
+				...paymentData,
+				paymentId: paymentData._id, // Keep the original payment ID
+				payId: payment.payId,
+				feeId: payment.feeId || paymentData.feeId,
+				_id: undefined, // Remove redundant _id
+				__v: undefined // Remove version
+			};
+		})
+	};
+
+	new SuccessResponse(
+		'Students fetched successfully',
+		transformedStudent
+	).send(res);
 });
 
 /*<!-- 4. Get ----------------------------( sortedByClassName )>*/

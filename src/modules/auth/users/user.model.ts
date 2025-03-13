@@ -223,8 +223,10 @@ schema.virtual('isAdmin').get(async function (this: User) {
 	if (!adminId) return false;
 
 	// Check if roles array includes the admin role ID
-	return this.roles.some(
-		(roleId) => roleId.toString() === adminId.toString()
+	return (
+		this.roles?.some(
+			(roleId) => roleId?.toString() === adminId?.toString()
+		) ?? false
 	);
 });
 

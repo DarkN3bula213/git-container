@@ -45,6 +45,7 @@ type Payments = {
 	paymentId: ObjectId;
 	payID: string;
 	payId: string;
+	feeId?: string;
 };
 
 export type StudentPromotionHistory = {

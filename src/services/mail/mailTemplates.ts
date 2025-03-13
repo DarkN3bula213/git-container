@@ -1,3 +1,4 @@
+import { approvalRequest } from './templates/approvalRequest';
 import { paymentSummary } from './templates/paymentSummary';
 import { reIssueTokenTemplate } from './templates/reissueToken';
 import { resetPasswordTemplate } from './templates/resetPassword';
@@ -85,7 +86,8 @@ const templates = {
 	classSectionStatus: CLASS_SECTION_STATUS_TEMPLATE,
 	studentStatusRow: STUDENT_STATUS_ROW_TEMPLATE,
 	deploymentSuccess: deploymentSuccess,
-	verificationLink: verificationLinkTemplate
+	verificationLink: verificationLinkTemplate,
+	approvalRequest: approvalRequest.requestApprovalTemplate
 } as const;
 
 export default templates;

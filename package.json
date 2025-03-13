@@ -110,7 +110,8 @@
 		"winston-daily-rotate-file": "^4.7.1",
 		"winston-loki": "^6.1.3",
 		"xss": "^1.0.15",
-		"zlib": "^1.0.5"
+		"zlib": "^1.0.5",
+		"zod": "^3.24.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.7.3",
